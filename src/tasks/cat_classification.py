@@ -1,41 +1,37 @@
 import numpy as np
 import tensorflow as tf
 
+from src import config
+from src.figs import make_classifier_figs
 
-class CatClassifier:  # TODO use different instance for each training?
-    def __init__(self, config):
-        self.config = config
-        self.x, self.y = self.make_input()
 
-    def make_input(self):
-        probe_cat_list = [self.hub.probe_store.probe_cat_dict[probe]
-                          for probe in self.hub.probe_store.types]
-        # make rnn_input
-        if self.config.rep_type == 'proto':
-            multi_probe_acts_df = self.get_multi_probe_prototype_acts_df()
-            x_data = multi_probe_acts_df.values
-            y_data = np.zeros(x_data.shape[0])
-            for n, cat in enumerate(probe_cat_list):
-                y_data[n] = self.hub.probe_store.cats.index(cat)
-            probe_freq_list = [np.sum(self.hub.term_part_freq_dict[probe]) for probe in
-                               self.hub.probe_store.types]
-            probe_freq_list = np.clip(probe_freq_list, 0, num_acts_samples)
-            x_data = np.repeat(x_data, probe_freq_list, axis=0)  # repeat according to token frequency
-            y_data = np.repeat(y_data, probe_freq_list, axis=0)
-        else:
-            multi_probe_acts_df = self.get_multi_probe_exemplar_acts_df(num_acts_samples)
-            x_data = multi_probe_acts_df.values
-            y_data = np.zeros(x_data.shape[0], np.int)
-            for n, probe_id in enumerate(multi_probe_acts_df.index.tolist()):
-                probe = probe_store.types[probe_id]
-                cat = probe_store.probe_cat_dict[probe]
-                y_data[n] = probe_store.cats.index(cat)
-        if shuffle_cats:
+class CatClassification:
+    def __init__(self, cat_type):
+        self.cat_type = cat_type
+
+    def save_figs(self):  # TODO
+        figs = make_classifier_figs()
+
+    def train_and_score_expert(self, w2e):  # TODO
+        self.train_expert(w2e)
+        res = self.score_expert()
+        return res
+
+    def make_input(self, x):
+        y = np.zeros(x.shape[0])
+        for n, probe in enumerate(probes):
+            y[n] = p2c[probe]
+        probe_freq_list = [np.sum(self.hub.term_part_freq_dict[probe]) for probe in
+                           self.hub.probe_store.types]
+        probe_freq_list = np.clip(probe_freq_list, 0, config.Categorization.num_acts_samples)
+        x = np.repeat(x, probe_freq_list, axis=0)  # repeat according to token frequency
+        y = np.repeat(y, probe_freq_list, axis=0)
+        if config.Categorization.shuffle_cats:
             print('Shuffling category assignment')
-            np.random.shuffle(y_data)
-        return x_data, y_data
+            np.random.shuffle(y)
+        return x, y
 
-    def run_classifier(self, configs):
+    def train_expert(self, configs):
         print('Classifying hidden representations...')
         # load_data
         input_dim = x_data.shape[1]
@@ -169,4 +165,66 @@ class CatClassifier:  # TODO use different instance for each training?
                  cm=cm,
                  x_mat=x_mat)
 
+    @staticmethod
+    def score_novice(w2e, metric='ba'):
+        def calc_p_and_r(thr):
+            hits = np.zeros(hub.probe_store.num_probes, float)
+            misses = np.zeros(hub.probe_store.num_probes, float)
+            fas = np.zeros(hub.probe_store.num_probes, float)
+            crs = np.zeros(hub.probe_store.num_probes, float)
+            # calc hits, misses, false alarms, correct rejections
+            for i in range(hub.probe_store.num_probes):
+                probe1 = hub.probe_store.types[i]
+                cat1 = hub.probe_store.probe_cat_dict[probe1]
+                for j in range(hub.probe_store.num_probes):
+                    if i != j:
+                        probe2 = hub.probe_store.types[j]
+                        cat2 = hub.probe_store.probe_cat_dict[probe2]
+                        sim = probe_simmat[i, j]
+                        if cat1 == cat2:
+                            if sim > thr:
+                                hits[i] += 1
+                            else:
+                                misses[i] += 1
+                        else:
+                            if sim > thr:
+                                fas[i] += 1
+                            else:
+                                crs[i] += 1
+            avg_probe_recall_list = np.divide(hits + 1, (hits + misses + 1))  # + 1 prevents inf and nan
+            avg_probe_precision_list = np.divide(crs + 1, (crs + fas + 1))
+            return avg_probe_precision_list, avg_probe_recall_list
 
+        def calc_probes_fs(thr):
+            precision, recall = calc_p_and_r(thr)
+            probe_fs_list = 2 * (precision * recall) / (precision + recall)  # f1-score
+            res = np.mean(probe_fs_list)
+            return res
+
+        def calc_probes_ba(thr):
+            precision, recall = calc_p_and_r(thr)
+            probe_ba_list = (precision + recall) / 2  # balanced accuracy
+            res = np.mean(probe_ba_list)
+            return res
+
+        # make thr range
+        probe_simmat_mean = np.asscalar(np.mean(probe_simmat))
+        thr1 = max(0.0, round(min(0.9, round(probe_simmat_mean, 2)) - 0.1, 2))  # don't change
+        thr2 = round(thr1 + 0.2, 2)
+        # use bayes optimization to find best_thr
+        print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
+        gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
+        if metric == 'fs':
+            fn = calc_probes_fs
+        elif metric == 'ba':
+            fn = calc_probes_ba
+        else:
+            raise AttributeError('rnnlab: Invalid arg to "metric".')
+        bo = BayesianOptimization(fn, {'thr': (thr1, thr2)}, verbose=True)
+        bo.explore({'thr': [probe_simmat_mean]})
+        bo.maximize(init_points=2, n_iter=config.Categorization.NUM_BAYES_STEPS,
+                    acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
+        best_thr = bo.res['max']['max_params']['thr']
+        # use best_thr
+        result = fn(best_thr)
+        return result
