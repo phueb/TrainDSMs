@@ -23,23 +23,28 @@ exp_scores_mat = np.zeros((num_embedders, num_tasks))
 # train and score novices and experts on task_data
 for i, embedder in enumerate(embedders):
     # embed
-    if embedder.has_embeddings() and not config.Embedder.retrain:
+    if embedder.has_embeddings() and not config.Embeddings.retrain:
         print('Found {} in {}'.format(embedder.embeddings_fname, embedder.embeddings_dir))
         w2e = embedder.load_w2e()
     else:
         print('Did not find {} in {}. Will try to train.'.format(embedder.embeddings_fname, embedder.embeddings_dir))
-        w2e = embedder.train_w2e()
-        if config.Embedder.save:
-            embedder.save_w2e(w2e)
+        w2e = embedder.train()
+        if config.Embeddings.save:
+            embedder.save(w2e)
 
     # tasks
     for j, task in enumerate(tasks):  # TODO different probes for each task?
+        # check embeddings
+        for p in task.probes:
+            if p not in w2e.keys():
+                raise KeyError('Probe "{}" is not in w2e.'.format(p))
         # similarities
         probe_simmat = make_probe_simmat(w2e, task.probes, config.Global.sim_method)
         # score
-        nov_scores_mat[i, j] = task.score_novice(probe_simmat)  # novice score
-        exp_scores_mat[i, j] = task.train_and_score_expert(w2e)  # expert score
+        nov_scores_mat[i, j] = task.score_novice(probe_simmat)  # TODO force common API between tasks
+        exp_scores_mat[i, j] = task.train_and_score_expert(w2e)
         # figs
+        task.save_figs(w2e)
         # TODO save all figs associated with task to disk
 
 

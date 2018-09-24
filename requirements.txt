@@ -1,5 +1,8 @@
+pandas
+sortedcontainers
 scikit-learn
 tensorflow
 numpy
 dotenv
 matplotlib
+bayesian-optimization

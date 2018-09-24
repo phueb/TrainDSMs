@@ -14,7 +14,7 @@ class EmbedderBase(object):
 
     @property
     def embeddings_dir(self):
-        return config.Embedder.dir
+        return config.Embeddings.dir
 
     def has_embeddings(self):
         p = self.embeddings_dir / self.embeddings_fname
@@ -25,7 +25,7 @@ class EmbedderBase(object):
         w2e = {probe: embedding for probe, embedding in zip(mat[:, 0], mat[:, 1:].astype('float'))}
         return w2e
 
-    def save_w2e(self, w2e):  # TODO serializing is faster (pickle, numpy)
+    def save(self, w2e):  # TODO serializing is faster (pickle, numpy)
         p = self.embeddings_dir / self.embeddings_fname
         with p.open('w') as f:
             for probe, embedding in sorted(w2e.items()):

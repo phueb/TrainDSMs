@@ -6,13 +6,13 @@ from src import config
 
 def make_probe_simmat(w2e, probes, method):
     # filter probes
-    num_probes = probes
+    num_probes = len(probes)
     reduced_embeddings_mat = np.zeros((num_probes, config.Global.embed_size))
-    for i in num_probes:
+    for i in range(num_probes):
         reduced_embeddings_mat[i] = w2e[probes[i]]
     # sim
     if method == 'cosine':
         res = cosine_similarity(reduced_embeddings_mat)
     else:
-        raise NotImplemented
+        raise NotImplemented  # TODO how to convertt euclidian distance to sim measure?
     return res
