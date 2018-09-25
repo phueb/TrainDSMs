@@ -3,6 +3,6 @@ sortedcontainers
 scikit-learn
 tensorflow
 numpy
-dotenv
+python-dotenv
 matplotlib
 bayesian-optimization

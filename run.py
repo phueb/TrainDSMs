@@ -8,9 +8,9 @@ from src.embedders.skipgram import SkipgramEmbedder
 from src.utils import make_probe_simmat
 
 
-embedders = [LSTMEmbedder(config.Corpus.name),
-             SkipgramEmbedder(config.Corpus.name),
-             RandomControlEmbedder(config.Corpus.name)]
+embedders = [LSTMEmbedder(config.Corpora.name),
+             SkipgramEmbedder(config.Corpora.name),
+             RandomControlEmbedder(config.Corpora.name)]
 tasks = [CatClassification('semantic'),
          CatClassification('syntactic')]
 
@@ -31,7 +31,6 @@ for i, embedder in enumerate(embedders):
         w2e = embedder.train()
         if config.Embeddings.save:
             embedder.save(w2e)
-
     # tasks
     for j, task in enumerate(tasks):  # TODO different probes for each task?
         # check embeddings
@@ -45,8 +44,6 @@ for i, embedder in enumerate(embedders):
         exp_scores_mat[i, j] = task.train_and_score_expert(w2e)
         # figs
         task.save_figs(w2e)
-        # TODO save all figs associated with task to disk
-
 
 # save scores
 # noinspection PyTypeChecker

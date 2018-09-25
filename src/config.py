@@ -3,15 +3,14 @@ from pathlib import Path
 
 
 class Global:
-    results_dir = Path(os.getenv('RESULTS_DIR', Path(__file__).parent.parent / 'results'))
     sim_method = 'cosine'
-    embed_size = 128
+    embed_size = 512
 
 
 class Categorization:
     dir = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
     # novice
-    num_opt_steps = 10
+    num_opt_steps = 1
     # expert
     test_size = 0.3
     num_epochs = 1
@@ -23,7 +22,8 @@ class Categorization:
     shuffle_cats = False
 
 
-class Corpus:
+class Corpora:
+    dir = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
     name = 'childes-20180319'
 
 
@@ -33,7 +33,8 @@ class Embeddings:
     save = False
 
 
-class Fig:
+class Figs:
+    dir = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
     width = 7
     dpi = 196
     AXLABEL_FONT_SIZE = 12

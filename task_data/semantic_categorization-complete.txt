@@ -47,8 +47,10 @@ BIRD	sparrow
 BIRD	stork
 BIRD	swan
 BIRD	vulture
+BIRD	woodpecker
 BODY	ankle
 BODY	arm
+BODY	ass
 BODY	back
 BODY	beard
 BODY	behind
@@ -60,6 +62,7 @@ BODY	bottom
 BODY	braid
 BODY	brain
 BODY	breast
+BODY	bruise
 BODY	butt
 BODY	cheek
 BODY	chest
@@ -79,6 +82,7 @@ BODY	hand
 BODY	head
 BODY	heart
 BODY	hip
+BODY	jaw
 BODY	knee
 BODY	lap
 BODY	leg
@@ -106,6 +110,7 @@ BODY	toe
 BODY	tongue
 BODY	tooth
 BODY	tummy
+BODY	vagina
 BODY	waist
 BODY	weener
 BODY	wrist
@@ -114,6 +119,7 @@ CLOTHING	bathrobe
 CLOTHING	belt
 CLOTHING	bib
 CLOTHING	blouse
+CLOTHING	bonnet
 CLOTHING	boot
 CLOTHING	bra
 CLOTHING	buckle
@@ -178,6 +184,7 @@ DESSERT	chocolate
 DESSERT	cookie
 DESSERT	cream
 DESSERT	cupcake
+DESSERT	custard
 DESSERT	dessert
 DESSERT	donut
 DESSERT	fudge
@@ -193,14 +200,17 @@ DESSERT	tapioca
 DESSERT	treat
 DRINK	beer
 DRINK	cider
+DRINK	coca-cola
 DRINK	cocoa
 DRINK	coffee
 DRINK	coke
+DRINK	cola
 DRINK	drink
 DRINK	juice
 DRINK	koolaid
 DRINK	lemonade
 DRINK	milk
+DRINK	pepsi
 DRINK	pop
 DRINK	soda
 DRINK	tea
@@ -212,8 +222,11 @@ ELECTRONICS	calculator
 ELECTRONICS	camera
 ELECTRONICS	clock
 ELECTRONICS	computer
+ELECTRONICS	d-v-d
+ELECTRONICS	earphone
 ELECTRONICS	headphone
 ELECTRONICS	microphone
+ELECTRONICS	microscope
 ELECTRONICS	phone
 ELECTRONICS	radio
 ELECTRONICS	register
@@ -240,12 +253,14 @@ FAMILY	grandfather
 FAMILY	grandma
 FAMILY	grandmother
 FAMILY	grandpa
+FAMILY	infant
 FAMILY	kid
 FAMILY	ma
 FAMILY	mama
 FAMILY	mom
 FAMILY	mother
 FAMILY	nephew
+FAMILY	newborn
 FAMILY	niece
 FAMILY	pa
 FAMILY	papa
@@ -316,6 +331,7 @@ SPORTS	basketball
 SPORTS	game
 SPORTS	golf
 SPORTS	soccer
+SPORTS	softball
 SPORTS	volleyball
 HOUSEHOLD	backyard
 HOUSEHOLD	basement
@@ -354,6 +370,7 @@ INSECT	bee
 INSECT	bug
 INSECT	butterfly
 INSECT	caterpillar
+INSECT	cockroach
 INSECT	cricket
 INSECT	dragonfly
 INSECT	flea
@@ -362,6 +379,7 @@ INSECT	grasshopper
 INSECT	insect
 INSECT	ladybug
 INSECT	mosquito
+INSECT	scorpion
 INSECT	snail
 INSECT	spider
 INSECT	wasp
@@ -411,6 +429,7 @@ MAMMAL	chimpanzee
 MAMMAL	chipmunk
 MAMMAL	collie
 MAMMAL	cow
+MAMMAL	coyote
 MAMMAL	deer
 MAMMAL	dingo
 MAMMAL	dog
@@ -445,6 +464,7 @@ MAMMAL	mule
 MAMMAL	opossum
 MAMMAL	orangutan
 MAMMAL	otter
+MAMMAL	ox
 MAMMAL	panda
 MAMMAL	panther
 MAMMAL	pig
@@ -498,6 +518,7 @@ MONTHS	month
 MONTHS	november
 MONTHS	october
 MONTHS	september
+INSTRUMENTS	accordion
 INSTRUMENTS	banjo
 INSTRUMENTS	bell
 INSTRUMENTS	clarinet
@@ -507,6 +528,7 @@ INSTRUMENTS	guitar
 INSTRUMENTS	harmonica
 INSTRUMENTS	instrument
 INSTRUMENTS	music
+INSTRUMENTS	orchestra
 INSTRUMENTS	piano
 INSTRUMENTS	trumpet
 INSTRUMENTS	tuba
@@ -541,6 +563,7 @@ NUMBERS	two
 NUMBERS	zero
 PLANTS	acorn
 PLANTS	bush
+PLANTS	cactus
 PLANTS	chestnut
 PLANTS	daisy
 PLANTS	flower
@@ -579,6 +602,7 @@ SPACE	saturn
 SPACE	space
 SPACE	star
 SPACE	sun
+SPACE	uranus
 SPACE	venus
 SPACE	world
 TIMES	afternoon
@@ -625,10 +649,12 @@ TOYS	balloon
 TOYS	bat
 TOYS	block
 TOYS	book
+TOYS	chess
 TOYS	comic
 TOYS	crayon
 TOYS	die
 TOYS	doll
+TOYS	g-i-joe
 TOYS	gift
 TOYS	glitter
 TOYS	kite
@@ -669,6 +695,7 @@ VEGETABLE	potato
 VEGETABLE	pumpkin
 VEGETABLE	salad
 VEGETABLE	spinach
+VEGETABLE	turnip
 VEGETABLE	vegetable
 VEGETABLE	zucchini
 VEHICLES	airplane
@@ -681,6 +708,7 @@ VEHICLES	bulldozer
 VEHICLES	bus
 VEHICLES	cab
 VEHICLES	caboose
+VEHICLES	canoe
 VEHICLES	car
 VEHICLES	carriage
 VEHICLES	cart
@@ -694,6 +722,7 @@ VEHICLES	plane
 VEHICLES	rocket
 VEHICLES	scooter
 VEHICLES	ship
+VEHICLES	shuttle
 VEHICLES	spaceship
 VEHICLES	stroller
 VEHICLES	submarine
@@ -714,5 +743,6 @@ WEATHER	rainbow
 WEATHER	snow
 WEATHER	storm
 WEATHER	thunder
+WEATHER	tornado
 WEATHER	weather
 WEATHER	wind

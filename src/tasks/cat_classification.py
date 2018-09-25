@@ -7,6 +7,7 @@ import pandas as pd
 
 from src import config
 from src.figs import make_classifier_figs
+from src.tasks import w2freq
 
 
 class CatClassification:
@@ -39,12 +40,13 @@ class CatClassification:
         return res
 
     def make_classifier_input(self, w2e):
-        x = np.array(w2e.values())
+        x = np.vstack([e for w, e in w2e.items() if w in self.probes])
         y = np.zeros(x.shape[0], dtype=np.int)
         for n, probe in enumerate(self.probes):
-            y[n] = self.p2cat[probe]
-        probe_freq_list = [np.sum(self.hub.term_part_freq_dict[probe]) for probe in  # TODO get corpus freq
-                           self.probes]
+            cat = self.p2cat[probe]
+            cat_id = self.cats.index(cat)
+            y[n] = cat_id
+        probe_freq_list = [w2freq[probe] for probe in self.probes]
         probe_freq_list = np.clip(probe_freq_list, 0, config.Categorization.num_acts_samples)
         x = np.repeat(x, probe_freq_list, axis=0)  # repeat according to token frequency
         y = np.repeat(y, probe_freq_list, axis=0)
@@ -58,7 +60,7 @@ class CatClassification:
         return x_train, x_test, y_train, y_test
 
     def make_classifier_graph(self):
-        with tf.Graph().as_default() and tf.device('/gpu:0'):
+        with tf.device('/gpu:0'):
             # placeholders
             x = tf.placeholder(tf.float32, shape=(None, config.Global.embed_size))
             y = tf.placeholder(tf.int32, shape=(None))
@@ -81,14 +83,15 @@ class CatClassification:
             loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
             # training ops
             optimizer = tf.train.AdagradOptimizer(learning_rate=config.Categorization.learning_rate)
-            setep = optimizer.minimize(loss)
+            step = optimizer.minimize(loss)
+        with tf.device('/cpu:0'):
             # evaluation ops
             correct = tf.nn.in_top_k(logits, y, 1)
             num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
         # session
         sess = tf.Session()
         sess.run(tf.global_variables_initializer())
-        return x, y, logits, setep, correct, num_correct, sess
+        return x, y, logits, step, correct, num_correct, sess
 
     def train_expert(self, w2e):
         print('Training categorization expert...')
@@ -198,8 +201,8 @@ class CatClassification:
         res = self.score_expert()
         return res
 
-    def score_novice(self, probe_simmat, p2cat=None, metric='ba'):
-        if p2cat is None:
+    def score_novice(self, probe_simmat, probe_cats=None, metric='ba'):
+        if probe_cats is None:
             probe_cats = []
             for p, cat in self.p2cat.items():
                 probe_cats.append(cat)

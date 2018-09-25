@@ -23,6 +23,7 @@ class EmbedderBase(object):
     def load_w2e(self):
         mat = np.loadtxt(self.embeddings_dir / self.embeddings_fname, dtype='str', comments=None)
         w2e = {probe: embedding for probe, embedding in zip(mat[:, 0], mat[:, 1:].astype('float'))}
+        assert mat[:, 1:].shape[1] == config.Global.embed_size
         return w2e
 
     def save(self, w2e):  # TODO serializing is faster (pickle, numpy)
