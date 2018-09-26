@@ -13,13 +13,13 @@ class Categorization:
     num_opt_steps = 1
     # expert
     test_size = 0.3
-    num_epochs = 1
-    mb_size = 1
-    num_acts_samples = 50
-    num_steps_to_eval = 200
+    num_epochs = 10
+    mb_size = 8
+    max_freq = 50
+    num_evals = 10
     learning_rate = 0.005
-    num_hiddens = 64
-    shuffle_cats = False
+    num_hiddens = 128
+    shuffle_cats = False  # TODO remove this (and run categorization on both)
 
 
 class Corpora:
@@ -37,4 +37,5 @@ class Figs:
     dir = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
     width = 7
     dpi = 196
-    AXLABEL_FONT_SIZE = 12
+    axlabel_fontsize = 12
+    line_width = 2

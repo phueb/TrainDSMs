@@ -36,7 +36,7 @@ for i, embedder in enumerate(embedders):
         # check embeddings
         for p in task.probes:
             if p not in w2e.keys():
-                raise KeyError('Probe "{}" is not in w2e.'.format(p))
+                raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
         # similarities
         probe_simmat = make_probe_simmat(w2e, task.probes, config.Global.sim_method)
         # score
