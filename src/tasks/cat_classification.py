@@ -58,38 +58,38 @@ class CatClassification:
         return x_train, x_test, y_train, y_test
 
     def make_classifier_graph(self):
-        with tf.device('/gpu:0'):
-            # placeholders
-            x = tf.placeholder(tf.float32, shape=(None, config.Global.embed_size))
-            y = tf.placeholder(tf.int32, shape=(None))
-            # hidden ops
-            with tf.name_scope('hidden'):
-                weights = tf.Variable(tf.truncated_normal([config.Global.embed_size,
-                                                           config.Categorization.num_hiddens],
-                                                          stddev=1.0 / np.sqrt(config.Global.embed_size)))
-                biases = tf.Variable(tf.zeros([config.Categorization.num_hiddens]))
-                hidden = tf.nn.tanh(tf.matmul(x, weights) + biases)
-            # logits ops
-            with tf.name_scope('logits'):
-                weights = tf.Variable(tf.truncated_normal([config.Categorization.num_hiddens,
-                                                           self.num_cats],
-                                                          stddev=1.0 / np.sqrt(config.Categorization.num_hiddens)))
-                biases = tf.Variable(tf.zeros([self.num_cats]))
-                logits = tf.matmul(hidden, weights) + biases
-            # loss ops
-            cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
-            loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
-            # training ops
-            optimizer = tf.train.AdagradOptimizer(learning_rate=config.Categorization.learning_rate)
-            step = optimizer.minimize(loss)
-        with tf.device('/cpu:0'):
-            # evaluation ops
-            correct = tf.nn.in_top_k(logits, y, 1)
-            num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
-        # session
-        sess = tf.Session()
-        sess.run(tf.global_variables_initializer())
-        return x, y, logits, step, correct, num_correct, sess
+        with tf.Graph().as_default():
+            with tf.device('/gpu:0'):
+                # placeholders
+                x = tf.placeholder(tf.float32, shape=(None, config.Global.embed_size))
+                y = tf.placeholder(tf.int32, shape=(None))
+                with tf.name_scope('hidden'):
+                    wx = tf.get_variable('wx', shape=[config.Global.embed_size, config.Categorization.num_hiddens],
+                                         dtype=tf.float32)
+                    bx = tf.Variable(tf.zeros([config.Categorization.num_hiddens]))
+                    hidden = tf.nn.tanh(tf.matmul(x, wx) + bx)
+                with tf.name_scope('logits'):
+                    if config.Categorization.num_hiddens > 0:
+                        wy = tf.get_variable('wy', shape=(config.Categorization.num_hiddens, self.num_cats),
+                                                  dtype=tf.float32)
+                        by = tf.Variable(tf.zeros([self.num_cats]))
+                        logits = tf.matmul(hidden, wy) + by
+                    else:
+                        wy = tf.get_variable('wy', shape=(config.Global.embed_size, self.num_cats),
+                                                  dtype=tf.float32)
+                        by = tf.Variable(tf.zeros([self.num_cats]))
+                        logits = tf.matmul(x, wy) + by
+                cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
+                loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
+                optimizer = tf.train.AdagradOptimizer(learning_rate=config.Categorization.learning_rate)
+                step = optimizer.minimize(loss)
+            with tf.device('/cpu:0'):
+                correct = tf.nn.in_top_k(logits, y, 1)
+                num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
+            # session
+            sess = tf.Session()
+            sess.run(tf.global_variables_initializer())
+            return x, y, logits, step, correct, num_correct, sess
 
     def train_expert(self, w2e):
         print('Training categorization expert...')
@@ -104,7 +104,6 @@ class CatClassification:
         num_test_examples = len(x_test)
         num_train_steps = num_train_examples // config.Categorization.mb_size * config.Categorization.num_epochs
         eval_interval = num_train_steps // config.Categorization.num_evals
-        num_samples_per_eval = eval_interval * config.Categorization.mb_size
         eval_steps = np.arange(0, num_train_steps + eval_interval,
                                eval_interval)[:config.Categorization.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_examples, num_test_examples))
@@ -148,7 +147,7 @@ class CatClassification:
                 # train accuracy
                 num_correct = self.sess.run(self.num_correct, feed_dict={self.x: x_train, self.y: y_train})
                 train_accuracy = num_correct / float(num_train_examples) * 100
-                self.train_acc_traj.append(train_acc_by_cat)
+                self.train_acc_traj.append(train_accuracy)
                 # test accuracy
                 num_correct = self.sess.run(self.num_correct, feed_dict={self.x: x_test, self.y: y_test})
                 test_accuracy = num_correct / float(num_test_examples) * 100

@@ -7,7 +7,7 @@ from src import config
 
 def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
     train_acc_traj = train_acc_trajs.mean(axis=0)
-    test_acc_traj = test_acc_trajs.mean(axis=0)
+    test_acc_traj = test_acc_trajs.mean(axis=0)  # TODO doesn't give correct values
     num_cats = len(cats)
     max_x = np.max(x_mat[:, -1])
 
@@ -17,7 +17,6 @@ def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         """
         fig, ax = plt.subplots(1, figsize=(config.Figs.width, 3), dpi=config.Figs.dpi)
         ax.set_ylim([0, 110])
-        ax.set_xlim([0, max_x])
         ax.set_xlabel('Number of Training Samples', fontsize=config.Figs.axlabel_fontsize)
         ylabel = 'Accuracy'
         ylabel += ' (shuffled cats), ' if config.Categorization.shuffle_cats else ''
@@ -27,8 +26,7 @@ def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         ax.tick_params(axis='both', which='both', top='off', right='off')
         ax.yaxis.grid(True)
         # plot
-        print(x_mat)
-        x = np.arange(config.Categorization.num_evals)  # TODO
+        x = x_mat.sum(axis=0)
         ax.plot(x, train_acc_traj, '-', linewidth=config.Figs.line_width, label='train')
         ax.plot(x, test_acc_traj, '-', linewidth=config.Figs.line_width, label='test')
         ax.legend(loc='best')
