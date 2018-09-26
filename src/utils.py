@@ -14,5 +14,5 @@ def make_probe_simmat(w2e, probes, method):
     if method == 'cosine':
         res = cosine_similarity(reduced_embeddings_mat)
     else:
-        raise NotImplemented  # TODO how to convertt euclidian distance to sim measure?
+        raise NotImplemented  # TODO how to convert euclidian distance to sim measure?
     return res

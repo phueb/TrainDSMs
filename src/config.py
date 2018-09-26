@@ -13,12 +13,12 @@ class Categorization:
     num_opt_steps = 1
     # expert
     test_size = 0.3
-    num_epochs = 30
+    num_epochs = 1
     mb_size = 8
     max_freq = 50
     num_evals = 10
     learning_rate = 0.005
-    num_hiddens = 0  # learning reaches 100% acc without hiddens but takes longer
+    num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer
     shuffle_cats = False  # TODO remove this (and run categorization on both)
 
 

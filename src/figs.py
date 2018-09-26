@@ -5,13 +5,13 @@ import seaborn as sns
 from src import config
 
 
-def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
+def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
     train_acc_traj = train_acc_trajs.mean(axis=0)
     test_acc_traj = test_acc_trajs.mean(axis=0)  # TODO doesn't give correct values
     num_cats = len(cats)
     max_x = np.max(x_mat[:, -1])
 
-    def make_classifier_accuracy_fig():
+    def make_acc_traj_fig():
         """
         Returns fig showing accuracy of a classifier tasked to map hidden representations of probes to categories
         """
@@ -33,7 +33,7 @@ def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         plt.tight_layout()
         return fig
 
-    def make_classifier_accuracy_breakdown_fig():
+    def make_acc_by_cat_fig():
         """
         Returns fig showing accuracy broken down by category of a classifier tasked to map hidden representations
          of probes to categories
@@ -60,9 +60,9 @@ def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         plt.tight_layout()
         return fig
 
-    def make_classifier_conf_mat_fig():
+    def make_cm_fig():
         """
-        Returns fig showing confusionmatrix of classifier trained to map hidden representations of probes to categories
+        Returns fig showing confusion matrix of classifier trained to map hidden representations of probes to categories
         """
         fig, ax = plt.subplots(1, 1, figsize=(config.Figs.width, config.Figs.width),
                                dpi=config.Figs.dpi)
@@ -80,7 +80,7 @@ def make_classifier_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         plt.tight_layout()
         return fig
 
-    figs = [make_classifier_accuracy_fig(),
-            make_classifier_accuracy_breakdown_fig(),
-            make_classifier_conf_mat_fig()]
+    figs = [(make_acc_traj_fig(), 'acc'),
+            (make_acc_by_cat_fig(), 'acc_by_cat'),
+            (make_cm_fig(), 'cm')]
     return figs

@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 from src import config
-from src.figs import make_classifier_figs
+from src.figs import make_categorizer_figs
 from src.tasks import w2freq
 
 
@@ -183,10 +183,11 @@ class CatClassification:
         train_acc_trajs = np.array(self.train_accs_by_cat).T
         test_acc_trajs = np.array(self.test_accs_by_cat).T
         # figs
-        import matplotlib.pyplot as plt
-        figs = make_classifier_figs(cm, np.cumsum(self.x_mat, axis=1), train_acc_trajs, test_acc_trajs, self.cats)
-        plt.show()
-        # TODO save figs
+        res = make_categorizer_figs(cm, np.cumsum(self.x_mat, axis=1), train_acc_trajs, test_acc_trajs, self.cats)
+        for fig, fig_name in res:
+            p = config.Figs.dir / '{}_{}.png'.format(self.name, fig_name)
+            fig.savefig(p)
+            print('Saved "{}" figure to {}'.format(fig_name, config.Figs.dir))
 
     def score_expert(self):
         res = self.test_acc_traj[-1]
