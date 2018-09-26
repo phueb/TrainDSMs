@@ -185,9 +185,11 @@ class CatClassification:
         # figs
         res = make_categorizer_figs(cm, np.cumsum(self.x_mat, axis=1), train_acc_trajs, test_acc_trajs, self.cats)
         for fig, fig_name in res:
-            p = config.Figs.dir / '{}_{}.png'.format(self.name, fig_name)
+            p = config.Figs.dir / self.name / '{}.png'.format(fig_name)
+            if not p.parent.exists():
+                p.parent.mkdir()
             fig.savefig(p)
-            print('Saved "{}" figure to {}'.format(fig_name, config.Figs.dir))
+            print('Saved "{}" figure to {}'.format(fig_name, config.Figs.dir / self.name))
 
     def score_expert(self):
         res = self.test_acc_traj[-1]
