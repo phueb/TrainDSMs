@@ -129,7 +129,7 @@ class CatClassification:
                 cat_probe_ids = np.where(Y == cat_id)[0]
                 num_total_cat_probes = len(cat_probe_ids)
                 num_correct_cat_probes = np.sum(corr[cat_probe_ids])
-                cat_acc = num_correct_cat_probes / float(num_total_cat_probes) * 100
+                cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1) * 100
                 res.append(cat_acc)
             return res
 

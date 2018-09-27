@@ -12,7 +12,7 @@ embedders = [
     LSTMEmbedder(config.Corpora.name),
     # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
     #              MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
-    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd512'),
+    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd512'),  # TODO make sure range of values matches that of other embeddings
     # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
     # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
     MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
@@ -70,6 +70,6 @@ for i, embedder in enumerate(embedders):
         task.save_figs(embedder.name)
 # save scores
 # noinspection PyTypeChecker
-np.savetxt('novice_scores.txt', nov_scores_mat)
+np.savetxt('novice_scores.txt', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models ? -or create individual expert hyperparameters?
 # noinspection PyTypeChecker
 np.savetxt('expert_scores.txt', exp_scores_mat)
