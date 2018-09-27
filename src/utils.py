@@ -8,8 +8,8 @@ def make_probe_simmat(w2e, probes, method):
     # filter probes
     num_probes = len(probes)
     reduced_embeddings_mat = np.zeros((num_probes, config.Global.embed_size))
-    for i in range(num_probes):
-        reduced_embeddings_mat[i] = w2e[probes[i]]
+    for n, probe in enumerate(probes):
+        reduced_embeddings_mat[n] = w2e[probe]
     # sim
     if method == 'cosine':
         res = cosine_similarity(reduced_embeddings_mat)

@@ -19,7 +19,6 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         ax.set_ylim([0, 110])
         ax.set_xlabel('Number of Training Samples', fontsize=config.Figs.axlabel_fontsize)
         ylabel = 'Accuracy'
-        ylabel += ' (shuffled cats), ' if config.Categorization.shuffle_cats else ''
         ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -47,7 +46,6 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
             ax.set_xlim([0, max_x])
             ax.set_xlabel('Number of Training Samples', fontsize=config.Figs.axlabel_fontsize)
             ylabel = 'Accuracy'
-            ylabel += ' (shuffled cats), ' if config.Categorization.shuffle_cats else ''
             ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
             ax.spines['right'].set_visible(False)
             ax.spines['top'].set_visible(False)
@@ -71,7 +69,8 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         # axis 2 (needs to be below plot for axes to be labeled)
         ax.set_yticklabels([cat + ' (truth)' for cat in sorted(cats, reverse=True)], rotation=0)
         ax.set_xticklabels(cats, rotation=90)
-        ax.set_title('Confusion Matrix')
+        title = 'Confusion Matrix'
+        ax.set_title(title)
         # colorbar
         cbar = ax.collections[0].colorbar
         cbar.set_ticks([0, 50, 100])
@@ -80,7 +79,6 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         plt.tight_layout()
         return fig
 
-    figs = [(make_acc_traj_fig(), 'acc'),
+    return [(make_acc_traj_fig(), 'acc'),
             (make_acc_by_cat_fig(), 'acc_by_cat'),
             (make_cm_fig(), 'cm')]
-    return figs

@@ -5,12 +5,19 @@ from src.tasks.cat_classification import CatClassification
 from src.embedders.lstm import LSTMEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.skipgram import SkipgramEmbedder
+from src.embedders.matrix import MatrixEmbedder
 from src.utils import make_probe_simmat
 
-
-embedders = [LSTMEmbedder(config.Corpora.name),
-             SkipgramEmbedder(config.Corpora.name),
-             RandomControlEmbedder(config.Corpora.name)]
+embedders = [
+    LSTMEmbedder(config.Corpora.name),
+    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
+    #              MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
+    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd512'),
+    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
+    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
+    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
+    SkipgramEmbedder(config.Corpora.name),
+    RandomControlEmbedder(config.Corpora.name)]
 tasks = [CatClassification('semantic'),
          CatClassification('syntactic')]
 
@@ -24,7 +31,9 @@ exp_scores_mat = np.zeros((num_embedders, num_tasks))
 for i, embedder in enumerate(embedders):
     # embed
     if embedder.has_embeddings() and not config.Embeddings.retrain:
+        print('==========================================================================')
         print('Found {} in {}'.format(embedder.embeddings_fname, embedder.embeddings_dir))
+        print('==========================================================================')
         w2e = embedder.load_w2e()
     else:
         print('Did not find {} in {}. Will try to train.'.format(embedder.embeddings_fname, embedder.embeddings_dir))
@@ -33,19 +42,32 @@ for i, embedder in enumerate(embedders):
             embedder.save(w2e)
     # tasks
     for j, task in enumerate(tasks):  # TODO different probes for each task?
+        print('---------------------------------------------')
+        print('Starting task "{}"'.format(task.name))
+        print('---------------------------------------------')
         # check embeddings
+        excluded = []
         for p in task.probes:
-            if p not in w2e.keys():
-                # raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
-                print('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
+            if p not in w2e:
+                #     raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
+                print('Probe "{}" in task "{}" is not in w2e. Excluding'.format(p, task.name))
+                excluded.append(p)
+
+        # TODO don't do this - jw
+        for p in excluded:  # do this outside for loop above
+            task.probes.remove(p)
+            task.p2cat.pop(p)
+
+
+
         # similarities
         probe_simmat = make_probe_simmat(w2e, task.probes, config.Global.sim_method)
+        print('Number of probes in similarity matrix: {}'.format(len(probe_simmat)))
         # score
         nov_scores_mat[i, j] = task.score_novice(probe_simmat)  # TODO force common API between tasks
         exp_scores_mat[i, j] = task.train_and_score_expert(w2e)
         # figs
-        task.save_figs(w2e)
-
+        task.save_figs(embedder.name)
 # save scores
 # noinspection PyTypeChecker
 np.savetxt('novice_scores.txt', nov_scores_mat)

@@ -17,9 +17,8 @@ class Categorization:
     mb_size = 8
     max_freq = 50
     num_evals = 10
-    learning_rate = 0.005
-    num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer
-    shuffle_cats = False  # TODO remove this (and run categorization on both)
+    learning_rate = 0.01
+    num_hiddens = 64  # learning reaches 100% acc without hiddens but takes longer
 
 
 class Corpora:
