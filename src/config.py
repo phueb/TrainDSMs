@@ -13,10 +13,10 @@ class Categorization:
     num_opt_steps = 1
     # expert
     test_size = 0.3
-    num_epochs = 1
+    num_epochs = 100
     mb_size = 8
-    max_freq = 50
-    num_evals = 10
+    max_freq = 50  # TODO log transform
+    num_evals = 100
     learning_rate = 0.01
     num_hiddens = 64  # learning reaches 100% acc without hiddens but takes longer
 

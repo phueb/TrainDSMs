@@ -9,7 +9,7 @@ from src.embedders.matrix import MatrixEmbedder
 from src.utils import make_probe_simmat
 
 embedders = [
-    LSTMEmbedder(config.Corpora.name),
+    # LSTMEmbedder(config.Corpora.name),
     # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
     #              MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
     MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd512'),  # TODO make sure range of values matches that of other embeddings
@@ -18,8 +18,10 @@ embedders = [
     MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
     SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
-tasks = [CatClassification('semantic'),
-         CatClassification('syntactic')]
+# tasks = [CatClassification('semantic'),
+#          CatClassification('syntactic')]
+tasks = [CatClassification('syntactic')]
+
 
 # initialize
 num_embedders = len(embedders)
