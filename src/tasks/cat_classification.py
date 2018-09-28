@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
 from sortedcontainers import SortedDict
-from sklearn.model_selection import train_test_split
 import pandas as pd
 
 from src import config
@@ -21,9 +20,6 @@ class Trial(object):  # TODO make this available to all experts?
         self.g = g
         self.data = data
 
-    def __len__(self):
-        pass
-
 
 class CatClassification:
     def __init__(self, cat_type):
@@ -32,10 +28,10 @@ class CatClassification:
         self.p2cat = self.make_p2cat(cat_type)
         self.probes = list(self.p2cat.keys())
         self.cats = sorted(set(self.p2cat.values()))
-        self.num_cats = len(self.cats)
         self.num_probes = len(self.probes)
+        self.num_cats = len(self.cats)
         # evaluation
-        self.results = []  # each result is a class with many attributes
+        self.trials = []  # each result is a class with many attributes
 
     @staticmethod
     def make_p2cat(cat_type):
@@ -50,21 +46,33 @@ class CatClassification:
         return res
 
     def make_data(self, w2e, shuffled):
+        # put data in array
         x = np.vstack([w2e[p] for p in self.probes])
         y = np.zeros(x.shape[0], dtype=np.int)
         for n, probe in enumerate(self.probes):
             cat = self.p2cat[probe]
             cat_id = self.cats.index(cat)
             y[n] = cat_id
-        probe_freq_list = [w2freq[probe] for probe in self.probes]
-        probe_freq_list = np.clip(probe_freq_list, 0, config.Categorization.max_freq)
-        x = np.repeat(x, probe_freq_list, axis=0)  # repeat according to token frequency
-        y = np.repeat(y, probe_freq_list, axis=0)
+        # split
+        max_f = config.Categorization.max_freq
+        probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
+        test_ids = np.random.choice(self.num_probes,
+                                    size=int(self.num_probes * config.Categorization.test_size),
+                                    replace=False)
+        train_ids = [i for i in range(self.num_probes) if i not in test_ids]
+        assert len(train_ids) + len(test_ids) == self.num_probes
+        x_train = x[train_ids, :]
+        y_train = y[train_ids]
+        pfs_train = np.array(probe_freq_list)[train_ids]
+        x_test = x[test_ids, :]
+        y_test = y[test_ids]
+        # repeat train samples proportional to corpus frequency - must happen AFTER split
+        x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
+        y_train = np.repeat(y_train, pfs_train, axis=0)
+        # shuffle x-y mapping
         if shuffled:
             print('Shuffling category assignment')
-            np.random.shuffle(y)
-        # split
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=config.Categorization.test_size)
+            np.random.shuffle(y_train)
         return x_train, y_train, x_test, y_test
 
     def make_classifier_graph(self, embed_size):
@@ -82,12 +90,12 @@ class CatClassification:
                     with tf.name_scope('logits'):
                         if config.Categorization.num_hiddens > 0:
                             wy = tf.get_variable('wy', shape=(config.Categorization.num_hiddens, self.num_cats),
-                                                      dtype=tf.float32)
+                                                 dtype=tf.float32)
                             by = tf.Variable(tf.zeros([self.num_cats]))
                             logits = tf.matmul(hidden, wy) + by
                         else:
                             wy = tf.get_variable('wy', shape=[embed_size, self.num_cats],
-                                                      dtype=tf.float32)
+                                                 dtype=tf.float32)
                             by = tf.Variable(tf.zeros([self.num_cats]))
                             logits = tf.matmul(x, wy) + by
                     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
@@ -160,27 +168,28 @@ class CatClassification:
                     trial.x_mat[cat_id, eval_steps.index(step)] = ys.count(cat_id)
                 ys = []
                 print('step {:>6,}/{:>6,} |Train Acc (unw./w.) {:2.0f}%/{:2.0f}% |Test Acc (unw./w.) {:2.0f}%/{:2.0f}%'.format(
-                        step,
-                        num_train_steps - 1,
-                        train_acc_unweighted,
-                        train_accuracy,
-                        test_acc_unweighted,
-                        test_accuracy))
+                    step,
+                    num_train_steps - 1,
+                    train_acc_unweighted,
+                    train_accuracy,
+                    test_acc_unweighted,
+                    test_accuracy))
             # train
             trial.g.sess.run([trial.g.step], feed_dict={trial.g.x: x_batch, trial.g.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
         return trial
 
     def save_figs(self, embedder_name):
-        for trial in self.results:
+        for trial in self.trials:
             x_train, y_train, x_test, y_test = trial.data
             dummies = pd.get_dummies(y_test)
             cat_freqs = np.sum(dummies.values, axis=0)
-            cat_freqs_mat = np.tile(cat_freqs, (self.num_cats, 1))
+            num_test_cats = len(cat_freqs)
+            cat_freqs_mat = np.tile(cat_freqs, (num_test_cats, 1))  # not all categories may be in test data
             # confusion mat
             logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
             predicted_y = np.argmax(logits, axis=1).astype(np.int)
-            cm = np.zeros((self.num_cats, self.num_cats))
+            cm = np.zeros((num_test_cats, num_test_cats))
             for ay, py in zip(y_test, predicted_y):
                 cm[ay, py] += 1
             cm = np.multiply(cm / cat_freqs_mat, 100).astype(np.int)
@@ -193,11 +202,11 @@ class CatClassification:
                                                        train_acc_trajs,
                                                        test_acc_trajs,
                                                        self.cats):
-                p = config.Figs.dir / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
+                p = config.Global.figs_dir / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
                     p.parent.mkdir()
                 fig.savefig(p)
-                print('Saved "{}" figure to {}'.format(fig_name, config.Figs.dir / self.name))
+                print('Saved "{}" figure to {}'.format(fig_name, config.Global.figs_dir / self.name))
 
     def train_and_score_expert(self, w2e, embed_size):
         for shuffled in [False, True]:
@@ -208,10 +217,10 @@ class CatClassification:
                           data=self.make_data(w2e, shuffled))
             print('Training categorization expert with {} categories...'.format(name))
             self.train_expert(trial)
-            self.results.append(trial)
+            self.trials.append(trial)
 
         # expert_score
-        expert_score = self.results[0].test_acc_traj[-1]
+        expert_score = self.trials[0].test_acc_traj[-1]
         return expert_score
 
     def score_novice(self, probe_simmat, probe_cats=None, metric='ba'):

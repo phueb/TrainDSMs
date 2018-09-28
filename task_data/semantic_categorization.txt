@@ -95,7 +95,6 @@ BODY	nipple
 BODY	nose
 BODY	penis
 BODY	ponytail
-BODY	rib
 BODY	shoulder
 BODY	skin
 BODY	skull
@@ -133,7 +132,6 @@ CLOTHING	jacket
 CLOTHING	mitten
 CLOTHING	nightgown
 CLOTHING	outfit
-CLOTHING	p-j
 CLOTHING	pajama
 CLOTHING	pant
 CLOTHING	purse
@@ -152,7 +150,6 @@ CLOTHING	sock
 CLOTHING	suit
 CLOTHING	sweater
 CLOTHING	sweatshirt
-CLOTHING	t-shirt
 CLOTHING	tie
 CLOTHING	underwear
 CLOTHING	uniform
@@ -182,7 +179,6 @@ DESSERT	dessert
 DESSERT	donut
 DESSERT	fudge
 DESSERT	lollipop
-DESSERT	m&m
 DESSERT	marshmallow
 DESSERT	oreo
 DESSERT	pie
@@ -207,18 +203,15 @@ DRINK	tea
 DRINK	wine
 ELECTRONICS	alarm
 ELECTRONICS	battery
-ELECTRONICS	c-d
 ELECTRONICS	calculator
 ELECTRONICS	camera
 ELECTRONICS	clock
 ELECTRONICS	computer
-ELECTRONICS	headphone
 ELECTRONICS	microphone
 ELECTRONICS	phone
 ELECTRONICS	radio
 ELECTRONICS	register
 ELECTRONICS	stereo
-ELECTRONICS	t-v
 ELECTRONICS	telephone
 ELECTRONICS	telescope
 ELECTRONICS	television
@@ -235,7 +228,6 @@ FAMILY	family
 FAMILY	father
 FAMILY	girl
 FAMILY	gran
-FAMILY	granddad
 FAMILY	grandfather
 FAMILY	grandma
 FAMILY	grandmother
@@ -606,7 +598,6 @@ TOOLS	paint
 TOOLS	paintbrush
 TOOLS	pen
 TOOLS	pencil
-TOOLS	plier
 TOOLS	plow
 TOOLS	rake
 TOOLS	saw
@@ -649,7 +640,6 @@ TOYS	teddy
 TOYS	tennis
 TOYS	toy
 TOYS	tricycle
-TOYS	yo-yo
 VEGETABLE	asparagus
 VEGETABLE	broccoli
 VEGETABLE	cabbage

@@ -54,6 +54,8 @@ class EmbedderBase(object):
         print('Creating vocab...')
         w2f = Counter(tokens)
         vocab = sorted([config.Corpora.UNK] + [w for w, f in w2f.most_common(config.Corpora.num_vocab - 1)])
+        print('Least frequent word occurs {} times'.format(
+            np.min([f for w, f in w2f.most_common(config.Corpora.num_vocab - 1)])))
         print('Mapping words to ids...')
         # insert UNK + numericize
         t2id = {t: i for i, t in enumerate(vocab)}

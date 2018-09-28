@@ -12,25 +12,23 @@ embedders = [
     # LSTMEmbedder(config.Corpora.name),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
-    RandomControlEmbedder(config.Corpora.name),
     WWEmbedder(config.Corpora.name),
+    RandomControlEmbedder(config.Corpora.name),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
     SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
-tasks = [CatClassification('semantic'),
-         CatClassification('syntactic')]
-# tasks = [CatClassification('syntactic')]
-
-
-# initialize
 num_embedders = len(embedders)
+
+tasks = [
+    CatClassification('semantic'),
+    CatClassification('syntactic')]
 num_tasks = len(tasks)
+
+# run full experiment
 nov_scores_mat = np.zeros((num_embedders, num_tasks))
 exp_scores_mat = np.zeros((num_embedders, num_tasks))
-
-# train and score novices and experts on task_data
 for i, embedder in enumerate(embedders):
     # embed
     if embedder.has_embeddings() and not config.Embeddings.retrain:
@@ -39,8 +37,10 @@ for i, embedder in enumerate(embedders):
         print('==========================================================================')
         w2e, embed_size = embedder.load_w2e()
     else:
+        print('==========================================================================')
         print('Did not find "{}" in {}.\nWill try to train "{}"'.format(
             embedder.embeddings_fname, config.Global.embeddings_dir, embedder.name))
+        print('==========================================================================')
         w2e, embed_size = embedder.train()
         if config.Embeddings.save:
             embedder.save(w2e)
@@ -53,17 +53,7 @@ for i, embedder in enumerate(embedders):
         excluded = []
         for p in task.probes:
             if p not in w2e:
-                #     raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
-                print('Probe "{}" in task "{}" is not in w2e. Excluding'.format(p, task.name))
-                excluded.append(p)
-
-        # TODO don't do this - jw
-        for p in excluded:  # do this outside for loop above
-            task.probes.remove(p)
-            task.p2cat.pop(p)
-
-
-
+                raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
         # similarities
         probe_simmat = make_probe_simmat(w2e, embed_size, task.probes, config.Global.sim_method)
         print('Number of probes in similarity matrix: {}'.format(len(probe_simmat)))
@@ -74,6 +64,6 @@ for i, embedder in enumerate(embedders):
         task.save_figs(embedder.name)
 # save scores
 # noinspection PyTypeChecker
-np.savetxt('novice_scores.txt', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models ? -or create individual expert hyperparameters?
+np.savetxt('novice_scores.txt', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models
 # noinspection PyTypeChecker
 np.savetxt('expert_scores.txt', exp_scores_mat)

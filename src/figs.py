@@ -7,7 +7,7 @@ from src import config
 
 def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
     train_acc_traj = train_acc_trajs.mean(axis=0)
-    test_acc_traj = test_acc_trajs.mean(axis=0)  # TODO doesn't give correct values
+    test_acc_traj = test_acc_trajs.mean(axis=0)
     num_cats = len(cats)
     max_x = np.max(x_mat[:, -1])
 
@@ -22,7 +22,7 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
         ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
-        ax.tick_params(axis='both', which='both', top='off', right='off')
+        ax.tick_params(axis='both', which='both', top=False, right=False)
         ax.yaxis.grid(True)
         # plot
         x = x_mat.sum(axis=0)
@@ -49,7 +49,7 @@ def make_categorizer_figs(cm, x_mat, train_acc_trajs, test_acc_trajs, cats):
             ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
             ax.spines['right'].set_visible(False)
             ax.spines['top'].set_visible(False)
-            ax.tick_params(axis='both', which='both', top='off', right='off')
+            ax.tick_params(axis='both', which='both', top=False, right=False)
             ax.yaxis.grid(True)
             # plot
             ax.plot(x, train_hca_cat_traj, '-', linewidth=config.Figs.line_width, label='{} (train)'.format(cat))

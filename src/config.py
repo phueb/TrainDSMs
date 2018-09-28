@@ -10,6 +10,10 @@ class Global:
     sim_method = 'cosine'
 
 
+class RandomControl:
+    distribution = 'uniform'
+    embed_size = 512
+
 class WW:
     window_size = 5
     window_weight = 'flat'
@@ -29,10 +33,10 @@ class Categorization:  # TODO make unique for each embedder
 
 
 class Corpora:
-    UNK = 'Unknown'  # TODO use
+    UNK = 'UNKNOWN'
     # name = 'childes-20180319'
     name = 'childes-20171212'
-    num_vocab = 4096
+    num_vocab = 16384
 
 
 class Embeddings:
