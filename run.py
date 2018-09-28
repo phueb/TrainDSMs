@@ -5,22 +5,23 @@ from src.tasks.cat_classification import CatClassification
 from src.embedders.lstm import LSTMEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.skipgram import SkipgramEmbedder
-from src.embedders.matrix import MatrixEmbedder
+from src.embedders.ww_matrix import WWEmbedder
 from src.utils import make_probe_simmat
 
 embedders = [
     # LSTMEmbedder(config.Corpora.name),
-    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
-    #              MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
-    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd512'),  # TODO make sure range of values matches that of other embeddings
-    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
-    # MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
-    MatrixEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
+    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
+    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
+    RandomControlEmbedder(config.Corpora.name),
+    WWEmbedder(config.Corpora.name),
+    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
+    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
+    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
     SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
-# tasks = [CatClassification('semantic'),
-#          CatClassification('syntactic')]
-tasks = [CatClassification('syntactic')]
+tasks = [CatClassification('semantic'),
+         CatClassification('syntactic')]
+# tasks = [CatClassification('syntactic')]
 
 
 # initialize
@@ -34,12 +35,13 @@ for i, embedder in enumerate(embedders):
     # embed
     if embedder.has_embeddings() and not config.Embeddings.retrain:
         print('==========================================================================')
-        print('Found {} in {}'.format(embedder.embeddings_fname, embedder.embeddings_dir))
+        print('Found {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
-        w2e = embedder.load_w2e()
+        w2e, embed_size = embedder.load_w2e()
     else:
-        print('Did not find {} in {}. Will try to train.'.format(embedder.embeddings_fname, embedder.embeddings_dir))
-        w2e = embedder.train()
+        print('Did not find "{}" in {}.\nWill try to train "{}"'.format(
+            embedder.embeddings_fname, config.Global.embeddings_dir, embedder.name))
+        w2e, embed_size = embedder.train()
         if config.Embeddings.save:
             embedder.save(w2e)
     # tasks
@@ -63,11 +65,11 @@ for i, embedder in enumerate(embedders):
 
 
         # similarities
-        probe_simmat = make_probe_simmat(w2e, task.probes, config.Global.sim_method)
+        probe_simmat = make_probe_simmat(w2e, embed_size, task.probes, config.Global.sim_method)
         print('Number of probes in similarity matrix: {}'.format(len(probe_simmat)))
         # score
         nov_scores_mat[i, j] = task.score_novice(probe_simmat)  # TODO force common API between tasks
-        exp_scores_mat[i, j] = task.train_and_score_expert(w2e)
+        exp_scores_mat[i, j] = task.train_and_score_expert(w2e, embed_size)
         # figs
         task.save_figs(embedder.name)
 # save scores

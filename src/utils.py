@@ -1,13 +1,11 @@
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 import numpy as np
 
-from src import config
 
-
-def make_probe_simmat(w2e, probes, method):
+def make_probe_simmat(w2e, embed_size, probes, method):
     # filter probes
     num_probes = len(probes)
-    reduced_embeddings_mat = np.zeros((num_probes, config.Global.embed_size))
+    reduced_embeddings_mat = np.zeros((num_probes, embed_size))
     for n, probe in enumerate(probes):
         reduced_embeddings_mat[n] = w2e[probe]
     # sim

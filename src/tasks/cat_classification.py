@@ -40,7 +40,7 @@ class CatClassification:
     @staticmethod
     def make_p2cat(cat_type):
         res = SortedDict()
-        p = config.Categorization.dir / '{}_categorization.txt'.format(cat_type)
+        p = config.Global.task_dir / '{}_categorization.txt'.format(cat_type)
         with p.open('r') as f:
             for line in f:
                 data = line.strip().strip('\n').split()
@@ -67,15 +67,15 @@ class CatClassification:
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=config.Categorization.test_size)
         return x_train, y_train, x_test, y_test
 
-    def make_classifier_graph(self):
+    def make_classifier_graph(self, embed_size):
         class Graph:
             with tf.Graph().as_default():
                 with tf.device('/gpu:0'):
                     # placeholders
-                    x = tf.placeholder(tf.float32, shape=(None, config.Global.embed_size))
+                    x = tf.placeholder(tf.float32, shape=(None, embed_size))
                     y = tf.placeholder(tf.int32, shape=None)
                     with tf.name_scope('hidden'):
-                        wx = tf.get_variable('wx', shape=[config.Global.embed_size, config.Categorization.num_hiddens],
+                        wx = tf.get_variable('wx', shape=[embed_size, config.Categorization.num_hiddens],
                                              dtype=tf.float32)
                         bx = tf.Variable(tf.zeros([config.Categorization.num_hiddens]))
                         hidden = tf.nn.tanh(tf.matmul(x, wx) + bx)
@@ -86,7 +86,7 @@ class CatClassification:
                             by = tf.Variable(tf.zeros([self.num_cats]))
                             logits = tf.matmul(hidden, wy) + by
                         else:
-                            wy = tf.get_variable('wy', shape=(config.Global.embed_size, self.num_cats),
+                            wy = tf.get_variable('wy', shape=[embed_size, self.num_cats],
                                                       dtype=tf.float32)
                             by = tf.Variable(tf.zeros([self.num_cats]))
                             logits = tf.matmul(x, wy) + by
@@ -199,12 +199,12 @@ class CatClassification:
                 fig.savefig(p)
                 print('Saved "{}" figure to {}'.format(fig_name, config.Figs.dir / self.name))
 
-    def train_and_score_expert(self, w2e):
+    def train_and_score_expert(self, w2e, embed_size):
         for shuffled in [False, True]:
             name = 'shuffled' if shuffled else 'not-shuffled'
             trial = Trial(name=name,
                           num_cats=self.num_cats,
-                          g=self.make_classifier_graph(),
+                          g=self.make_classifier_graph(embed_size),
                           data=self.make_data(w2e, shuffled))
             print('Training categorization expert with {} categories...'.format(name))
             self.train_expert(trial)

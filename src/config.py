@@ -3,37 +3,44 @@ from pathlib import Path
 
 
 class Global:
+    task_dir = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
+    corpora_dir = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
+    figs_dir = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
+    embeddings_dir = Path(os.getenv('EMBEDDINGS_DIR', Path(__file__).parent.parent / 'embeddings'))
     sim_method = 'cosine'
-    embed_size = 512
 
 
-class Categorization:
-    dir = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
+class WW:
+    window_size = 5
+    window_weight = 'flat'
+
+
+class Categorization:  # TODO make unique for each embedder
     # novice
-    num_opt_steps = 1
+    num_opt_steps = 5
     # expert
     test_size = 0.3
-    num_epochs = 100
+    num_epochs = 10
     mb_size = 8
     max_freq = 50  # TODO log transform
-    num_evals = 100
+    num_evals = 10
     learning_rate = 0.01
     num_hiddens = 64  # learning reaches 100% acc without hiddens but takes longer
 
 
 class Corpora:
-    dir = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
-    name = 'childes-20180319'
+    UNK = 'Unknown'  # TODO use
+    # name = 'childes-20180319'
+    name = 'childes-20171212'
+    num_vocab = 4096
 
 
 class Embeddings:
-    dir = Path(os.getenv('EMBEDDINGS_DIR', Path(__file__).parent.parent / 'embeddings'))
     retrain = False
     save = False
 
 
 class Figs:
-    dir = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
     width = 7
     dpi = 196
     axlabel_fontsize = 12
