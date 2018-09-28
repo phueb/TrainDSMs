@@ -1,3 +1,7 @@
+import numpy as np
+from cytoolz import itertoolz
+from io import StringIO
+
 from src.embedders import EmbedderBase
 
 
@@ -6,65 +10,60 @@ class MatrixEmbedder(EmbedderBase):
         super().__init__(corpus_name, '{}'.format(name_suffix))
 
 
-# TODO implement below - what o use as sliding window?
+WINDOW_SIZE = 5
+WINDOW_WEIGHT = 'flat'
+UNK = "UNKNOWN"
 
-import numpy as np
-from collections import deque
 
-VOCAB_SIZE = 4096
-LINES = '''
-The child plays with toy1 . The child plays with toy2 . The child plays with toy3 .
+LINES = StringIO('''The child likes1 toy1 . The child likes toy2 . The child likes toy3 .
 The man eats food1 . The man eats food2 . The man eats food3 .
-The woman read book1 . The woman eats book2 . The woman eats book3 .'''
+The woman reads book1 . The woman reads book2 . The woman reads book3 .''')
 
 
-matrix = np.zeros([VOCAB_SIZE, VOCAB_SIZE], float)
-
-
-window = []
-linecounter = 1
-for line in LINES:
-
-    token_list = (line.strip().strip('\n').strip()).split()
-
-    for token in token_list:
-        if token in self.vocab_index_dict:
-            window.append(token)
+def prepare(d):
+    res = []
+    for n, token in enumerate(d):
+        if token in t2id:
+            res.append(t2id[token])
         else:
-            window.append("UNKNOWN")
+            res.append(t2id[UNK])
+    return res
 
-        if len(window) >= self.window_size + 1:
 
-            if window[0] in self.vocab_index_dict:
-                word1_index = self.vocab_index_dict[window[0]]
+def update_matrix(mat, ids):
+    windows = itertoolz.sliding_window(WINDOW_SIZE, ids)
+    for w in windows:
+        for t1_id, t2_id, dist in zip([w[0]] * (WINDOW_SIZE - 1), w[1:], range(1, WINDOW_SIZE)):
+            if WINDOW_WEIGHT == "linear":
+                mat[t1_id, t2_id] += WINDOW_SIZE - dist
+            elif WINDOW_WEIGHT == "flat":
+                mat[t1_id, t2_id] += 1
 
-                for target_range in range(len(window) - 1):
+# pre-processing
+vocab = set()
+docs = []
+for line in LINES:
+    # build docs
+    doc = (line.strip().strip('\n').strip()).split()
+    docs.append(doc)
+    # build vocab
+    for t in doc:
+        vocab.add(t)
+vocab.add(UNK)
+vocab = sorted(vocab)
+t2id = {t: i for i, t in enumerate(vocab)}
+vocab_size = len(vocab)
 
-                    if window[target_range + 1] in self.vocab_index_dict:
-                        word2_index = self.vocab_index_dict[window[target_range + 1]]
+# build matrix
+cooc_mat = np.zeros([vocab_size, vocab_size], int)
+for doc in docs:
+    token_ids = prepare(doc)  # insert unknowns and convert to id - separated from update_matrix for readability
+    update_matrix(cooc_mat, token_ids)
+print(cooc_mat)
 
-                        if window_weight == "linear":
-                            matrix[word1_index, word2_index] += window_size - target_range
-                        elif window_weight == "flat":
-                            matrix[word1_index, word2_index] += 1
-        window = window[1:]
-
-    while len(window) > 0:
-
-        if window[0] in self.vocab_index_dict:
-            word1_index = self.vocab_index_dict[window[0]]
-
-            for target_range in range(len(window) - 1):
-
-                if window[target_range + 1] in self.vocab_index_dict:
-                    word2_index = self.vocab_index_dict[window[target_range + 1]]
-
-                    if window_weight == "linear":
-                        matrix[word1_index, word2_index] += window_size - target_range
-                    elif window_weight == "flat":
-                        matrix[word1_index, word2_index] += 1
-        window = window[1:]
-
-    if linecounter % 100 == 0:
-        print("        Counted co-occurrences for document %s/%s" % (linecounter, self.num_docs))
-    linecounter += 1
+# verify
+num_windows = 0
+for doc in docs:
+    num_windows += (len(doc) - WINDOW_SIZE + 1)
+num_coocs_per_window = WINDOW_SIZE - 1
+print(np.sum(cooc_mat), num_windows * num_coocs_per_window)  # only works when using "flat"
