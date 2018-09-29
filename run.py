@@ -3,6 +3,7 @@ import numpy as np
 from src import config
 from src.tasks.cat_classification import CatClassification
 from src.embedders.lstm import LSTMEmbedder
+from src.embedders.wd_matrix import WDEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.skipgram import SkipgramEmbedder
 from src.embedders.ww_matrix import WWEmbedder
@@ -12,11 +13,12 @@ embedders = [
     # LSTMEmbedder(config.Corpora.name),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
+    WDEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
     WWEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
     # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
-    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
+
     SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
 num_embedders = len(embedders)

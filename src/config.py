@@ -34,8 +34,8 @@ class Categorization:  # TODO make unique for each embedder
 
 class Corpora:
     UNK = 'UNKNOWN'
-    # name = 'childes-20180319'
-    name = 'childes-20171212'
+    name = 'childes-20180319'
+    # name = 'childes-20171212'
     num_vocab = 16384
 
 

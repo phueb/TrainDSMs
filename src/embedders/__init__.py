@@ -6,7 +6,7 @@ from collections import Counter
 
 from src import config
 
-nlp = spacy.load('en')
+nlp = spacy.load('en_core_web_sm')
 
 
 class EmbedderBase(object):
