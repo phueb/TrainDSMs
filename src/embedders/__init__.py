@@ -35,6 +35,8 @@ class EmbedderBase(object):
         return self.corpus_data[1]
 
     def preprocess(self):
+
+
         docs = []
         tokens = []
         # read corpus file
@@ -50,6 +52,11 @@ class EmbedderBase(object):
                 tokens.append(token)
                 doc.append(token)
             docs.append(doc)
+
+        # if no vocag specified, use the whole corpus
+        if config.Corpora.num_vocab is None:
+            config.Corpora.num_vocab = len(set(tokens)) + 1
+
         # vocab
         print('Creating vocab...')
         w2f = Counter(tokens)
@@ -97,3 +104,25 @@ class EmbedderBase(object):
             for probe, embedding in sorted(w2e.items()):
                 embedding_str = ' '.join(embedding.astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
+
+    def w2e_to_matrix(self, w2e):
+        for key in w2e:
+            vector = w2e[key]
+            break
+
+        num_rows = len(w2e)
+        num_cols = len(vector)
+
+        matrix = np.zeros([num_rows, num_cols], float)
+
+        assert num_rows == len(self.vocab)
+
+        for i in range(num_rows):
+            matrix[i,:] = w2e[self.vocab[i]]
+
+        return matrix
+
+    def norm_rowsum(self, w2e):
+        input_matrix = self.w2e_to_matrix(w2e)
+        output_matrix = (input_matrix.transpose() / input_matrix.sum(1)).transpose()
+        return output_matrix

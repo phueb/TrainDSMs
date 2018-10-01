@@ -15,7 +15,7 @@ class RandomControl:
     embed_size = 512
 
 class WW:
-    window_size = 5
+    window_size = 1
     window_weight = 'flat'
 
 

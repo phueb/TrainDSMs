@@ -9,3 +9,5 @@ numpy
 python-dotenv
 matplotlib
 bayesian-optimization
+cached_property
+pyprind
