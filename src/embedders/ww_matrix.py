@@ -10,7 +10,6 @@ class WWEmbedder(EmbedderBase):
     def __init__(self, corpus_name):
         super().__init__(corpus_name, 'hal')
 
-
     def update_matrix(self, mat, ids):
         window_size = config.WW.window_size + 1
         windows = itertoolz.sliding_window(window_size, ids)
@@ -23,6 +22,9 @@ class WWEmbedder(EmbedderBase):
 
     def train(self):
         num_docs = len(self.numeric_docs)
+
+        print(self.numeric_docs)
+
         pbar = pyprind.ProgBar(num_docs)
         cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
         for token_ids in self.numeric_docs:
@@ -33,9 +35,6 @@ class WWEmbedder(EmbedderBase):
         self.verify(cooc_mat)
 
         return w2e, embed_size
-
-
-
 
     def verify(self, cooc_mat):
         assert config.WW.window_weight == 'flat'  # only works when using "flat"

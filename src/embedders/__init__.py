@@ -36,7 +36,6 @@ class EmbedderBase(object):
 
     def preprocess(self):
 
-
         docs = []
         tokens = []
         # read corpus file
@@ -47,10 +46,11 @@ class EmbedderBase(object):
         tokenizer = Tokenizer(nlp.vocab)
         for s_doc in tokenizer.pipe(texts, batch_size=50):  # creates spacy Docs
             doc = []
-            for t in s_doc[:-1]:  # -1 removes newline symbol
+            for t in s_doc:
                 token = t.text
-                tokens.append(token)
-                doc.append(token)
+                if token != '\n':
+                    tokens.append(token)
+                    doc.append(token)
             docs.append(doc)
 
         # if no vocag specified, use the whole corpus
@@ -69,7 +69,9 @@ class EmbedderBase(object):
         numeric_docs = []
         for doc in docs:
             numeric_doc = []
+
             for n, token in enumerate(doc):
+                print(doc, n, token)
                 if token in t2id:
                     numeric_doc.append(t2id[token])
                 else:
@@ -109,20 +111,62 @@ class EmbedderBase(object):
         for key in w2e:
             vector = w2e[key]
             break
-
         num_rows = len(w2e)
         num_cols = len(vector)
-
         matrix = np.zeros([num_rows, num_cols], float)
-
         assert num_rows == len(self.vocab)
-
         for i in range(num_rows):
             matrix[i,:] = w2e[self.vocab[i]]
-
         return matrix
 
     def norm_rowsum(self, w2e):
+        print('Normalizing matrix by row sums...')
         input_matrix = self.w2e_to_matrix(w2e)
-        output_matrix = (input_matrix.transpose() / input_matrix.sum(1)).transpose()
-        return output_matrix
+        num_rows = len(input_matrix[:,0])
+        num_cols = len(input_matrix[0,:])
+        output_matrix = np.zeros([num_rows, num_cols], float)
+
+        for i in range(num_rows):
+            if input_matrix[i,:].sum() == 0:
+                print('    Warning: Row {} ({}) had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+            else:
+                output_matrix[i,:] = input_matrix[i,:] / input_matrix[i,:].sum()
+
+        return output_matrix, num_cols
+
+    def norm_colsum(self, w2e):
+        print('Normalizing matrix by column sums...')
+        input_matrix = self.w2e_to_matrix(w2e)
+        num_rows = len(input_matrix[:,0])
+        num_cols = len(input_matrix[0,:])
+        output_matrix = np.zeros([num_rows, num_cols], float)
+
+        for i in range(num_cols):
+            if input_matrix[:,i].sum() == 0:
+                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+            else:
+                output_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
+
+        return output_matrix, num_cols
+
+    def norm_tdidf(self, w2e):
+        print('Normalizing matrix by td-idf...')
+        input_matrix = self.w2e_to_matrix(w2e)
+        num_rows = len(input_matrix[:,0])
+        num_cols = len(input_matrix[0,:])
+
+        colprob_matrix = np.zeros([num_rows, num_cols], float)
+        for i in range(num_cols):
+            if input_matrix[:,i].sum() == 0:
+                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+            else:
+                colprob_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
+
+        output_matrix = np.zeros([num_rows, num_cols], float)
+        for i in range(num_rows):
+            col_occ_count = np.count_nonzero(input_matrix[i,:]) + 1
+            row_idf = float(num_cols) / col_occ_count
+            for j in range(num_cols):
+                output_matrix[i,j] = colprob_matrix[i,j] / row_idf
+
+        return output_matrix, num_cols
