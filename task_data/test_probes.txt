@@ -1,0 +1,16 @@
+dog
+cat
+eagle
+hawk
+shoe
+sock
+fork
+spoon
+eat
+drink
+hit
+kick
+walk
+run
+sleep
+nap

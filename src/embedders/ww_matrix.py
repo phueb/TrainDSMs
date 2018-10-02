@@ -7,7 +7,7 @@ from src import config
 
 class WWEmbedder(EmbedderBase):
     def __init__(self, corpus_name):
-        super().__init__(corpus_name, 'hal')
+        super().__init__(corpus_name, 'ww')
 
     def update_matrix(self, mat, ids):
         window_size = config.WW.window_size + 1
@@ -36,12 +36,26 @@ class WWEmbedder(EmbedderBase):
 
         pbar = pyprind.ProgBar(num_docs)
         cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
+        print('\nCounting word-word co-occurrences in {}-word moving window'.format(config.WW.window_size))
         for token_ids in self.numeric_docs:
             self.update_matrix(cooc_mat, token_ids)
             pbar.update()
-        w2e = {w: cooc_mat[n] for n, w in enumerate(self.vocab)}
-        embed_size = cooc_mat.shape[1]  # TODO add normalizations and reductions here
-        self.verify(cooc_mat)
+
+        if config.WW.matrix_type == 'forward':
+            final_matrix = cooc_mat
+        elif config.WW.matrix_type == 'backward':
+            final_matrix = cooc_mat.transpose()
+        elif config.WW.matrix_type == 'summed':
+            final_matrix = cooc_mat + cooc_mat.transpose()
+        elif config.WW.matrix_type == 'concatenate':
+            final_matrix = np.concatenate((cooc_mat, cooc_mat.transpose()))
+        else:
+            print("Improper matrix type '{}'. Must be 'forward', 'backward', 'summed', or 'concat'".format(config.WW.matrix_type))
+            sys.exit(2)
+
+        w2e = {w: final_matrix[n] for n, w in enumerate(self.vocab)}
+        embed_size = final_matrix.shape[1]
+        #self.verify(cooc_mat) # TODO verify function is now broken in several ways due to window size and matrix type
 
         return w2e, embed_size
 

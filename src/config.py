@@ -17,7 +17,7 @@ class RandomControl:
 class WW:
     window_size = 1
     window_weight = 'flat'
-
+    matrix_type = 'summed'
 
 class Categorization:  # TODO make unique for each embedder
     # novice
@@ -31,18 +31,22 @@ class Categorization:  # TODO make unique for each embedder
     learning_rate = 0.01
     num_hiddens = 64  # learning reaches 100% acc without hiddens but takes longer
 
+class Reduce:
+    dimensions = 200
+
+    # parameters for random vector accumulation
+    rv_mean = 0
+    rv_stdev = 1
 
 class Corpora:
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
     # name = 'childes-20171212'
-    num_vocab = 16384
-
+    num_vocab = 4096
 
 class Embeddings:
     retrain = False
     save = False
-
 
 class Figs:
     width = 7

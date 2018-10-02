@@ -11,13 +11,9 @@ from src.utils import make_probe_simmat
 
 embedders = [
     # LSTMEmbedder(config.Corpora.name),
-    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rnone0'),
-    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nnone_rsvd200'),
-    WDEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd512'),
+    WDEmbedder(config.Corpora.name),
     WWEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name),
-    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rnone0'),
-    # WWEmbedder(config.Corpora.name, 'terms_v4096_ws0_wt0_ww0_nlogentropy_rsvd200'),
 
     SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
