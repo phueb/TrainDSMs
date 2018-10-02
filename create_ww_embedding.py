@@ -2,7 +2,7 @@ from src.embedders.ww_matrix import WWEmbedder
 from src import config
 
 config.Corpora.num_vocab = None
-config.WW.window_size = 3
+config.WW.window_size = 2
 config.WW.window_weight = 'flat'
 
 my_wwmatrix = WWEmbedder('test_corpus2')

@@ -13,11 +13,23 @@ class WWEmbedder(EmbedderBase):
         window_size = config.WW.window_size + 1
         windows = itertoolz.sliding_window(window_size, ids)
         for w in windows:
+            #print(self.vocab[w[0]], self.vocab[w[1]], self.vocab[w[2]])
             for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1), w[1:], range(1, window_size)):
                 if config.WW.window_weight == "linear":
                     mat[t1_id, t2_id] += window_size - dist
                 elif config.WW.window_weight == "flat":
                     mat[t1_id, t2_id] += 1
+        # count the final windows that are smaller than window_size
+        while(len(w) > 1):
+            t1_id = w[0]
+            final_window = w[1:]
+            for i in range(len(final_window)):
+                t2_id = final_window[i]
+                if config.WW.window_weight == "linear":
+                    mat[t1_id, t2_id] += window_size - i
+                elif config.WW.window_weight == "flat":
+                    mat[t1_id, t2_id] += 1
+            w = w[1:]
 
     def train(self):
         num_docs = len(self.numeric_docs)
