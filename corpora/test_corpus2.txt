@@ -1,0 +1,3 @@
+A B C . A B C . A B C . A B C .
+D E F . D E F . D E F . D E F .
+X Y Z . X Y Z . X Y Z . X Y Z .

@@ -71,7 +71,6 @@ class EmbedderBase(object):
             numeric_doc = []
 
             for n, token in enumerate(doc):
-                print(doc, n, token)
                 if token in t2id:
                     numeric_doc.append(t2id[token])
                 else:

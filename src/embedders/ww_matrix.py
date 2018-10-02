@@ -5,7 +5,6 @@ import pyprind
 from src.embedders import EmbedderBase
 from src import config
 
-
 class WWEmbedder(EmbedderBase):
     def __init__(self, corpus_name):
         super().__init__(corpus_name, 'hal')
@@ -22,8 +21,6 @@ class WWEmbedder(EmbedderBase):
 
     def train(self):
         num_docs = len(self.numeric_docs)
-
-        print(self.numeric_docs)
 
         pbar = pyprind.ProgBar(num_docs)
         cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
