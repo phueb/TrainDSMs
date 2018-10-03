@@ -40,7 +40,6 @@ owl BIRD
 parrot BIRD
 peacock BIRD
 penguin BIRD
-pigeon BIRD
 rooster BIRD
 seagull BIRD
 sparrow BIRD
@@ -57,7 +56,6 @@ blood BODY
 body BODY
 bone BODY
 bottom BODY
-braid BODY
 brain BODY
 breast BODY
 butt BODY
@@ -140,10 +138,8 @@ sandal CLOTHING
 scarf CLOTHING
 shirt CLOTHING
 shoe CLOTHING
-shoelace CLOTHING
 short CLOTHING
 skirt CLOTHING
-slack CLOTHING
 slipper CLOTHING
 sneaker CLOTHING
 sock CLOTHING
@@ -227,7 +223,6 @@ daughter FAMILY
 family FAMILY
 father FAMILY
 girl FAMILY
-gran FAMILY
 grandfather FAMILY
 grandma FAMILY
 grandmother FAMILY
@@ -329,7 +324,6 @@ hallway HOUSEHOLD
 kitchen HOUSEHOLD
 lawn HOUSEHOLD
 nursery HOUSEHOLD
-patio HOUSEHOLD
 porch HOUSEHOLD
 roof HOUSEHOLD
 room HOUSEHOLD
@@ -348,7 +342,6 @@ butterfly INSECT
 caterpillar INSECT
 cricket INSECT
 dragonfly INSECT
-flea INSECT
 fly INSECT
 grasshopper INSECT
 insect INSECT
@@ -401,7 +394,6 @@ cat MAMMAL
 cheetah MAMMAL
 chimpanzee MAMMAL
 chipmunk MAMMAL
-collie MAMMAL
 cow MAMMAL
 deer MAMMAL
 dingo MAMMAL
@@ -415,8 +407,6 @@ goat MAMMAL
 gorilla MAMMAL
 groundhog MAMMAL
 hamster MAMMAL
-hare MAMMAL
-hedgehog MAMMAL
 hippo MAMMAL
 horse MAMMAL
 hyena MAMMAL
@@ -601,7 +591,6 @@ pencil TOOLS
 plow TOOLS
 rake TOOLS
 saw TOOLS
-scissor TOOLS
 screw TOOLS
 screwdriver TOOLS
 shovel TOOLS
@@ -616,7 +605,6 @@ balloon TOYS
 bat TOYS
 block TOYS
 book TOYS
-comic TOYS
 crayon TOYS
 die TOYS
 doll TOYS
