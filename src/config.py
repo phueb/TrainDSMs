@@ -21,6 +21,18 @@ class WW:
     matrix_type = 'summed'
 
 
+class LSTM:
+    dropout_prob = 0.5
+    num_layers = 1
+    num_steps = 7
+    embed_size = 256
+    batch_size = 16
+    num_epochs = 10
+    lr_decay_base = 1 / 1.15
+    initital_lr = 20
+    num_epochs_with_flat_lr = 5
+    grad_clip = 0.25
+
 class Categorization:  # TODO make unique for each embedder
     # novice
     num_opt_steps = 5
