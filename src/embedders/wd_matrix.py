@@ -3,6 +3,7 @@ import pyprind
 import numpy as np
 
 from src import config
+from src.utils import matrix_to_w2e
 
 
 class WDEmbedder(EmbedderBase):
@@ -18,6 +19,5 @@ class WDEmbedder(EmbedderBase):
             for token_id in self.numeric_docs[i]:
                 count_matrix[token_id,i] += 1
             pbar.update()
-
-        w2e = {w: count_matrix[n] for n, w in enumerate(self.vocab)}
+        w2e = matrix_to_w2e(count_matrix, self.vocab)
         return w2e

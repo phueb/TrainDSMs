@@ -1,5 +1,6 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from sortedcontainers import SortedDict
 
 
 def matrix_to_simmat(input_matrix, method):
@@ -19,6 +20,11 @@ def w2e_to_matrix(w2e, probes=None):
             embeds.append(embed)
     res = np.vstack(embeds)
     print('Converted w2e to matrix with shape {}'.format(res.shape))
+    return res
+
+
+def matrix_to_w2e(input_matrix, vocab):
+    res = SortedDict({w: input_matrix[n] for n, w in enumerate(vocab)})
     return res
 
 

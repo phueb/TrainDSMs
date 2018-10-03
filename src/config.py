@@ -22,6 +22,7 @@ class WW:
 
 
 class LSTM:
+    embed_init_range = 0.1
     dropout_prob = 0.5
     num_layers = 1
     num_steps = 7

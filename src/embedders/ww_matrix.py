@@ -1,8 +1,9 @@
 import numpy as np
 from cytoolz import itertoolz
 import pyprind
-from sortedcontainers import SortedDict
 
+
+from src.utils import matrix_to_w2e
 from src.embedders import EmbedderBase
 from src import config
 
@@ -36,18 +37,17 @@ class WWEmbedder(EmbedderBase):
                 self.increment(mat, t1_id, t2_id, window_size, dist)
             print()
 
-    # TODO this should return nromalized + reduced matrix
-    # TODO ideally use 1 matrix embedder class and move all relevanta functions from EmbedderBase
+    # TODO normalizations and reductions must be done before rturnign w2e
     def train(self):
         num_docs = len(self.numeric_docs)
-
         pbar = pyprind.ProgBar(num_docs)
         cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(config.WW.window_size))
+        # count co-occurrences
         for token_ids in self.numeric_docs:
             self.update_matrix(cooc_mat, token_ids)
             pbar.update()
-
+        # co-occurrence type
         if config.WW.matrix_type == 'forward':
             final_matrix = cooc_mat
         elif config.WW.matrix_type == 'backward':
@@ -59,13 +59,5 @@ class WWEmbedder(EmbedderBase):
         else:
             raise AttributeError("Improper matrix type '{}'. "
                                  "Must be 'forward', 'backward', 'summed', or 'concat'".format(config.WW.matrix_type))
-        w2e = SortedDict({w: final_matrix[n] for n, w in enumerate(self.vocab)})
+        w2e = matrix_to_w2e(final_matrix, self.vocab)
         return w2e
-
-    def verify(self, input_matrix):  # TODO
-        assert config.WW.window_weight == 'flat'  # only works when using "flat"
-        num_windows = 0
-        for token_ids in self.numeric_docs:
-            num_windows += (len(token_ids) - config.WW.window_size + 1)
-        num_coocs_per_window = config.WW.window_size - 1
-        #assert np.sum(cooc_mat) == (num_windows * num_coocs_per_window)

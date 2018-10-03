@@ -8,6 +8,7 @@ import sys
 from sortedcontainers import SortedDict
 
 from src import config
+from src.utils import matrix_to_w2e
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -97,8 +98,9 @@ class EmbedderBase(object):
 
     def load_w2e(self):
         mat = np.loadtxt(config.Global.embeddings_dir / self.embeddings_fname, dtype='str', comments=None)
+        vocab = mat[:, 0]
         embed_mat = mat[:, 1:].astype('float')
-        w2e = SortedDict({probe: embedding for probe, embedding in zip(mat[:, 0], embed_mat)})
+        w2e = matrix_to_w2e(embed_mat, vocab)
         self.check_consistency(embed_mat)
         return w2e
 

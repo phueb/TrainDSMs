@@ -1,10 +1,11 @@
 import time
 import torch
-from torch.autograd import Variable
 import numpy as np
+from cytoolz import itertoolz
 
 from src.embedders import EmbedderBase
 from src import config
+from src.utils import matrix_to_w2e
 
 
 class LSTMEmbedder(EmbedderBase):
@@ -18,17 +19,19 @@ class LSTMEmbedder(EmbedderBase):
         num_excluded = shape0 % batch_size
         print('Excluding {} sequences due to fixed batch size'.format(num_excluded))
         shape0_adj = shape0 - num_excluded
-        shape1 = np.max([len(i) for i in numeric_docs[1]])
-        mats = [np.zeros((shape0_adj, shape1)).astype(np.int32) for _ in range(3)]
+        x, y = [np.zeros((shape0_adj, config.LSTM.num_steps)).astype(np.int64) for _ in range(2)]
         if shuffle:
-            row_ids = np.random.choice(shape0, shape0_adj, replace=False)
+            rand_doc_ids = np.random.choice(shape0, shape0_adj, replace=False)  # TODO need to use adjusted shape here?
         else:
-            row_ids = np.arange(shape0_adj)
-        for sequences, mat in zip(numeric_docs, mats):
-            for n, rand_id in enumerate(row_ids):
-                seq = sequences[rand_id]
-                mat[n, :len(seq)] = seq
-        return mats  # x1, x2, y
+            rand_doc_ids = np.arange(shape0_adj)
+
+        # TODO make windows
+        numeric_docs_flat = np.hstack(numeric_docs)[rand_doc_ids]
+        assert np.rank(numeric_docs) == 1
+        for w in itertoolz.sliding_window(config.LSTM.num_steps, numeric_docs_flat):
+            raise NotImplementedError
+
+        return x, y
 
     @staticmethod
     def gen_batches(x, y, batch_size):
@@ -49,19 +52,19 @@ class LSTMEmbedder(EmbedderBase):
         hidden = self.model.init_hidden()
         costs = 0.0
         iters = 0
-        x, y = self.docs_to_stacked_shuffled_windows(numeric_docs, self.model.batch_size)  # TODO implement
+        x, y = self.docs_to_stacked_shuffled_windows(numeric_docs, self.model.batch_size)
         for step, (x_b, y_b) in enumerate(self.gen_batches(x, y, self.model.batch_size)):
-            inputs = Variable(torch.from_numpy(x_b.astype(np.int64)).transpose(0, 1).contiguous()).cuda()
+            inputs = torch.autograd.Variable(torch.from_numpy(x_b).transpose(0, 1).contiguous()).cuda()
+            targets = torch.autograd.Variable(torch.from_numpy(y_b).transpose(0, 1).contiguous()).cuda()
+            # forward step
             self.model.zero_grad()
             hidden = self.repackage_hidden(hidden)
             outputs, hidden = self.model(inputs, hidden)
-            targets = Variable(torch.from_numpy(y_b.astype(np.int64)).transpose(0, 1).contiguous()).cuda()
-            tt = torch.squeeze(targets.view(-1, self.model.batch_size * self.model.num_steps))
-
-            loss = torch.nn.CrossEntropyLoss()(outputs.view(-1, config.Corpora.num_vocab), tt)
+            # backward step
+            targets_flat = torch.squeeze(targets.view(-1, self.model.batch_size * self.model.num_steps))
+            loss = torch.nn.CrossEntropyLoss()(outputs.view(-1, config.Corpora.num_vocab), targets_flat)
             costs += loss.data[0] * self.model.num_steps
             iters += self.model.num_steps
-
             if is_train:
                 loss.backward()
                 torch.nn.utils.clip_grad_norm(self.model.parameters(), config.LSTM.grad_clip)
@@ -74,6 +77,7 @@ class LSTMEmbedder(EmbedderBase):
         return np.exp(costs / iters)
 
     def train(self):
+        assert len(self.numeric_docs) > 200
         train_numeric_docs = self.numeric_docs[:-100]  # TODO assign split using percentage and shuffling
         valid_numeric_docs = self.numeric_docs[-100:50]
         test_numeric_docs = self.numeric_docs[-50:]
@@ -86,15 +90,15 @@ class LSTMEmbedder(EmbedderBase):
             print('Validation perplexity at epoch {}: {:8.2f}'.format(epoch, self.run_epoch(valid_numeric_docs)))
         print('Test Perplexity: {:8.2f}'.format(self.run_epoch(test_numeric_docs)))
 
-        # TODO make w2e
-        raise NotImplemented('How to get embeddings from pytorch?')
-
+        # TODO test
+        embed_mat = self.model.wx
+        w2e = matrix_to_w2e(embed_mat, self.vocab)
         return w2e
 
     def repackage_hidden(self, h):
         """Wraps hidden states in new Variables, to detach them from their history."""
-        if type(h) == Variable:
-            return Variable(h.data)
+        if type(h) == torch.autograd.Variable:
+            return torch.autograd.Variable(h.data)
         else:
             return tuple(self.repackage_hidden(v) for v in h)
 
@@ -104,30 +108,33 @@ class LSTMModel(torch.nn.Module):
         super().__init__()
         self.batch_size = config.LSTM.batch_size
         self.dropout = torch.nn.Dropout(config.LSTM.dropout_prob)
-        self.word_embeddings = torch.nn.Embedding(config.Corpora.num_vocab, config.LSTM.embed_size)
+        self.wx = torch.nn.Embedding(config.Corpora.num_vocab, config.LSTM.embed_size)
         self.lstm = torch.nn.LSTM(input_size=config.LSTM.embed_size,  # TODO why is this embed_size?
                                   hidden_size=config.LSTM.embed_size,
                                   num_layers=config.LSTM.num_layers,
                                   dropout=config.LSTM.dropout_prob)
-        self.sm_fc = torch.nn.Linear(in_features=config.LSTM.embed_size,
-                                     out_features=config.Corpora.num_vocab)
+        self.wy = torch.nn.Linear(in_features=config.LSTM.embed_size,
+                                  out_features=config.Corpora.num_vocab)
         self.init_weights()
 
     def init_weights(self):
-        init_range = 0.1
-        self.word_embeddings.weight.data.uniform_(-init_range, init_range)
-        self.sm_fc.bias.data.fill_(0.0)
-        self.sm_fc.weight.data.uniform_(-init_range, init_range)
+        self.wx.weight.data.uniform_(-config.LSTM.embed_init_range, config.LSTM.embed_init_range)
+        self.wy.bias.data.fill_(0.0)
+        self.wy.weight.data.uniform_(-config.LSTM.embed_init_range, config.LSTM.embed_init_range)
 
     def init_hidden(self):
         weight = next(self.parameters()).data
-        return (Variable(weight.new(config.LSTM.num_layers, self.batch_size, config.LSTM.embed_size).zero_()),
-                Variable(weight.new(config.LSTM.num_layers, self.batch_size, config.LSTM.embed_size).zero_()))
+        return (torch.autograd.Variable(weight.new(config.LSTM.num_layers,
+                                                   self.batch_size,
+                                                   config.LSTM.embed_size).zero_()),
+                torch.autograd.Variable(weight.new(config.LSTM.num_layers,
+                                                   self.batch_size,
+                                                   config.LSTM.embed_size).zero_()))
 
     def forward(self, inputs, hidden):
-        embeds = self.dropout(self.word_embeddings(inputs))
+        embeds = self.dropout(self.wx(inputs))
         lstm_out, hidden = self.lstm(embeds, hidden)
         lstm_out = self.dropout(lstm_out)
-        logits = self.sm_fc(lstm_out.view(-1, config.LSTM.embed_size))
+        logits = self.wy(lstm_out.view(-1, config.LSTM.embed_size))
         return logits.view(config.LSTM.num_steps, self.batch_size, config.Corpora.num_vocab), hidden
 
