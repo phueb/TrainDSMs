@@ -11,8 +11,6 @@ from src.embedders.ww_matrix import WWEmbedder
 from src.utils import matrix_to_simmat
 from src.utils import w2e_to_matrix
 
-unittest.main()  # TODO test
-
 embedders = [
     LSTMEmbedder(config.Corpora.name),
     WDEmbedder(config.Corpora.name),
@@ -66,7 +64,5 @@ for i, embedder in enumerate(embedders):
         # figs
         task.save_figs(embedder.name)
 # save scores
-# noinspection PyTypeChecker
-np.savetxt('novice_scores.txt', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models
-# noinspection PyTypeChecker
-np.savetxt('expert_scores.txt', exp_scores_mat)
+np.save('novice_scores.npy', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models
+np.save('expert_scores.npy', exp_scores_mat)

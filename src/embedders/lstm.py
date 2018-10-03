@@ -1,7 +1,6 @@
 import time
 import torch
 import numpy as np
-from cytoolz import itertoolz
 
 from src.embedders import EmbedderBase
 from src import config
@@ -14,32 +13,32 @@ class LSTMEmbedder(EmbedderBase):
         self.model = LSTMModel()
 
     @staticmethod
-    def docs_to_stacked_shuffled_windows(numeric_docs, batch_size, shuffle=True):  # TODO implement
-        shape0 = len(numeric_docs[1])
-        num_excluded = shape0 % batch_size
-        print('Excluding {} sequences due to fixed batch size'.format(num_excluded))
-        shape0_adj = shape0 - num_excluded
-        x, y = [np.zeros((shape0_adj, config.LSTM.num_steps)).astype(np.int64) for _ in range(2)]
-        if shuffle:
-            rand_doc_ids = np.random.choice(shape0, shape0_adj, replace=False)  # TODO need to use adjusted shape here?
-        else:
-            rand_doc_ids = np.arange(shape0_adj)
+    def gen_windows(token_ids):
+        # yield num_steps matrices where each matrix contains windows of size num_steps
+        remainder = len(token_ids) % config.LSTM.num_steps
+        for i in range(config.LSTM.num_steps):
+            print('Generating windows {}/{}'.format(i+1, config.LSTM.num_steps))
+            seq = np.roll(token_ids, i)  # rightward
+            seq = seq[:-remainder]
+            x = np.reshape(seq, (-1, config.LSTM.num_steps))  # TODO test fn
+            y = np.roll(x, -1)
+            yield x, y
 
-        # TODO make windows
-        numeric_docs_flat = np.hstack(numeric_docs)[rand_doc_ids]
-        assert np.rank(numeric_docs) == 1
-        for w in itertoolz.sliding_window(config.LSTM.num_steps, numeric_docs_flat):
-            raise NotImplementedError
-
-        return x, y
-
-    @staticmethod
-    def gen_batches(x, y, batch_size):
-        num_batches = len(x) // batch_size
-        print('Generating {} batches with size {}'.format(num_batches, batch_size))
-        for x_b, y_b in zip(np.vsplit(x, num_batches),
-                            np.vsplit(y, num_batches)):
-            yield x_b, y_b
+    def gen_batches(self, token_ids, batch_size):  # TODO test fn
+        for x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
+            # exclude some rows to split x and y evenly by batch size
+            shape0 = len(x)
+            num_excluded = shape0 % batch_size
+            x = x[:-num_excluded]
+            y = y[:-num_excluded]
+            print('Excluding {} sequences due to fixed batch size'.format(num_excluded))
+            shape0_adj = shape0 - num_excluded
+            # split into batches
+            num_batches = shape0_adj // batch_size
+            print('\tGenerating {:,} batches with size {}'.format(num_batches, batch_size))
+            for x_b, y_b in zip(np.vsplit(x, num_batches),
+                                np.vsplit(y, num_batches)):
+                yield x_b, y_b
 
     def run_epoch(self, numeric_docs, is_train=False, lr=1.0):
         if is_train:
@@ -52,14 +51,23 @@ class LSTMEmbedder(EmbedderBase):
         hidden = self.model.init_hidden()
         costs = 0.0
         iters = 0
-        x, y = self.docs_to_stacked_shuffled_windows(numeric_docs, self.model.batch_size)
-        for step, (x_b, y_b) in enumerate(self.gen_batches(x, y, self.model.batch_size)):
-            inputs = torch.autograd.Variable(torch.from_numpy(x_b).transpose(0, 1).contiguous()).cuda()
-            targets = torch.autograd.Variable(torch.from_numpy(y_b).transpose(0, 1).contiguous()).cuda()
+        # shuffle and flatten
+        if config.LSTM.shuffle_per_epoch:
+            np.random.shuffle(numeric_docs)
+        token_ids = np.hstack(numeric_docs)
+        for step, (x_b, y_b) in enumerate(self.gen_batches(token_ids, self.model.batch_size)):
+            # inputs = torch.autograd.Variable(torch.from_numpy(x_b).transpose(0, 1).contiguous()).cuda()  # TODO contiguous? transpose?
+            # targets = torch.autograd.Variable(torch.from_numpy(y_b).transpose(0, 1).contiguous()).cuda()
+
+            # TODO variable or tensor?
+            inputs = torch.from_numpy(x_b)
+            targets = torch.from_numpy(y_b)
+
+
             # forward step
-            self.model.zero_grad()
-            hidden = self.repackage_hidden(hidden)
-            outputs, hidden = self.model(inputs, hidden)
+            self.model.zero_grad()  # TODO what does this do?
+            # hidden = self.repackage_hidden(hidden)  # TODO do we need this?
+            outputs, hidden = self.model(inputs, hidden)  # TODO num_steps is not defined in model, how does it know?
             # backward step
             targets_flat = torch.squeeze(targets.view(-1, self.model.batch_size * self.model.num_steps))
             loss = torch.nn.CrossEntropyLoss()(outputs.view(-1, config.Corpora.num_vocab), targets_flat)
@@ -95,7 +103,7 @@ class LSTMEmbedder(EmbedderBase):
         w2e = matrix_to_w2e(embed_mat, self.vocab)
         return w2e
 
-    def repackage_hidden(self, h):
+    def repackage_hidden(self, h):  # TODO what does this do?
         """Wraps hidden states in new Variables, to detach them from their history."""
         if type(h) == torch.autograd.Variable:
             return torch.autograd.Variable(h.data)

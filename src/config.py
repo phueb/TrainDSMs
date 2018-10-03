@@ -22,6 +22,7 @@ class WW:
 
 
 class LSTM:
+    shuffle_per_epoch = True
     embed_init_range = 0.1
     dropout_prob = 0.5
     num_layers = 1
