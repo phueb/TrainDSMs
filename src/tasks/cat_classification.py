@@ -36,12 +36,12 @@ class CatClassification:
     @staticmethod
     def make_p2cat(cat_type):
         res = SortedDict()
-        p = config.Global.task_dir / '{}_categorization.txt'.format(cat_type)
+        p = config.Global.task_dir / '{}_categorization_{}.txt'.format(cat_type, config.Corpora.num_vocab)
         with p.open('r') as f:
             for line in f:
                 data = line.strip().strip('\n').split()
-                cat = data[0]
-                probe = data[1]
+                probe = data[0]
+                cat = data[1]
                 res[probe] = cat
         return res
 
@@ -184,7 +184,7 @@ class CatClassification:
             x_train, y_train, x_test, y_test = trial.data
             dummies = pd.get_dummies(y_test)
             cat_freqs = np.sum(dummies.values, axis=0)
-            num_test_cats = len(cat_freqs)
+            num_test_cats = len(set(y_test))
             cat_freqs_mat = np.tile(cat_freqs, (num_test_cats, 1))  # not all categories may be in test data
             # confusion mat
             logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
@@ -204,13 +204,13 @@ class CatClassification:
                                                        self.cats):
                 p = config.Global.figs_dir / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
-                    p.parent.mkdir()
-                fig.savefig(p)
+                    p.parent.mkdir(parents=True)
+                fig.savefig(str(p))
                 print('Saved "{}" figure to {}'.format(fig_name, config.Global.figs_dir / self.name))
 
     def train_and_score_expert(self, w2e, embed_size):
         for shuffled in [False, True]:
-            name = 'shuffled' if shuffled else 'not-shuffled'
+            name = 'shuffled' if shuffled else ''
             trial = Trial(name=name,
                           num_cats=self.num_cats,
                           g=self.make_classifier_graph(embed_size),

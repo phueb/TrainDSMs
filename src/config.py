@@ -14,10 +14,12 @@ class RandomControl:
     distribution = 'uniform'
     embed_size = 512
 
+
 class WW:
     window_size = 1
     window_weight = 'flat'
     matrix_type = 'summed'
+
 
 class Categorization:  # TODO make unique for each embedder
     # novice
@@ -25,11 +27,12 @@ class Categorization:  # TODO make unique for each embedder
     # expert
     test_size = 0.3
     num_epochs = 10
-    mb_size = 8
+    mb_size = 2
     max_freq = 50  # TODO log transform
     num_evals = 10
-    learning_rate = 0.01
-    num_hiddens = 64  # learning reaches 100% acc without hiddens but takes longer
+    learning_rate = 0.005
+    num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer
+
 
 class Reduce:
     dimensions = 200
@@ -38,15 +41,18 @@ class Reduce:
     rv_mean = 0
     rv_stdev = 1
 
+
 class Corpora:
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
     # name = 'childes-20171212'
     num_vocab = 4096
 
+
 class Embeddings:
     retrain = False
     save = False
+
 
 class Figs:
     width = 7

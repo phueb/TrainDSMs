@@ -1,36 +1,43 @@
 import numpy as np
 from cytoolz import itertoolz
 import pyprind
+from sortedcontainers import SortedDict
 
 from src.embedders import EmbedderBase
 from src import config
+
+PAD = '*PAD*'
+
 
 class WWEmbedder(EmbedderBase):
     def __init__(self, corpus_name):
         super().__init__(corpus_name, 'ww')
 
+    @staticmethod
+    def increment(mat, t1_id, t2_id, window_size, dist):
+        # check if PAD
+        if t1_id == PAD or t2_id == PAD:
+            print(t1_id, t2_id)
+            return
+        # increment
+        if config.WW.window_weight == "linear":
+            mat[t1_id, t2_id] += window_size - dist
+        elif config.WW.window_weight == "flat":
+            mat[t1_id, t2_id] += 1
+        print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
+
     def update_matrix(self, mat, ids):
         window_size = config.WW.window_size + 1
+        ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
+        print(ids)
         windows = itertoolz.sliding_window(window_size, ids)
         for w in windows:
-            #print(self.vocab[w[0]], self.vocab[w[1]], self.vocab[w[2]])
             for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1), w[1:], range(1, window_size)):
-                if config.WW.window_weight == "linear":
-                    mat[t1_id, t2_id] += window_size - dist
-                elif config.WW.window_weight == "flat":
-                    mat[t1_id, t2_id] += 1
-        # count the final windows that are smaller than window_size
-        while(len(w) > 1):
-            t1_id = w[0]
-            final_window = w[1:]
-            for i in range(len(final_window)):
-                t2_id = final_window[i]
-                if config.WW.window_weight == "linear":
-                    mat[t1_id, t2_id] += window_size - i
-                elif config.WW.window_weight == "flat":
-                    mat[t1_id, t2_id] += 1
-            w = w[1:]
+                self.increment(mat, t1_id, t2_id, window_size, dist)
+            print()
 
+    # TODO this should return nromalized + reduced matrix
+    # TODO ideally use 1 matrix embedder class and move all relevanta functions from EmbedderBase
     def train(self):
         num_docs = len(self.numeric_docs)
 
@@ -50,16 +57,12 @@ class WWEmbedder(EmbedderBase):
         elif config.WW.matrix_type == 'concatenate':
             final_matrix = np.concatenate((cooc_mat, cooc_mat.transpose()))
         else:
-            print("Improper matrix type '{}'. Must be 'forward', 'backward', 'summed', or 'concat'".format(config.WW.matrix_type))
-            sys.exit(2)
+            raise AttributeError("Improper matrix type '{}'. "
+                                 "Must be 'forward', 'backward', 'summed', or 'concat'".format(config.WW.matrix_type))
+        w2e = SortedDict({w: final_matrix[n] for n, w in enumerate(self.vocab)})
+        return w2e
 
-        w2e = {w: final_matrix[n] for n, w in enumerate(self.vocab)}
-        embed_size = final_matrix.shape[1]
-        #self.verify(cooc_mat) # TODO verify function is now broken in several ways due to window size and matrix type
-
-        return w2e, embed_size
-
-    def verify(self, cooc_mat):
+    def verify(self, input_matrix):  # TODO
         assert config.WW.window_weight == 'flat'  # only works when using "flat"
         num_windows = 0
         for token_ids in self.numeric_docs:

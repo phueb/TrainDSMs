@@ -4,8 +4,10 @@ from spacy.tokenizer import Tokenizer
 from cached_property import cached_property
 from collections import Counter
 import pyprind
+import sys
+from sortedcontainers import SortedDict
+
 from src import config
-from sklearn.metrics.pairwise import cosine_distances
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -36,27 +38,26 @@ class EmbedderBase(object):
         return self.corpus_data[1]
 
     def preprocess(self):
-
         docs = []
         tokens = []
         # read corpus file
         p = config.Global.corpora_dir / self.corpus_fname
-        texts = p.open('r').readlines()
-        print('\nTokenizing {} docs...'.format(len(texts)))
-        # tokenize
-        tokenizer = Tokenizer(nlp.vocab)
-        pbar = pyprind.ProgBar(len(texts))
-        for s_doc in tokenizer.pipe(texts, batch_size=50):  # creates spacy Docs
-            doc = []
-            for t in s_doc:
-                token = t.text
-                if token != '\n':
-                    tokens.append(token)
-                    doc.append(token)
-            docs.append(doc)
-            pbar.update()
-
-        # if no vocag specified, use the whole corpus
+        with p.open('r') as f:
+            texts = f.readlines()
+            print('\nTokenizing {} docs...'.format(len(texts)))
+            # tokenize
+            tokenizer = Tokenizer(nlp.vocab)
+            pbar = pyprind.ProgBar(len(texts), stream=sys.stdout)
+            for s_doc in tokenizer.pipe(texts, batch_size=50):  # creates spacy Docs
+                doc = []
+                for t in s_doc:
+                    token = t.text
+                    if token != '\n':
+                        tokens.append(token)
+                        doc.append(token)
+                docs.append(doc)
+                pbar.update()
+        # if no vocab specified, use the whole corpus
         if config.Corpora.num_vocab is None:
             config.Corpora.num_vocab = len(set(tokens)) + 1
 
@@ -97,10 +98,9 @@ class EmbedderBase(object):
     def load_w2e(self):
         mat = np.loadtxt(config.Global.embeddings_dir / self.embeddings_fname, dtype='str', comments=None)
         embed_mat = mat[:, 1:].astype('float')
-        embed_size = embed_mat.shape[1]
-        w2e = {probe: embedding for probe, embedding in zip(mat[:, 0], embed_mat)}
+        w2e = SortedDict({probe: embedding for probe, embedding in zip(mat[:, 0], embed_mat)})
         self.check_consistency(embed_mat)
-        return w2e, embed_size
+        return w2e
 
     def save(self, w2e):  # TODO serializing is faster (pickle, numpy)
         p = config.Global.embeddings_dir / self.embeddings_fname
@@ -109,56 +109,12 @@ class EmbedderBase(object):
                 embedding_str = ' '.join(embedding.astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
-    def print_matrix(self, matrix, precision, row_list=None, column_list=None):
-
-        t2id = {t: i for i, t in enumerate(self.vocab)}
-
-        print()
-
-        if row_list != None:
-            for i in range(len(row_list)):
-                if row_list[i] in t2id:
-                    row_index = t2id[row_list[i]]
-                    print('{:<15}   '.format(row_list[i]), end='')
-
-                    if column_list != None:
-                        for j in range(len(column_list)):
-                            if column_list[j] in t2id:
-                                column_index = t2id[column_list[j]]
-                            print('{val:6.{precision}f}'.format(precision=precision, val=matrix[row_index, column_index]), end='')
-                        print()
-                    else:
-                        for i in range(len(matrix[:, 0])):
-                            print('{:<15}   '.format(self.vocab[i]), end='')
-                            for j in range(len(matrix[i, :])):
-                                print('{val:6.{precision}f}'.format(precision=precision, val=matrix[i, j]), end='')
-                            print()
-        else:
-            for i in range(len(matrix[:, 0])):
-                print('{:<15}   '.format(self.vocab[i]), end='')
-                for j in range(len(matrix[i, :])):
-                    print('{val:6.{precision}f}'.format(precision=precision, val=matrix[i, j]), end='')
-                print()
-
-    def w2e_to_matrix(self, w2e):
-        for key in w2e:
-            vector = w2e[key]
-            break
-        num_rows = len(w2e)
-        num_cols = len(vector)
-        matrix = np.zeros([num_rows, num_cols], float)
-        assert num_rows == len(self.vocab)
-        for i in range(num_rows):
-            matrix[i,:] = w2e[self.vocab[i]]
-        return matrix
-
-    def norm_rowsum(self, w2e):
+    def norm_rowsum(self, input_matrix):
         print('\nNormalizing matrix by row sums...')
-        input_matrix = self.w2e_to_matrix(w2e)
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
         output_matrix = np.zeros([num_rows, num_cols], float)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             if input_matrix[i,:].sum() == 0:
                 print('    Warning: Row {} ({}) had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
@@ -167,13 +123,12 @@ class EmbedderBase(object):
             pbar.update()
         return output_matrix, num_cols
 
-    def norm_colsum(self, w2e):
+    def norm_colsum(self, input_matrix):
         print('\nNormalizing matrix by column sums...')
-        input_matrix = self.w2e_to_matrix(w2e)
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
         output_matrix = np.zeros([num_rows, num_cols], float)
-        pbar = pyprind.ProgBar(num_cols)
+        pbar = pyprind.ProgBar(num_cols, stream=sys.stdout)
         for i in range(num_cols):
             if input_matrix[:,i].sum() == 0:
                 print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
@@ -182,13 +137,12 @@ class EmbedderBase(object):
             pbar.update()
         return output_matrix, num_cols
 
-    def norm_tdidf(self, w2e):
+    def norm_tdidf(self, input_matrix):
         print('\nNormalizing matrix by td-idf...')
-        input_matrix = self.w2e_to_matrix(w2e)
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
         print('Calculating column probs')
-        pbar = pyprind.ProgBar(num_cols)
+        pbar = pyprind.ProgBar(num_cols, stream=sys.stdout)
         colprob_matrix = np.zeros([num_rows, num_cols], float)
         for i in range(num_cols):
             if input_matrix[:,i].sum() == 0:
@@ -198,7 +152,7 @@ class EmbedderBase(object):
             pbar.update()
         print('Calculating td-idf scores')
         output_matrix = np.zeros([num_rows, num_cols], float)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             col_occ_count = np.count_nonzero(input_matrix[i,:]) + 1
             row_idf = float(num_cols) / col_occ_count
@@ -207,10 +161,8 @@ class EmbedderBase(object):
             pbar.update()
         return output_matrix, num_cols
 
-    def norm_ppmi(self, w2e):
+    def norm_ppmi(self, input_matrix):
         print('\nNormalizing matrix by ppmi')
-
-        input_matrix = self.w2e_to_matrix(w2e)
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
 
@@ -219,7 +171,7 @@ class EmbedderBase(object):
         matrix_sum = row_sums.sum()
 
         output_matrix = np.zeros([num_rows, num_cols], float)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             for j in range(num_cols):
                 if input_matrix[i, j] == 0:
@@ -237,16 +189,15 @@ class EmbedderBase(object):
             pbar.update()
         return output_matrix, num_cols
 
-    def norm_logentropy(self, w2e):
+    def norm_logentropy(self, input_matrix):
         print('\nNormalizing matrix by log entropy')
-        input_matrix = self.w2e_to_matrix(w2e)
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
         output_matrix = np.zeros([num_rows, num_cols], float)
 
         print('Computing row probabilities')
         row_prob_matrix = np.zeros([num_rows, num_cols], float)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             if input_matrix[i,:].sum() == 0:
                 print('    Warning: Row {} ({}) had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
@@ -256,7 +207,7 @@ class EmbedderBase(object):
 
         print('Computing entropy scores')
         log_freqs = np.log(input_matrix + 1)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             row_entropy = np.dot(row_prob_matrix[i, :], np.log(row_prob_matrix[i, :] + 1))
             global_weight = 1 + (row_entropy / np.log(num_cols + 1))
@@ -279,17 +230,11 @@ class EmbedderBase(object):
         num_cols = len(input_matrix[0, :])
         random_vectors = np.random.normal(mean,stdev,[num_rows,length])
         rva_matrix = np.zeros([num_rows, length], float)
-        pbar = pyprind.ProgBar(num_rows)
+        pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             for j in range(num_rows):
                 rva_matrix[i,:] += (input_matrix[i,j]*random_vectors[j,:])
             pbar.update()
 
         return rva_matrix, length
-
-    def sim_matrix(self, input_matrix, sim_type=config.Global.sim_method):
-
-        if sim_type == 'cosine':
-            sim_matrix = cosine_distances(input_matrix)
-        return sim_matrix
 

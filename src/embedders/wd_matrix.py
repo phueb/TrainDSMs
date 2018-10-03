@@ -20,6 +20,4 @@ class WDEmbedder(EmbedderBase):
             pbar.update()
 
         w2e = {w: count_matrix[n] for n, w in enumerate(self.vocab)}
-        embed_size = count_matrix.shape[1]
-
-        return w2e, embed_size
+        return w2e

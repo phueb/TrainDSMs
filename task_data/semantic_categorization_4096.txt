@@ -33,7 +33,6 @@ hen BIRD
 ostrich BIRD
 owl BIRD
 parrot BIRD
-peacock BIRD
 penguin BIRD
 rooster BIRD
 arm BODY
@@ -52,7 +51,6 @@ chin BODY
 ear BODY
 elbow BODY
 eye BODY
-eyebrow BODY
 face BODY
 finger BODY
 foot BODY
@@ -378,7 +376,6 @@ tuna MEAT
 april MONTHS
 august MONTHS
 december MONTHS
-february MONTHS
 january MONTHS
 july MONTHS
 june MONTHS
@@ -462,7 +459,6 @@ midnight TIMES
 minute TIMES
 morning TIMES
 night TIMES
-noon TIMES
 o'clock TIMES
 second TIMES
 broom TOOLS
