@@ -22,14 +22,16 @@ class WW:
 
 
 class LSTM:
+    train_percent = 0.9
+    num_eval_steps = 1000
     shuffle_per_epoch = True
     embed_init_range = 0.1
-    dropout_prob = 0.5
+    dropout_prob = 0.01
     num_layers = 1
     num_steps = 7
     embed_size = 256
     batch_size = 16
-    num_epochs = 10
+    num_epochs = 1
     lr_decay_base = 1 / 1.15
     initital_lr = 20
     num_epochs_with_flat_lr = 5

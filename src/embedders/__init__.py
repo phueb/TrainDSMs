@@ -54,7 +54,7 @@ class EmbedderBase(object):
                 for t in s_doc:
                     token = t.text
                     if token != '\n':
-                        tokens.append(token)
+                        tokens.append(token)  # TODO might be better to not store token in memory twice
                         doc.append(token)
                 docs.append(doc)
                 pbar.update()
