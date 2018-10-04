@@ -17,7 +17,7 @@ class LSTMEmbedder(EmbedderBase):
         super().__init__(corpus_name, 'lstm')
         self.model = LSTMModel()
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.LSTM.initital_lr)  # TODO SparseAdam
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=config.LSTM.initital_lr)  # TODO CPU
         self.model.cuda()
 
     @staticmethod
@@ -130,7 +130,7 @@ class LSTMEmbedder(EmbedderBase):
             print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
                 epoch, self.calc_pp(valid_numeric_docs)))
         print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs)))
-        embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO
+        embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO is this the correct order?
         w2e = matrix_to_w2e(embed_mat, self.vocab)
         return w2e
 
@@ -139,11 +139,11 @@ class LSTMModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.batch_size = config.LSTM.batch_size
-        self.dropout = torch.nn.Dropout(config.LSTM.dropout_prob)  # TODO is this useful?
         self.wx = torch.nn.Embedding(config.Corpora.num_vocab, config.LSTM.embed_size)
         self.lstm = torch.nn.LSTM(input_size=config.LSTM.embed_size,
                                   hidden_size=config.LSTM.embed_size,
-                                  num_layers=config.LSTM.num_layers)
+                                  num_layers=config.LSTM.num_layers,
+                                  dropout=config.LSTM.dropout_prob if config.LSTM.num_layers > 1 else 0)
         self.wy = torch.nn.Linear(in_features=config.LSTM.embed_size,
                                   out_features=config.Corpora.num_vocab)
         self.init_weights()
@@ -166,6 +166,6 @@ class LSTMModel(torch.nn.Module):
         embeds = self.wx(inputs)
         outputs, hidden = self.lstm(embeds, hidden)  # this returns all time steps
         final_outputs = torch.squeeze(outputs[-1])
-        logits = self.wy(self.dropout(final_outputs))
+        logits = self.wy(final_outputs)
         return logits, hidden  # TODO don't need to return hidden
 

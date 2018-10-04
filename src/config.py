@@ -26,16 +26,16 @@ class LSTM:
     num_eval_steps = 1000
     shuffle_per_epoch = True
     embed_init_range = 0.1
-    dropout_prob = 0.01
+    dropout_prob = 0
     num_layers = 1
     num_steps = 7
-    embed_size = 256
-    batch_size = 16
-    num_epochs = 1
+    embed_size = 512
+    batch_size = 64  # TODO was 20
+    num_epochs = 20
     lr_decay_base = 1 / 1.15
-    initital_lr = 20
-    num_epochs_with_flat_lr = 5
-    grad_clip = 0.25
+    initital_lr = 0.1  # TODO was 20
+    num_epochs_with_flat_lr = 10  # TODO was 5
+    grad_clip = None  # TODO was 0.25
 
 class Categorization:  # TODO make unique for each embedder
     # novice
