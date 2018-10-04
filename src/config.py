@@ -67,7 +67,7 @@ class Corpora:
 
 class Embeddings:
     retrain = False
-    save = False
+    save = True
 
 
 class Figs:

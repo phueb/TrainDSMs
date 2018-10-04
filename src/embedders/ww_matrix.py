@@ -8,6 +8,7 @@ from src.embedders import EmbedderBase
 from src import config
 
 PAD = '*PAD*'
+VERBOSE = False
 
 
 class WWEmbedder(EmbedderBase):
@@ -25,7 +26,8 @@ class WWEmbedder(EmbedderBase):
             mat[t1_id, t2_id] += window_size - dist
         elif config.WW.window_weight == "flat":
             mat[t1_id, t2_id] += 1
-        print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
+        if VERBOSE:
+            print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
 
     def update_matrix(self, mat, ids):
         window_size = config.WW.window_size + 1

@@ -17,7 +17,7 @@ class LSTMEmbedder(EmbedderBase):
         super().__init__(corpus_name, 'lstm')
         self.model = LSTMModel()
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=config.LSTM.initital_lr)  # TODO CPU
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.LSTM.initital_lr)  # TODO Adagrad
         self.model.cuda()
 
     @staticmethod
@@ -31,7 +31,7 @@ class LSTMEmbedder(EmbedderBase):
             y = np.roll(x, -1)
             yield i, x, y
 
-    def gen_batches(self, token_ids, batch_size, verbose=True):  # TODO test fn
+    def gen_batches(self, token_ids, batch_size, verbose=True):
         batch_id = 0
         for window_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
             # exclude some rows to split x and y evenly by batch size
@@ -66,10 +66,10 @@ class LSTMEmbedder(EmbedderBase):
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
             targets = torch.cuda.LongTensor(y_b)
             hidden = self.model.init_hidden()  # this must be here to re-init graph
-            outputs, hidden = self.model(inputs, hidden)
+            logits = self.model(inputs, hidden)
             #
             self.optimizer.zero_grad()  # sets all gradients to zero
-            loss = self.criterion(outputs.unsqueeze_(0), targets)  # need to add dimension due to mb_size = 1
+            loss = self.criterion(logits.unsqueeze_(0), targets)  # need to add dimension due to mb_size = 1
             errors += loss.item()
         res = np.exp(errors / batch_id + 1)
         return res  # TODO test
@@ -87,10 +87,10 @@ class LSTMEmbedder(EmbedderBase):
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
             targets = torch.cuda.LongTensor(y_b)
             hidden = self.model.init_hidden()  # this must be here to re-init graph
-            outputs, hidden = self.model(inputs, hidden)
+            logits = self.model(inputs, hidden)
             # backward step
             self.optimizer.zero_grad()  # sets all gradients to zero  # TODO why put this here?
-            loss = self.criterion(outputs, targets)
+            loss = self.criterion(logits, targets)
             loss.backward()
             if config.LSTM.grad_clip is not None:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), config.LSTM.grad_clip)
@@ -117,13 +117,13 @@ class LSTMEmbedder(EmbedderBase):
                 if np.random.binomial(1, 0.5):  # split valid and test docs evenly
                     valid_numeric_docs.append(doc)
                 else:
-                    test_numeric_docs.append(doc)  # TODO test splitting
+                    test_numeric_docs.append(doc)
         print('Num docs in train {} valid {} test {}'.format(
             len(train_numeric_docs), len(valid_numeric_docs), len(test_numeric_docs)))
         # train loop
         lr = config.LSTM.initital_lr
         for epoch in range(config.LSTM.num_epochs):
-            print('/Starting epoch {}'.format(epoch))
+            print('/Starting epoch {} with lr={}'.format(epoch, lr))
             lr_decay = config.LSTM.lr_decay_base ** max(epoch - config.LSTM.num_epochs_with_flat_lr, 0)
             lr = lr * lr_decay  # decay lr if it is time
             self.train_epoch(train_numeric_docs, lr)
@@ -167,5 +167,5 @@ class LSTMModel(torch.nn.Module):
         outputs, hidden = self.lstm(embeds, hidden)  # this returns all time steps
         final_outputs = torch.squeeze(outputs[-1])
         logits = self.wy(final_outputs)
-        return logits, hidden  # TODO don't need to return hidden
+        return logits
 
