@@ -32,11 +32,13 @@ class WWEmbedder(EmbedderBase):
     def update_matrix(self, mat, ids):
         window_size = config.WW.window_size + 1
         ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
-        print(ids)
+        if VERBOSE:
+            print(ids)
         windows = itertoolz.sliding_window(window_size, ids)
         for w in windows:
             for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1), w[1:], range(1, window_size)):
                 self.increment(mat, t1_id, t2_id, window_size, dist)
+        if VERBOSE:
             print()
 
     # TODO normalizations and reductions must be done before rturnign w2e

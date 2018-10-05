@@ -37,13 +37,14 @@ class LSTM:
     num_epochs_with_flat_lr = 10  # TODO was 5
     grad_clip = None  # TODO was 0.25
 
+
 class Categorization:  # TODO make unique for each embedder
     # novice
-    num_opt_steps = 5
+    num_opt_steps = 1
     # expert
     test_size = 0.3
-    num_epochs = 10
-    mb_size = 8
+    num_epochs = 1000
+    mb_size = 4
     max_freq = 1  # TODO log transform
     num_evals = 10
     learning_rate = 0.005

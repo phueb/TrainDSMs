@@ -91,9 +91,6 @@ class EmbedderBase(object):
     def check_consistency(mat):  # TODO different models may produce embeddings that benefit from different expert hyperparameters
         # size check
         assert mat.shape[1] > 1
-        # norm check
-        assert np.max(mat) <= 1.0
-        assert np.min(mat) >= -1.0
         print('Inf Norm of embeddings = {:.1f}'.format(np.linalg.norm(mat, np.inf)))
 
     def load_w2e(self):
