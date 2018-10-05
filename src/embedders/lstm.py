@@ -11,7 +11,6 @@ from src.utils import matrix_to_w2e
 
 # TODO  is torch.utils.data useful here?
 
-
 class LSTMEmbedder(EmbedderBase):
     def __init__(self, corpus_name, ):
         super().__init__(corpus_name, 'lstm')

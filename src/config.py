@@ -43,8 +43,8 @@ class Categorization:  # TODO make unique for each embedder
     # expert
     test_size = 0.3
     num_epochs = 10
-    mb_size = 2
-    max_freq = 50  # TODO log transform
+    mb_size = 8
+    max_freq = 1  # TODO log transform
     num_evals = 10
     learning_rate = 0.005
     num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer

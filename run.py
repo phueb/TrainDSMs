@@ -15,9 +15,7 @@ embedders = [
     LSTMEmbedder(config.Corpora.name),
     WDEmbedder(config.Corpora.name),
     WWEmbedder(config.Corpora.name),
-    RandomControlEmbedder(config.Corpora.name),
-
-    SkipgramEmbedder(config.Corpora.name),
+    # SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
 num_embedders = len(embedders)
 

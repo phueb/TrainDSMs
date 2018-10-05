@@ -100,7 +100,7 @@ class CatClassification:
                             logits = tf.matmul(x, wy) + by
                     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
                     loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
-                    optimizer = tf.train.AdagradOptimizer(learning_rate=config.Categorization.learning_rate)
+                    optimizer = tf.train.GradientDescentOptimizer(learning_rate=config.Categorization.learning_rate)  # TODO regularization
                     step = optimizer.minimize(loss)
                 with tf.device('/cpu:0'):
                     correct = tf.nn.in_top_k(logits, y, 1)
