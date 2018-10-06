@@ -24,7 +24,9 @@ def w2e_to_matrix(w2e, probes=None):
 
 
 def matrix_to_w2e(input_matrix, vocab):
-    res = SortedDict({w: input_matrix[n] for n, w in enumerate(vocab)})
+    res = SortedDict()
+    for n, w in enumerate(vocab):
+        res[w] = input_matrix[n]
     return res
 
 

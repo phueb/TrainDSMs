@@ -50,6 +50,8 @@ class Categorization:  # TODO make unique for each embedder
     learning_rate = 0.005
     num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer
 
+class Normalize:
+    type = 'none'
 
 class Reduce:
     dimensions = 200

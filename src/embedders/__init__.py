@@ -104,9 +104,29 @@ class EmbedderBase(object):
     def save(self, w2e):  # TODO serializing is faster (pickle, numpy)
         p = config.Global.embeddings_dir / self.embeddings_fname
         with p.open('w') as f:
-            for probe, embedding in sorted(w2e.items()):
-                embedding_str = ' '.join(embedding.astype(np.str).tolist())
+            for probe in w2e:
+                embedding = w2e[probe]
+                embedding_str = ' '.join(embedding.astype(np.str).tolist()) # TODO reduce output to 5-6 decimals
                 f.write('{} {}\n'.format(probe, embedding_str))
+
+    def normalize(self, input_matrix, norm_type):
+        if norm_type == 'row_sum':
+            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+        elif norm_type == 'col_sum':
+            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+        elif norm_type == 'td_idf':
+            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+        elif norm_type == 'row_logentropy':
+            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+        elif norm_type == 'ppmi':
+            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+        elif norm_type == 'none':
+            norm_matrix = input_matrix
+            dimensions = input_matrix.shape[1]
+        else:
+            raise AttributeError("Improper matrix normalization type '{}'. "
+                                 "Must be 'row_sum', 'col_sum', 'row_logentropy', 'td-idf', 'ppmi', or 'none'".format(norm_type))
+        return norm_matrix, dimensions
 
     def norm_rowsum(self, input_matrix):
         print('\nNormalizing matrix by row sums...')
@@ -188,7 +208,7 @@ class EmbedderBase(object):
             pbar.update()
         return output_matrix, num_cols
 
-    def norm_logentropy(self, input_matrix):
+    def row_logentropy(self, input_matrix):
         print('\nNormalizing matrix by log entropy')
         num_rows = len(input_matrix[:,0])
         num_cols = len(input_matrix[0,:])
@@ -216,6 +236,19 @@ class EmbedderBase(object):
             pbar.update()
 
         return output_matrix, num_cols
+
+    def reduce(self, input_matrix, reduce_type, reduce_size):
+        if reduce_type == 'svd':
+            reduced_matrix, dimensions = self.reduce_svd(input_matrix, reduce_size)
+        elif reduce_type == 'rva':
+            reduced_matrix, dimensions = self.reduce_rva(input_matrix, reduce_size)
+        elif reduce_type == 'none':
+            reduced_matrix = input_matrix
+            dimensions = input_matrix.shape[1]
+        else:
+            raise AttributeError("Improper matrix reduction type '{}'. "
+                                 "Must be 'svd', 'rva', or 'none'".format(reduce_type))
+        return reduced_matrix, dimensions
 
     def reduce_svd(self, input_matrix, dimensions=config.Reduce.dimensions):
         print('\nReducing matrix using SVD to {} singular values'.format(dimensions))
