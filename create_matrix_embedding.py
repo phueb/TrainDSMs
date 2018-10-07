@@ -16,10 +16,10 @@ from src.utils import w2e_to_matrix
 # reduce_sizes = [16, 32, 64, 128, 256, 512]
 
 vocab_sizes = [4096]
-window_sizes = [1]
+window_sizes = [16]
 window_weights = ["flat"]
-window_types = ['forward', 'backward']
-norm_types = ['none', 'row_logentropy', 'ppmi']
+window_types = ['summed']
+norm_types = ['none', 'row_logentropy', 'td_idf', 'ppmi']
 reduce_types = ['none','svd']
 reduce_sizes = [32,512]
 
