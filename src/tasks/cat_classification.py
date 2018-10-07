@@ -78,7 +78,7 @@ class CatClassification:
     def make_classifier_graph(self, embed_size):
         class Graph:
             with tf.Graph().as_default():
-                with tf.device('/gpu:0'):
+                with tf.device('/{}:0'.format(config.Categorization.device)):
                     # placeholders
                     x = tf.placeholder(tf.float32, shape=(None, embed_size))
                     y = tf.placeholder(tf.int32, shape=None)

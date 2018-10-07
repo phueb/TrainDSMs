@@ -105,7 +105,7 @@ class EmbedderBase(object):
         p = config.Global.embeddings_dir / self.embeddings_fname
         with p.open('w') as f:
             for probe, embedding in sorted(w2e.items()):
-                embedding_str = ' '.join(embedding.astype(np.str).tolist())
+                embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
     def norm_rowsum(self, input_matrix):

@@ -62,5 +62,5 @@ for i, embedder in enumerate(embedders):
         # figs
         task.save_figs(embedder.name)
 # save scores
-np.save('novice_scores.npy', nov_scores_mat)  # TODO tune experts by maximizing average performance across ALL models
+np.save('novice_scores.npy', nov_scores_mat)
 np.save('expert_scores.npy', exp_scores_mat)

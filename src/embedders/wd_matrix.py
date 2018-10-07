@@ -1,9 +1,9 @@
-from src.embedders import EmbedderBase
 import pyprind
 import numpy as np
 
 from src import config
 from src.utils import matrix_to_w2e
+from src.embedders import EmbedderBase
 
 
 class WDEmbedder(EmbedderBase):

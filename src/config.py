@@ -21,7 +21,14 @@ class WW:
     matrix_type = 'summed'
 
 
+class Skipgram:
+    embed_size = 512
+    window_size = 7
+    num_epochs = 20
+
+
 class LSTM:
+    embed_size = 512
     train_percent = 0.9
     num_eval_steps = 1000
     shuffle_per_epoch = True
@@ -29,7 +36,6 @@ class LSTM:
     dropout_prob = 0
     num_layers = 1
     num_steps = 7
-    embed_size = 512
     batch_size = 64  # TODO was 20
     num_epochs = 20
     lr_decay_base = 1 / 1.15
@@ -40,8 +46,9 @@ class LSTM:
 
 class Categorization:  # TODO make unique for each embedder
     # novice
-    num_opt_steps = 1
+    num_opt_steps = 5
     # expert
+    device = 'cpu'
     test_size = 0.3
     num_epochs = 1000
     mb_size = 4
@@ -67,6 +74,7 @@ class Corpora:
 
 
 class Embeddings:
+    precision = 5
     retrain = False
     save = True
 
