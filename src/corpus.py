@@ -1,21 +1,9 @@
 import pyprind
 import json
 import operator
-
-REPLACE_DICT = {}
-REPLACE_DICT['\n'] = ''
-REPLACE_DICT['\r'] = ''
-REPLACE_DICT['"'] = ''
-REPLACE_DICT['['] = ''
-REPLACE_DICT[']'] = ''
-REPLACE_DICT['('] = '( '
-REPLACE_DICT[')'] = ' )'
-REPLACE_DICT['{'] = '{ '
-REPLACE_DICT['}'] = ' }'
-REPLACE_DICT[','] = ' ,'
-REPLACE_DICT['!'] = ' !'
-REPLACE_DICT['?'] = ' ?'
-REPLACE_DICT['.'] = ' .'
+import spacy
+import sys
+import time
 
 class Corpus():
     def __init__(self):
@@ -27,55 +15,64 @@ class Corpus():
         self.name = name
         self.path = path
 
-    def generate_wiki_corpus(self, path, name, num_docs=None):
+    def generate_wiki_corpus(self, path, name):
         self.name = name
         self.path = path
+        nlp = spacy.load('en')
+
+        infile = open(self.path)
+        num_docs = 0
+        print('Counting documents')
+        for line in infile:
+            num_docs += 1
+            if num_docs % 10000 == 0:
+                print('     {} docs'.format(num_docs))
+        infile.close()
 
         infile = open(self.path)
         text_outfile = open(name+"_text.txt", 'w')
-        titles_outfile = open(name + "_titles.txt", 'w')
+        titles_outfile = open(name + "_titles.txt", 'a')
         freqs_outfile = open(name + "_freqs.txt", "w")
 
         freq_dict = {}
-
         linecounter = 0
+        token_counter = 0
         for line in infile:
+            start = time.time()
             json1_data = json.loads(line)
+
             title = json1_data['title'].lower()
             text = json1_data['text']
-            text = text.lower()
-            tokens = text.split()
-            final_tokens = []
 
-            for token in tokens:
-                if token in REPLACE_DICT:
-                    replacement = REPLACE_DICT[token]
-                    if len(replacement) > 0:
-                        final_tokens.append(replacement)
-                        if not replacement in freq_dict:
-                            freq_dict[replacement] = 1
-                        freq_dict[replacement] += 1
-                else:
-                    final_tokens.append(token)
-                    if not token in freq_dict:
-                        freq_dict[token] = 1
-                    freq_dict[token] += 1
+            spacy_doc = nlp(text)
+            doc_size = len(spacy_doc)
+            token_counter += doc_size
+            titles_outfile.write('{} {}\n'.format(title, doc_size))
 
-                output_string = ' '.join(final_tokens) + '\n'
-
+            output_list = []
+            for token in spacy_doc:
+                string_token = token.text.lower()
+                string_token = string_token.strip().strip('\n').strip()
+                if len(string_token) > 0:
+                    if string_token not in freq_dict:
+                        freq_dict[string_token] = 1
+                    freq_dict[string_token] += 1
+                    output_list.append(string_token)
+            output_string = ' '.join(output_list) + '\n'
             text_outfile.write(output_string)
-            titles_outfile.write(title + '\n')
 
+            if linecounter % 10 == 0:
+                took = time.time() - start
+                start = time.time()
+                perc = float(linecounter) / num_docs
+                print('{}/{}  {:0.4f}  {:0.3f} sec.'.format(linecounter, num_docs, perc, took))
             linecounter += 1
-            if linecounter % 1000 == 0:
-                print("Finished {} lines".format(linecounter))
 
         text_outfile.close()
         titles_outfile.close()
 
-        sorted_list = sorted(freq_dict.items(), key=operator.itemgetter(1), reverse=True)
-        for item in sorted_list:
-            freqs_outfile.write('{} {}\n'.format(item[0], item[1]))
+        for item in freq_dict:
+            freqs_outfile.write('{} {}\n'.format(item, freq_dict[item]))
         freqs_outfile.close()
 
 

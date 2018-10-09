@@ -6,15 +6,15 @@ from src.tasks.cat_classification import CatClassification
 from src.embedders.lstm import LSTMEmbedder
 from src.embedders.wd_matrix import WDEmbedder
 from src.embedders.random_control import RandomControlEmbedder
-from src.embedders.skipgram import SkipgramEmbedder
+#from src.embedders.skipgram import SkipgramEmbedder
 from src.embedders.ww_matrix import WWEmbedder
 from src.utils import matrix_to_simmat
 from src.utils import w2e_to_matrix
 
 embedders = [
-    LSTMEmbedder(config.Corpora.name),
-    WDEmbedder(config.Corpora.name),
-    WWEmbedder(config.Corpora.name),
+    #LSTMEmbedder(config.Corpora.name),
+    #WDEmbedder(config.Corpora.name),
+    #WWEmbedder(config.Corpora.name),
     # SkipgramEmbedder(config.Corpora.name),
     RandomControlEmbedder(config.Corpora.name)]
 num_embedders = len(embedders)
