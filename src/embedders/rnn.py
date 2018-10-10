@@ -11,22 +11,22 @@ from src.utils import matrix_to_w2e
 
 # TODO  is torch.utils.data useful here?
 
-class LSTMEmbedder(EmbedderBase):
-    def __init__(self, corpus_name, ):
-        super().__init__(corpus_name, 'lstm')
-        self.model = LSTMModel()
+class RNNEmbedder(EmbedderBase):
+    def __init__(self, corpus_name, rnn_type):
+        super().__init__(corpus_name, rnn_type)
+        self.model = RNN_Model(rnn_type)
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.LSTM.initital_lr)  # TODO Adagrad
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.RNN.initital_lr)  # TODO Adagrad
         self.model.cuda()
 
     @staticmethod
     def gen_windows(token_ids):
         # yield num_steps matrices where each matrix contains windows of size num_steps
-        remainder = len(token_ids) % config.LSTM.num_steps
-        for i in range(config.LSTM.num_steps):
+        remainder = len(token_ids) % config.RNN.num_steps
+        for i in range(config.RNN.num_steps):
             seq = np.roll(token_ids, i)  # rightward
             seq = seq[:-remainder]
-            x = np.reshape(seq, (-1, config.LSTM.num_steps))
+            x = np.reshape(seq, (-1, config.RNN.num_steps))
             y = np.roll(x, -1)
             yield i, x, y
 
@@ -45,7 +45,7 @@ class LSTMEmbedder(EmbedderBase):
             if verbose:
                 print('Excluding {} windows due to fixed batch size'.format(num_excluded))
                 print('{}/{} Generating {:,} batches with size {}...'.format(
-                window_id + 1, config.LSTM.num_steps, num_batches, batch_size))
+                    window_id + 1, config.RNN.num_steps, num_batches, batch_size))
             for x_b, y_b in zip(np.vsplit(x, num_batches),
                                 np.vsplit(y, num_batches)):
                 yield batch_id, x_b, y_b[:, -1]
@@ -76,9 +76,9 @@ class LSTMEmbedder(EmbedderBase):
     def train_epoch(self, numeric_docs, lr):
         start_time = time.time()
         self.model.train()
-        self.model.batch_size = config.LSTM.batch_size
+        self.model.batch_size = config.RNN.batch_size
         # shuffle and flatten
-        if config.LSTM.shuffle_per_epoch:
+        if config.RNN.shuffle_per_epoch:
             np.random.shuffle(numeric_docs)
         token_ids = np.hstack(numeric_docs)
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size):
@@ -91,14 +91,14 @@ class LSTMEmbedder(EmbedderBase):
             self.optimizer.zero_grad()  # sets all gradients to zero  # TODO why put this here?
             loss = self.criterion(logits, targets)
             loss.backward()
-            if config.LSTM.grad_clip is not None:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), config.LSTM.grad_clip)
+            if config.RNN.grad_clip is not None:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), config.RNN.grad_clip)
                 for p in self.model.parameters():
                     p.data.add_(-lr, p.grad.data)
             else:
                 self.optimizer.step()
             # console
-            if batch_id % config.LSTM.num_eval_steps == 0:
+            if batch_id % config.RNN.num_eval_steps == 0:
                 xent_error = loss.item()
                 pp = np.exp(xent_error)
                 secs = time.time() - start_time
@@ -110,7 +110,7 @@ class LSTMEmbedder(EmbedderBase):
         valid_numeric_docs = []
         test_numeric_docs = []
         for doc in self.numeric_docs:
-            if np.random.binomial(1, config.LSTM.train_percent):
+            if np.random.binomial(1, config.RNN.train_percent):
                 train_numeric_docs.append(doc)
             else:
                 if np.random.binomial(1, 0.5):  # split valid and test docs evenly
@@ -120,10 +120,10 @@ class LSTMEmbedder(EmbedderBase):
         print('Num docs in train {} valid {} test {}'.format(
             len(train_numeric_docs), len(valid_numeric_docs), len(test_numeric_docs)))
         # train loop
-        lr = config.LSTM.initital_lr
-        for epoch in range(config.LSTM.num_epochs):
+        lr = config.RNN.initital_lr
+        for epoch in range(config.RNN.num_epochs):
             print('/Starting epoch {} with lr={}'.format(epoch, lr))
-            lr_decay = config.LSTM.lr_decay_base ** max(epoch - config.LSTM.num_epochs_with_flat_lr, 0)
+            lr_decay = config.RNN.lr_decay_base ** max(epoch - config.RNN.num_epochs_with_flat_lr, 0)
             lr = lr * lr_decay  # decay lr if it is time
             self.train_epoch(train_numeric_docs, lr)
             print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
@@ -134,36 +134,42 @@ class LSTMEmbedder(EmbedderBase):
         return w2e
 
 
-class LSTMModel(torch.nn.Module):
-    def __init__(self):
+class RNN_Model(torch.nn.Module):
+    def __init__(self, rnn_type):
         super().__init__()
-        self.batch_size = config.LSTM.batch_size
-        self.wx = torch.nn.Embedding(config.Corpora.num_vocab, config.LSTM.embed_size)
-        self.lstm = torch.nn.LSTM(input_size=config.LSTM.embed_size,
-                                  hidden_size=config.LSTM.embed_size,
-                                  num_layers=config.LSTM.num_layers,
-                                  dropout=config.LSTM.dropout_prob if config.LSTM.num_layers > 1 else 0)
-        self.wy = torch.nn.Linear(in_features=config.LSTM.embed_size,
+        self.batch_size = config.RNN.batch_size
+        self.wx = torch.nn.Embedding(config.Corpora.num_vocab, config.RNN.embed_size)
+        if rnn_type == 'lstm':
+            self.cell = torch.nn.LSTM
+        elif rnn_type == 'srn':
+            self.cell = torch.nn.RNN  # TODO Test
+        else:
+            raise AttributeError('Invalid arg to "rnn_type".')
+        self.rnn = self.cell(input_size=config.RNN.embed_size,
+                             hidden_size=config.RNN.embed_size,
+                             num_layers=config.RNN.num_layers,
+                             dropout=config.RNN.dropout_prob if config.RNN.num_layers > 1 else 0)
+        self.wy = torch.nn.Linear(in_features=config.RNN.embed_size,
                                   out_features=config.Corpora.num_vocab)
         self.init_weights()
 
     def init_weights(self):
-        self.wx.weight.data.uniform_(-config.LSTM.embed_init_range, config.LSTM.embed_init_range)
+        self.wx.weight.data.uniform_(-config.RNN.embed_init_range, config.RNN.embed_init_range)
         self.wy.bias.data.fill_(0.0)
-        self.wy.weight.data.uniform_(-config.LSTM.embed_init_range, config.LSTM.embed_init_range)
+        self.wy.weight.data.uniform_(-config.RNN.embed_init_range, config.RNN.embed_init_range)
 
     def init_hidden(self):
         weight = next(self.parameters()).data
-        return (torch.autograd.Variable(weight.new(config.LSTM.num_layers,
+        return (torch.autograd.Variable(weight.new(config.RNN.num_layers,
                                                    self.batch_size,
-                                                   config.LSTM.embed_size).zero_()),
-                torch.autograd.Variable(weight.new(config.LSTM.num_layers,
+                                                   config.RNN.embed_size).zero_()),
+                torch.autograd.Variable(weight.new(config.RNN.num_layers,
                                                    self.batch_size,
-                                                   config.LSTM.embed_size).zero_()))
+                                                   config.RNN.embed_size).zero_()))
 
     def forward(self, inputs, hidden):  # expects [num_steps, mb_size] tensor
         embeds = self.wx(inputs)
-        outputs, hidden = self.lstm(embeds, hidden)  # this returns all time steps
+        outputs, hidden = self.rnn(embeds, hidden)  # this returns all time steps
         final_outputs = torch.squeeze(outputs[-1])
         logits = self.wy(final_outputs)
         return logits

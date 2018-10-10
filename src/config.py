@@ -27,7 +27,7 @@ class Skipgram:
     num_epochs = 20
 
 
-class LSTM:
+class RNN:
     embed_size = 512
     train_percent = 0.9
     num_eval_steps = 1000
