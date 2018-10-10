@@ -21,7 +21,7 @@ class Trial(object):  # TODO make this available to all experts?
         self.data = data
 
 
-class NymSelection:  # SynoNYM & AntoNYM
+class NymMatching:  # SynoNYM & AntoNYM
     def __init__(self, nym_type):
         self.name = '{}selection'.format(nym_type)
         self.nym_type = nym_type

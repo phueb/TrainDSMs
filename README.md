@@ -8,4 +8,5 @@
 - Word Prediction
 - Synonym Matching 
 - Antonym Matching
-- Tense/Aspect Identification?
+- Part/Whole Relation
+- Tense/Aspect Identification
