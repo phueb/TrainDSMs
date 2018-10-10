@@ -1,12 +1,6 @@
 import numpy as np
-import tensorflow as tf
-from bayes_opt import BayesianOptimization
-from sortedcontainers import SortedDict
-import pandas as pd
 
 from src import config
-from src.figs import make_categorizer_figs
-from src.tasks import w2freq
 
 
 class Trial(object):  # TODO make this available to all experts?
@@ -23,7 +17,7 @@ class Trial(object):  # TODO make this available to all experts?
 
 class NymMatching:  # SynoNYM & AntoNYM
     def __init__(self, nym_type):
-        self.name = '{}selection'.format(nym_type)
+        self.name = '{}_matching'.format(nym_type)
         self.nym_type = nym_type
         # evaluation
         self.trials = []  # each result is a class with many attributes

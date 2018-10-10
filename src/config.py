@@ -10,6 +10,14 @@ class Global:
     sim_method = 'cosine'
 
 
+# //////////////////////////////////////////////////////////// embedders
+
+class Embeddings:
+    precision = 5
+    retrain = False
+    save = True
+
+
 class RandomControl:
     distribution = 'uniform'
     embed_size = 512
@@ -25,6 +33,13 @@ class Skipgram:
     embed_size = 512
     window_size = 7
     num_epochs = 20
+
+
+# //////////////////////////////////////////////////////////// tasks
+
+
+class Tasks:
+    vocab_sizes = [4096, 8192, 16384]
 
 
 class LSTM:
@@ -55,10 +70,18 @@ class Categorization:  # TODO make unique for each embedder
     max_freq = 1  # TODO log transform
     num_evals = 10
     learning_rate = 0.005
-    num_hiddens = 128  # learning reaches 100% acc without hiddens but takes longer
+    num_hiddens = 128  # learning reaches 100% acc without hidden units but takes longer
+
+
+class NymMatching:
+    num_nyms = 5
+
+
+# //////////////////////////////////////////////////////////// miscellaneous
 
 class Normalize:
     type = 'none'
+
 
 class Reduce:
     dimensions = 200
@@ -73,12 +96,6 @@ class Corpora:
     name = 'childes-20180319'
     # name = 'childes-20171212'
     num_vocab = 4096
-
-
-class Embeddings:
-    precision = 5
-    retrain = False
-    save = True
 
 
 class Figs:

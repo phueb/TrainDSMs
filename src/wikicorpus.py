@@ -5,6 +5,7 @@ import spacy
 import sys
 import time
 
+
 class Corpus():
     def __init__(self):
         self.name = 0

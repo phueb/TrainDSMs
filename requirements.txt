@@ -1,3 +1,5 @@
+beautifulsoup4
+aiohttp
 torch
 spacy
 cytoolz

@@ -1,6 +1,16 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sortedcontainers import SortedDict
+from collections import Counter
+
+from src import config
+
+
+def make_w2freq(corpus_name):
+    p = config.Global.corpora_dir / '{}.txt'.format(corpus_name)
+    words = p.read_text().split()
+    res = Counter(words)
+    return res
 
 
 def matrix_to_simmat(input_matrix, method):
