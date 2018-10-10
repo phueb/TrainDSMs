@@ -7,7 +7,7 @@ from src import config
 from src.utils import matrix_to_w2e
 
 
-class SkipgramEmbedder(EmbedderBase):
+class WDEmbedder(EmbedderBase):
     def __init__(self, corpus_name):
         super().__init__(corpus_name, 'wd')
 
