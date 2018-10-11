@@ -9,7 +9,16 @@ from src.utils import make_w2freq
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
+POS = 'verb'
 
+EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
+                     'let', 'am', 'cow', 'got', 'woo', 'squirrel',
+                     'lets', 'wolf', 'harry', 'market', 'tires', 'crane',
+                     'neigh', 'parrot', 'waffle', 'flounder', 'fries',
+                     'squirrels', 'clunk', 'microwave', 'dong', 'paw',
+                     'potter', 'spout', 'telescope', 'bumps', 'vest',
+                     'pine', 'sack', 'ax', 'cluck', 'fudge', 'ships',
+                     'josh', 'duck', 'spoon', 'boo', 'diaper']}
 
 async def fetch(session, w, verbose=False):
     url = 'http://www.thesaurus.com/browse/' + w
@@ -65,21 +74,22 @@ if __name__ == '__main__':
         vocab = []
         for w in vocab_:
             if len(w) > 1:
-                if w[0] not in list(string.punctuation) and w[1] not in list(string.punctuation):
+                if w[0] not in list(string.punctuation) \
+                        and w[1] not in list(string.punctuation) \
+                        and w not in EXCLUDED[POS]:
                     vocab.append(w)
-        for pos, nym_type in [('verb', 'synonym')]:
-            task_name = '{}_{}_matching'.format(pos, nym_type)
-            out_fname = '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
-            out_path = config.Global.task_dir / task_name / out_fname
-            with out_path.open('w') as f:
-                for vocab_partition in itertoolz.partition(100, vocab):  # web scraping must be done in chunks
-                    # make w2nyms
-                    loop = asyncio.get_event_loop()
-                    nyms_list = loop.run_until_complete(asyncio.gather(*[get_nyms(w, pos) for w in vocab_partition]))
-                    # write to file
-                    print('Writing {}'.format(out_path))
-                    for w, nyms in zip(vocab_partition, nyms_list):
-                        if nyms:
-                            line = '{} {}\n'.format(w, ' '.join(nyms))
-                            print(line)
-                            f.write(line)
+        task_name = '{}_{}_matching'.format(POS, NYM_TYPE)
+        out_fname = '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+        out_path = config.Global.task_dir / task_name / out_fname
+        with out_path.open('w') as f:
+            for vocab_partition in itertoolz.partition(100, vocab):  # web scraping must be done in chunks
+                # make w2nyms
+                loop = asyncio.get_event_loop()
+                nyms_list = loop.run_until_complete(asyncio.gather(*[get_nyms(w, POS) for w in vocab_partition]))
+                # write to file
+                print('Writing {}'.format(out_path))
+                for w, nyms in zip(vocab_partition, nyms_list):
+                    if nyms:
+                        line = '{} {}\n'.format(w, ' '.join(nyms))
+                        print(line)
+                        f.write(line)

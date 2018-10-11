@@ -1,7 +1,7 @@
 import numpy as np
 
 from src import config
-from src.tasks.categorization import CatClassification
+from src.tasks.categorization import Categorization
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.wd_matrix import WDEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -21,8 +21,8 @@ embedders = [
 num_embedders = len(embedders)
 
 tasks = [
-    CatClassification('semantic'),
-    CatClassification('syntactic')]
+    Categorization('semantic'),
+    Categorization('syntactic')]
 num_tasks = len(tasks)
 
 # run full experiment

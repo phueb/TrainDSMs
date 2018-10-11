@@ -21,11 +21,11 @@ class Trial(object):  # TODO make this available to all experts?
         self.data = data
 
 
-class CatClassification:
+class Categorization:
     def __init__(self, cat_type):
         self.name = '{}_categorization'.format(cat_type)
         self.cat_type = cat_type
-        self.p2cat = self.make_p2cat(cat_type)
+        self.p2cat = self.make_p2cat()
         self.probes = list(self.p2cat.keys())
         self.cats = sorted(set(self.p2cat.values()))
         self.num_probes = len(self.probes)
@@ -33,7 +33,7 @@ class CatClassification:
         # evaluation
         self.trials = []  # each result is a class with many attributes
 
-    def make_p2cat(self, cat_type):
+    def make_p2cat(self):
         res = SortedDict()
         p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         with p.open('r') as f:

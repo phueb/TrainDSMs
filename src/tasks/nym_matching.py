@@ -1,4 +1,5 @@
 import numpy as np
+from sortedcontainers import SortedDict
 
 from src import config
 
@@ -15,59 +16,57 @@ class Trial(object):  # TODO make this available to all experts?
         self.data = data
 
 
-class NymMatching:  # SynoNYM & AntoNYM
-    def __init__(self, nym_type):
-        self.name = '{}_matching'.format(nym_type)
+class NymMatching:
+    def __init__(self, pos, nym_type):
+        self.name = '{}_{}_matching'.format(pos, nym_type)
+        self.pos = pos
         self.nym_type = nym_type
+        self.p2nyms = self.make_p2nym()
         # evaluation
         self.trials = []  # each result is a class with many attributes
 
-    def make_synonym_task_folds(self, pos='verb'):  # TODO allow this fn to build NOUN syn task
+    def make_p2nym(self):
+        res = SortedDict()
+        p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        with p.open('r') as f:
+            for line in f:
+                data = line.strip().strip('\n').split()
+                probe = data[0]
+                nym = data[1]  # TODO how to select best nym?
+                res[probe] = nym
+                print(probe, nym)
+        return res
 
-
-        # make yes_tokens2
-        excluded = []
-        yes_tokens1 = []
-        yes_tokens2 = []
-        for n, token1 in enumerate(filtered_token_list):
-            synonyms = token_syns_dict[token1]
-            filtered_syns = [syn for syn in synonyms
-                             if syn in filtered_token_list]
-            if filtered_syns:
-                token2 = filtered_syns[0]
-                yes_tokens1.append(token1)
-                yes_tokens2.append(token2)
-            else:
-                excluded.append(token1)  # excluded due to filtering
-        # make yes questions
-        yes_lines = []
-        for token1, token2 in zip(yes_tokens1, yes_tokens2):
-            yes_line = self.task_question.replace('EOI1', token1).replace('EOI2', token2) + ' yes'
-            yes_lines.append(yes_line)
-        # make no questions
-        no_lines = []
-        no_tokens2 = None
-        while no_tokens2 is None:
-            no_tokens2 = self.shuffle_no_overlap(yes_tokens2)  # returns None sometimes
-        for token1, token2 in zip(yes_tokens1, no_tokens2):
-            no_line = self.task_question.replace('EOI1', token1).replace('EOI2', token2) + ' no'
-            no_lines.append(no_line)
-        # make folds
-        yes_lines, no_lines = self.shuffle_in_unison(yes_lines, no_lines)
-        syn_task_folds = self.populate_folds(yes_lines, no_lines, self.mb_size)
-        # print
-        num_total_lines = len(list(chain(*syn_task_folds)))
-        print('Num Excluded terms: {}'.format(
-            len(excluded)))
-        print('Number of syn_task_lines: {}/{}'.format(
-            num_total_lines, len(filtered_token_list) * 2))
-        print('Lost {} lines due to mini batching'.format(
-            len(filtered_token_list) * 2 - num_total_lines - (len(excluded) * 2)))
-        # check
-        assert self.is_bal(yes_lines, no_lines, yes_tokens1, self.eoi1_id)
-        assert self.is_bal(yes_lines, no_lines, yes_tokens2, self.eoi2_id)
-        return syn_task_folds
-
+    def make_data(self, w2e, shuffled):
+        # put data in array
+        x = np.vstack([w2e[p] for p in self.probes])
+        y = np.zeros(x.shape[0], dtype=np.int)
+        for n, probe in enumerate(self.probes):
+            cat = self.p2cat[probe]
+            cat_id = self.cats.index(cat)
+            y[n] = cat_id
+        # split
+        max_f = config.Categorization.max_freq
+        w2freq = make_w2freq(config.Corpus.name)
+        probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
+        test_ids = np.random.choice(self.num_probes,
+                                    size=int(self.num_probes * config.Categorization.test_size),
+                                    replace=False)
+        train_ids = [i for i in range(self.num_probes) if i not in test_ids]
+        assert len(train_ids) + len(test_ids) == self.num_probes
+        x_train = x[train_ids, :]
+        y_train = y[train_ids]
+        pfs_train = np.array(probe_freq_list)[train_ids]
+        x_test = x[test_ids, :]
+        y_test = y[test_ids]
+        # repeat train samples proportional to corpus frequency - must happen AFTER split
+        x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
+        y_train = np.repeat(y_train, pfs_train, axis=0)
+        # shuffle x-y mapping
+        if shuffled:
+            print('Shuffling category assignment')
+            np.random.shuffle(y_train)
+        return x_train, y_train, x_test, y_test
 
     def train_and_score_expert(self, w2e, embed_size):
         for shuffled in [False, True]:
