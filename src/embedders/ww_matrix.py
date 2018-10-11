@@ -58,7 +58,7 @@ class WWEmbedder(EmbedderBase):
 
         num_docs = len(self.numeric_docs)
         pbar = pyprind.ProgBar(num_docs)
-        cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
+        cooc_mat = np.zeros([config.Corpus.num_vocab, config.Corpus.num_vocab], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(config.WW.window_size))
         # count co-occurrences
         for token_ids in self.numeric_docs:

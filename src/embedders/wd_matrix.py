@@ -21,7 +21,7 @@ class WDEmbedder(EmbedderBase):
 
         num_docs = len(self.numeric_docs)
         pbar = pyprind.ProgBar(num_docs)
-        count_matrix = np.zeros([config.Corpora.num_vocab, num_docs], int)
+        count_matrix = np.zeros([config.Corpus.num_vocab, num_docs], int)
         print('\nCounting word occurrences in {} documents'.format(num_docs))
         for i in range(num_docs):
             for token_id in self.numeric_docs[i]:

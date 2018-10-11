@@ -1,11 +1,6 @@
-from pathlib import Path
-import numpy as np
-
 from src.embedders.ww_matrix import WWEmbedder
 from src.embedders.wd_matrix import WDEmbedder
 from src import config
-from src.utils import matrix_to_simmat, print_matrix
-from src.utils import w2e_to_matrix
 
 # vocab_sizes = [4096,8192,16384]
 # window_sizes = [1,2,4,8,16]
@@ -19,18 +14,15 @@ vocab_sizes = [4096]
 window_sizes = [16]
 window_weights = ["flat"]
 window_types = ['summed']
-norm_types = ['none', 'row_logentropy', 'td_idf', 'ppmi']
+norm_types = ['none', 'row_logentropy', 'tf_idf', 'ppmi']
 reduce_types = ['none','svd']
 reduce_sizes = [32,512]
-
-p = Path('task_data/test_probes2.txt')
-probe_list = np.loadtxt(p, dtype='str').tolist()
 
 # corpus_name = 'childes100d'
 corpus_name = 'childes-20180319'
 
 for vocab_size in vocab_sizes:
-    config.Corpora.num_vocab = vocab_size
+    config.Corpus.num_vocab = vocab_size
 
     for norm_type in norm_types:
         for reduce_type in reduce_types:

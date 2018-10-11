@@ -42,7 +42,7 @@ class Tasks:
     vocab_sizes = [4096, 8192, 16384]
 
 
-class LSTM:
+class RNN:
     embed_size = 512
     train_percent = 0.9
     num_eval_steps = 1000
@@ -91,10 +91,10 @@ class Reduce:
     rv_stdev = 1
 
 
-class Corpora:
+class Corpus:
+    spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
-    # name = 'childes-20171212'
     num_vocab = 4096
 
 

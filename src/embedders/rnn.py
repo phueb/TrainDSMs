@@ -138,7 +138,7 @@ class RNN_Model(torch.nn.Module):
     def __init__(self, rnn_type):
         super().__init__()
         self.batch_size = config.RNN.batch_size
-        self.wx = torch.nn.Embedding(config.Corpora.num_vocab, config.RNN.embed_size)
+        self.wx = torch.nn.Embedding(config.Corpus.num_vocab, config.RNN.embed_size)
         if rnn_type == 'lstm':
             self.cell = torch.nn.LSTM
         elif rnn_type == 'srn':
@@ -150,7 +150,7 @@ class RNN_Model(torch.nn.Module):
                              num_layers=config.RNN.num_layers,
                              dropout=config.RNN.dropout_prob if config.RNN.num_layers > 1 else 0)
         self.wy = torch.nn.Linear(in_features=config.RNN.embed_size,
-                                  out_features=config.Corpora.num_vocab)
+                                  out_features=config.Corpus.num_vocab)
         self.init_weights()
 
     def init_weights(self):

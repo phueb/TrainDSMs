@@ -11,10 +11,10 @@ class MyTest(unittest.TestCase):
         config.WW.window_weight = 'flat'
         config.WW.matrix_type = 'summed'
         embedder = WWEmbedder('test_corpus')
-        config.Corpora.num_vocab = len(embedder.vocab)
-        cooc_mat = np.zeros([config.Corpora.num_vocab, config.Corpora.num_vocab], int)
+        config.Corpus.num_vocab = len(embedder.vocab)
+        cooc_mat = np.zeros([config.Corpus.num_vocab, config.Corpus.num_vocab], int)
         for token_ids in embedder.numeric_docs:
-            embedder.update_matrix(cooc_mat, token_ids)
+            embedder.update_matrix(cooc_mat, token_ids, config.WW.window_size,config.WW.window_weight)
         # assertEqual
         correct = np.load('unittests/test_corpus_co-oc_mat.npy')
         for i, j in zip(cooc_mat.flatten(), correct.flatten()):

@@ -1,7 +1,7 @@
 import numpy as np
 
 from src import config
-from src.tasks.cat_classification import CatClassification
+from src.tasks.categorization import CatClassification
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.wd_matrix import WDEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -11,13 +11,13 @@ from src.utils import matrix_to_simmat
 from src.utils import w2e_to_matrix
 
 embedders = [
-    RNNEmbedder(config.Corpora.name, 'srn'),
-    RNNEmbedder(config.Corpora.name, 'lstm'),
-    SkipgramEmbedder(config.Corpora.name),
+    RNNEmbedder(config.Corpus.name, 'srn'),
+    RNNEmbedder(config.Corpus.name, 'lstm'),
+    SkipgramEmbedder(config.Corpus.name),
     #WDEmbedder(config.Corpora.name),
     #WWEmbedder(config.Corpora.name),
 
-    RandomControlEmbedder(config.Corpora.name)]
+    RandomControlEmbedder(config.Corpus.name)]
 num_embedders = len(embedders)
 
 tasks = [

@@ -76,7 +76,7 @@ class NymMatching:  # SynoNYM & AntoNYM
                           num_cats=self.num_cats,
                           g=self.make_classifier_graph(embed_size),
                           data=self.make_data(w2e, shuffled))
-            print('Training categorization expert with {} categories...'.format(name))
+            print('Training semantic_categorization expert with {} categories...'.format(name))
             self.train_expert(trial)
             self.trials.append(trial)
 

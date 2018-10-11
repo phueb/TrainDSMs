@@ -6,7 +6,7 @@ import pandas as pd
 
 from src import config
 from src.figs import make_categorizer_figs
-from src.tasks import w2freq
+from src.utils import make_w2freq
 
 
 class Trial(object):  # TODO make this available to all experts?
@@ -33,10 +33,9 @@ class CatClassification:
         # evaluation
         self.trials = []  # each result is a class with many attributes
 
-    @staticmethod
-    def make_p2cat(cat_type):
+    def make_p2cat(self, cat_type):
         res = SortedDict()
-        p = config.Global.task_dir / '{}_categorization_{}.txt'.format(cat_type, config.Corpora.num_vocab)
+        p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         with p.open('r') as f:
             for line in f:
                 data = line.strip().strip('\n').split()
@@ -55,6 +54,7 @@ class CatClassification:
             y[n] = cat_id
         # split
         max_f = config.Categorization.max_freq
+        w2freq = make_w2freq(config.Corpus.name)
         probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
         test_ids = np.random.choice(self.num_probes,
                                     size=int(self.num_probes * config.Categorization.test_size),
@@ -215,7 +215,7 @@ class CatClassification:
                           num_cats=self.num_cats,
                           g=self.make_classifier_graph(embed_size),
                           data=self.make_data(w2e, shuffled))
-            print('Training categorization expert with {} categories...'.format(name))
+            print('Training semantic_categorization expert with {} categories...'.format(name))
             self.train_expert(trial)
             self.trials.append(trial)
 

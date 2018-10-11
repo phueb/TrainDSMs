@@ -40,36 +40,32 @@ class EmbedderBase(object):
 
     def preprocess(self):
         docs = []
-        tokens = []
-        # read corpus file
+        w2f = Counter()
+        # tokenize + count words
         p = config.Global.corpora_dir / self.corpus_fname
         with p.open('r') as f:
-            texts = f.readlines()
-            print('\nTokenizing {} docs...'.format(len(texts)))
-            # tokenize
-            tokenizer = Tokenizer(nlp.vocab)
-            pbar = pyprind.ProgBar(len(texts), stream=sys.stdout)
-            for s_doc in tokenizer.pipe(texts, batch_size=50):  # creates spacy Docs
-                doc = []
-                for t in s_doc:
-                    token = t.text
-                    if token != '\n':
-                        tokens.append(token)  # TODO might be better to not store token in memory twice
-                        doc.append(token)
-                docs.append(doc)
-                pbar.update()
-        # if no vocab specified, use the whole corpus
-        if config.Corpora.num_vocab is None:
-            config.Corpora.num_vocab = len(set(tokens)) + 1
-
+            texts = f.read().splitlines()   # removes '\n' newline character
+        num_texts = len(texts)
+        print('\nTokenizing {} docs...'.format(num_texts))
+        tokenizer = Tokenizer(nlp.vocab)
+        pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
+        for spacy_doc in tokenizer.pipe(texts, batch_size=config.Corpus.spacy_batch_size):  # creates spacy Docs
+            doc = [w.text for w in spacy_doc]
+            docs.append(doc)
+            c = Counter(doc)
+            w2f.update(c)
+            pbar.update()
         # vocab
-        print('Creating vocab of size {}...'.format(config.Corpora.num_vocab))
-        w2f = Counter(tokens)
-        vocab = sorted([config.Corpora.UNK] + [w for w, f in w2f.most_common(config.Corpora.num_vocab - 1)])
+        if config.Corpus.num_vocab is None:  # if no vocab specified, use the whole corpus
+            config.Corpus.num_vocab = len(w2f) + 1
+        print('Creating vocab of size {}...'.format(config.Corpus.num_vocab))
+        vocab = sorted([config.Corpus.UNK] + [w for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])
         print('Least frequent word occurs {} times'.format(
-            np.min([f for w, f in w2f.most_common(config.Corpora.num_vocab - 1)])))
-        print('Mapping words to ids...')
+            np.min([f for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])))
+        assert '\n' not in vocab
         # insert UNK + numericize
+        print('Mapping words to ids...')
+
         t2id = {t: i for i, t in enumerate(vocab)}
         numeric_docs = []
         for doc in docs:
@@ -79,7 +75,7 @@ class EmbedderBase(object):
                 if token in t2id:
                     numeric_doc.append(t2id[token])
                 else:
-                    numeric_doc.append(t2id[config.Corpora.UNK])
+                    numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
         return numeric_docs, vocab
 
@@ -88,7 +84,7 @@ class EmbedderBase(object):
         return True if p.exists() else False
 
     @staticmethod
-    def check_consistency(mat):  # TODO different models may produce embeddings that benefit from different expert hyperparameters
+    def check_consistency(mat):
         # size check
         assert mat.shape[1] > 1
         print('Inf Norm of embeddings = {:.1f}'.format(np.linalg.norm(mat, np.inf)))
@@ -113,7 +109,7 @@ class EmbedderBase(object):
             norm_matrix, dimensions = self.norm_rowsum(input_matrix)
         elif norm_type == 'col_sum':
             norm_matrix, dimensions = self.norm_rowsum(input_matrix)
-        elif norm_type == 'td_idf':
+        elif norm_type == 'tf_idf':
             norm_matrix, dimensions = self.norm_rowsum(input_matrix)
         elif norm_type == 'row_logentropy':
             norm_matrix, dimensions = self.norm_rowsum(input_matrix)
