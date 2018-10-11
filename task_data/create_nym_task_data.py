@@ -3,13 +3,17 @@ import aiohttp
 import string
 import asyncio
 from cytoolz import itertoolz
+from spacy.lemmatizer import Lemmatizer
+from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 
 from src import config
 from src.utils import make_w2freq
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
-POS = 'verb'
+POS = 'noun'
+LEMMATIZE = True  # TODO test
+
 
 EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
                      'let', 'am', 'cow', 'got', 'woo', 'squirrel',
@@ -18,7 +22,15 @@ EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
                      'squirrels', 'clunk', 'microwave', 'dong', 'paw',
                      'potter', 'spout', 'telescope', 'bumps', 'vest',
                      'pine', 'sack', 'ax', 'cluck', 'fudge', 'ships',
-                     'josh', 'duck', 'spoon', 'boo', 'diaper']}
+                     'josh', 'duck', 'spoon', 'boo', 'diaper'],
+            'noun': ['it', 'she', 'he', 'pas', 'tom', 'pooh', 'doing',
+                     'yeah', 'mine', 'find', 'win', 'ruff', 'er', 'ah',
+                     'go', 'mis', 'lee', 'jay', 'smith', 'leaning', 'might',
+                     'rex', 'fix', 'ugh', 'fred', 'pussy', 'mot', 'um', 'oop',
+                     'sh', 'pail', 'mr', 'will', 'fill', 'snapping', 'meg',
+                     'victor', 'joe', 'foo', 'wait', 'phooey', 'ninny', 'sonny',
+                     'valentine', 'po', 'moira']}
+
 
 async def fetch(session, w, verbose=False):
     url = 'http://www.thesaurus.com/browse/' + w
@@ -30,7 +42,7 @@ async def fetch(session, w, verbose=False):
         return await response.text()
 
 
-def scrape_nyms(page, pos, w, verbose=False):
+def scrape_nyms(page, w, verbose=False):
     if verbose:
         print('\nScraping nyms for "{}"'.format(w))
     res = []
@@ -48,48 +60,54 @@ def scrape_nyms(page, pos, w, verbose=False):
             # TODO there must b better way to find verb section when noun section is found first
 
         else:
-            if pos == found_pos:
+            if POS == found_pos:
                 for li in section.find_all('li'):
                     if len(li.text.split()) == 1:
                         res.append(li.text)
                 break
-
-    # num_syns
     if len(res) > config.NymMatching.num_nyms:
         res = res[:config.NymMatching.num_nyms]
     return res
 
 
-async def get_nyms(w, pos):
+async def get_nyms(w):
     with aiohttp.ClientSession() as session:
         html = await fetch(session, w)
-    nyms = scrape_nyms(html, pos, w)
+    nyms = scrape_nyms(html, w)
     return nyms
 
 
 if __name__ == '__main__':
     w2freq = make_w2freq(CORPUS_NAME)
+    lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Tasks.vocab_sizes:
-        vocab_ = [w for w, f in w2freq.most_common(vocab_size - 1)]
-        vocab = []
-        for w in vocab_:
+        vocab = [w for w, f in w2freq.most_common(vocab_size - 1)]
+        probes = []
+        for w in vocab:
             if len(w) > 1:
                 if w[0] not in list(string.punctuation) \
                         and w[1] not in list(string.punctuation) \
                         and w not in EXCLUDED[POS]:
-                    vocab.append(w)
+                    if LEMMATIZE:
+                        w = lemmatizer(w, POS)[0]
+                    probes.append(w)
+        if LEMMATIZE:
+            probes = set(probes)
         task_name = '{}_{}_matching'.format(POS, NYM_TYPE)
         out_fname = '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
         out_path = config.Global.task_dir / task_name / out_fname
+        if not out_path.parent.exists():
+            out_path.parent.mkdir()
         with out_path.open('w') as f:
-            for vocab_partition in itertoolz.partition(100, vocab):  # web scraping must be done in chunks
+            for probes_partition in itertoolz.partition(100, probes):  # web scraping must be done in chunks
                 # make w2nyms
                 loop = asyncio.get_event_loop()
-                nyms_list = loop.run_until_complete(asyncio.gather(*[get_nyms(w, POS) for w in vocab_partition]))
+                nyms_list = loop.run_until_complete(asyncio.gather(*[get_nyms(w) for w in probes_partition]))
                 # write to file
                 print('Writing {}'.format(out_path))
-                for w, nyms in zip(vocab_partition, nyms_list):
-                    if nyms:
-                        line = '{} {}\n'.format(w, ' '.join(nyms))
-                        print(line)
-                        f.write(line)
+                for p, nyms in zip(probes_partition, nyms_list):
+                    for nym in nyms:
+                        if nym in vocab and nym != p:
+                            line = '{} {}\n'.format(p, nym)
+                            print(line.strip('\n'))
+                            f.write(line)

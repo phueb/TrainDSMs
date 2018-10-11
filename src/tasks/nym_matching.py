@@ -32,7 +32,7 @@ class NymMatching:
             for line in f:
                 data = line.strip().strip('\n').split()
                 probe = data[0]
-                nym = data[1]  # TODO how to select best nym?
+                nym = data[1]  # # TODO multiple probes may occur with different nyms ?
                 res[probe] = nym
                 print(probe, nym)
         return res
