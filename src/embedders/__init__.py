@@ -5,12 +5,9 @@ from cached_property import cached_property
 from collections import Counter
 import pyprind
 import sys
-from sortedcontainers import SortedDict
 
 from src import config
-from src.utils import matrix_to_w2e
-
-nlp = spacy.load('en_core_web_sm')
+from src.utils import nlp, matrix_to_w2e
 
 
 class EmbedderBase(object):
@@ -60,6 +57,10 @@ class EmbedderBase(object):
             config.Corpus.num_vocab = len(w2f) + 1
         print('Creating vocab of size {}...'.format(config.Corpus.num_vocab))
         vocab = sorted([config.Corpus.UNK] + [w for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])
+
+        print(vocab)  # TODO vocab is not identical to that a vailable to nym task creation script
+        raise SystemExit
+
         print('Least frequent word occurs {} times'.format(
             np.min([f for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])))
         assert '\n' not in vocab

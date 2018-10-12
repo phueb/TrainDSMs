@@ -74,7 +74,7 @@ class Categorization:  # TODO make unique for each embedder
 
 
 class NymMatching:
-    num_nyms = 5
+    num_distractors = 5
 
 
 # //////////////////////////////////////////////////////////// miscellaneous

@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
-from sortedcontainers import SortedDict
 import pandas as pd
 
 from src import config
@@ -25,31 +24,30 @@ class Categorization:
     def __init__(self, cat_type):
         self.name = '{}_categorization'.format(cat_type)
         self.cat_type = cat_type
-        self.p2cat = self.make_p2cat()
-        self.probes = list(self.p2cat.keys())
-        self.cats = sorted(set(self.p2cat.values()))
+        self.probes, self.cats = self.load_data()
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
         # evaluation
         self.trials = []  # each result is a class with many attributes
 
-    def make_p2cat(self):
-        res = SortedDict()
+    @property
+    def sim_rows(self):
+        return self.probes
+
+    @property
+    def sim_cols(self):
+        return self.probes
+
+    def load_data(self):
         p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        with p.open('r') as f:
-            for line in f:
-                data = line.strip().strip('\n').split()
-                probe = data[0]
-                cat = data[1]
-                res[probe] = cat
-        return res
+        probes, cats = np.loadtxt(p, dtype='str').T
+        return probes.tolist(), cats.tolist()
 
     def make_data(self, w2e, shuffled):
         # put data in array
         x = np.vstack([w2e[p] for p in self.probes])
         y = np.zeros(x.shape[0], dtype=np.int)
-        for n, probe in enumerate(self.probes):
-            cat = self.p2cat[probe]
+        for n, (probe, cat) in enumerate(zip(self.probes, self.cats)):
             cat_id = self.cats.index(cat)
             y[n] = cat_id
         # split
@@ -223,26 +221,26 @@ class Categorization:
         expert_score = self.trials[0].test_acc_traj[-1]
         return expert_score
 
-    def score_novice(self, probe_simmat, probe_cats=None, metric='ba'):
+    def score_novice(self, test_word_sims, probe_cats=None, metric='ba'):
         if probe_cats is None:
             probe_cats = []
-            for p, cat in self.p2cat.items():
+            for p, cat in zip(self.probes, self.cats):
                 probe_cats.append(cat)
-        assert len(probe_cats) == len(self.probes) == len(probe_simmat)
+        assert len(probe_cats) == len(self.probes) == len(test_word_sims)
 
         def calc_p_and_r(thr):
-            num_probes = len(probe_simmat)
-            hits = np.zeros(num_probes, float)
-            misses = np.zeros(num_probes, float)
-            fas = np.zeros(num_probes, float)
-            crs = np.zeros(num_probes, float)
+            num_test_words = len(test_word_sims)
+            hits = np.zeros(num_test_words, float)
+            misses = np.zeros(num_test_words, float)
+            fas = np.zeros(num_test_words, float)
+            crs = np.zeros(num_test_words, float)
             # calc hits, misses, false alarms, correct rejections
-            for i in range(num_probes):
+            for i in range(num_test_words):
                 cat1 = probe_cats[i]
-                for j in range(num_probes):
+                for j in range(num_test_words):
                     if i != j:
                         cat2 = probe_cats[j]
-                        sim = probe_simmat[i, j]
+                        sim = test_word_sims[i, j]
                         if cat1 == cat2:
                             if sim > thr:
                                 hits[i] += 1
@@ -270,8 +268,8 @@ class Categorization:
             return res
 
         # make thr range
-        probe_simmat_mean = np.asscalar(np.mean(probe_simmat))
-        thr1 = max(0.0, round(min(0.9, round(probe_simmat_mean, 2)) - 0.1, 2))  # don't change
+        test_word_sims_mean = np.asscalar(np.mean(test_word_sims))
+        thr1 = max(0.0, round(min(0.9, round(test_word_sims_mean, 2)) - 0.1, 2))  # don't change
         thr2 = round(thr1 + 0.2, 2)
         # use bayes optimization to find best_thr
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
@@ -283,7 +281,7 @@ class Categorization:
         else:
             raise AttributeError('rnnlab: Invalid arg to "metric".')
         bo = BayesianOptimization(fn, {'thr': (thr1, thr2)}, verbose=True)
-        bo.explore({'thr': [probe_simmat_mean]})
+        bo.explore({'thr': [test_word_sims_mean]})
         bo.maximize(init_points=2, n_iter=config.Categorization.num_opt_steps,
                     acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
         best_thr = bo.res['max']['max_params']['thr']

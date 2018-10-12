@@ -1,26 +1,29 @@
 import numpy as np
 
 from src import config
-from src.tasks.categorization import Categorization
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.wd_matrix import WDEmbedder
+from src.embedders.ww_matrix import WWEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.skipgram import SkipgramEmbedder
-from src.embedders.ww_matrix import WWEmbedder
-from src.utils import matrix_to_simmat
-from src.utils import w2e_to_matrix
+
+from src.tasks.categorization import Categorization
+from src.tasks.nym_matching import NymMatching
+
+from src.utils import w2e_to_sims
+from src.utils import w2e_to_embeds
 
 embedders = [
     RNNEmbedder(config.Corpus.name, 'srn'),
     RNNEmbedder(config.Corpus.name, 'lstm'),
     SkipgramEmbedder(config.Corpus.name),
-    #WDEmbedder(config.Corpora.name),
-    #WWEmbedder(config.Corpora.name),
-
+    WDEmbedder(config.Corpus.name),
+    WWEmbedder(config.Corpus.name),
     RandomControlEmbedder(config.Corpus.name)]
 num_embedders = len(embedders)
 
 tasks = [
+    NymMatching('verb', 'synonym'),
     Categorization('semantic'),
     Categorization('syntactic')]
 num_tasks = len(tasks)
@@ -49,17 +52,17 @@ for i, embedder in enumerate(embedders):
         print('Starting task "{}"'.format(task.name))
         print('---------------------------------------------')
         # check embeddings
-        excluded = []
-        for p in task.probes:
+        for p in set(task.sim_rows + task.sim_cols):
             if p not in w2e:
-                raise KeyError('Probe "{}" in task "{}" is not in w2e.'.format(p, task.name))
+                # raise KeyError('Test-word "{}" in task "{}" is not in w2e.'.format(p, task.name))
+                print('"{}" required for {} is not in {}.'.format(p, task.name, embedder.name))
         # similarities
-        mat = w2e_to_matrix(w2e, task.probes)
-        probe_simmat = matrix_to_simmat(mat, config.Global.sim_method)
-        print('Number of probes in similarity matrix: {}'.format(len(probe_simmat)))
+        embeds = w2e_to_embeds(w2e)
+        sims = w2e_to_sims(w2e, task.sim_rows, task.sim_cols, config.Global.sim_method)
+        print('Shape of similarity matrix: {}'.format(sims.shape))
         # score
-        nov_scores_mat[i, j] = task.score_novice(probe_simmat)  # TODO force common API between tasks
-        exp_scores_mat[i, j] = task.train_and_score_expert(w2e, mat.shape[1])
+        nov_scores_mat[i, j] = task.score_novice(sims)
+        exp_scores_mat[i, j] = task.train_and_score_expert(w2e, embeds.shape[1])
         # figs
         task.save_figs(embedder.name)
 # save scores

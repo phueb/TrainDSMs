@@ -11,8 +11,9 @@ from src.utils import make_w2freq
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
-POS = 'noun'
-LEMMATIZE = True  # TODO test
+POS = 'verb'
+LEMMATIZE = True
+NUM_SYNS = 5
 
 
 EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
@@ -22,7 +23,8 @@ EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
                      'squirrels', 'clunk', 'microwave', 'dong', 'paw',
                      'potter', 'spout', 'telescope', 'bumps', 'vest',
                      'pine', 'sack', 'ax', 'cluck', 'fudge', 'ships',
-                     'josh', 'duck', 'spoon', 'boo', 'diaper'],
+                     'josh', 'duck', 'spoon', 'boo', 'diaper', 'shoulder',
+                     'sock', 'jimmy'],
             'noun': ['it', 'she', 'he', 'pas', 'tom', 'pooh', 'doing',
                      'yeah', 'mine', 'find', 'win', 'ruff', 'er', 'ah',
                      'go', 'mis', 'lee', 'jay', 'smith', 'leaning', 'might',
@@ -65,8 +67,8 @@ def scrape_nyms(page, w, verbose=False):
                     if len(li.text.split()) == 1:
                         res.append(li.text)
                 break
-    if len(res) > config.NymMatching.num_nyms:
-        res = res[:config.NymMatching.num_nyms]
+    if len(res) > NUM_SYNS:
+        res = res[:NUM_SYNS]
     return res
 
 
@@ -81,7 +83,11 @@ if __name__ == '__main__':
     w2freq = make_w2freq(CORPUS_NAME)
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Tasks.vocab_sizes:
-        vocab = [w for w, f in w2freq.most_common(vocab_size - 1)]
+        vocab = sorted([config.Corpus.UNK] + [w for w, f in w2freq.most_common(config.Corpus.num_vocab - 1)])
+
+        print(vocab)  # TODO compare to embedder vocab
+        raise SystemExit
+
         probes = []
         for w in vocab:
             if len(w) > 1:

@@ -2,32 +2,50 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sortedcontainers import SortedDict
 from collections import Counter
+from spacy.tokenizer import Tokenizer
+import pyprind
+import sys
+import spacy
 
 from src import config
 
 
+nlp = spacy.load('en_core_web_sm')
+
+
 def make_w2freq(corpus_name):
+    w2f = Counter()
+    # tokenize + count words
     p = config.Global.corpora_dir / '{}.txt'.format(corpus_name)
-    words = p.read_text().split()
-    res = Counter(words)
-    return res
+    with p.open('r') as f:
+        texts = f.read().splitlines()  # removes '\n' newline character
+    num_texts = len(texts)
+    print('\nTokenizing {} docs...'.format(num_texts))
+    tokenizer = Tokenizer(nlp.vocab)
+    pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
+    for spacy_doc in tokenizer.pipe(texts, batch_size=config.Corpus.spacy_batch_size):  # creates spacy Docs
+        doc = [w.text for w in spacy_doc]
+        c = Counter(doc)
+        w2f.update(c)
+        pbar.update()
+    return w2f
 
 
-def matrix_to_simmat(input_matrix, method):
+def w2e_to_sims(w2e, sim_rows, sim_cols, method):  # TODO test
+    x = np.vstack([w2e[w] for w in sim_rows])
+    y = np.vstack([w2e[w] for w in sim_cols])
+    # sim
     if method == 'cosine':
-        res = cosine_similarity(input_matrix)
+        res = cosine_similarity(x, y)
     else:
         raise NotImplemented  # TODO how to convert euclidian distance to sim measure?
     return res
 
 
-def w2e_to_matrix(w2e, probes=None):
-    if probes is None:
-        probes = w2e.keys()
+def w2e_to_embeds(w2e):
     embeds = []
-    for word, embed in w2e.items():  # assumes sorted dict
-        if word in probes:
-            embeds.append(embed)
+    for w in w2e.keys():
+        embeds.append(w2e[w])
     res = np.vstack(embeds)
     print('Converted w2e to matrix with shape {}'.format(res.shape))
     return res

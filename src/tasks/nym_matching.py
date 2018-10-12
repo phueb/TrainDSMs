@@ -1,5 +1,4 @@
 import numpy as np
-from sortedcontainers import SortedDict
 
 from src import config
 
@@ -21,26 +20,48 @@ class NymMatching:
         self.name = '{}_{}_matching'.format(pos, nym_type)
         self.pos = pos
         self.nym_type = nym_type
-        self.p2nyms = self.make_p2nym()
+        self.probes, self.nyms = self.load_data()
+        self.num_pairs = len(self.probes)
+        self.correct_nym_ids = self.make_correct_candidate_ids()
+        self.distractor_nym_ids_mat = self.make_distractor_ids_mat()
         # evaluation
         self.trials = []  # each result is a class with many attributes
 
-    def make_p2nym(self):
-        res = SortedDict()
+    @property
+    def sim_rows(self):  # used to build sims
+        return self.probes
+
+    @property
+    def sim_cols(self):
+        return self.nyms
+
+    def load_data(self):
         p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        with p.open('r') as f:
-            for line in f:
-                data = line.strip().strip('\n').split()
-                probe = data[0]
-                nym = data[1]  # # TODO multiple probes may occur with different nyms ?
-                res[probe] = nym
-                print(probe, nym)
+        print('Loading {}'.format(p))
+        probes, nyms = np.loadtxt(p, dtype='str').T
+        return probes.tolist(), nyms.tolist()
+
+    def make_correct_candidate_ids(self):
+        """
+        return list of integers with length [num pairs] where each integer is a candidate_id
+        specifying which candidate in a given trial is the correct nym
+        """
+        res = np.random.choice(config.NymMatching.num_distractors + 1, size=self.num_pairs)
         return res
+
+    def make_distractor_ids_mat(self):  # TODO test
+        res = np.random.choice(self.num_pairs, (self.num_pairs, config.NymMatching.num_distractors))
+        return res
+
 
     def make_data(self, w2e, shuffled):
         # put data in array
-        x = np.vstack([w2e[p] for p in self.probes])
-        y = np.zeros(x.shape[0], dtype=np.int)
+        x = np.vstack([w2e[p] for p in self.probes])  # TODO need 5 probes per input with only one correct x
+        y = np.vstack([])
+
+
+        # TODO use make_test_word_ids_mat
+
         for n, probe in enumerate(self.probes):
             cat = self.p2cat[probe]
             cat_id = self.cats.index(cat)
@@ -49,11 +70,11 @@ class NymMatching:
         max_f = config.Categorization.max_freq
         w2freq = make_w2freq(config.Corpus.name)
         probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
-        test_ids = np.random.choice(self.num_probes,
-                                    size=int(self.num_probes * config.Categorization.test_size),
+        test_ids = np.random.choice(self.num_pairs,
+                                    size=int(self.num_pairs * config.Categorization.test_size),
                                     replace=False)
-        train_ids = [i for i in range(self.num_probes) if i not in test_ids]
-        assert len(train_ids) + len(test_ids) == self.num_probes
+        train_ids = [i for i in range(self.num_pairs) if i not in test_ids]
+        assert len(train_ids) + len(test_ids) == self.num_pairs
         x_train = x[train_ids, :]
         y_train = y[train_ids]
         pfs_train = np.array(probe_freq_list)[train_ids]
@@ -64,7 +85,7 @@ class NymMatching:
         y_train = np.repeat(y_train, pfs_train, axis=0)
         # shuffle x-y mapping
         if shuffled:
-            print('Shuffling category assignment')
+            print('Shuffling probe-nym mapping')
             np.random.shuffle(y_train)
         return x_train, y_train, x_test, y_test
 
@@ -73,7 +94,7 @@ class NymMatching:
             name = 'shuffled' if shuffled else ''
             trial = Trial(name=name,
                           num_cats=self.num_cats,
-                          g=self.make_classifier_graph(embed_size),
+                          g=self.make_matcher_graph(embed_size),
                           data=self.make_data(w2e, shuffled))
             print('Training semantic_categorization expert with {} categories...'.format(name))
             self.train_expert(trial)
@@ -83,6 +104,24 @@ class NymMatching:
         expert_score = self.trials[0].test_acc_traj[-1]
         return expert_score
 
-    def score_novice(self, probe_simmat, probe_cats=None, metric='ba'):
-        result = None
+    def score_novice(self, sims):
+        """
+        sims should be matrix of shape [num probes, num syms] where value at [i, j] is sim between probe i and nym j
+        the number of probes is not the number of types - repeated occurrences are allowed and counted
+        """
+        num_correct = 0
+        for n, (distractor_nym_ids, correct_nym_id) in enumerate(zip(self.distractor_nym_ids_mat, self.correct_nym_ids)):
+
+            candidate_sims = sims[n, distractor_nym_ids]
+            correct_sim = sims[n, correct_nym_id]
+            if np.all(candidate_sims < correct_sim):
+                num_correct += 1
+
+            print(candidate_sims)
+            print(correct_sim)
+
+        result = num_correct / self.num_pairs
+
+        print('Accuracy at {} = {}'.format(self.name, result))
+
         return result
