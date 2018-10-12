@@ -5,7 +5,6 @@ import pandas as pd
 
 from src import config
 from src.figs import make_categorizer_figs
-from src.utils import make_w2freq
 
 
 class Trial(object):  # TODO make this available to all experts?

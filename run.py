@@ -5,7 +5,7 @@ from src.embedders.rnn import RNNEmbedder
 from src.embedders.wd_matrix import WDEmbedder
 from src.embedders.ww_matrix import WWEmbedder
 from src.embedders.random_control import RandomControlEmbedder
-from src.embedders.skipgram import SkipgramEmbedder
+from src.embedders.w2vec import W2VecEmbedder
 
 from src.tasks.categorization import Categorization
 from src.tasks.nym_matching import NymMatching
@@ -14,12 +14,12 @@ from src.utils import w2e_to_sims
 from src.utils import w2e_to_embeds
 
 embedders = [
-    RNNEmbedder(config.Corpus.name, 'srn'),
-    RNNEmbedder(config.Corpus.name, 'lstm'),
-    SkipgramEmbedder(config.Corpus.name),
-    WDEmbedder(config.Corpus.name),
-    WWEmbedder(config.Corpus.name),
-    RandomControlEmbedder(config.Corpus.name)]
+    RNNEmbedder('lstm'),
+    RNNEmbedder('srn'),
+    W2VecEmbedder('sg'),
+    WDEmbedder(),
+    WWEmbedder(),
+    RandomControlEmbedder()]
 num_embedders = len(embedders)
 
 tasks = [

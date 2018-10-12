@@ -12,8 +12,8 @@ from src.utils import matrix_to_w2e
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, corpus_name, rnn_type):
-        super().__init__(corpus_name, rnn_type)
+    def __init__(self, rnn_type):
+        super().__init__(rnn_type)
         self.model = RNN_Model(rnn_type)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.RNN.initital_lr)  # TODO Adagrad

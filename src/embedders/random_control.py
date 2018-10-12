@@ -5,8 +5,8 @@ from src import config
 
 
 class RandomControlEmbedder(EmbedderBase):
-    def __init__(self, corpus_name):
-        super().__init__(corpus_name, 'random_control')
+    def __init__(self):
+        super().__init__('random_control')
 
     def train(self):
         if config.RandomControl.distribution == 'uniform':

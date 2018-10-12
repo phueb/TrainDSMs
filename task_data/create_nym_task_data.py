@@ -7,7 +7,7 @@ from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 
 from src import config
-from src.utils import make_w2freq
+from src.utils import load_corpus_data
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
@@ -80,14 +80,9 @@ async def get_nyms(w):
 
 
 if __name__ == '__main__':
-    w2freq = make_w2freq(CORPUS_NAME)
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Tasks.vocab_sizes:
-        vocab = sorted([config.Corpus.UNK] + [w for w, f in w2freq.most_common(config.Corpus.num_vocab - 1)])
-
-        print(vocab)  # TODO compare to embedder vocab
-        raise SystemExit
-
+        vocab = load_corpus_data(num_vocab=vocab_size)[1]
         probes = []
         for w in vocab:
             if len(w) > 1:

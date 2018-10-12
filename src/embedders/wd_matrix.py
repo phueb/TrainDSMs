@@ -8,8 +8,8 @@ from src.embedders import EmbedderBase
 
 class WDEmbedder(EmbedderBase):
 
-    def __init__(self, corpus_name, name='wd'):
-        super().__init__(corpus_name, name)
+    def __init__(self):
+        super().__init__('wd')
 
     def train(self, norm_type=None, reduce_type=None, reduce_size=None):
         if norm_type is None:

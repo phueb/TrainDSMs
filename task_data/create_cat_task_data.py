@@ -1,16 +1,15 @@
 import numpy as np
 
 from src import config
-from src.utils import make_w2freq
+from src.utils import load_corpus_data
 
 
 CORPUS_NAME = 'childes-20180319'
 
 
 if __name__ == '__main__':
-    w2freq = make_w2freq(CORPUS_NAME)
     for vocab_size in config.Tasks.vocab_sizes:
-        vocab = [w for w, f in w2freq.most_common(vocab_size - 1)]
+        vocab = load_corpus_data(num_vocab=vocab_size)[1]
         for task_name in ['semantic_categorization', 'syntactic_categorization']:
             # load all probes
             in_path = config.Global.task_dir / task_name / '4.txt'

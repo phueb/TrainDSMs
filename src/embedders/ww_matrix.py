@@ -12,8 +12,8 @@ VERBOSE = False
 
 
 class WWEmbedder(EmbedderBase):
-    def __init__(self, corpus_name, name='ww'):
-        super().__init__(corpus_name, name)
+    def __init__(self):
+        super().__init__('ww')
 
     @staticmethod
     def increment(mat, t1_id, t2_id, window_size, dist, window_weight):

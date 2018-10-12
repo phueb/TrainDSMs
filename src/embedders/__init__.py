@@ -1,84 +1,33 @@
 import numpy as np
-import spacy
-from spacy.tokenizer import Tokenizer
-from cached_property import cached_property
-from collections import Counter
 import pyprind
 import sys
 
 from src import config
-from src.utils import nlp, matrix_to_w2e
+from src.utils import matrix_to_w2e, load_corpus_data
+
+
+numeric_docs, vocab, w2freq = load_corpus_data()
 
 
 class EmbedderBase(object):
-    def __init__(self, corpus_name, name):
-        self.corpus_name = corpus_name
+    def __init__(self, name):
         self.name = name
 
     @property
     def embeddings_fname(self):
-        return '{}_{}.txt'.format(self.corpus_name, self.name)
-
-    @property
-    def corpus_fname(self):
-        return '{}.txt'.format(self.corpus_name)
-
-    @cached_property
-    def corpus_data(self):
-        return self.preprocess()  # token_ids, vocab
+        return '{}_{}.txt'.format(config.Corpus.name, self.name)
 
     @property
     def numeric_docs(self):
-        return self.corpus_data[0]
+        return numeric_docs
 
     @property
     def vocab(self):
-        return self.corpus_data[1]
+        return vocab
 
-    def preprocess(self):
-        docs = []
-        w2f = Counter()
-        # tokenize + count words
-        p = config.Global.corpora_dir / self.corpus_fname
-        with p.open('r') as f:
-            texts = f.read().splitlines()   # removes '\n' newline character
-        num_texts = len(texts)
-        print('\nTokenizing {} docs...'.format(num_texts))
-        tokenizer = Tokenizer(nlp.vocab)
-        pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
-        for spacy_doc in tokenizer.pipe(texts, batch_size=config.Corpus.spacy_batch_size):  # creates spacy Docs
-            doc = [w.text for w in spacy_doc]
-            docs.append(doc)
-            c = Counter(doc)
-            w2f.update(c)
-            pbar.update()
-        # vocab
-        if config.Corpus.num_vocab is None:  # if no vocab specified, use the whole corpus
-            config.Corpus.num_vocab = len(w2f) + 1
-        print('Creating vocab of size {}...'.format(config.Corpus.num_vocab))
-        vocab = sorted([config.Corpus.UNK] + [w for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])
-
-        print(vocab)  # TODO vocab is not identical to that a vailable to nym task creation script
-        raise SystemExit
-
-        print('Least frequent word occurs {} times'.format(
-            np.min([f for w, f in w2f.most_common(config.Corpus.num_vocab - 1)])))
-        assert '\n' not in vocab
-        # insert UNK + numericize
-        print('Mapping words to ids...')
-
-        t2id = {t: i for i, t in enumerate(vocab)}
-        numeric_docs = []
-        for doc in docs:
-            numeric_doc = []
-
-            for n, token in enumerate(doc):
-                if token in t2id:
-                    numeric_doc.append(t2id[token])
-                else:
-                    numeric_doc.append(t2id[config.Corpus.UNK])
-            numeric_docs.append(numeric_doc)
-        return numeric_docs, vocab
+    @property
+    def w2freq(self):
+        return w2freq
 
     def has_embeddings(self):
         p = config.Global.embeddings_dir / self.embeddings_fname
@@ -265,4 +214,3 @@ class EmbedderBase(object):
             pbar.update()
 
         return rva_matrix, length
-

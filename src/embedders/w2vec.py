@@ -7,14 +7,16 @@ from src import config
 from src.utils import matrix_to_w2e
 
 
-class SkipgramEmbedder(EmbedderBase):
-    def __init__(self, corpus_name):
-        super().__init__(corpus_name, 'wd')
+class W2VecEmbedder(EmbedderBase):
+    def __init__(self, w2vec_type):
+        super().__init__(w2vec_type)
+        self.w2vec_type = w2vec_type
+        assert w2vec_type in ['sg', 'cbow']
 
     def train(self):
         logging.basicConfig(format='%(message)s', level=logging.INFO)
         sg = Word2Vec(self.numeric_docs,
-                      sg=1,
+                      sg=True if self.w2vec_type == 'sg' else False,
                       size=config.Skipgram.embed_size,
                       window=config.Skipgram.window_size,
                       iter=config.Skipgram.num_epochs,
