@@ -5,8 +5,8 @@ from src.params import RandomControlParams
 
 
 class RandomControlEmbedder(EmbedderBase):
-    def __init__(self, param2ids):
-        super().__init__()
+    def __init__(self, param2ids, param2val):
+        super().__init__(param2val)
         self.distribution = RandomControlParams.distribution[param2ids.distribution]
         self.embed_size = RandomControlParams.embed_size[param2ids.embed_size]
         #

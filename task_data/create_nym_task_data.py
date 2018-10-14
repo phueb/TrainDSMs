@@ -7,7 +7,7 @@ from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 
 from src import config
-from src.utils import load_corpus_data
+from src.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
@@ -83,7 +83,7 @@ async def get_nyms(w):
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.TaskData.vocab_sizes:
-        vocab = load_corpus_data(num_vocab=vocab_size)[1]
+        vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         assert len(vocab) == vocab_size
         probes = []
         for w in vocab:

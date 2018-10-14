@@ -13,8 +13,8 @@ VERBOSE = False
 
 
 class CountEmbedder(EmbedderBase):
-    def __init__(self, param2ids):
-        super().__init__()
+    def __init__(self, param2ids, param2val):
+        super().__init__(param2val)
         self.count_type = CountParams.count_type[param2ids.count_type]
         self.norm_type = CountParams.norm_type[param2ids.norm_type]
         self.reduce_type = CountParams.reduce_type[param2ids.reduce_type]

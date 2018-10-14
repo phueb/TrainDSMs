@@ -8,8 +8,8 @@ from src.utils import matrix_to_w2e
 
 
 class W2VecEmbedder(EmbedderBase):
-    def __init__(self, param2ids):
-        super().__init__()
+    def __init__(self, param2ids, param2val):
+        super().__init__(param2val)
         self.w2vec_type = Word2VecParams.w2vec_type[param2ids.w2vec_type]
         self.embed_size = Word2VecParams.embed_size[param2ids.w2vec_type]
         self.window_size = Word2VecParams.window_size[param2ids.window_size]

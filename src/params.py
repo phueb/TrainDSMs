@@ -13,9 +13,9 @@ def make_param2ids(paramsClass):
     all possible combinations are returned
     """
     lengths = []
-    params = sorted([(k, v) for k,v in paramsClass.__dict__.items()
-                     if not k.startswith('_')])
-    for k, v in params:
+    param2opts = sorted([(k, v) for k, v in paramsClass.__dict__.items()
+                         if not k.startswith('_')])
+    for k, v in param2opts:
         lengths.append(len(v))
     total = np.prod(lengths)
     num_lengths = len(lengths)
@@ -38,26 +38,33 @@ def make_param2ids(paramsClass):
     assert len(param_ids) == total
     # map param names to integers corresponding to which param value to use
     for ids in param_ids:
-        d = {k: i for (k, v), i in zip(params, ids)}
-        view = ObjectView(d)
+        d = {k: i for (k, v), i in zip(param2opts, ids)}
+        param2ids = ObjectView(d)
+        param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         print('==========================================================================')
-        for (k, v), i in zip(params, ids):
+        for (k, v), i in zip(param2opts, ids):
             print(k, v[i])
-        yield view
+        yield param2ids, param2val
 
 
 class CountParams:
-    count_type = [('wd', None, None, None),
-                  ('ww', 'forward',  7,  'linear'),
-                  ('ww', 'forward',  7,  'flat'),
-                  ('ww', 'backward', 7,  'linear'),
-                  ('ww', 'backward', 7,  'flat'),
-                  ('ww', 'forward',  16, 'linear'),
-                  ('ww', 'forward',  16, 'flat'),
-                  ('ww', 'backward', 16, 'linear'),
-                  ('ww', 'backward', 16, 'flat')]
+    count_type = [
+        ['wd', None, None, None],
+        ['ww', 'forward',  7,  'linear'],
+        # ['ww', 'forward',  7,  'flat'],
+        # ['ww', 'backward', 7,  'linear'],
+        # ['ww', 'backward', 7,  'flat'],
+        # ['ww', 'forward',  16, 'linear'],
+        # ['ww', 'forward',  16, 'flat'],
+        # ['ww', 'backward', 16, 'linear'],
+        # ['ww', 'backward', 16, 'flat']
+    ]
     norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    reduce_type = [('svd', 200), ('svd', 30), (None, None)]
+    reduce_type = [
+        ['svd', 200],
+        # ['svd', 30],
+        # [None, None]
+    ]
 
 
 class RNNParams:
@@ -72,7 +79,7 @@ class RNNParams:
     num_steps = [7]
     batch_size = [64]
     num_epochs = [10]
-    learning_rate = [(0.1, 0.85, 10)]  # initial, decay, num_epochs_without_decay
+    learning_rate = [[0.1, 0.85, 10]]  # initial, decay, num_epochs_without_decay
     grad_clip = [None]
 
 

@@ -13,8 +13,8 @@ from src.utils import matrix_to_w2e
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, param2ids):
-        super().__init__()
+    def __init__(self, param2ids, param2val):
+        super().__init__(param2val)
         self.rnn_type = RNNParams.rnn_type[param2ids.rnn_type]
         self.embed_size = RNNParams.embed_size[param2ids.embed_size]
         self.train_percent = RNNParams.train_percent[param2ids.train_percent]
@@ -88,7 +88,7 @@ class RNNEmbedder(EmbedderBase):
         res = np.exp(errors / batch_id + 1)
         return res  # TODO test
 
-    def train_epoch(self, numeric_docs, lr):
+    def train_epoch(self, numeric_docs, lr, verbose):
         start_time = time.time()
         self.model.train()
         self.model.batch_size = self.batch_size
@@ -113,13 +113,13 @@ class RNNEmbedder(EmbedderBase):
             else:
                 self.optimizer.step()
             # console
-            if batch_id % self.num_eval_steps == 0:
+            if batch_id % self.num_eval_steps == 0 and verbose:
                 xent_error = loss.item()
                 pp = np.exp(xent_error)
                 secs = time.time() - start_time
                 print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
 
-    def train(self):
+    def train(self, verbose=False):
         # split data
         train_numeric_docs = []
         valid_numeric_docs = []
@@ -138,15 +138,20 @@ class RNNEmbedder(EmbedderBase):
         lr = self.learning_rate[0]  # initial
         decay = self.learning_rate[1]
         num_epochs_without_decay = self.learning_rate[2]
+        pbar = pyprind.ProgBar(self.num_epochs, stream=sys.stdout)
         for epoch in range(self.num_epochs):
-            print('/Starting epoch {} with lr={}'.format(epoch, lr))
+            if verbose:
+                print('/Starting epoch {} with lr={}'.format(epoch, lr))
+            else:
+                pbar.update()
             lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
             lr = lr * lr_decay  # decay lr if it is time
-            self.train_epoch(train_numeric_docs, lr)
-            print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
-                epoch, self.calc_pp(valid_numeric_docs)))
+            self.train_epoch(train_numeric_docs, lr, verbose)
+            if verbose:
+                print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
+                    epoch, self.calc_pp(valid_numeric_docs)))
         print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs)))
-        embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO is this the correct order?
+        embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO is this the correct order of vocab?
         w2e = matrix_to_w2e(embed_mat, self.vocab)
         return w2e
 
@@ -164,7 +169,7 @@ class TorchRNN(torch.nn.Module):
         if self.rnn_type == 'lstm':
             self.cell = torch.nn.LSTM
         elif self.rnn_type == 'srn':
-            self.cell = torch.nn.RNN  # TODO Test
+            self.cell = torch.nn.RNN
         else:
             raise AttributeError('Invalid arg to "rnn_type".')
         self.rnn = self.cell(input_size=self.embed_size,
@@ -182,12 +187,18 @@ class TorchRNN(torch.nn.Module):
 
     def init_hidden(self):
         weight = next(self.parameters()).data
-        return (torch.autograd.Variable(weight.new(self.num_layers,
-                                                   self.batch_size,
-                                                   self.embed_size).zero_()),
-                torch.autograd.Variable(weight.new(self.num_layers,
-                                                   self.batch_size,
-                                                   self.embed_size).zero_()))
+        if self.rnn_type == 'lstm':
+            res = (torch.autograd.Variable(weight.new(self.num_layers,
+                                                      self.batch_size,
+                                                      self.embed_size).zero_()),
+                   torch.autograd.Variable(weight.new(self.num_layers,
+                                                      self.batch_size,
+                                                      self.embed_size).zero_()))
+        else:
+            res = torch.autograd.Variable(weight.new(self.num_layers,
+                                                     self.batch_size,
+                                                     self.embed_size).zero_())    # TODO Test
+        return res
 
     def forward(self, inputs, hidden):  # expects [num_steps, mb_size] tensor
         embeds = self.wx(inputs)

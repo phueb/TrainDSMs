@@ -16,7 +16,7 @@ class TaskData:
 
 class Categorization:  # TODO make unique for each embedder - separate models from task classes?
     # novice
-    num_opt_steps = 5
+    num_opt_steps = 1
     # expert
     device = 'cpu'
     test_size = 0.3
@@ -34,7 +34,7 @@ class NymMatching:
 
 class Embeddings:
     precision = 5
-    retrain = True
+    retrain = False
     save = True
     sim_method = 'cosine'
 
