@@ -137,7 +137,6 @@ sandal CLOTHING
 scarf CLOTHING
 shirt CLOTHING
 shoe CLOTHING
-shoelace CLOTHING
 short CLOTHING
 skirt CLOTHING
 slipper CLOTHING

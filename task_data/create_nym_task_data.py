@@ -11,9 +11,10 @@ from src.utils import load_corpus_data
 
 CORPUS_NAME = 'childes-20180319'
 NYM_TYPE = 'synonym'  # TODO test antonym
-POS = 'verb'
+POS = 'noun'
 LEMMATIZE = True
 NUM_SYNS = 5
+VERBOSE = False
 
 
 EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
@@ -39,7 +40,7 @@ async def fetch(session, w, verbose=False):
     if verbose:
         print('Fetching from {}'.format(url))
     async with session.get(url) as response:
-        if response.status != 200:
+        if response.status != 200 and verbose:
             print('WARNING: Did not reach {}'.format(url))
         return await response.text()
 
@@ -81,8 +82,9 @@ async def get_nyms(w):
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
-    for vocab_size in config.Tasks.vocab_sizes:
+    for vocab_size in config.TaskData.vocab_sizes:
         vocab = load_corpus_data(num_vocab=vocab_size)[1]
+        assert len(vocab) == vocab_size
         probes = []
         for w in vocab:
             if len(w) > 1:
@@ -93,22 +95,21 @@ if __name__ == '__main__':
                         w = lemmatizer(w, POS)[0]
                     probes.append(w)
         if LEMMATIZE:
-            probes = set(probes)
+            probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
         task_name = '{}_{}_matching'.format(POS, NYM_TYPE)
         out_fname = '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
-        out_path = config.Global.task_dir / task_name / out_fname
+        out_path = config.Dirs.tasks / task_name / out_fname
         if not out_path.parent.exists():
             out_path.parent.mkdir()
         with out_path.open('w') as f:
             for probes_partition in itertoolz.partition(100, probes):  # web scraping must be done in chunks
-                # make w2nyms
                 loop = asyncio.get_event_loop()
                 nyms_list = loop.run_until_complete(asyncio.gather(*[get_nyms(w) for w in probes_partition]))
                 # write to file
                 print('Writing {}'.format(out_path))
-                for p, nyms in zip(probes_partition, nyms_list):
+                for probe, nyms in zip(probes_partition, nyms_list):
                     for nym in nyms:
-                        if nym in vocab and nym != p:
-                            line = '{} {}\n'.format(p, nym)
+                        if nym in vocab and nym != probe:
+                            line = '{} {}\n'.format(probe, nym)
                             print(line.strip('\n'))
                             f.write(line)

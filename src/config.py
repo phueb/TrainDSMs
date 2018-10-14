@@ -2,64 +2,19 @@ import os
 from pathlib import Path
 
 
-class Global:
-    task_dir = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
-    corpora_dir = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
-    figs_dir = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
-    embeddings_dir = Path(os.getenv('EMBEDDINGS_DIR', Path(__file__).parent.parent / 'embeddings'))
-    sim_method = 'cosine'
+class Dirs:
+    tasks = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
+    corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
+    figs = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
+    embeddings = Path(os.getenv('EMBEDDINGS_DIR', Path(__file__).parent.parent / 'embeddings'))
+    params = Path(os.getenv('PARAMS_DIR', Path(__file__).parent.parent / 'params'))
 
 
-# //////////////////////////////////////////////////////////// embedders
-
-class Embeddings:
-    precision = 5
-    retrain = False
-    save = True
-
-
-class RandomControl:
-    distribution = 'uniform'
-    embed_size = 512
-
-
-class WW:
-    window_size = 1
-    window_weight = 'flat'
-    matrix_type = 'summed'
-
-
-class Skipgram:
-    embed_size = 512
-    window_size = 7
-    num_epochs = 20
-
-
-# //////////////////////////////////////////////////////////// tasks
-
-
-class Tasks:
+class TaskData:
     vocab_sizes = [4096, 8192, 16384]
 
 
-class RNN:
-    embed_size = 512
-    train_percent = 0.9
-    num_eval_steps = 1000
-    shuffle_per_epoch = True
-    embed_init_range = 0.1
-    dropout_prob = 0
-    num_layers = 1
-    num_steps = 7
-    batch_size = 64  # TODO was 20
-    num_epochs = 20
-    lr_decay_base = 1 / 1.15
-    initital_lr = 0.1  # TODO was 20
-    num_epochs_with_flat_lr = 10  # TODO was 5
-    grad_clip = None  # TODO was 0.25
-
-
-class Categorization:  # TODO make unique for each embedder
+class Categorization:  # TODO make unique for each embedder - separate models from task classes?
     # novice
     num_opt_steps = 5
     # expert
@@ -77,19 +32,11 @@ class NymMatching:
     num_distractors = 5
 
 
-# //////////////////////////////////////////////////////////// miscellaneous
-
-class Normalize:
-    type = 'none'
-
-
-class Reduce:
-    dimensions = 200
-
-    # parameters for random vector accumulation
-    rv_mean = 0
-    rv_stdev = 1
-
+class Embeddings:
+    precision = 5
+    retrain = True
+    save = True
+    sim_method = 'cosine'
 
 class Corpus:
     spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319

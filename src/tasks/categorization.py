@@ -30,15 +30,15 @@ class Categorization:
         self.trials = []  # each result is a class with many attributes
 
     @property
-    def sim_rows(self):
+    def row_words(self):  # used to build sims
         return self.probes
 
     @property
-    def sim_cols(self):
+    def col_words(self):
         return self.probes
 
     def load_data(self):
-        p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         probes, cats = np.loadtxt(p, dtype='str').T
         return probes.tolist(), cats.tolist()
 
@@ -199,11 +199,11 @@ class Categorization:
                                                        train_acc_trajs,
                                                        test_acc_trajs,
                                                        self.cats):
-                p = config.Global.figs_dir / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
+                p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))
-                print('Saved "{}" figure to {}'.format(fig_name, config.Global.figs_dir / self.name))
+                print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
 
     def train_and_score_expert(self, w2e, embed_size):
         for shuffled in [False, True]:

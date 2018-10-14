@@ -2,15 +2,15 @@ import unittest
 import numpy as np
 
 from src import config
-from src.embedders.ww_matrix import WWEmbedder
+from src.embedders.count import CountEmbedder
 
 
 class MyTest(unittest.TestCase):
     def test_update_matrix(self):
         config.WW.window_size = 4
         config.WW.window_weight = 'flat'
-        config.WW.matrix_type = 'summed'
-        embedder = WWEmbedder('test_corpus')
+        config.WW.window_type = 'summed'
+        embedder = CountEmbedder('test_corpus')
         config.Corpus.num_vocab = len(embedder.vocab)
         cooc_mat = np.zeros([config.Corpus.num_vocab, config.Corpus.num_vocab], int)
         for token_ids in embedder.numeric_docs:

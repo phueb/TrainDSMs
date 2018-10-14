@@ -4,7 +4,8 @@ import pyprind
 import numpy as np
 import sys
 
-from src.embedders import EmbedderBase
+from src.embedders.base import EmbedderBase
+from src.params import RNNParams
 from src import config
 from src.utils import matrix_to_w2e
 
@@ -12,21 +13,35 @@ from src.utils import matrix_to_w2e
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, rnn_type):
-        super().__init__(rnn_type)
-        self.model = RNN_Model(rnn_type)
+    def __init__(self, param2ids):
+        super().__init__()
+        self.rnn_type = RNNParams.rnn_type[param2ids.rnn_type]
+        self.embed_size = RNNParams.embed_size[param2ids.embed_size]
+        self.train_percent = RNNParams.train_percent[param2ids.train_percent]
+        self.num_eval_steps = RNNParams.num_eval_steps[param2ids.num_eval_steps]
+        self.shuffle_per_epoch = RNNParams.shuffle_per_epoch[param2ids.shuffle_per_epoch]
+        self.embed_init_range = RNNParams.embed_init_range[param2ids.embed_init_range]
+        self.dropout_prob = RNNParams.dropout_prob[param2ids.dropout_prob]
+        self.num_layers = RNNParams.num_layers[param2ids.num_layers]
+        self.num_steps = RNNParams.num_steps[param2ids.num_steps]
+        self.batch_size = RNNParams.batch_size[param2ids.batch_size]
+        self.num_epochs = RNNParams.num_epochs[param2ids.num_epochs]
+        self.learning_rate = RNNParams.learning_rate[param2ids.learning_rate]
+        self.grad_clip = RNNParams.grad_clip[param2ids.grad_clip]
+        #
+        self.name = self.rnn_type
+        self.model = TorchRNN(self.rnn_type, self.num_layers, self.embed_size, self.batch_size, self.embed_init_range)
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.RNN.initital_lr)  # TODO Adagrad
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate[0])  # TODO Adagrad
         self.model.cuda()
 
-    @staticmethod
-    def gen_windows(token_ids):
+    def gen_windows(self, token_ids):
         # yield num_steps matrices where each matrix contains windows of size num_steps
-        remainder = len(token_ids) % config.RNN.num_steps
-        for i in range(config.RNN.num_steps):
+        remainder = len(token_ids) % self.num_steps
+        for i in range(self.num_steps):
             seq = np.roll(token_ids, i)  # rightward
             seq = seq[:-remainder]
-            x = np.reshape(seq, (-1, config.RNN.num_steps))
+            x = np.reshape(seq, (-1, self.num_steps))
             y = np.roll(x, -1)
             yield i, x, y
 
@@ -45,7 +60,7 @@ class RNNEmbedder(EmbedderBase):
             if verbose:
                 print('Excluding {} windows due to fixed batch size'.format(num_excluded))
                 print('{}/{} Generating {:,} batches with size {}...'.format(
-                    window_id + 1, config.RNN.num_steps, num_batches, batch_size))
+                    window_id + 1, self.num_steps, num_batches, batch_size))
             for x_b, y_b in zip(np.vsplit(x, num_batches),
                                 np.vsplit(y, num_batches)):
                 yield batch_id, x_b, y_b[:, -1]
@@ -76,9 +91,9 @@ class RNNEmbedder(EmbedderBase):
     def train_epoch(self, numeric_docs, lr):
         start_time = time.time()
         self.model.train()
-        self.model.batch_size = config.RNN.batch_size
+        self.model.batch_size = self.batch_size
         # shuffle and flatten
-        if config.RNN.shuffle_per_epoch:
+        if self.shuffle_per_epoch:
             np.random.shuffle(numeric_docs)
         token_ids = np.hstack(numeric_docs)
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size):
@@ -91,14 +106,14 @@ class RNNEmbedder(EmbedderBase):
             self.optimizer.zero_grad()  # sets all gradients to zero  # TODO why put this here?
             loss = self.criterion(logits, targets)
             loss.backward()
-            if config.RNN.grad_clip is not None:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), config.RNN.grad_clip)
+            if self.grad_clip is not None:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
                 for p in self.model.parameters():
                     p.data.add_(-lr, p.grad.data)
             else:
                 self.optimizer.step()
             # console
-            if batch_id % config.RNN.num_eval_steps == 0:
+            if batch_id % self.num_eval_steps == 0:
                 xent_error = loss.item()
                 pp = np.exp(xent_error)
                 secs = time.time() - start_time
@@ -110,7 +125,7 @@ class RNNEmbedder(EmbedderBase):
         valid_numeric_docs = []
         test_numeric_docs = []
         for doc in self.numeric_docs:
-            if np.random.binomial(1, config.RNN.train_percent):
+            if np.random.binomial(1, self.train_percent):
                 train_numeric_docs.append(doc)
             else:
                 if np.random.binomial(1, 0.5):  # split valid and test docs evenly
@@ -120,10 +135,12 @@ class RNNEmbedder(EmbedderBase):
         print('Num docs in train {} valid {} test {}'.format(
             len(train_numeric_docs), len(valid_numeric_docs), len(test_numeric_docs)))
         # train loop
-        lr = config.RNN.initital_lr
-        for epoch in range(config.RNN.num_epochs):
+        lr = self.learning_rate[0]  # initial
+        decay = self.learning_rate[1]
+        num_epochs_without_decay = self.learning_rate[2]
+        for epoch in range(self.num_epochs):
             print('/Starting epoch {} with lr={}'.format(epoch, lr))
-            lr_decay = config.RNN.lr_decay_base ** max(epoch - config.RNN.num_epochs_with_flat_lr, 0)
+            lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
             lr = lr * lr_decay  # decay lr if it is time
             self.train_epoch(train_numeric_docs, lr)
             print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
@@ -134,38 +151,43 @@ class RNNEmbedder(EmbedderBase):
         return w2e
 
 
-class RNN_Model(torch.nn.Module):
-    def __init__(self, rnn_type):
+class TorchRNN(torch.nn.Module):
+    def __init__(self, rnn_type, num_layers, embed_size, batch_size, embed_init_range):
         super().__init__()
-        self.batch_size = config.RNN.batch_size
-        self.wx = torch.nn.Embedding(config.Corpus.num_vocab, config.RNN.embed_size)
-        if rnn_type == 'lstm':
+        self.rnn_type = rnn_type
+        self.num_layers = num_layers
+        self.embed_size = embed_size
+        self.batch_size = batch_size
+        self.embed_init_range = embed_init_range
+        #
+        self.wx = torch.nn.Embedding(config.Corpus.num_vocab, self.embed_size)
+        if self.rnn_type == 'lstm':
             self.cell = torch.nn.LSTM
-        elif rnn_type == 'srn':
+        elif self.rnn_type == 'srn':
             self.cell = torch.nn.RNN  # TODO Test
         else:
             raise AttributeError('Invalid arg to "rnn_type".')
-        self.rnn = self.cell(input_size=config.RNN.embed_size,
-                             hidden_size=config.RNN.embed_size,
-                             num_layers=config.RNN.num_layers,
-                             dropout=config.RNN.dropout_prob if config.RNN.num_layers > 1 else 0)
-        self.wy = torch.nn.Linear(in_features=config.RNN.embed_size,
+        self.rnn = self.cell(input_size=self.embed_size,
+                             hidden_size=self.embed_size,
+                             num_layers=self.num_layers,
+                             dropout=self.dropout_prob if self.num_layers > 1 else 0)
+        self.wy = torch.nn.Linear(in_features=self.embed_size,
                                   out_features=config.Corpus.num_vocab)
         self.init_weights()
 
     def init_weights(self):
-        self.wx.weight.data.uniform_(-config.RNN.embed_init_range, config.RNN.embed_init_range)
+        self.wx.weight.data.uniform_(-self.embed_init_range, self.embed_init_range)
         self.wy.bias.data.fill_(0.0)
-        self.wy.weight.data.uniform_(-config.RNN.embed_init_range, config.RNN.embed_init_range)
+        self.wy.weight.data.uniform_(-self.embed_init_range, self.embed_init_range)
 
     def init_hidden(self):
         weight = next(self.parameters()).data
-        return (torch.autograd.Variable(weight.new(config.RNN.num_layers,
+        return (torch.autograd.Variable(weight.new(self.num_layers,
                                                    self.batch_size,
-                                                   config.RNN.embed_size).zero_()),
-                torch.autograd.Variable(weight.new(config.RNN.num_layers,
+                                                   self.embed_size).zero_()),
+                torch.autograd.Variable(weight.new(self.num_layers,
                                                    self.batch_size,
-                                                   config.RNN.embed_size).zero_()))
+                                                   self.embed_size).zero_()))
 
     def forward(self, inputs, hidden):  # expects [num_steps, mb_size] tensor
         embeds = self.wx(inputs)

@@ -1,9 +1,11 @@
 import numpy as np
+from itertools import chain
 
 from src import config
+from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from src.params import make_param2ids
 from src.embedders.rnn import RNNEmbedder
-from src.embedders.wd_matrix import WDEmbedder
-from src.embedders.ww_matrix import WWEmbedder
+from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
@@ -13,58 +15,52 @@ from src.tasks.nym_matching import NymMatching
 from src.utils import w2e_to_sims
 from src.utils import w2e_to_embeds
 
-embedders = [
-    RNNEmbedder('lstm'),
-    RNNEmbedder('srn'),
-    W2VecEmbedder('sg'),
-    WDEmbedder(),
-    WWEmbedder(),
-    RandomControlEmbedder()]
-num_embedders = len(embedders)
+
+embedders = chain((CountEmbedder(param2ids) for param2ids in make_param2ids(CountParams)),
+                  (W2VecEmbedder(param2ids) for param2ids in make_param2ids(Word2VecParams)),
+                  (RNNEmbedder(param2ids) for param2ids in make_param2ids(RNNParams)),
+                  (RandomControlEmbedder(param2ids) for param2ids in make_param2ids(RandomControlParams)))
 
 tasks = [
-    NymMatching('verb', 'synonym'),
+    # NymMatching('noun', 'synonym'),
     Categorization('semantic'),
-    Categorization('syntactic')]
-num_tasks = len(tasks)
+    Categorization('syntactic')
+]
 
 # run full experiment
-nov_scores_mat = np.zeros((num_embedders, num_tasks))
-exp_scores_mat = np.zeros((num_embedders, num_tasks))
-for i, embedder in enumerate(embedders):
+nov2scores = {}  # TODO this needs to be indexed by all params - timestamp?
+exp2scores = {}  # TODO this needs to be indexed by all params - timestamp?
+for embedder in embedders:
     # embed
     if embedder.has_embeddings() and not config.Embeddings.retrain:
-        print('==========================================================================')
         print('Found {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
         w2e = embedder.load_w2e()
     else:
-        print('==========================================================================')
-        print('Did not find "{}" in {}.\nWill try to train "{}"'.format(
-            embedder.embeddings_fname, config.Global.embeddings_dir, embedder.name))
+        print('{}...'.format('Re-training' if config.Embeddings.retrain else 'Training'))
         print('==========================================================================')
         w2e = embedder.train()
         if config.Embeddings.save:
-            embedder.save(w2e)
+            embedder.save_w2e(w2e)
     # tasks
-    for j, task in enumerate(tasks):
+    for task in tasks:
         print('---------------------------------------------')
         print('Starting task "{}"'.format(task.name))
         print('---------------------------------------------')
         # check embeddings
-        for p in set(task.sim_rows + task.sim_cols):
+        for p in set(task.row_words + task.col_words):
             if p not in w2e:
-                # raise KeyError('Test-word "{}" in task "{}" is not in w2e.'.format(p, task.name))
-                print('"{}" required for {} is not in {}.'.format(p, task.name, embedder.name))
+                raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
         # similarities
         embeds = w2e_to_embeds(w2e)
-        sims = w2e_to_sims(w2e, task.sim_rows, task.sim_cols, config.Global.sim_method)
+        sims = w2e_to_sims(w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
         print('Shape of similarity matrix: {}'.format(sims.shape))
         # score
-        nov_scores_mat[i, j] = task.score_novice(sims)
-        exp_scores_mat[i, j] = task.train_and_score_expert(w2e, embeds.shape[1])
+        nov2scores[embedder.name] = (task.name, task.score_novice(sims))
+        exp2scores[embedder.name] = (task.name, task.train_and_score_expert(w2e, embeds.shape[1]))
         # figs
         task.save_figs(embedder.name)
-# save scores
-np.save('novice_scores.npy', nov_scores_mat)
-np.save('expert_scores.npy', exp_scores_mat)
+
+# TODO save scores to csv
+np.save('novice_scores.npy', nov2scores)
+np.save('expert_scores.npy', exp2scores)

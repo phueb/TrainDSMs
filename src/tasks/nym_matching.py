@@ -28,15 +28,15 @@ class NymMatching:
         self.trials = []  # each result is a class with many attributes
 
     @property
-    def sim_rows(self):  # used to build sims
+    def row_words(self):  # used to build sims
         return self.probes
 
     @property
-    def sim_cols(self):
+    def col_words(self):
         return self.nyms
 
     def load_data(self):
-        p = config.Global.task_dir / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         print('Loading {}'.format(p))
         probes, nyms = np.loadtxt(p, dtype='str').T
         return probes.tolist(), nyms.tolist()
@@ -122,6 +122,7 @@ class NymMatching:
 
         result = num_correct / self.num_pairs
 
-        print('Accuracy at {} = {}'.format(self.name, result))
+        print('Accuracy at {} = {:.2f}'.format(self.name, result))
+        print('Chance = {:.2f}'.format(1 / config.NymMatching.num_distractors))
 
         return result

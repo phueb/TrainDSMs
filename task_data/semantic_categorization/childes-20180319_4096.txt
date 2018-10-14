@@ -33,6 +33,7 @@ hen BIRD
 ostrich BIRD
 owl BIRD
 parrot BIRD
+peacock BIRD
 penguin BIRD
 rooster BIRD
 arm BODY
@@ -302,6 +303,7 @@ pitcher KITCHEN
 plate KITCHEN
 refrigerator KITCHEN
 saucer KITCHEN
+silverware KITCHEN
 spoon KITCHEN
 stove KITCHEN
 teapot KITCHEN
@@ -376,7 +378,6 @@ tuna MEAT
 april MONTHS
 august MONTHS
 december MONTHS
-february MONTHS
 january MONTHS
 july MONTHS
 june MONTHS
