@@ -45,7 +45,7 @@ class RNNEmbedder(EmbedderBase):
             y = np.roll(x, -1)
             yield i, x, y
 
-    def gen_batches(self, token_ids, batch_size, verbose=True):
+    def gen_batches(self, token_ids, batch_size, verbose):
         batch_id = 0
         for window_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
             # exclude some rows to split x and y evenly by batch size
@@ -66,8 +66,9 @@ class RNNEmbedder(EmbedderBase):
                 yield batch_id, x_b, y_b[:, -1]
                 batch_id += 1
 
-    def calc_pp(self, numeric_docs):
-        print('Calculating perplexity...')
+    def calc_pp(self, numeric_docs, verbose):
+        if verbose:
+            print('Calculating perplexity...')
         self.model.eval()
         self.model.batch_size = 1  # TODO probably better to do on CPU - or find batch size that excludes least samples
         errors = 0
@@ -75,7 +76,7 @@ class RNNEmbedder(EmbedderBase):
         token_ids = np.hstack(numeric_docs)
         num_windows = len(token_ids)
         pbar = pyprind.ProgBar(num_windows, stream=sys.stdout)
-        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose=False):
+        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose):
             pbar.update()
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
             targets = torch.cuda.LongTensor(y_b)
@@ -96,7 +97,7 @@ class RNNEmbedder(EmbedderBase):
         if self.shuffle_per_epoch:
             np.random.shuffle(numeric_docs)
         token_ids = np.hstack(numeric_docs)
-        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size):
+        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose):
             # forward step
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
             targets = torch.cuda.LongTensor(y_b)
