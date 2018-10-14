@@ -25,8 +25,8 @@ embedders = chain(
 tasks = [
     NymMatching('noun', 'synonym'),
     NymMatching('verb', 'synonym'),
-    Categorization('semantic'),
-    Categorization('syntactic')
+    # Categorization('semantic'),
+    # Categorization('syntactic')
 ]
 
 # run full experiment

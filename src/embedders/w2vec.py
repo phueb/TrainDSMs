@@ -19,7 +19,7 @@ class W2VecEmbedder(EmbedderBase):
 
     def train(self):
         logging.basicConfig(format='%(message)s', level=logging.INFO)
-        sg = Word2Vec(self.numeric_docs,
+        sg = Word2Vec(self.docs,
                       sg=True if self.w2vec_type == 'sg' else False,
                       size=self.embed_size,
                       window=self.window_size,

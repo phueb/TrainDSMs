@@ -59,12 +59,13 @@ class EmbedderBase(object):
                 if token in t2id:
                     numeric_doc.append(t2id[token])
                 else:
+                    doc[n] = config.Corpus.UNK
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
-        return numeric_docs, vocab, deterministic_w2f
+        return numeric_docs, vocab, deterministic_w2f, docs
 
     def save_params(self):
-        p = config.Dirs.embeddings / self.params_fname  # TODO test
+        p = config.Dirs.embeddings / self.params_fname
         with p.open('w', encoding='utf8') as outfile:
             yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
 
@@ -87,6 +88,10 @@ class EmbedderBase(object):
     @property
     def w2freq(self):
         return self.corpus_data[2]
+
+    @property
+    def docs(self):
+        return self.corpus_data[3]  # w2vec needs this
 
     @cached_property
     def corpus_data(self):

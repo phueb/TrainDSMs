@@ -22,7 +22,6 @@ class NymMatching:
         self.nym_type = nym_type
         self.probes, self.nyms = self.load_data()
         self.num_pairs = len(self.probes)
-        self.correct_nym_ids = self.make_correct_candidate_ids()
         self.distractor_nym_ids_mat = self.make_distractor_ids_mat()
         # evaluation
         self.trials = []  # each result is a class with many attributes
@@ -41,16 +40,12 @@ class NymMatching:
         probes, nyms = np.loadtxt(p, dtype='str').T
         return probes.tolist(), nyms.tolist()
 
-    def make_correct_candidate_ids(self):
-        """
-        return list of integers with length [num pairs] where each integer is a candidate_id
-        specifying which candidate in a given trial is the correct nym
-        """
-        res = np.random.choice(config.NymMatching.num_distractors + 1, size=self.num_pairs)
-        return res
-
-    def make_distractor_ids_mat(self):  # TODO test
-        res = np.random.choice(self.num_pairs, (self.num_pairs, config.NymMatching.num_distractors))
+    def make_distractor_ids_mat(self):  # TODO do not include corret nym in distractors
+        res = []
+        for n in range(self.num_pairs):
+            choices = [i for i in range(self.num_pairs) if i != n]
+            res.append(np.random.choice(choices, config.NymMatching.num_distractors, replace=False))
+        res = np.vstack(res)
         return res
 
 
@@ -110,10 +105,10 @@ class NymMatching:
         the number of probes is not the number of types - repeated occurrences are allowed and counted
         """
         num_correct = 0
-        for n, (distractor_nym_ids, correct_nym_id) in enumerate(zip(self.distractor_nym_ids_mat, self.correct_nym_ids)):
+        for n, distractor_nym_ids in enumerate(self.distractor_nym_ids_mat):
 
             candidate_sims = sims[n, distractor_nym_ids]
-            correct_sim = sims[n, correct_nym_id]
+            correct_sim = sims[n, n]  # correct pairs are in diagonal
             if np.all(candidate_sims < correct_sim):
                 num_correct += 1
 

@@ -85,7 +85,7 @@ class RNNParams:
 
 class Word2VecParams:
     w2vec_type = ['cbow', 'sg']
-    embed_size = [32, 128, 512]
+    embed_size = [32, 512]
     window_size = [7, 16]
     num_epochs = [20]
 
