@@ -71,7 +71,7 @@ class RNNParams:
     num_layers = [1]
     num_steps = [7]
     batch_size = [64]
-    num_epochs = [20]
+    num_epochs = [10]
     learning_rate = [(0.1, 0.85, 10)]  # initial, decay, num_epochs_without_decay
     grad_clip = [None]
 
