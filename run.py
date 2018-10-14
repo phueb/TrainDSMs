@@ -30,19 +30,19 @@ tasks = [
 ]
 
 # run full experiment
-nov2scores = {}  # TODO this needs to be indexed by all params - timestamp?
-exp2scores = {}  # TODO this needs to be indexed by all params - timestamp?
+nov2scores = {}
+exp2scores = {}
 for embedder in embedders:
     # embed
     if config.Embeddings.retrain or not embedder.has_embeddings():
         print('Training embeddings')
         print('==========================================================================')
         w2e = embedder.train()
-        embedder.save_params()
         if config.Embeddings.save:
             embedder.save_w2e(w2e)
+            embedder.save_params()
     else:
-        print('Found {}'.format(embedder.embeddings_fname))
+        print('Found embeddings at {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
         w2e = embedder.load_w2e()
 
