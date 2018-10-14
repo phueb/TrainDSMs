@@ -1,3 +1,5 @@
+gensim
+PyYAML
 beautifulsoup4
 aiohttp
 torch

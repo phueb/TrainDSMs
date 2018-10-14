@@ -89,7 +89,7 @@ class NymMatching:
             np.random.shuffle(y_train)
         return x_train, y_train, x_test, y_test
 
-    def train_and_score_expert(self, w2e, embed_size):
+    def train_and_score_expert(self, w2e, embed_size):  # TODO implement
         for shuffled in [False, True]:
             name = 'shuffled' if shuffled else ''
             trial = Trial(name=name,
@@ -117,8 +117,8 @@ class NymMatching:
             if np.all(candidate_sims < correct_sim):
                 num_correct += 1
 
-            print(candidate_sims)
-            print(correct_sim)
+            # print(candidate_sims)
+            # print(correct_sim)
 
         result = num_correct / self.num_pairs
 
@@ -126,3 +126,33 @@ class NymMatching:
         print('Chance = {:.2f}'.format(1 / config.NymMatching.num_distractors))
 
         return result
+
+    def save_figs(self, embedder_name):  # TODO implement
+        for trial in self.trials:
+            x_train, y_train, x_test, y_test = trial.data
+            dummies = pd.get_dummies(y_test)
+            cat_freqs = np.sum(dummies.values, axis=0)
+            num_test_cats = len(set(y_test))
+            cat_freqs_mat = np.tile(cat_freqs, (num_test_cats, 1))  # not all categories may be in test data
+            # confusion mat
+            logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
+            predicted_y = np.argmax(logits, axis=1).astype(np.int)
+            cm = np.zeros((num_test_cats, num_test_cats))
+            for ay, py in zip(y_test, predicted_y):
+                cm[ay, py] += 1
+            cm = np.multiply(cm / cat_freqs_mat, 100).astype(np.int)
+            # accuracies by category
+            train_acc_trajs = np.array(trial.train_accs_by_cat).T
+            test_acc_trajs = np.array(trial.test_accs_by_cat).T
+            # figs
+            for fig, fig_name in make_categorizer_figs(cm,
+                                                       np.cumsum(trial.x_mat, axis=1),
+                                                       train_acc_trajs,
+                                                       test_acc_trajs,
+                                                       self.cats):
+                p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
+                if not p.parent.exists():
+                    p.parent.mkdir(parents=True)
+                fig.savefig(str(p))
+                print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
+

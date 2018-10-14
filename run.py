@@ -16,13 +16,15 @@ from src.utils import w2e_to_sims
 from src.utils import w2e_to_embeds
 
 
-embedders = chain((CountEmbedder(param2ids) for param2ids in make_param2ids(CountParams)),
-                  (W2VecEmbedder(param2ids) for param2ids in make_param2ids(Word2VecParams)),
-                  (RNNEmbedder(param2ids) for param2ids in make_param2ids(RNNParams)),
-                  (RandomControlEmbedder(param2ids) for param2ids in make_param2ids(RandomControlParams)))
+embedders = chain(
+    (RNNEmbedder(param2ids) for param2ids in make_param2ids(RNNParams)),
+    # (CountEmbedder(param2ids) for param2ids in make_param2ids(CountParams)),
+    # (W2VecEmbedder(param2ids) for param2ids in make_param2ids(Word2VecParams)),
+    (RandomControlEmbedder(param2ids) for param2ids in make_param2ids(RandomControlParams)))
 
 tasks = [
-    # NymMatching('noun', 'synonym'),
+    NymMatching('noun', 'synonym'),
+    NymMatching('verb', 'synonym'),
     Categorization('semantic'),
     Categorization('syntactic')
 ]
@@ -57,9 +59,9 @@ for embedder in embedders:
         print('Shape of similarity matrix: {}'.format(sims.shape))
         # score
         nov2scores[embedder.name] = (task.name, task.score_novice(sims))
-        exp2scores[embedder.name] = (task.name, task.train_and_score_expert(w2e, embeds.shape[1]))
+        # exp2scores[embedder.name] = (task.name, task.train_and_score_expert(w2e, embeds.shape[1]))
         # figs
-        task.save_figs(embedder.name)
+        # task.save_figs(embedder.name)
 
 # TODO save scores to csv
 np.save('novice_scores.npy', nov2scores)

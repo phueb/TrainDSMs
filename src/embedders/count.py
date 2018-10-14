@@ -259,7 +259,7 @@ class CountEmbedder(EmbedderBase):
         print('\nReducing matrix using RVA')
         num_rows = len(input_matrix[:, 0])
         num_cols = len(input_matrix[0, :])
-        random_vectors = np.random.normal(mean,stdev,[num_rows,length])
+        random_vectors = np.random.normal(mean,stdev,[num_rows, length])
         rva_matrix = np.zeros([num_rows, length], float)
         pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
