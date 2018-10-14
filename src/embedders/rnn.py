@@ -135,6 +135,7 @@ class RNNEmbedder(EmbedderBase):
                     test_numeric_docs.append(doc)
         print('Num docs in train {} valid {} test {}'.format(
             len(train_numeric_docs), len(valid_numeric_docs), len(test_numeric_docs)))
+        print('Training...')
         # train loop
         lr = self.learning_rate[0]  # initial
         decay = self.learning_rate[1]
@@ -143,15 +144,15 @@ class RNNEmbedder(EmbedderBase):
         for epoch in range(self.num_epochs):
             if verbose:
                 print('/Starting epoch {} with lr={}'.format(epoch, lr))
-            else:
-                pbar.update()
             lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
             lr = lr * lr_decay  # decay lr if it is time
             self.train_epoch(train_numeric_docs, lr, verbose)
             if verbose:
                 print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
-                    epoch, self.calc_pp(valid_numeric_docs)))
-        print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs)))
+                    epoch, self.calc_pp(valid_numeric_docs, verbose)))
+            else:
+                pbar.update()
+        print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs, verbose)))
         embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO is this the correct order of vocab?
         w2e = matrix_to_w2e(embed_mat, self.vocab)
         return w2e
