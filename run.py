@@ -34,16 +34,17 @@ nov2scores = {}  # TODO this needs to be indexed by all params - timestamp?
 exp2scores = {}  # TODO this needs to be indexed by all params - timestamp?
 for embedder in embedders:
     # embed
-    if embedder.has_embeddings() and not config.Embeddings.retrain:
-        print('Found {}'.format(embedder.embeddings_fname))
-        print('==========================================================================')
-        w2e = embedder.load_w2e()
-    else:
-        print('{}...'.format('Re-training' if config.Embeddings.retrain else 'Training'))
+    if config.Embeddings.retrain or not embedder.has_embeddings():
+        print('Training embeddings')
         print('==========================================================================')
         w2e = embedder.train()
         if config.Embeddings.save:
             embedder.save_w2e(w2e)
+    else:
+        print('Found {}'.format(embedder.embeddings_fname))
+        print('==========================================================================')
+        w2e = embedder.load_w2e()
+
     # tasks
     for task in tasks:
         print('---------------------------------------------')
