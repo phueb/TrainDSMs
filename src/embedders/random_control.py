@@ -14,9 +14,8 @@ class RandomControlEmbedder(EmbedderBase):
 
     def train(self):
         if self.distribution == 'uniform':
-            w2e = {w: np.random.uniform(-1.0, 1.0, self.embed_size) for n, w in enumerate(self.vocab)}
+            self.w2e = {w: np.random.uniform(-1.0, 1.0, self.embed_size) for n, w in enumerate(self.vocab)}
         elif self.distribution == 'normal':
-            w2e = {w: np.random.normal(0, 1.0, self.embed_size) for n, w in enumerate(self.vocab)}
+            self.w2e = {w: np.random.normal(0, 1.0, self.embed_size) for n, w in enumerate(self.vocab)}
         else:
             raise AttributeError('Invalid arg to RandomControl.distribution.')
-        return w2e, self.embed_size

@@ -13,8 +13,6 @@ from src.tasks.categorization import Categorization
 from src.tasks.nym_matching import NymMatching
 
 from src.utils import w2e_to_sims
-from src.utils import w2e_to_embeds
-
 
 embedders = chain(
     (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
@@ -23,10 +21,10 @@ embedders = chain(
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams)))
 
 tasks = [
-    NymMatching('noun', 'synonym'),
-    NymMatching('verb', 'synonym'),
-    # Categorization('semantic'),
-    # Categorization('syntactic')
+    # NymMatching('noun', 'synonym'),
+    # NymMatching('verb', 'synonym'),
+    Categorization('semantic'),
+    Categorization('syntactic')
 ]
 
 # run full experiment
@@ -37,14 +35,15 @@ for embedder in embedders:
     if config.Embeddings.retrain or not embedder.has_embeddings():
         print('Training embeddings')
         print('==========================================================================')
-        w2e = embedder.train()
+        embedder.train()
         if config.Embeddings.save:
-            embedder.save_w2e(w2e)
+            embedder.save_w2e()
             embedder.save_params()
+            embedder.save_w2freq()
     else:
         print('Found embeddings at {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
-        w2e = embedder.load_w2e()
+        embedder.load_w2e()
 
     # tasks
     for task in tasks:
@@ -53,15 +52,15 @@ for embedder in embedders:
         print('---------------------------------------------')
         # check embeddings
         for p in set(task.row_words + task.col_words):
-            if p not in w2e:
-                raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
+            if p not in embedder.w2e:
+                # raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
+                print('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
         # similarities
-        embeds = w2e_to_embeds(w2e)
-        sims = w2e_to_sims(w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
+        sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
         print('Shape of similarity matrix: {}'.format(sims.shape))
         # score
         nov2scores[embedder.time_of_init] = (task.name, task.score_novice(sims))
-        # exp2scores[embedder.time_of_init] = (task.name, task.train_and_score_expert(w2e, embeds.shape[1]))
+        exp2scores[embedder.time_of_init] = (task.name, task.train_and_score_expert(embedder))
         # figs
         # task.save_figs(embedder.name)
 

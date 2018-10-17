@@ -1,6 +1,5 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from sortedcontainers import SortedDict
 import spacy
 
 from src import config
@@ -17,23 +16,6 @@ def w2e_to_sims(w2e, row_words, col_words, method):  # TODO test
     else:
         raise NotImplemented  # TODO how to convert euclidian distance to sim measure?
     return np.around(res, config.Embeddings.precision)
-
-
-def w2e_to_embeds(w2e):
-    embeds = []
-    for w in w2e.keys():
-        embeds.append(w2e[w])
-    res = np.vstack(embeds)
-    print('Converted w2e to matrix with shape {}'.format(res.shape))
-    return res
-
-
-def matrix_to_w2e(input_matrix, vocab):
-    res = SortedDict()
-    for n, w in enumerate(vocab):
-        res[w] = input_matrix[n]
-    assert len(vocab) == len(res) == len(input_matrix)
-    return res
 
 
 def print_matrix(vocab, matrix, precision, row_list=None, column_list=None):

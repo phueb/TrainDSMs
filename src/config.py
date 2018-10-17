@@ -22,7 +22,7 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     test_size = 0.3
     num_epochs = 1000
     mb_size = 4
-    max_freq = 1  # TODO log transform
+    log_freq = False  # TODO test
     num_evals = 10
     learning_rate = 0.005
     num_hiddens = 128  # learning reaches 100% acc without hidden units but takes longer

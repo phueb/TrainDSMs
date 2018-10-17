@@ -3,7 +3,6 @@ from cytoolz import itertoolz
 import pyprind
 import sys
 
-from src.utils import matrix_to_w2e
 from src.embedders.base import EmbedderBase
 from src.params import CountParams
 from src import config
@@ -101,8 +100,7 @@ class CountEmbedder(EmbedderBase):
         norm_matrix, dimensions = self.normalize(count_matrix, self.norm_type)
         reduced_matrix, dimensions = self.reduce(norm_matrix, self.reduce_type[0], self.reduce_type[1])
         # to w2e
-        w2e = matrix_to_w2e(reduced_matrix, self.vocab)
-        return w2e
+        self.w2e = self.embeds_to_w2e(reduced_matrix, self.vocab)
 
     # ////////////////////////////////////////////////// normalizations
 

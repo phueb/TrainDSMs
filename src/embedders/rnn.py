@@ -7,7 +7,6 @@ import sys
 from src.embedders.base import EmbedderBase
 from src.params import RNNParams
 from src import config
-from src.utils import matrix_to_w2e
 
 
 # TODO  is torch.utils.data useful here?
@@ -154,8 +153,7 @@ class RNNEmbedder(EmbedderBase):
                 pbar.update()
         print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs, verbose)))
         embed_mat = self.model.wx.weight.detach().cpu().numpy()  # TODO is this the correct order of vocab?
-        w2e = matrix_to_w2e(embed_mat, self.vocab)
-        return w2e
+        self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
 
 
 class TorchRNN(torch.nn.Module):

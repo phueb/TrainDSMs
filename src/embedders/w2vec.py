@@ -4,7 +4,6 @@ import numpy as np
 
 from src.embedders.base import EmbedderBase
 from src.params import Word2VecParams
-from src.utils import matrix_to_w2e
 
 
 class W2VecEmbedder(EmbedderBase):
@@ -32,5 +31,4 @@ class W2VecEmbedder(EmbedderBase):
         for n, term in enumerate(self.vocab):
             term_acts = sg.wv[term]
             embed_mat[n] = term_acts
-        w2e = matrix_to_w2e(embed_mat, self.vocab)
-        return w2e
+        self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)

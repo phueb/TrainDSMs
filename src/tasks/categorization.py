@@ -4,6 +4,7 @@ from bayes_opt import BayesianOptimization
 import pandas as pd
 
 from src import config
+from src.embedders.base import EmbedderBase
 from src.figs import make_categorizer_figs
 
 
@@ -23,7 +24,9 @@ class Categorization:
     def __init__(self, cat_type):
         self.name = '{}_categorization'.format(cat_type)
         self.cat_type = cat_type
-        self.probes, self.cats = self.load_data()
+        self.probes, self.probe_cats = self.load_data()
+        self.cats = sorted(set(self.probe_cats))
+        assert len(set(self.probes)) == len(self.probes)
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
         # evaluation
@@ -42,17 +45,14 @@ class Categorization:
         probes, cats = np.loadtxt(p, dtype='str').T
         return probes.tolist(), cats.tolist()
 
-    def make_data(self, w2e, shuffled):
+    def make_data(self, w2e, w2freq, shuffled):
         # put data in array
         x = np.vstack([w2e[p] for p in self.probes])
         y = np.zeros(x.shape[0], dtype=np.int)
-        for n, (probe, cat) in enumerate(zip(self.probes, self.cats)):
+        for n, (probe, cat) in enumerate(zip(self.probes, self.probe_cats)):
             cat_id = self.cats.index(cat)
             y[n] = cat_id
         # split
-        max_f = config.Categorization.max_freq
-        w2freq = make_w2freq(config.Corpus.name)
-        probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
         test_ids = np.random.choice(self.num_probes,
                                     size=int(self.num_probes * config.Categorization.test_size),
                                     replace=False)
@@ -60,12 +60,16 @@ class Categorization:
         assert len(train_ids) + len(test_ids) == self.num_probes
         x_train = x[train_ids, :]
         y_train = y[train_ids]
-        pfs_train = np.array(probe_freq_list)[train_ids]
         x_test = x[test_ids, :]
         y_test = y[test_ids]
         # repeat train samples proportional to corpus frequency - must happen AFTER split
-        x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
-        y_train = np.repeat(y_train, pfs_train, axis=0)
+        if config.Categorization.log_freq:
+            probe_freqs = np.floor([np.log(w2freq[probe]) for probe in self.probes]).astype(np.int64)
+            print('Repeating probes in training data proportional to log frequency')
+            print(probe_freqs)
+            pfs_train = np.array(probe_freqs)[train_ids]
+            x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
+            y_train = np.repeat(y_train, pfs_train, axis=0)
         # shuffle x-y mapping
         if shuffled:
             print('Shuffling category assignment')
@@ -128,19 +132,14 @@ class Categorization:
                 yield step, x_batch, y_batch
 
         # function for correct_sum_by_cat
-        def make_acc_by_cat(corr, Y):
+        def make_acc_by_cat(corr, y):
             res = []
             for cat_id in range(self.num_cats):
-                cat_probe_ids = np.where(Y == cat_id)[0]
+                cat_probe_ids = np.where(y == cat_id)[0]
                 num_total_cat_probes = len(cat_probe_ids)
                 num_correct_cat_probes = np.sum(corr[cat_probe_ids])
                 cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1) * 100
                 res.append(cat_acc)
-
-            # TODO debug
-            print('accuracy by category')
-            print(res)
-
             return res
 
         # training and eval
@@ -210,13 +209,13 @@ class Categorization:
                 fig.savefig(str(p))
                 print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
 
-    def train_and_score_expert(self, w2e, embed_size):
+    def train_and_score_expert(self, e):
         for shuffled in [False, True]:
             name = 'shuffled' if shuffled else ''
             trial = Trial(name=name,
                           num_cats=self.num_cats,
-                          g=self.make_classifier_graph(embed_size),
-                          data=self.make_data(w2e, shuffled))
+                          g=self.make_classifier_graph(e.dim1),
+                          data=self.make_data(e.w2e, e.w2freq, shuffled))
             print('Training semantic_categorization expert with {} categories...'.format(name))
             self.train_expert(trial)
             self.trials.append(trial)
@@ -228,7 +227,7 @@ class Categorization:
     def score_novice(self, test_word_sims, probe_cats=None, metric='ba'):
         if probe_cats is None:
             probe_cats = []
-            for p, cat in zip(self.probes, self.cats):
+            for p, cat in zip(self.probes, self.probe_cats):
                 probe_cats.append(cat)
         assert len(probe_cats) == len(self.probes) == len(test_word_sims)
 

@@ -7,18 +7,62 @@ import pyprind
 import yaml
 import datetime
 from cached_property import cached_property
+from sortedcontainers import SortedDict
 
 from spacy.tokenizer import Tokenizer
 
 from src import config
-from src.utils import matrix_to_w2e, nlp
+from src.utils import nlp
 
 
 class EmbedderBase(object):
     def __init__(self, param2val):
         self.param2val = param2val
+        self.w2e = dict()  # is created by child class
         self.time_of_init = datetime.datetime.now().strftime('%m-%d-%H-%M-%S') \
             if not self.has_embeddings() else self.has_embeddings()
+
+    # ///////////////////////////////////////////////////////////// I/O
+
+    @property
+    def params_fname(self):
+        return '{}.yaml'.format(self.time_of_init)
+
+    @property
+    def embeddings_fname(self):
+        return '{}.txt'.format(self.time_of_init)
+
+    @property
+    def w2freq_fname(self):
+        return '{}_w2freq.txt'.format(config.Corpus.name)
+
+    def save_params(self):
+        p = config.Dirs.embeddings / self.params_fname
+        with p.open('w', encoding='utf8') as outfile:
+            yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
+
+    def save_w2freq(self):
+        p = config.Dirs.corpora / self.w2freq_fname
+        with p.open('w') as f:
+            for probe, freq in self.w2freq.items():
+                f.write('{} {}\n'.format(probe, freq))
+
+    def save_w2e(self):  # TODO serializing is faster (pickle, numpy)
+        p = config.Dirs.embeddings / self.embeddings_fname
+        print('Saving embeddings at {}'.format(self.embeddings_fname))
+        with p.open('w') as f:
+            for probe, embedding in sorted(self.w2e.items()):
+                embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
+                f.write('{} {}\n'.format(probe, embedding_str))
+
+    def load_w2e(self):
+        mat = np.loadtxt(config.Dirs.embeddings / self.embeddings_fname, dtype='str', comments=None)
+        vocab = mat[:, 0]
+        embed_mat = mat[:, 1:].astype('float')
+        self.check_consistency(embed_mat)
+        self.w2e = self.embeds_to_w2e(embed_mat, vocab)
+
+    # ///////////////////////////////////////////////////////////// corpus data
 
     @classmethod
     def load_corpus_data(cls, num_vocab=config.Corpus.num_vocab):
@@ -64,19 +108,6 @@ class EmbedderBase(object):
             numeric_docs.append(numeric_doc)
         return numeric_docs, vocab, deterministic_w2f, docs
 
-    def save_params(self):
-        p = config.Dirs.embeddings / self.params_fname
-        with p.open('w', encoding='utf8') as outfile:
-            yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
-
-    @property
-    def params_fname(self):
-        return '{}.yaml'.format(self.time_of_init)
-
-    @property
-    def embeddings_fname(self):
-        return '{}.txt'.format(self.time_of_init)
-
     @property
     def numeric_docs(self):
         return self.corpus_data[0]
@@ -87,7 +118,15 @@ class EmbedderBase(object):
 
     @property
     def w2freq(self):
-        return self.corpus_data[2]
+        if self.has_embeddings():
+            p = config.Dirs.corpora / self.w2freq_fname
+            mat = np.loadtxt(p, dtype='str', comments=None)
+            words = mat[:, 0]
+            freqs = mat[:, 1].astype('int')
+            res = {w: np.asscalar(f) for w, f in zip(words, freqs)}
+        else:
+            res = self.corpus_data[2]
+        return res
 
     @property
     def docs(self):
@@ -96,6 +135,8 @@ class EmbedderBase(object):
     @cached_property
     def corpus_data(self):
         return self.load_corpus_data()
+
+    # ///////////////////////////////////////////////////////////// embeddings
 
     def has_embeddings(self):
         for p in config.Dirs.embeddings.glob('*.yaml'):
@@ -114,18 +155,24 @@ class EmbedderBase(object):
         assert mat.shape[1] > 1
         print('Inf Norm of embeddings = {:.1f}'.format(np.linalg.norm(mat, np.inf)))
 
-    def load_w2e(self):
-        mat = np.loadtxt(config.Dirs.embeddings / self.embeddings_fname, dtype='str', comments=None)
-        vocab = mat[:, 0]
-        embed_mat = mat[:, 1:].astype('float')
-        w2e = matrix_to_w2e(embed_mat, vocab)
-        self.check_consistency(embed_mat)
-        return w2e
+    @staticmethod
+    def w2e_to_embeds(w2e):
+        embeds = []
+        for w in w2e.keys():
+            embeds.append(w2e[w])
+        res = np.vstack(embeds)
+        print('Converted w2e to matrix with shape {}'.format(res.shape))
+        return res
 
-    def save_w2e(self, w2e):  # TODO serializing is faster (pickle, numpy)
-        p = config.Dirs.embeddings / self.embeddings_fname
-        print('Saving embeddings at {}'.format(self.embeddings_fname))
-        with p.open('w') as f:
-            for probe, embedding in sorted(w2e.items()):
-                embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
-                f.write('{} {}\n'.format(probe, embedding_str))
+    @staticmethod
+    def embeds_to_w2e(embeds, vocab):
+        res = SortedDict()
+        for n, w in enumerate(vocab):
+            res[w] = embeds[n]
+        assert len(vocab) == len(res) == len(embeds)
+        return res
+
+    @property
+    def dim1(self):
+        res = next(iter(self.w2e.items()))[1].shape[0]
+        return res
