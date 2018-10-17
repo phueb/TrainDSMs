@@ -136,6 +136,11 @@ class Categorization:
                 num_correct_cat_probes = np.sum(corr[cat_probe_ids])
                 cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1) * 100
                 res.append(cat_acc)
+
+            # TODO debug
+            print('accuracy by category')
+            print(res)
+
             return res
 
         # training and eval
@@ -146,31 +151,31 @@ class Categorization:
                 correct = trial.g.sess.run(trial.g.correct, feed_dict={trial.g.x: x_train, trial.g.y: y_train})
                 train_acc_by_cat = make_acc_by_cat(correct, y_train)
                 trial.train_accs_by_cat.append(train_acc_by_cat)
-                train_acc_unweighted = np.mean(train_acc_by_cat)
+                train_acc_cat = np.mean(train_acc_by_cat)
                 # test accuracy by category
                 correct = trial.g.sess.run(trial.g.correct, feed_dict={trial.g.x: x_test, trial.g.y: y_test})
                 test_acc_by_cat = make_acc_by_cat(correct, y_test)
                 trial.test_accs_by_cat.append(test_acc_by_cat)
-                test_acc_unweighted = np.mean(test_acc_by_cat)
+                test_acc_cat = np.mean(test_acc_by_cat)
                 # train accuracy
                 num_correct = trial.g.sess.run(trial.g.num_correct, feed_dict={trial.g.x: x_train, trial.g.y: y_train})
-                train_accuracy = num_correct / float(num_train_examples) * 100
-                trial.train_acc_traj.append(train_accuracy)
+                train_acc_probe = num_correct / float(num_train_examples) * 100
+                trial.train_acc_traj.append(train_acc_probe)
                 # test accuracy
                 num_correct = trial.g.sess.run(trial.g.num_correct, feed_dict={trial.g.x: x_test, trial.g.y: y_test})
-                test_accuracy = num_correct / float(num_test_examples) * 100
-                trial.test_acc_traj.append(test_accuracy)
+                test_acc_probe = num_correct / float(num_test_examples) * 100
+                trial.test_acc_traj.append(test_acc_probe)
                 # keep track of number of samples in each category
                 for cat_id in range(self.num_cats):
                     trial.x_mat[cat_id, eval_steps.index(step)] = ys.count(cat_id)
                 ys = []
-                print('step {:>6,}/{:>6,} |Train Acc (unw./w.) {:2.0f}%/{:2.0f}% |Test Acc (unw./w.) {:2.0f}%/{:2.0f}%'.format(
+                print('step {:>6,}/{:>6,} |Train Acc (c/p) {:2.0f}%/{:2.0f}% |Test Acc (c/p) {:2.0f}%/{:2.0f}%'.format(
                     step,
                     num_train_steps - 1,
-                    train_acc_unweighted,
-                    train_accuracy,
-                    test_acc_unweighted,
-                    test_accuracy))
+                    train_acc_cat,
+                    train_acc_probe,
+                    test_acc_cat,
+                    test_acc_probe))
             # train
             trial.g.sess.run([trial.g.step], feed_dict={trial.g.x: x_batch, trial.g.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
