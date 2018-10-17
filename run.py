@@ -62,7 +62,7 @@ for embedder in embedders:
         nov2scores[embedder.time_of_init] = (task.name, task.score_novice(sims))
         exp2scores[embedder.time_of_init] = (task.name, task.train_and_score_expert(embedder))
         # figs
-        # task.save_figs(embedder.name)
+        task.save_figs(embedder.name)  # TODO save in runs dir with embeddings and params
 
 # TODO save scores to csv
 np.save('novice_scores.npy', nov2scores)

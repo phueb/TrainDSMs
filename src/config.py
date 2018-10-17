@@ -19,8 +19,8 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     num_opt_steps = 1
     # expert
     device = 'cpu'
-    test_size = 0.3
-    num_epochs = 1000
+    test_size = 0.5
+    num_epochs = 100
     mb_size = 4
     log_freq = False  # TODO test
     num_evals = 10

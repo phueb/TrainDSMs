@@ -53,6 +53,9 @@ class Categorization:
             cat_id = self.cats.index(cat)
             y[n] = cat_id
         # split
+
+        # TODO split each category to ensure that each category is represented in test?
+
         test_ids = np.random.choice(self.num_probes,
                                     size=int(self.num_probes * config.Categorization.test_size),
                                     replace=False)
@@ -178,6 +181,15 @@ class Categorization:
             # train
             trial.g.sess.run([trial.g.step], feed_dict={trial.g.x: x_batch, trial.g.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
+
+
+            # TODO do k-fold training and report test_acc as average over k test_accuracies
+            # TODO each k-fold: leave out 0.25 or so examles PER CATEGORY
+
+
+            # TODO is there a task that can be implemented in a NN or ML algo that is more similar to BA?
+
+
         return trial
 
     def save_figs(self, embedder_name):
@@ -185,7 +197,8 @@ class Categorization:
             x_train, y_train, x_test, y_test = trial.data
             dummies = pd.get_dummies(y_test)
             cat_freqs = np.sum(dummies.values, axis=0)
-            num_test_cats = len(set(y_test))
+            num_test_cats = self.num_cats
+            assert num_test_cats == len(cat_freqs)  # TODO test
             cat_freqs_mat = np.tile(cat_freqs, (num_test_cats, 1))  # not all categories may be in test data
             # confusion mat
             logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
