@@ -39,7 +39,7 @@ for embedder in embedders:
         if config.Embeddings.save:
             embedder.save_w2e()
             embedder.save_params()
-            embedder.save_w2freq()
+            embedder.save_w2freq()  # TODO w2freq txt file is sometimes empty
     else:
         print('Found embeddings at {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
