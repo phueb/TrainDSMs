@@ -19,10 +19,10 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     num_opt_steps = 1
     # expert
     device = 'cpu'
-    test_size = 0.5
+    num_folds = 4  # also determines number of examples in test vs. train splits
     num_epochs = 100
     mb_size = 4
-    log_freq = False  # TODO test
+    log_freq = True
     num_evals = 10
     learning_rate = 0.005
     num_hiddens = 128  # learning reaches 100% acc without hidden units but takes longer

@@ -66,7 +66,7 @@ class NymMatching:
         w2freq = make_w2freq(config.Corpus.name)
         probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
         test_ids = np.random.choice(self.num_pairs,
-                                    size=int(self.num_pairs * config.Categorization.test_size),
+                                    size=int(self.num_pairs * config.Categorization.num_folds),
                                     replace=False)
         train_ids = [i for i in range(self.num_pairs) if i not in test_ids]
         assert len(train_ids) + len(test_ids) == self.num_pairs

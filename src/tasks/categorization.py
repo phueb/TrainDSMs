@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
 import pandas as pd
+from cytoolz import itertoolz
 
 from src import config
 from src.embedders.base import EmbedderBase
@@ -26,7 +27,7 @@ class Categorization:
         self.cat_type = cat_type
         self.probes, self.probe_cats = self.load_data()
         self.cats = sorted(set(self.probe_cats))
-        assert len(set(self.probes)) == len(self.probes)
+        self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
         # evaluation
@@ -45,39 +46,42 @@ class Categorization:
         probes, cats = np.loadtxt(p, dtype='str').T
         return probes.tolist(), cats.tolist()
 
-    def make_data(self, w2e, w2freq, shuffled):
-        # put data in array
-        x = np.vstack([w2e[p] for p in self.probes])
-        y = np.zeros(x.shape[0], dtype=np.int)
-        for n, (probe, cat) in enumerate(zip(self.probes, self.probe_cats)):
-            cat_id = self.cats.index(cat)
-            y[n] = cat_id
-        # split
-
-        # TODO split each category to ensure that each category is represented in test?
-
-        test_ids = np.random.choice(self.num_probes,
-                                    size=int(self.num_probes * config.Categorization.test_size),
-                                    replace=False)
-        train_ids = [i for i in range(self.num_probes) if i not in test_ids]
-        assert len(train_ids) + len(test_ids) == self.num_probes
-        x_train = x[train_ids, :]
-        y_train = y[train_ids]
-        x_test = x[test_ids, :]
-        y_test = y[test_ids]
+    def make_data(self, w2e, w2freq, fold_id, shuffled):
+        # train/test split (separately for each category)
+        x_train = []
+        y_train = []
+        x_test = []
+        y_test = []
+        train_probes = []
+        for cat, cat_probes in self.cat2probes.items():
+            cat_probes = self.cat2probes[cat]
+            for n, probes_in_fold in enumerate(np.array_split(cat_probes, config.Categorization.num_folds)):
+                xs = [w2e[p] for p in probes_in_fold]
+                ys = [self.cats.index(cat)] * len(probes_in_fold)
+                if n != fold_id:
+                    x_train += xs
+                    y_train += ys
+                    train_probes += probes_in_fold.tolist()
+                else:
+                    x_test += xs
+                    y_test += ys
+        x_train = np.vstack(x_train)
+        y_train = np.vstack(y_train)
+        x_test = np.vstack(x_test)
+        y_test = np.vstack(y_test)
+        assert len(x_train) == len(y_train)
+        assert len(x_test) == len(y_test)
+        assert len(x_train) + len(x_test) == self.num_probes
         # repeat train samples proportional to corpus frequency - must happen AFTER split
         if config.Categorization.log_freq:
-            probe_freqs = np.floor([np.log(w2freq[probe]) for probe in self.probes]).astype(np.int64)
-            print('Repeating probes in training data proportional to log frequency')
-            print(probe_freqs)
-            pfs_train = np.array(probe_freqs)[train_ids]
-            x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
-            y_train = np.repeat(y_train, pfs_train, axis=0)
+            probe2logf = {probe: np.log(w2freq[probe]).astype(np.int) for probe in self.probes}
+            x_train = np.repeat(x_train, [probe2logf[p] for p in train_probes], axis=0)
+            y_train = np.repeat(y_train, [probe2logf[p] for p in train_probes], axis=0)
         # shuffle x-y mapping
         if shuffled:
             print('Shuffling category assignment')
             np.random.shuffle(y_train)
-        return x_train, y_train, x_test, y_test
+        return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test)
 
     def make_classifier_graph(self, embed_size):
         class Graph:
@@ -183,11 +187,7 @@ class Categorization:
             ys += y_batch.tolist()  # collect ys for each eval
 
 
-            # TODO do k-fold training and report test_acc as average over k test_accuracies
-            # TODO each k-fold: leave out 0.25 or so examles PER CATEGORY
-
-
-            # TODO is there a task that can be implemented in a NN or ML algo that is more similar to BA?
+            # TODO change to relation network
 
 
         return trial
@@ -197,13 +197,11 @@ class Categorization:
             x_train, y_train, x_test, y_test = trial.data
             dummies = pd.get_dummies(y_test)
             cat_freqs = np.sum(dummies.values, axis=0)
-            num_test_cats = self.num_cats
-            assert num_test_cats == len(cat_freqs)  # TODO test
-            cat_freqs_mat = np.tile(cat_freqs, (num_test_cats, 1))  # not all categories may be in test data
+            cat_freqs_mat = np.tile(cat_freqs, (self.num_cats, 1))  # all categories should be in test data
             # confusion mat
             logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
             predicted_y = np.argmax(logits, axis=1).astype(np.int)
-            cm = np.zeros((num_test_cats, num_test_cats))
+            cm = np.zeros((self.num_cats, self.num_cats))
             for ay, py in zip(y_test, predicted_y):
                 cm[ay, py] += 1
             cm = np.multiply(cm / cat_freqs_mat, 100).astype(np.int)
@@ -222,16 +220,22 @@ class Categorization:
                 fig.savefig(str(p))
                 print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
 
-    def train_and_score_expert(self, e):
+    def train_and_score_expert(self, embedder):
         for shuffled in [False, True]:
             name = 'shuffled' if shuffled else ''
-            trial = Trial(name=name,
-                          num_cats=self.num_cats,
-                          g=self.make_classifier_graph(e.dim1),
-                          data=self.make_data(e.w2e, e.w2freq, shuffled))
-            print('Training semantic_categorization expert with {} categories...'.format(name))
-            self.train_expert(trial)
-            self.trials.append(trial)
+            for fold_id in range(config.Categorization.num_folds):
+
+                # TODO a trial should not average over folds (it should not be a single fold)
+
+                trial = Trial(name=name,
+                              num_cats=self.num_cats,
+                              g=self.make_classifier_graph(embedder.dim1),
+                              data=self.make_data(embedder.w2e, embedder.w2freq, fold_id, shuffled))
+                print('Fold {}/{}'.format(fold_id + 1, config.Categorization.num_folds))
+                print('Training categorization expert {}...'.format(
+                    'with shuffled in-out mapping' if shuffled else ''))
+                self.train_expert(trial)
+                self.trials.append(trial)
 
         # expert_score
         expert_score = self.trials[0].test_acc_traj[-1]
