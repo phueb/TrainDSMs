@@ -86,7 +86,7 @@ class RNNEmbedder(EmbedderBase):
             loss = self.criterion(logits.unsqueeze_(0), targets)  # need to add dimension due to mb_size = 1
             errors += loss.item()
         res = np.exp(errors / batch_id + 1)
-        return res  # TODO test
+        return res
 
     def train_epoch(self, numeric_docs, lr, verbose):
         start_time = time.time()
@@ -197,7 +197,7 @@ class TorchRNN(torch.nn.Module):
         else:
             res = torch.autograd.Variable(weight.new(self.num_layers,
                                                      self.batch_size,
-                                                     self.embed_size).zero_())    # TODO Test
+                                                     self.embed_size).zero_())
         return res
 
     def forward(self, inputs, hidden):  # expects [num_steps, mb_size] tensor

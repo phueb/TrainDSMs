@@ -1,24 +1,26 @@
 import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
-import pandas as pd
-from cytoolz import itertoolz
 
 from src import config
-from src.embedders.base import EmbedderBase
 from src.figs import make_categorizer_figs
 
 
 class Trial(object):  # TODO make this available to all experts?
-    def __init__(self, name, num_cats, g, data):
+    def __init__(self, name, num_cats):
         self.name = name
-        self.train_acc_traj = []
-        self.test_acc_traj = []
-        self.train_accs_by_cat = []
-        self.test_accs_by_cat = []
-        self.x_mat = np.zeros((num_cats, config.Categorization.num_evals))
-        self.g = g
-        self.data = data
+        self.train_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
+        self.test_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
+        self.train_acc_trajs_by_cat = np.zeros((num_cats,
+                                                config.Categorization.num_evals,
+                                                config.Categorization.num_folds))
+        self.test_acc_trajs_by_cat = np.zeros((num_cats,
+                                               config.Categorization.num_evals,
+                                               config.Categorization.num_folds))
+        self.x_mat = np.zeros((num_cats,
+                               config.Categorization.num_evals,
+                               config.Categorization.num_folds))
+        self.cms = []  # confusion matrix (1 per fold)
 
 
 class Categorization:
@@ -118,8 +120,8 @@ class Categorization:
                 sess.run(tf.global_variables_initializer())
         return Graph()
 
-    def train_expert(self, trial):
-        x_train, y_train, x_test, y_test = trial.data
+    def train_expert_on_fold(self, graph, trial, data, fold_id):
+        x_train, y_train, x_test, y_test = data
         num_train_examples, num_test_examples = len(x_train), len(x_test)
         num_test_examples = len(x_test)
         num_train_steps = num_train_examples // config.Categorization.mb_size * config.Categorization.num_epochs
@@ -145,7 +147,7 @@ class Categorization:
                 cat_probe_ids = np.where(y == cat_id)[0]
                 num_total_cat_probes = len(cat_probe_ids)
                 num_correct_cat_probes = np.sum(corr[cat_probe_ids])
-                cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1) * 100
+                cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1)
                 res.append(cat_acc)
             return res
 
@@ -153,37 +155,35 @@ class Categorization:
         ys = []
         for step, x_batch, y_batch in generate_random_train_batches():
             if step in eval_steps:
+                eval_id = eval_steps.index(step)
                 # train accuracy by category
-                correct = trial.g.sess.run(trial.g.correct, feed_dict={trial.g.x: x_train, trial.g.y: y_train})
+                correct = graph.sess.run(graph.correct, feed_dict={graph.x: x_train, graph.y: y_train})
                 train_acc_by_cat = make_acc_by_cat(correct, y_train)
-                trial.train_accs_by_cat.append(train_acc_by_cat)
-                train_acc_cat = np.mean(train_acc_by_cat)
+                trial.train_acc_trajs_by_cat[:, eval_id, fold_id] = train_acc_by_cat
                 # test accuracy by category
-                correct = trial.g.sess.run(trial.g.correct, feed_dict={trial.g.x: x_test, trial.g.y: y_test})
+                correct = graph.sess.run(graph.correct, feed_dict={graph.x: x_test, graph.y: y_test})
                 test_acc_by_cat = make_acc_by_cat(correct, y_test)
-                trial.test_accs_by_cat.append(test_acc_by_cat)
-                test_acc_cat = np.mean(test_acc_by_cat)
+                trial.test_acc_trajs_by_cat[:, eval_id, fold_id] = test_acc_by_cat
                 # train accuracy
-                num_correct = trial.g.sess.run(trial.g.num_correct, feed_dict={trial.g.x: x_train, trial.g.y: y_train})
-                train_acc_probe = num_correct / float(num_train_examples) * 100
-                trial.train_acc_traj.append(train_acc_probe)
+                num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_train, graph.y: y_train})
+                train_acc_p = num_correct / float(num_train_examples)
+                trial.train_acc_trajs_p[eval_id, fold_id] = train_acc_p
                 # test accuracy
-                num_correct = trial.g.sess.run(trial.g.num_correct, feed_dict={trial.g.x: x_test, trial.g.y: y_test})
-                test_acc_probe = num_correct / float(num_test_examples) * 100
-                trial.test_acc_traj.append(test_acc_probe)
+                num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
+                test_acc_p = num_correct / float(num_test_examples)
+                trial.test_acc_trajs_p[eval_id, fold_id] = test_acc_p
                 # keep track of number of samples in each category
-                for cat_id in range(self.num_cats):
-                    trial.x_mat[cat_id, eval_steps.index(step)] = ys.count(cat_id)
+                trial.x_mat[:, eval_steps.index(step), fold_id] = [ys.count(cat_id) for cat_id in range(self.num_cats)]
                 ys = []
-                print('step {:>6,}/{:>6,} |Train Acc (c/p) {:2.0f}%/{:2.0f}% |Test Acc (c/p) {:2.0f}%/{:2.0f}%'.format(
+                print('step {:>6,}/{:>6,} |Train Acc (c/p) {:.2f}/{:.2f} |Test Acc (c/p) {:.2f}/{:.2f}'.format(
                     step,
                     num_train_steps - 1,
-                    train_acc_cat,
-                    train_acc_probe,
-                    test_acc_cat,
-                    test_acc_probe))
+                    np.mean(train_acc_by_cat),
+                    train_acc_p,
+                    np.mean(test_acc_by_cat),
+                    test_acc_p))
             # train
-            trial.g.sess.run([trial.g.step], feed_dict={trial.g.x: x_batch, trial.g.y: y_batch})
+            graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
 
 
@@ -194,25 +194,16 @@ class Categorization:
 
     def save_figs(self, embedder_name):
         for trial in self.trials:
-            x_train, y_train, x_test, y_test = trial.data
-            dummies = pd.get_dummies(y_test)
-            cat_freqs = np.sum(dummies.values, axis=0)
-            cat_freqs_mat = np.tile(cat_freqs, (self.num_cats, 1))  # all categories should be in test data
-            # confusion mat
-            logits = trial.g.sess.run(trial.g.logits, feed_dict={trial.g.x: x_test, trial.g.y: y_test}).astype(np.int)
-            predicted_y = np.argmax(logits, axis=1).astype(np.int)
-            cm = np.zeros((self.num_cats, self.num_cats))
-            for ay, py in zip(y_test, predicted_y):
-                cm[ay, py] += 1
-            cm = np.multiply(cm / cat_freqs_mat, 100).astype(np.int)
-            # accuracies by category
-            train_acc_trajs = np.array(trial.train_accs_by_cat).T
-            test_acc_trajs = np.array(trial.test_accs_by_cat).T
+            # average over folds
+            train_acc_traj_by_cat = np.mean(trial.train_acc_trajs_by_cat, axis=2)
+            test_acc_traj_by_cat = np.mean(trial.test_acc_trajs_by_cat, axis=2)
+            average_x_mat = np.mean(trial.x_mat, axis=2)
+            average_cm = np.sum(trial.cms, axis=0)
             # figs
-            for fig, fig_name in make_categorizer_figs(cm,
-                                                       np.cumsum(trial.x_mat, axis=1),
-                                                       train_acc_trajs,
-                                                       test_acc_trajs,
+            for fig, fig_name in make_categorizer_figs(average_cm,
+                                                       np.cumsum(average_x_mat, axis=1),
+                                                       train_acc_traj_by_cat,
+                                                       test_acc_traj_by_cat,
                                                        self.cats):
                 p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
@@ -221,24 +212,32 @@ class Categorization:
                 print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
 
     def train_and_score_expert(self, embedder):
-        for shuffled in [False, True]:
-            name = 'shuffled' if shuffled else ''
+        bools = [False, True] if config.Categorization.run_shuffled else [False]
+        for shuffled in bools:
+            trial = Trial(name='shuffled' if shuffled else '',
+                          num_cats=self.num_cats)
             for fold_id in range(config.Categorization.num_folds):
-
-                # TODO a trial should not average over folds (it should not be a single fold)
-
-                trial = Trial(name=name,
-                              num_cats=self.num_cats,
-                              g=self.make_classifier_graph(embedder.dim1),
-                              data=self.make_data(embedder.w2e, embedder.w2freq, fold_id, shuffled))
+                # train
                 print('Fold {}/{}'.format(fold_id + 1, config.Categorization.num_folds))
                 print('Training categorization expert {}...'.format(
                     'with shuffled in-out mapping' if shuffled else ''))
-                self.train_expert(trial)
-                self.trials.append(trial)
+                graph = self.make_classifier_graph(embedder.dim1)
+                data = self.make_data(embedder.w2e, embedder.w2freq, fold_id, shuffled)
+                self.train_expert_on_fold(graph, trial, data, fold_id)
+                # add confusion mat to trial
+                x_test = data[2]
+                y_test = data[3]
+                logits = graph.sess.run(graph.logits,
+                                        feed_dict={graph.x: x_test, graph.y: y_test}).astype(np.int)
+                y_pred = np.argmax(logits, axis=1).astype(np.int)
+                cm = np.zeros((self.num_cats, self.num_cats))
+                for yt, yp in zip(y_test, y_pred):
+                    cm[yt, yp] += 1
+                trial.cms.append(cm)
+            self.trials.append(trial)
 
         # expert_score
-        expert_score = self.trials[0].test_acc_traj[-1]
+        expert_score = np.mean(self.trials[0].test_acc_trajs_p[-1, :])
         return expert_score
 
     def score_novice(self, test_word_sims, probe_cats=None, metric='ba'):

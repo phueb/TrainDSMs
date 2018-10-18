@@ -4,15 +4,20 @@ from src import config
 
 
 class Trial(object):  # TODO make this available to all experts?
-    def __init__(self, name, num_cats, g, data):
+    def __init__(self, name, num_cats):
         self.name = name
-        self.train_acc_traj = []
-        self.test_acc_traj = []
-        self.train_accs_by_cat = []
-        self.test_accs_by_cat = []
-        self.x_mat = np.zeros((num_cats, config.Categorization.num_evals))
-        self.g = g
-        self.data = data
+        self.train_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
+        self.test_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
+        self.train_acc_trajs_by_cat = np.zeros((num_cats,
+                                                config.Categorization.num_evals,
+                                                config.Categorization.num_folds))
+        self.test_acc_trajs_by_cat = np.zeros((num_cats,
+                                               config.Categorization.num_evals,
+                                               config.Categorization.num_folds))
+        self.x_mat = np.zeros((num_cats,
+                               config.Categorization.num_evals,
+                               config.Categorization.num_folds))
+        self.cms = []  # confusion matrix (1 per fold)
 
 
 class NymMatching:
@@ -40,7 +45,7 @@ class NymMatching:
         probes, nyms = np.loadtxt(p, dtype='str').T
         return probes.tolist(), nyms.tolist()
 
-    def make_distractor_ids_mat(self):  # TODO do not include corret nym in distractors
+    def make_distractor_ids_mat(self):
         res = []
         for n in range(self.num_pairs):
             choices = [i for i in range(self.num_pairs) if i != n]
@@ -54,50 +59,38 @@ class NymMatching:
         x = np.vstack([w2e[p] for p in self.probes])  # TODO need 5 probes per input with only one correct x
         y = np.vstack([])
 
+        # TODO use same distractors as novice
 
-        # TODO use make_test_word_ids_mat
-
-        for n, probe in enumerate(self.probes):
-            cat = self.p2cat[probe]
-            cat_id = self.cats.index(cat)
-            y[n] = cat_id
-        # split
-        max_f = config.Categorization.max_freq
-        w2freq = make_w2freq(config.Corpus.name)
-        probe_freq_list = [w2freq[probe] if w2freq[probe] < max_f else max_f for probe in self.probes]
-        test_ids = np.random.choice(self.num_pairs,
-                                    size=int(self.num_pairs * config.Categorization.num_folds),
-                                    replace=False)
-        train_ids = [i for i in range(self.num_pairs) if i not in test_ids]
-        assert len(train_ids) + len(test_ids) == self.num_pairs
-        x_train = x[train_ids, :]
-        y_train = y[train_ids]
-        pfs_train = np.array(probe_freq_list)[train_ids]
-        x_test = x[test_ids, :]
-        y_test = y[test_ids]
-        # repeat train samples proportional to corpus frequency - must happen AFTER split
-        x_train = np.repeat(x_train, pfs_train, axis=0)  # repeat according to token frequency
-        y_train = np.repeat(y_train, pfs_train, axis=0)
         # shuffle x-y mapping
         if shuffled:
             print('Shuffling probe-nym mapping')
             np.random.shuffle(y_train)
         return x_train, y_train, x_test, y_test
 
-    def train_and_score_expert(self, w2e, embed_size):  # TODO implement
-        for shuffled in [False, True]:
-            name = 'shuffled' if shuffled else ''
-            trial = Trial(name=name,
-                          num_cats=self.num_cats,
-                          g=self.make_matcher_graph(embed_size),
-                          data=self.make_data(w2e, shuffled))
-            print('Training semantic_categorization expert with {} categories...'.format(name))
-            self.train_expert(trial)
+    def train_and_score_expert(self, embedder):  # TODO implement
+        bools = [False, True] if config.Categorization.run_shuffled else [False]
+        for shuffled in bools:
+            trial = Trial(name='shuffled' if shuffled else '',
+                          num_cats=self.num_cats)
+            for fold_id in range(config.Categorization.num_folds):
+                # train
+                print('Fold {}/{}'.format(fold_id + 1, config.Categorization.num_folds))
+                print('Training categorization expert {}...'.format(
+                    'with shuffled in-out mapping' if shuffled else ''))
+                graph = self.make_classifier_graph(embedder.dim1)
+                data = self.make_data(embedder.w2e, embedder.w2freq, fold_id, shuffled)
+                self.train_expert_on_fold(graph, trial, data, fold_id)
+                # add confusion mat to trial
+                x_test = data[2]
+                y_test = data[3]
+                logits = graph.sess.run(graph.logits,
+                                        feed_dict={graph.x: x_test, graph.y: y_test}).astype(np.int)
+                y_pred = np.argmax(logits, axis=1).astype(np.int)
+                cm = np.zeros((self.num_cats, self.num_cats))
+                for yt, yp in zip(y_test, y_pred):
+                    cm[yt, yp] += 1
+                trial.cms.append(cm)
             self.trials.append(trial)
-
-        # expert_score
-        expert_score = self.trials[0].test_acc_traj[-1]
-        return expert_score
 
     def score_novice(self, sims):
         """
@@ -135,7 +128,7 @@ class NymMatching:
             cm = np.zeros((num_test_cats, num_test_cats))
             for ay, py in zip(y_test, predicted_y):
                 cm[ay, py] += 1
-            cm = np.multiply(cm / cat_freqs_mat, 100).astype(np.int)
+            cm = (cm / cat_freqs_mat).astype(np.int)
             # accuracies by category
             train_acc_trajs = np.array(trial.train_accs_by_cat).T
             test_acc_trajs = np.array(trial.test_accs_by_cat).T

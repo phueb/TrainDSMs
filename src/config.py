@@ -18,14 +18,15 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     # novice
     num_opt_steps = 1
     # expert
+    run_shuffled = False
     device = 'cpu'
     num_folds = 4  # also determines number of examples in test vs. train splits
     num_epochs = 100
+    num_evals = 10
     mb_size = 4
     log_freq = True
-    num_evals = 10
     learning_rate = 0.005
-    num_hiddens = 128  # learning reaches 100% acc without hidden units but takes longer
+    num_hiddens = 256  # learning reaches 100% acc without hidden units but takes longer
 
 
 class NymMatching:
