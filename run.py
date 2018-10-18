@@ -15,8 +15,8 @@ from src.tasks.nym_matching import NymMatching
 from src.utils import w2e_to_sims
 
 embedders = chain(
-    (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
     (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
+    (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
     (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams)))
 

@@ -2,6 +2,7 @@ import numpy as np
 from cytoolz import itertoolz
 import pyprind
 import sys
+import time
 
 from src.embedders.base import EmbedderBase
 from src.params import CountParams
@@ -22,41 +23,35 @@ class CountEmbedder(EmbedderBase):
 
     # ////////////////////////////////////////////////// word-by-word
 
-    def create_ww_matrix(self):
+    def create_ww_matrix_fast(self):  # no function call overhead - twice as fast
         window_type = self.count_type[1]
         window_size = self.count_type[2]
         window_weight = self.count_type[3]
-
-        def increment(mat, t1_id, t2_id, dist):
-            if t1_id == PAD or t2_id == PAD:
-                return
-            if window_weight == "linear":
-                mat[t1_id, t2_id] += window_size - dist
-            elif window_weight == "flat":
-                mat[t1_id, t2_id] += 1
-            if VERBOSE:
-                print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
-
-        def update_matrix(mat, ids):
-            ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
-            if VERBOSE:
-                print(ids)
-            windows = itertoolz.sliding_window(window_size, ids)
-            for w in windows:
-                for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1),
-                                              w[1:],
-                                              range(1, window_size)):
-                    increment(mat, t1_id, t2_id, dist)
-            if VERBOSE:
-                print()
-
         # count
         num_docs = len(self.numeric_docs)
         pbar = pyprind.ProgBar(num_docs)
         count_matrix = np.zeros([config.Corpus.num_vocab, config.Corpus.num_vocab], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
         for token_ids in self.numeric_docs:
-            update_matrix(count_matrix, token_ids)
+            token_ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
+            if VERBOSE:
+                print(token_ids)
+            windows = itertoolz.sliding_window(window_size, token_ids)
+            for w in windows:
+                for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1),
+                                              w[1:],
+                                              range(1, window_size)):
+                    # increment
+                    if t1_id == PAD or t2_id == PAD:
+                        continue
+                    if window_weight == "linear":
+                        count_matrix[t1_id, t2_id] += window_size - dist
+                    elif window_weight == "flat":
+                        count_matrix[t1_id, t2_id] += 1
+                    if VERBOSE:
+                        print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
+            if VERBOSE:
+                print()
             pbar.update()
 
         # window_type
@@ -90,12 +85,14 @@ class CountEmbedder(EmbedderBase):
 
     def train(self):
         # count
+        start = time.time()
         if self.count_type[0] == 'ww':
-            count_matrix = self.create_ww_matrix()
+            count_matrix = self.create_ww_matrix_fast()
         elif self.count_type[0] == 'wd':
             count_matrix = self.create_wd_matrix()
         else:
             raise AttributeError('Invalid arg to "count_type".')
+        print('Completed count in {}'.format(time.time() - start))
         # normalize + reduce
         norm_matrix, dimensions = self.normalize(count_matrix, self.norm_type)
         reduced_matrix, dimensions = self.reduce(norm_matrix, self.reduce_type[0], self.reduce_type[1])

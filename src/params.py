@@ -49,9 +49,9 @@ def make_param2ids(paramsClass):
 
 class CountParams:
     count_type = [
-        ['wd', None, None, None],
-        ['ww', 'forward',  7,  'linear'],
-        # ['ww', 'forward',  7,  'flat'],
+        # ['wd', None, None, None],
+        # ['ww', 'forward',  7,  'linear'],
+        ['ww', 'forward',  7,  'flat'],
         # ['ww', 'backward', 7,  'linear'],
         # ['ww', 'backward', 7,  'flat'],
         # ['ww', 'forward',  16, 'linear'],
