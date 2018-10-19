@@ -27,6 +27,9 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     log_freq = False
     learning_rate = 0.005
     num_hiddens = 128
+    # figs
+    softmax_criterion = 0.5
+    num_bins = 4
 
 
 class NymMatching:

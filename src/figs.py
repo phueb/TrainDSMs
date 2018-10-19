@@ -5,23 +5,25 @@ import seaborn as sns
 from src import config
 
 
-def make_categorizer_figs(cm,
+def make_categorizer_figs(train_acc_traj,
+                          test_acc_traj,
+                          train_softmax_traj,
+                          test_softmax_traj,
+                          cm,
                           x_mat,
-                          train_acc_traj_by_cat,
-                          test_acc_traj_by_cat,
                           novice_results_by_cat,
                           expert_results_by_cat,
                           novice_results_by_probe,
                           expert_results_by_probe,
+                          cat2train_evals_to_criterion,
+                          cat2test_evals_to_criterion,
                           cats):
-    train_acc_traj = train_acc_traj_by_cat.mean(axis=0)
-    test_acc_traj = test_acc_traj_by_cat.mean(axis=0)
     num_cats = len(cats)
     max_x = np.max(x_mat[:, -1])
 
     def make_novice_vs_expert_fig(xs, ys, annotations=None):
         """
-        Returns fig showing scatterplot of novice vs. expert accuracy by category
+        Returns fig showing scatterplot of novice vs. expert accuracy
         """
         fig, ax = plt.subplots(1, figsize=(config.Figs.width, config.Figs.width), dpi=config.Figs.dpi)
         ax.set_ylim([0, 1.1])
@@ -42,9 +44,9 @@ def make_categorizer_figs(cm,
         plt.tight_layout()
         return fig
 
-    def make_acc_traj_fig():
+    def make_traj_fig(train_traj, test_traj):
         """
-        Returns fig showing accuracy of a classifier tasked to map hidden representations of probes to categories
+        Returns fig showing accuracy or correct softmax prob of train and test
         """
         fig, ax = plt.subplots(1, figsize=(config.Figs.width, 3), dpi=config.Figs.dpi)
         ax.set_ylim([0, 1])
@@ -57,41 +59,52 @@ def make_categorizer_figs(cm,
         ax.yaxis.grid(True)
         # plot
         x = x_mat.sum(axis=0)
-        ax.plot(x, train_acc_traj, '-', linewidth=config.Figs.line_width, label='train')
-        ax.plot(x, test_acc_traj, '-', linewidth=config.Figs.line_width, label='test')
+        ax.plot(x, train_traj, '-', linewidth=config.Figs.line_width, label='train')
+        ax.plot(x, test_traj, '-', linewidth=config.Figs.line_width, label='test')
         ax.legend(loc='best')
         plt.tight_layout()
         return fig
 
-    def make_acc_by_cat_fig():
+    def make_num_steps_to_criterion_fig():
         """
-        Returns fig showing accuracy broken down by category of a classifier tasked to map hidden representations
-         of probes to categories
+        Returns fig showing number of evaluation steps needed to achieve 100% accuracy by category for train and test
         """
         fig, axarr = plt.subplots(num_cats, 1,
                                   figsize=(config.Figs.width, 3 * num_cats),
                                   dpi=config.Figs.dpi)
-        for ax, train_hca_cat_traj, test_hca_cat_traj, cat, x in zip(
-                axarr, train_acc_traj_by_cat, test_acc_traj_by_cat, cats, x_mat):
-            ax.set_ylim([0, 1])
-            ax.set_xlim([0, max_x])
-            ax.set_xlabel('Number of Training Samples', fontsize=config.Figs.axlabel_fontsize)
-            ylabel = 'Accuracy'
+        for ax, cat in zip(axarr, cats):
+            ax.set_title(cat)
+            ax.set_ylim([0, 1])  # y is density
+            ax.set_xlim([0, config.Categorization.num_evals])
+            ax.set_xlabel('Number of Evaluation Steps to Criterion={}'.format(
+                config.Categorization.softmax_criterion),
+                fontsize=config.Figs.axlabel_fontsize)
+            ylabel = 'Frequency'
             ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
             ax.spines['right'].set_visible(False)
             ax.spines['top'].set_visible(False)
             ax.tick_params(axis='both', which='both', top=False, right=False)
             ax.yaxis.grid(True)
             # plot
-            ax.plot(x, train_hca_cat_traj, '-', linewidth=config.Figs.line_width, label='{} (train)'.format(cat))
-            ax.plot(x, test_hca_cat_traj, '-', linewidth=config.Figs.line_width, label='{} (test)'.format(cat))
-            ax.legend()
+            train_evals_to_criterion = cat2train_evals_to_criterion[cat]
+            test_evals_to_criterion = cat2test_evals_to_criterion[cat]
+            ax.hist(train_evals_to_criterion,
+                    config.Categorization.num_bins,
+                    histtype='step',
+                    density=1,
+                    label='train')
+            ax.hist(test_evals_to_criterion,
+                    config.Categorization.num_bins,
+                    histtype='step',
+                    density=1,
+                    label='test')
+            ax.legend(loc='best')
         plt.tight_layout()
         return fig
 
     def make_cm_fig():
         """
-        Returns fig showing confusion matrix of classifier trained to map hidden representations of probes to categories
+        Returns fig showing confusion matrix
         """
         fig, ax = plt.subplots(1, 1, figsize=(config.Figs.width, config.Figs.width),
                                dpi=config.Figs.dpi)
@@ -113,6 +126,7 @@ def make_categorizer_figs(cm,
 
     return [(make_novice_vs_expert_fig(novice_results_by_cat, expert_results_by_cat, cats), 'nov_vs_exp_cat'),
             (make_novice_vs_expert_fig(novice_results_by_probe, expert_results_by_probe), 'nov_vs_exp_probe'),
-            (make_acc_traj_fig(), 'acc'),
-            (make_acc_by_cat_fig(), 'acc_by_cat'),
+            (make_traj_fig(train_acc_traj, test_acc_traj), 'acc_traj'),
+            (make_traj_fig(train_softmax_traj, test_softmax_traj,), 'softmax_traj'),
+            (make_num_steps_to_criterion_fig(), 'criterion'),
             (make_cm_fig(), 'cm')]

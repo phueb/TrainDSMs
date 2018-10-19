@@ -7,22 +7,24 @@ from src.figs import make_categorizer_figs
 
 
 class Trial(object):
-    def __init__(self, name, num_cats):
+    def __init__(self, name, num_probes, num_cats):
         self.name = name
-        self.train_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
-        self.test_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
-        self.train_acc_trajs_by_cat = np.zeros((num_cats,
-                                                config.Categorization.num_evals,
-                                                config.Categorization.num_folds))
-        self.test_acc_trajs_by_cat = np.zeros((num_cats,
-                                               config.Categorization.num_evals,
-                                               config.Categorization.num_folds))
+        # accuracy
+        self.train_acc_trajs = np.zeros((config.Categorization.num_evals,
+                                         config.Categorization.num_folds))
+        self.test_acc_trajs = np.zeros((config.Categorization.num_evals,
+                                         config.Categorization.num_folds))
+        # softmax
+        self.train_softmax_probs = np.zeros((num_probes,
+                                             config.Categorization.num_evals,
+                                             config.Categorization.num_folds))
+        self.test_softmax_probs = np.zeros((num_probes,
+                                            config.Categorization.num_evals,
+                                            config.Categorization.num_folds))
         self.x_mat = np.zeros((num_cats,
                                config.Categorization.num_evals,
                                config.Categorization.num_folds))
         self.cms = []  # confusion matrix (1 per fold)
-        self.probe2expert_result = {}
-
 
 class Categorization:
     def __init__(self, cat_type):
@@ -35,7 +37,7 @@ class Categorization:
         self.num_cats = len(self.cats)
         # evaluation
         self.trials = []  # each result is a class with many attributes
-        self.novice_results = None  # for plotting
+        self.novice_probe_results = []  # for plotting
 
     @property
     def row_words(self):  # used to build sims
@@ -130,18 +132,18 @@ class Categorization:
         return Graph()
 
     def train_expert_on_fold(self, graph, trial, data, fold_id):
-        x_train, y_train, x_test, y_test, _, _ = data
-        num_train_examples, num_test_examples = len(x_train), len(x_test)
-        num_test_examples = len(x_test)
-        num_train_steps = num_train_examples // config.Categorization.mb_size * config.Categorization.num_epochs
+        x_train, y_train, x_test, y_test, train_probes, test_probes = data
+        num_train_probes, num_test_probes = len(x_train), len(x_test)
+        num_test_probes = len(x_test)
+        num_train_steps = num_train_probes // config.Categorization.mb_size * config.Categorization.num_epochs
         eval_interval = num_train_steps // config.Categorization.num_evals
         eval_steps = np.arange(0, num_train_steps + eval_interval,
                                eval_interval)[:config.Categorization.num_evals].tolist()  # equal sized intervals
-        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_examples, num_test_examples))
+        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
 
         # batch generator
         def generate_random_train_batches():
-            random_choices = np.random.choice(num_train_examples, config.Categorization.mb_size * num_train_steps)
+            random_choices = np.random.choice(num_train_probes, config.Categorization.mb_size * num_train_steps)
             row_ids_list = np.split(random_choices, num_train_steps)
             for step, row_ids in enumerate(row_ids_list):
                 assert len(row_ids) == config.Categorization.mb_size
@@ -149,48 +151,35 @@ class Categorization:
                 y_batch = y_train[row_ids]
                 yield step, x_batch, y_batch
 
-        # function for correct_sum_by_cat
-        def make_acc_by_cat(corr, y):
-            res = []
-            for cat_id in range(self.num_cats):
-                cat_probe_ids = np.where(y == cat_id)[0]
-                num_total_cat_probes = len(cat_probe_ids)
-                num_correct_cat_probes = np.sum(corr[cat_probe_ids])
-                cat_acc = (num_correct_cat_probes + 1) / (num_total_cat_probes + 1)
-                res.append(cat_acc)
-            return res
-
         # training and eval
         ys = []
         for step, x_batch, y_batch in generate_random_train_batches():
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
-                # train accuracy by category
-                correct = graph.sess.run(graph.correct, feed_dict={graph.x: x_train, graph.y: y_train})
-                train_acc_by_cat = make_acc_by_cat(correct, y_train)
-                trial.train_acc_trajs_by_cat[:, eval_id, fold_id] = train_acc_by_cat
-                # test accuracy by category
-                correct = graph.sess.run(graph.correct, feed_dict={graph.x: x_test, graph.y: y_test})
-                test_acc_by_cat = make_acc_by_cat(correct, y_test)
-                trial.test_acc_trajs_by_cat[:, eval_id, fold_id] = test_acc_by_cat
+                # train results
+                softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_train, graph.y: y_train})
+                for p, correct_cat_prob in zip(train_probes, softmax[np.arange(num_train_probes), y_train]):
+                    trial.train_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
+                # test results
+                softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
+                for p, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
+                    trial.test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
                 # train accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_train, graph.y: y_train})
-                train_acc_p = num_correct / float(num_train_examples)
-                trial.train_acc_trajs_p[eval_id, fold_id] = train_acc_p
+                train_acc = num_correct / float(num_train_probes)
+                trial.train_acc_trajs[eval_id, fold_id] = train_acc
                 # test accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
-                test_acc_p = num_correct / float(num_test_examples)
-                trial.test_acc_trajs_p[eval_id, fold_id] = test_acc_p
+                test_acc = num_correct / float(num_test_probes)
+                trial.test_acc_trajs[eval_id, fold_id] = test_acc
                 # keep track of number of samples in each category
-                trial.x_mat[:, eval_steps.index(step), fold_id] = [ys.count(cat_id) for cat_id in range(self.num_cats)]
+                trial.x_mat[:, eval_id, fold_id] = [ys.count(cat_id) for cat_id in range(self.num_cats)]
                 ys = []
-                print('step {:>6,}/{:>6,} |Train Acc (c/p) {:.2f}/{:.2f} |Test Acc (c/p) {:.2f}/{:.2f}'.format(
+                print('step {:>6,}/{:>6,} |Train Acc={:.2f} |Test Acc={:.2f}'.format(
                     step,
                     num_train_steps - 1,
-                    np.mean(train_acc_by_cat),
-                    train_acc_p,
-                    np.mean(test_acc_by_cat),
-                    test_acc_p))
+                    train_acc,
+                    test_acc))
             # train
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
@@ -198,38 +187,82 @@ class Categorization:
 
             # TODO change to relation network
 
-
-        return trial
-
     def save_figs(self, embedder_name):
         for trial in self.trials:
-            # average over folds
-            train_acc_traj_by_cat = np.mean(trial.train_acc_trajs_by_cat, axis=2)
-            test_acc_traj_by_cat = np.mean(trial.test_acc_trajs_by_cat, axis=2)
-            average_x_mat = np.mean(trial.x_mat, axis=2)
+            # aggregate over folds
+            average_x_mat = np.sum(trial.x_mat, axis=2)  # TODO how to reuse this?
             average_cm = np.sum(trial.cms, axis=0)
-            # novice vs expert (by category)
+            # make average accuracy trajectories - careful not to take mean over arrays with zeros
+            train_no_zeros = np.where(trial.train_softmax_probs != 0, trial.train_softmax_probs, np.nan)  # zero to nan
+            test_no_zeros = np.where(trial.test_softmax_probs != 0, trial.test_softmax_probs, np.nan)  # zero to nan
+            train_softmax_traj = np.nanmean(train_no_zeros, axis=(0, 2))
+            test_softmax_traj = np.nanmean(test_no_zeros, axis=(0, 2))
+            train_acc_traj = trial.train_acc_trajs.mean(axis=1)
+            test_acc_traj = trial.test_acc_trajs.mean(axis=1)
+            # make data for criterion fig
+            train_tmp = np.nanmean(train_no_zeros, axis=2)  # [num _probes, num_evals]
+            test_tmp = np.nanmean(test_no_zeros, axis=2)  # [num _probes, num_evals]
+            cat2train_evals_to_criterion = {cat: [] for cat in self.cats}
+            cat2test_evals_to_criterion = {cat: [] for cat in self.cats}
+            for probe, cat, train_row, test_row in zip(self.probes, self.probe_cats, train_tmp, test_tmp):
+                # train
+                train_it = iter(train_row)
+                softmax_prob = 0
+                num_evals = 0
+                while softmax_prob < config.Categorization.softmax_criterion:
+                    try:
+                        softmax_prob = next(train_it)
+                    except StopIteration:
+                        break
+                    else:
+                        num_evals += 1
+                else:
+                    cat2train_evals_to_criterion[cat].append(num_evals)
+                # test
+                test_it = iter(test_row)
+                softmax_prob = 0
+                num_evals = 0
+                while softmax_prob < config.Categorization.softmax_criterion:
+                    try:
+                        softmax_prob = next(test_it)
+                    except StopIteration:
+                        break
+                    else:
+                        num_evals += 1
+                else:
+                    cat2test_evals_to_criterion[cat].append(num_evals)
+
+
+            print(cat2train_evals_to_criterion)  # TODO test
+
+
+
+
+
+            # novice vs expert by probe
+            novice_results_by_probe = self.novice_probe_results
+            expert_results_by_probe = trial.expert_probe_results
+            # novice vs expert by cat
             cat2novice_result = {cat: [] for cat in self.cats}
             cat2expert_result = {cat: [] for cat in self.cats}
-            expert_results = [trial.probe2expert_result[p] for p in self.probes]
-            assert len(self.novice_results) == len(expert_results)
-            for cat, nov_acc, exp_acc in zip(self.probe_cats, self.novice_results, expert_results):
+            for cat, nov_acc, exp_acc in zip(self.probe_cats, novice_results_by_probe, expert_results_by_probe):
                 cat2novice_result[cat].append(nov_acc)
                 cat2expert_result[cat].append(exp_acc)
             novice_results_by_cat = [np.mean(cat2novice_result[cat]) for cat in self.cats]
             expert_results_by_cat = [np.mean(cat2expert_result[cat]) for cat in self.cats]
-            # novice vs expert (by probe)
-            novice_results_by_probe = self.novice_results
-            expert_results_by_probe = expert_results
             # figs
-            for fig, fig_name in make_categorizer_figs(average_cm,
+            for fig, fig_name in make_categorizer_figs(train_acc_traj,
+                                                       test_acc_traj,
+                                                       train_softmax_traj,
+                                                       test_softmax_traj,
+                                                       average_cm,
                                                        np.cumsum(average_x_mat, axis=1),
-                                                       train_acc_traj_by_cat,
-                                                       test_acc_traj_by_cat,
                                                        novice_results_by_cat,
                                                        expert_results_by_cat,
                                                        novice_results_by_probe,
                                                        expert_results_by_probe,
+                                                       cat2train_evals_to_criterion,
+                                                       cat2test_evals_to_criterion,
                                                        self.cats):
                 p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
@@ -241,7 +274,7 @@ class Categorization:
         bools = [False, True] if config.Categorization.run_shuffled else [False]
         for shuffled in bools:
             trial = Trial(name='shuffled' if shuffled else '',
-                          num_cats=self.num_cats)
+                          num_probes=self.num_probes, num_cats=self.num_cats)
             for fold_id in range(config.Categorization.num_folds):
                 # train
                 print('Fold {}/{}'.format(fold_id + 1, config.Categorization.num_folds))
@@ -260,20 +293,10 @@ class Categorization:
                 for yt, yp in zip(y_test, y_pred):
                     cm[yt, yp] += 1
                 trial.cms.append(cm)
-                # add acc_by_probe to trial
-                softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
-                test_probes = data[5]
-                num_test_probes = len(test_probes)
-                assert num_test_probes == len(x_test)
-                assert len(softmax) == len(y_test)
-                assert len(softmax) == num_test_probes
-                for probe, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
-                    if probe in trial.probe2expert_result:
-                        raise RuntimeError('"{}" already in probe2expert_result.'.format(probe))
-                    trial.probe2expert_result[probe] = correct_cat_prob
+            trial.expert_probe_results = trial.test_softmax_probs[:, -1, :].mean(axis=1)  # 2d after slicing
             self.trials.append(trial)
         # expert_score
-        expert_score = np.mean(self.trials[0].test_acc_trajs_p[-1, :])
+        expert_score = np.mean(self.trials[0].expert_probe_results)  # TODO test
         return expert_score
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):
@@ -345,6 +368,7 @@ class Categorization:
                     acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
         best_thr = bo.res['max']['max_params']['thr']
         # use best_thr
-        self.novice_results = fn(best_thr, mean=False)
-        result = np.mean(self.novice_results)
+        results = fn(best_thr, mean=False)
+        self.novice_probe_results = results
+        result = np.mean(results)
         return result
