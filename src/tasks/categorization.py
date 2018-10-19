@@ -138,7 +138,9 @@ class Categorization:
         return Graph()
 
     @staticmethod
-    def generate_random_train_batches(x, y, row_ids_list):
+    def generate_random_train_batches(x, y, num_probes, num_steps):
+        random_choices = np.random.choice(num_probes, config.Categorization.mb_size * num_steps)
+        row_ids_list = np.split(random_choices, num_steps)
         for n, row_ids in enumerate(row_ids_list):
             assert len(row_ids) == config.Categorization.mb_size
             x_batch = x[row_ids]
@@ -154,19 +156,14 @@ class Categorization:
         print('Training on test data to collect number of eval steps to criterion for each probe')
         print('Test data size: {:,}'.format(num_test_probes))
         # training and eval
-        random_choices = np.random.choice(num_test_probes, config.Categorization.mb_size * num_train_steps)
-        row_ids_list = np.split(random_choices, num_train_steps)
-        for step, x_batch, y_batch in self.generate_random_train_batches(x_test, y_test, row_ids_list):
+        for step, x_batch, y_batch in self.generate_random_train_batches(x_test, y_test,
+                                                                         num_test_probes, num_train_steps):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # test softmax probs
                 softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
                 for p, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
                     trial.trained_test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
-
-                    # TODO test
-
-
                 # accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
                 test_acc = num_correct / float(num_test_probes)
@@ -188,9 +185,8 @@ class Categorization:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         ys = []
-        random_choices = np.random.choice(num_train_probes, config.Categorization.mb_size * num_train_steps)
-        row_ids_list = np.split(random_choices, num_train_steps)
-        for step, x_batch, y_batch in self.generate_random_train_batches(x_train, y_train, row_ids_list):
+        for step, x_batch, y_batch in self.generate_random_train_batches(x_train, y_train,
+                                                                         num_train_probes, num_train_steps):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # train softmax probs

@@ -81,32 +81,25 @@ def make_categorizer_figs(train_acc_traj,
         train_evals_to_criterion = np.concatenate(list(cat2train_evals_to_criterion.values()))
         test_evals_to_criterion = np.concatenate(list(cat2test_evals_to_criterion.values()))
         trained_test_evals_to_criterion = np.concatenate(list(cat2trained_test_evals_to_criterion.values()))
-
-
-        # TODO debug
-        print(test_evals_to_criterion)
-        print(test_evals_to_criterion.shape)
-        print(trained_test_evals_to_criterion)
-        print(trained_test_evals_to_criterion.shape)
-
-
-
         # trained
         ax.hist(train_evals_to_criterion,
                 config.Categorization.num_bins,
+                linewidth=3,
                 histtype='step',
                 label='train')
         # test
         ax.hist(test_evals_to_criterion,
                 config.Categorization.num_bins,
+                linewidth=3,
                 histtype='step',
                 label='test')
         # trained test
         ax.hist(trained_test_evals_to_criterion,
                 config.Categorization.num_bins,
+                linewidth=3,
                 histtype='step',
                 label='post-train test')
-        ax.legend(loc='best')
+        ax.legend(loc='upper left')
         plt.tight_layout()
         return fig
 
