@@ -5,11 +5,42 @@ import seaborn as sns
 from src import config
 
 
-def make_categorizer_figs(cm, x_mat, train_acc_traj_by_cat, test_acc_traj_by_cat, cats):
+def make_categorizer_figs(cm,
+                          x_mat,
+                          train_acc_traj_by_cat,
+                          test_acc_traj_by_cat,
+                          novice_results_by_cat,
+                          expert_results_by_cat,
+                          novice_results_by_probe,
+                          expert_results_by_probe,
+                          cats):
     train_acc_traj = train_acc_traj_by_cat.mean(axis=0)
     test_acc_traj = test_acc_traj_by_cat.mean(axis=0)
     num_cats = len(cats)
     max_x = np.max(x_mat[:, -1])
+
+    def make_novice_vs_expert_fig(xs, ys, annotations=None):
+        """
+        Returns fig showing scatterplot of novice vs. expert accuracy by category
+        """
+        fig, ax = plt.subplots(1, figsize=(config.Figs.width, config.Figs.width), dpi=config.Figs.dpi)
+        ax.set_ylim([0, 1.1])
+        ax.set_xlim([0.5, 1.1])
+        ax.set_xlabel('Novice Balanced Accuracy', fontsize=config.Figs.axlabel_fontsize)
+        ax.set_ylabel('Expert Correct Category Probability', fontsize=config.Figs.axlabel_fontsize)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.tick_params(axis='both', which='both', top=False, right=False)
+        # ax.yaxis.grid(True)
+        # plot
+        if annotations:
+            it = iter(annotations)
+        for x, y in zip(xs, ys):
+            ax.scatter(x, y, color='black')
+            if annotations:
+                ax.annotate(next(it), (x + 0.01, y))
+        plt.tight_layout()
+        return fig
 
     def make_acc_traj_fig():
         """
@@ -80,6 +111,8 @@ def make_categorizer_figs(cm, x_mat, train_acc_traj_by_cat, test_acc_traj_by_cat
         plt.tight_layout()
         return fig
 
-    return [(make_acc_traj_fig(), 'acc'),
+    return [(make_novice_vs_expert_fig(novice_results_by_cat, expert_results_by_cat, cats), 'nov_vs_exp_cat'),
+            (make_novice_vs_expert_fig(novice_results_by_probe, expert_results_by_probe), 'nov_vs_exp_probe'),
+            (make_acc_traj_fig(), 'acc'),
             (make_acc_by_cat_fig(), 'acc_by_cat'),
             (make_cm_fig(), 'cm')]

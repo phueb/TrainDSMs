@@ -15,8 +15,8 @@ from src.tasks.nym_matching import NymMatching
 from src.utils import w2e_to_sims
 
 embedders = chain(
-    (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
     (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
+    (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
     (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams)))
 
@@ -37,14 +37,13 @@ for embedder in embedders:
         print('==========================================================================')
         embedder.train()
         if config.Embeddings.save:
-            embedder.save_w2e()
             embedder.save_params()
-            embedder.save_w2freq()  # TODO w2freq txt file is sometimes empty
+            embedder.save_w2freq()
+            embedder.save_w2e()
     else:
         print('Found embeddings at {}'.format(embedder.embeddings_fname))
         print('==========================================================================')
         embedder.load_w2e()
-
     # tasks
     for task in tasks:
         print('---------------------------------------------')
@@ -53,8 +52,7 @@ for embedder in embedders:
         # check embeddings
         for p in set(task.row_words + task.col_words):
             if p not in embedder.w2e:
-                # raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
-                print('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
+                raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
         # similarities
         sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
         print('Shape of similarity matrix: {}'.format(sims.shape))

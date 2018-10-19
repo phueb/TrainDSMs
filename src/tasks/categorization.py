@@ -6,7 +6,7 @@ from src import config
 from src.figs import make_categorizer_figs
 
 
-class Trial(object):  # TODO make this available to all experts?
+class Trial(object):
     def __init__(self, name, num_cats):
         self.name = name
         self.train_acc_trajs_p = np.zeros((config.Categorization.num_evals, config.Categorization.num_folds))
@@ -21,6 +21,7 @@ class Trial(object):  # TODO make this available to all experts?
                                config.Categorization.num_evals,
                                config.Categorization.num_folds))
         self.cms = []  # confusion matrix (1 per fold)
+        self.probe2expert_result = {}
 
 
 class Categorization:
@@ -34,6 +35,7 @@ class Categorization:
         self.num_cats = len(self.cats)
         # evaluation
         self.trials = []  # each result is a class with many attributes
+        self.novice_results = None  # for plotting
 
     @property
     def row_words(self):  # used to build sims
@@ -45,7 +47,9 @@ class Categorization:
 
     def load_data(self):
         p = config.Dirs.tasks / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        probes, cats = np.loadtxt(p, dtype='str').T
+        both = np.loadtxt(p, dtype='str')
+        np.random.shuffle(both)
+        probes, cats = both.T
         return probes.tolist(), cats.tolist()
 
     def make_data(self, w2e, w2freq, fold_id, shuffled):
@@ -55,8 +59,9 @@ class Categorization:
         x_test = []
         y_test = []
         train_probes = []
+        test_probes = []
         for cat, cat_probes in self.cat2probes.items():
-            cat_probes = self.cat2probes[cat]
+            cat_probes = self.cat2probes[cat].copy()
             for n, probes_in_fold in enumerate(np.array_split(cat_probes, config.Categorization.num_folds)):
                 xs = [w2e[p] for p in probes_in_fold]
                 ys = [self.cats.index(cat)] * len(probes_in_fold)
@@ -67,6 +72,7 @@ class Categorization:
                 else:
                     x_test += xs
                     y_test += ys
+                    test_probes += probes_in_fold.tolist()
         x_train = np.vstack(x_train)
         y_train = np.vstack(y_train)
         x_test = np.vstack(x_test)
@@ -74,6 +80,8 @@ class Categorization:
         assert len(x_train) == len(y_train)
         assert len(x_test) == len(y_test)
         assert len(x_train) + len(x_test) == self.num_probes
+        assert len(test_probes) == len(x_test)
+        assert len(train_probes) == len(x_train)
         # repeat train samples proportional to corpus frequency - must happen AFTER split
         if config.Categorization.log_freq:
             probe2logf = {probe: np.log(w2freq[probe]).astype(np.int) for probe in self.probes}
@@ -83,7 +91,7 @@ class Categorization:
         if shuffled:
             print('Shuffling category assignment')
             np.random.shuffle(y_train)
-        return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test)
+        return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test), train_probes, test_probes
 
     def make_classifier_graph(self, embed_size):
         class Graph:
@@ -108,6 +116,7 @@ class Categorization:
                                                  dtype=tf.float32)
                             by = tf.Variable(tf.zeros([self.num_cats]))
                             logits = tf.matmul(x, wy) + by
+                    softmax = tf.nn.softmax(logits)
                     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
                     loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
                     optimizer = tf.train.GradientDescentOptimizer(learning_rate=config.Categorization.learning_rate)  # TODO regularization
@@ -121,7 +130,7 @@ class Categorization:
         return Graph()
 
     def train_expert_on_fold(self, graph, trial, data, fold_id):
-        x_train, y_train, x_test, y_test = data
+        x_train, y_train, x_test, y_test, _, _ = data
         num_train_examples, num_test_examples = len(x_train), len(x_test)
         num_test_examples = len(x_test)
         num_train_steps = num_train_examples // config.Categorization.mb_size * config.Categorization.num_epochs
@@ -199,11 +208,28 @@ class Categorization:
             test_acc_traj_by_cat = np.mean(trial.test_acc_trajs_by_cat, axis=2)
             average_x_mat = np.mean(trial.x_mat, axis=2)
             average_cm = np.sum(trial.cms, axis=0)
+            # novice vs expert (by category)
+            cat2novice_result = {cat: [] for cat in self.cats}
+            cat2expert_result = {cat: [] for cat in self.cats}
+            expert_results = [trial.probe2expert_result[p] for p in self.probes]
+            assert len(self.novice_results) == len(expert_results)
+            for cat, nov_acc, exp_acc in zip(self.probe_cats, self.novice_results, expert_results):
+                cat2novice_result[cat].append(nov_acc)
+                cat2expert_result[cat].append(exp_acc)
+            novice_results_by_cat = [np.mean(cat2novice_result[cat]) for cat in self.cats]
+            expert_results_by_cat = [np.mean(cat2expert_result[cat]) for cat in self.cats]
+            # novice vs expert (by probe)
+            novice_results_by_probe = self.novice_results
+            expert_results_by_probe = expert_results
             # figs
             for fig, fig_name in make_categorizer_figs(average_cm,
                                                        np.cumsum(average_x_mat, axis=1),
                                                        train_acc_traj_by_cat,
                                                        test_acc_traj_by_cat,
+                                                       novice_results_by_cat,
+                                                       expert_results_by_cat,
+                                                       novice_results_by_probe,
+                                                       expert_results_by_probe,
                                                        self.cats):
                 p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
                 if not p.parent.exists():
@@ -224,7 +250,7 @@ class Categorization:
                 graph = self.make_classifier_graph(embedder.dim1)
                 data = self.make_data(embedder.w2e, embedder.w2freq, fold_id, shuffled)
                 self.train_expert_on_fold(graph, trial, data, fold_id)
-                # add confusion mat to trial
+                # add confusion mat to trial (only includes data for current fold - must be summed over folds)
                 x_test = data[2]
                 y_test = data[3]
                 logits = graph.sess.run(graph.logits,
@@ -234,32 +260,42 @@ class Categorization:
                 for yt, yp in zip(y_test, y_pred):
                     cm[yt, yp] += 1
                 trial.cms.append(cm)
+                # add acc_by_probe to trial
+                softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
+                test_probes = data[5]
+                num_test_probes = len(test_probes)
+                assert num_test_probes == len(x_test)
+                assert len(softmax) == len(y_test)
+                assert len(softmax) == num_test_probes
+                for probe, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
+                    if probe in trial.probe2expert_result:
+                        raise RuntimeError('"{}" already in probe2expert_result.'.format(probe))
+                    trial.probe2expert_result[probe] = correct_cat_prob
             self.trials.append(trial)
-
         # expert_score
         expert_score = np.mean(self.trials[0].test_acc_trajs_p[-1, :])
         return expert_score
 
-    def score_novice(self, test_word_sims, probe_cats=None, metric='ba'):
+    def score_novice(self, probe_sims, probe_cats=None, metric='ba'):
         if probe_cats is None:
             probe_cats = []
             for p, cat in zip(self.probes, self.probe_cats):
                 probe_cats.append(cat)
-        assert len(probe_cats) == len(self.probes) == len(test_word_sims)
+        assert len(probe_cats) == len(self.probes) == len(probe_sims)
 
         def calc_p_and_r(thr):
-            num_test_words = len(test_word_sims)
-            hits = np.zeros(num_test_words, float)
-            misses = np.zeros(num_test_words, float)
-            fas = np.zeros(num_test_words, float)
-            crs = np.zeros(num_test_words, float)
+            num_probes = len(probe_sims)
+            hits = np.zeros(num_probes, float)
+            misses = np.zeros(num_probes, float)
+            fas = np.zeros(num_probes, float)
+            crs = np.zeros(num_probes, float)
             # calc hits, misses, false alarms, correct rejections
-            for i in range(num_test_words):
+            for i in range(num_probes):
                 cat1 = probe_cats[i]
-                for j in range(num_test_words):
+                for j in range(num_probes):
                     if i != j:
                         cat2 = probe_cats[j]
-                        sim = test_word_sims[i, j]
+                        sim = probe_sims[i, j]
                         if cat1 == cat2:
                             if sim > thr:
                                 hits[i] += 1
@@ -274,20 +310,24 @@ class Categorization:
             avg_probe_precision_list = np.divide(crs + 1, (crs + fas + 1))
             return avg_probe_precision_list, avg_probe_recall_list
 
-        def calc_probes_fs(thr):
+        def calc_probes_fs(thr, mean=True):
             precision, recall = calc_p_and_r(thr)
             probe_fs_list = 2 * (precision * recall) / (precision + recall)  # f1-score
-            res = np.mean(probe_fs_list)
-            return res
+            if mean:
+                return np.mean(probe_fs_list)
+            else:
+                return probe_fs_list
 
-        def calc_probes_ba(thr):
+        def calc_probes_ba(thr, mean=True):
             precision, recall = calc_p_and_r(thr)
             probe_ba_list = (precision + recall) / 2  # balanced accuracy
-            res = np.mean(probe_ba_list)
-            return res
+            if mean:
+                return np.mean(probe_ba_list)
+            else:
+                return probe_ba_list
 
         # make thr range
-        test_word_sims_mean = np.asscalar(np.mean(test_word_sims))
+        test_word_sims_mean = np.asscalar(np.mean(probe_sims))
         thr1 = max(0.0, round(min(0.9, round(test_word_sims_mean, 2)) - 0.1, 2))  # don't change
         thr2 = round(thr1 + 0.2, 2)
         # use bayes optimization to find best_thr
@@ -305,5 +345,6 @@ class Categorization:
                     acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
         best_thr = bo.res['max']['max_params']['thr']
         # use best_thr
-        result = fn(best_thr)
+        self.novice_results = fn(best_thr, mean=False)
+        result = np.mean(self.novice_results)
         return result
