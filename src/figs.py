@@ -69,6 +69,39 @@ def make_categorizer_figs(train_acc_traj,
         """
         Returns fig showing number of evaluation steps needed to achieve 100% accuracy by category for train and test
         """
+        fig, ax = plt.subplots(1, figsize=(config.Figs.width, config.Figs.width), dpi=config.Figs.dpi)
+        # ax.set_xlim([0, config.Categorization.num_evals])
+        ax.set_xlabel('Number of Evaluation Steps to Criterion={}'.format(
+            config.Categorization.softmax_criterion),
+            fontsize=config.Figs.axlabel_fontsize)
+        ylabel = 'Frequency'
+        ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.tick_params(axis='both', which='both', top=False, right=False)
+        ax.yaxis.grid(True)
+        # plot
+        train_evals_to_criterion = np.concatenate(list(cat2train_evals_to_criterion.values()))
+        test_evals_to_criterion = np.concatenate(list(cat2test_evals_to_criterion.values()))
+        # assume that all probes are assigned a value
+        # assign max value if a probe doesn't reach criterion before last eval
+        assert len(train_evals_to_criterion) == len(test_evals_to_criterion)
+        ax.hist(train_evals_to_criterion,
+                config.Categorization.num_bins,
+                histtype='step',
+                label='train')
+        ax.hist(test_evals_to_criterion,
+                config.Categorization.num_bins,
+                histtype='step',
+                label='test')
+        ax.legend(loc='best')
+        plt.tight_layout()
+        return fig
+
+    def make_num_steps_to_criterion_by_cat_fig():
+        """
+        Returns fig showing number of evaluation steps needed to achieve 100% accuracy by category for train and test
+        """
         fig, axarr = plt.subplots(num_cats, 1,
                                   figsize=(config.Figs.width, 3 * num_cats),
                                   dpi=config.Figs.dpi)

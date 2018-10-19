@@ -29,7 +29,7 @@ class Categorization:  # TODO make unique for each embedder - separate models fr
     num_hiddens = 128
     # figs
     softmax_criterion = 0.5
-    num_bins = 4
+    num_bins = 10
 
 
 class NymMatching:

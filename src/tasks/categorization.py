@@ -206,34 +206,21 @@ class Categorization:
             cat2test_evals_to_criterion = {cat: [] for cat in self.cats}
             for probe, cat, train_row, test_row in zip(self.probes, self.probe_cats, train_tmp, test_tmp):
                 # train
-                train_it = iter(train_row)
-                softmax_prob = 0
-                num_evals = 0
-                while softmax_prob < config.Categorization.softmax_criterion:
-                    try:
-                        softmax_prob = next(train_it)
-                    except StopIteration:
+                for n, softmax_prob in enumerate(train_row):
+                    if softmax_prob > config.Categorization.softmax_criterion:
+                        cat2train_evals_to_criterion[cat].append(n)
                         break
-                    else:
-                        num_evals += 1
                 else:
-                    cat2train_evals_to_criterion[cat].append(num_evals)
+                    cat2train_evals_to_criterion[cat].append(config.Categorization.num_evals)
                 # test
-                test_it = iter(test_row)
-                softmax_prob = 0
-                num_evals = 0
-                while softmax_prob < config.Categorization.softmax_criterion:
-                    try:
-                        softmax_prob = next(test_it)
-                    except StopIteration:
+                for n, softmax_prob in enumerate(test_row):
+                    if softmax_prob > config.Categorization.softmax_criterion:
+                        cat2test_evals_to_criterion[cat].append(n)
                         break
-                    else:
-                        num_evals += 1
                 else:
-                    cat2test_evals_to_criterion[cat].append(num_evals)
+                    cat2test_evals_to_criterion[cat].append(config.Categorization.num_evals)
 
-
-            print(cat2train_evals_to_criterion)  # TODO test
+            print(cat2train_evals_to_criterion)
 
 
 
