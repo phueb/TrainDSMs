@@ -10,16 +10,16 @@ def make_categorizer_figs(train_acc_traj,
                           train_softmax_traj,
                           test_softmax_traj,
                           cm,
-                          x_mat,
+                          cum_x_mat,
                           novice_results_by_cat,
                           expert_results_by_cat,
                           novice_results_by_probe,
                           expert_results_by_probe,
                           cat2train_evals_to_criterion,
                           cat2test_evals_to_criterion,
+                          cat2trained_test_evals_to_criterion,
                           cats):
     num_cats = len(cats)
-    max_x = np.max(x_mat[:, -1])
 
     def make_novice_vs_expert_fig(xs, ys, annotations=None):
         """
@@ -33,7 +33,6 @@ def make_categorizer_figs(train_acc_traj,
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)
-        # ax.yaxis.grid(True)
         # plot
         if annotations:
             it = iter(annotations)
@@ -56,9 +55,8 @@ def make_categorizer_figs(train_acc_traj,
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)
-        ax.yaxis.grid(True)
         # plot
-        x = x_mat.sum(axis=0)
+        x = cum_x_mat.sum(axis=0)
         ax.plot(x, train_traj, '-', linewidth=config.Figs.line_width, label='train')
         ax.plot(x, test_traj, '-', linewidth=config.Figs.line_width, label='test')
         ax.legend(loc='best')
@@ -79,21 +77,35 @@ def make_categorizer_figs(train_acc_traj,
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)
-        ax.yaxis.grid(True)
         # plot
         train_evals_to_criterion = np.concatenate(list(cat2train_evals_to_criterion.values()))
         test_evals_to_criterion = np.concatenate(list(cat2test_evals_to_criterion.values()))
-        # assume that all probes are assigned a value
-        # assign max value if a probe doesn't reach criterion before last eval
-        assert len(train_evals_to_criterion) == len(test_evals_to_criterion)
+        trained_test_evals_to_criterion = np.concatenate(list(cat2trained_test_evals_to_criterion.values()))
+
+
+        # TODO debug
+        print(test_evals_to_criterion)
+        print(test_evals_to_criterion.shape)
+        print(trained_test_evals_to_criterion)
+        print(trained_test_evals_to_criterion.shape)
+
+
+
+        # trained
         ax.hist(train_evals_to_criterion,
                 config.Categorization.num_bins,
                 histtype='step',
                 label='train')
+        # test
         ax.hist(test_evals_to_criterion,
                 config.Categorization.num_bins,
                 histtype='step',
                 label='test')
+        # trained test
+        ax.hist(trained_test_evals_to_criterion,
+                config.Categorization.num_bins,
+                histtype='step',
+                label='post-train test')
         ax.legend(loc='best')
         plt.tight_layout()
         return fig
@@ -107,8 +119,6 @@ def make_categorizer_figs(train_acc_traj,
                                   dpi=config.Figs.dpi)
         for ax, cat in zip(axarr, cats):
             ax.set_title(cat)
-            ax.set_ylim([0, 1])  # y is density
-            ax.set_xlim([0, config.Categorization.num_evals])
             ax.set_xlabel('Number of Evaluation Steps to Criterion={}'.format(
                 config.Categorization.softmax_criterion),
                 fontsize=config.Figs.axlabel_fontsize)
@@ -121,16 +131,22 @@ def make_categorizer_figs(train_acc_traj,
             # plot
             train_evals_to_criterion = cat2train_evals_to_criterion[cat]
             test_evals_to_criterion = cat2test_evals_to_criterion[cat]
+            trained_test_evals_to_criterion = cat2trained_test_evals_to_criterion[cat]
+            # train
             ax.hist(train_evals_to_criterion,
                     config.Categorization.num_bins,
                     histtype='step',
-                    density=1,
                     label='train')
+            # test
             ax.hist(test_evals_to_criterion,
                     config.Categorization.num_bins,
                     histtype='step',
-                    density=1,
                     label='test')
+            # trained test
+            ax.hist(trained_test_evals_to_criterion,
+                    config.Categorization.num_bins,
+                    histtype='step',
+                    label='post-train test')
             ax.legend(loc='best')
         plt.tight_layout()
         return fig
@@ -162,4 +178,5 @@ def make_categorizer_figs(train_acc_traj,
             (make_traj_fig(train_acc_traj, test_acc_traj), 'acc_traj'),
             (make_traj_fig(train_softmax_traj, test_softmax_traj,), 'softmax_traj'),
             (make_num_steps_to_criterion_fig(), 'criterion'),
+            (make_num_steps_to_criterion_by_cat_fig(), 'criterion_by_cat'),
             (make_cm_fig(), 'cm')]
