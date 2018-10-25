@@ -14,9 +14,12 @@ from src.tasks.nym_matching import NymMatching
 
 from src.utils import w2e_to_sims
 
+
+# TODO timestamps should include year
+
 embedders = chain(
-    (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
     (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
+    (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
     (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams)))
 
@@ -24,7 +27,7 @@ tasks = [
     # NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
     Categorization('semantic'),
-    Categorization('syntactic')
+    # Categorization('syntactic')
 ]
 
 # run full experiment
@@ -59,9 +62,10 @@ for embedder in embedders:
         # score
         nov2scores[embedder.time_of_init] = (task.name, task.score_novice(sims))
         exp2scores[embedder.time_of_init] = (task.name, task.train_and_score_expert(embedder))
+
+        # TODO save scores to csv after every loop
+
+        print(nov2scores[embedder.time_of_init])
+        print(exp2scores[embedder.time_of_init])
         # figs
         task.save_figs(embedder.name)  # TODO save in runs dir with embeddings and params
-
-# TODO save scores to csv
-np.save('novice_scores.npy', nov2scores)
-np.save('expert_scores.npy', exp2scores)

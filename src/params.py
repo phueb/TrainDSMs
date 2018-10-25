@@ -59,10 +59,11 @@ class CountParams:
         # ['ww', 'backward', 16, 'linear'],
         # ['ww', 'backward', 16, 'flat']
     ]
-    norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
+    # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
+    norm_type = ['ppmi']
     reduce_type = [
         ['svd', 200],
-        # ['svd', 30],
+        ['svd', 30],
         # [None, None]
     ]
 
@@ -92,4 +93,3 @@ class Word2VecParams:
 
 class RandomControlParams:
     embed_size = [512]
-    distribution = ['normal', 'uniform']

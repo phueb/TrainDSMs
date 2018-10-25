@@ -123,11 +123,11 @@ class Categorization:
                             logits = tf.matmul(x, wy) + by
                     softmax = tf.nn.softmax(logits)
                     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
-                    loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
-
-                    # TODO regularization
-
-                    optimizer = tf.train.GradientDescentOptimizer(learning_rate=config.Categorization.learning_rate)
+                    loss_no_reg = tf.reduce_mean(cross_entropy, name='xentropy_mean')
+                    regularizer = tf.nn.l2_loss(wx) + tf.nn.l2_loss(wy)
+                    loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
+                                          config.Categorization.beta * regularizer)
+                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=config.Categorization.learning_rate)
                     step = optimizer.minimize(loss)
                 with tf.device('/cpu:0'):
                     correct = tf.nn.in_top_k(logits, y, 1)
@@ -324,7 +324,7 @@ class Categorization:
             trial.expert_probe_results = trial.test_softmax_probs[:, -1, :].mean(axis=1)  # 2d after slicing
             self.trials.append(trial)
         # expert_score
-        expert_score = np.mean(self.trials[0].expert_probe_results)  # TODO test
+        expert_score = np.mean(self.trials[0].test_acc_trajs[-1].mean())  # TODO test
         return expert_score
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):

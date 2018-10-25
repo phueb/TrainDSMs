@@ -100,7 +100,7 @@ class NymMatching:
         num_correct = 0
         for n, distractor_nym_ids in enumerate(self.distractor_nym_ids_mat):
 
-            candidate_sims = sims[n, distractor_nym_ids]
+            candidate_sims = sims[n, distractor_nym_ids]  # TODO num_distractors or num_candidates ?
             correct_sim = sims[n, n]  # correct pairs are in diagonal
             if np.all(candidate_sims < correct_sim):
                 num_correct += 1

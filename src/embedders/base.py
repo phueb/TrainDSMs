@@ -1,6 +1,7 @@
 import sys
-from collections.__init__ import Counter, OrderedDict
+from collections import Counter, OrderedDict
 from itertools import islice
+from sklearn import preprocessing
 
 import numpy as np
 import pyprind
@@ -19,7 +20,7 @@ class EmbedderBase(object):
     def __init__(self, param2val):
         self.param2val = param2val
         self.w2e = dict()  # is created by child class
-        self.time_of_init = datetime.datetime.now().strftime('%m-%d-%H-%M-%S') \
+        self.time_of_init = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') \
             if not self.has_embeddings() else self.has_embeddings()
 
     # ///////////////////////////////////////////////////////////// I/O
@@ -58,8 +59,7 @@ class EmbedderBase(object):
     def load_w2e(self):
         mat = np.loadtxt(config.Dirs.embeddings / self.embeddings_fname, dtype='str', comments=None)
         vocab = mat[:, 0]
-        embed_mat = mat[:, 1:].astype('float')
-        self.check_consistency(embed_mat)
+        embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
     # ///////////////////////////////////////////////////////////// corpus data
@@ -150,10 +150,15 @@ class EmbedderBase(object):
         return False
 
     @staticmethod
-    def check_consistency(mat):
-        # size check
+    def standardize_embed_mat(mat):
         assert mat.shape[1] > 1
-        print('Inf Norm of embeddings = {:.1f}'.format(np.linalg.norm(mat, np.inf)))
+        scaler = preprocessing.StandardScaler()
+        res = scaler.fit_transform(mat)
+        print('Before standardization:')
+        print('mean={:.2f} std={:.2f}'.format(np.mean(mat), np.std(mat)))
+        print('After standardization:')
+        print('mean={:.2f} std={:.2f}'.format(np.mean(res), np.std(res)))
+        return res
 
     @staticmethod
     def w2e_to_embeds(w2e):

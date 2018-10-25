@@ -27,8 +27,9 @@ class W2VecEmbedder(EmbedderBase):
                       workers=8,
                       hs=1)
         num_vocab = len(self.vocab)
-        embed_mat = np.zeros((num_vocab, self.embed_size))
+        wvs = np.zeros((num_vocab, self.embed_size))
         for n, term in enumerate(self.vocab):
             term_acts = sg.wv[term]
-            embed_mat[n] = term_acts
-        self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
+            wvs[n] = term_acts
+        wvs = self.standardize_embed_mat(wvs)
+        self.w2e = self.embeds_to_w2e(wvs, self.vocab)

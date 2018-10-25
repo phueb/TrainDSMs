@@ -14,19 +14,25 @@ class TaskData:
     vocab_sizes = [4096, 8192, 16384]
 
 
-class Categorization:  # TODO make unique for each embedder - separate models from task classes?
+class Categorization:  # TODO make unique to each embedder
+    """
+    Adadelta
+    lstm: lr=0.1 + mb_size=8 + num_hiddens=64 + beta=0.0
+    ww ppmi svd-200: lr=0.1 + mb_size=8 + num_hiddens=64 + beta=0.0 - CANNOT LEARN WITH REGULARIZATION
+    """
     # novice
-    num_opt_steps = 1
+    num_opt_steps = 3
     # expert
+    beta = 0.0
     run_shuffled = False
     device = 'cpu'
-    num_folds = 4  # also determines number of examples in test vs. train splits
-    num_epochs = 300
+    num_folds = 6  # also determines number of examples in test vs. train splits
+    num_epochs = 400
     num_evals = 10
-    mb_size = 4
+    mb_size = 8
     log_freq = False
-    learning_rate = 0.005
-    num_hiddens = 128
+    learning_rate = 0.1
+    num_hiddens = 64
     # figs
     softmax_criterion = 0.5
     num_bins = 10
@@ -41,6 +47,7 @@ class Embeddings:
     retrain = False
     save = True
     sim_method = 'cosine'
+
 
 class Corpus:
     spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319
