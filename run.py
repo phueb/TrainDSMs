@@ -50,29 +50,28 @@ for embedder in embedders:
     data = []
     index = []
     for task in tasks:
-        print('---------------------------------------------')
-        print('Starting task "{}"'.format(task.name))
-        print('---------------------------------------------')
-        # check runs
-        for p in set(task.row_words + task.col_words):
-            if p not in embedder.w2e:
-                raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
-        # similarities
-        sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
-        print('Shape of similarity matrix: {}'.format(sims.shape))
-        # score
-        index.append('nov_' + task.name)
-        data.append(task.score_novice(sims))
-        index.append('exp_' + task.name)
-        data.append(task.train_and_score_expert(embedder))
-
-        # TODO only run task if score doesn't already exist
-
-
-        # figs
-        task.save_figs(embedder.time_of_init)
-    # save
+        if config.Embeddings.retrain or not embedder.has_task(task.name):  # TODO test
+            print('---------------------------------------------')
+            print('Starting task "{}"'.format(task.name))
+            print('---------------------------------------------')
+            # check runs
+            for p in set(task.row_words + task.col_words):
+                if p not in embedder.w2e:
+                    raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
+            # similarities
+            sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
+            print('Shape of similarity matrix: {}'.format(sims.shape))
+            # score
+            index.append('nov_' + task.name)
+            data.append(task.score_novice(sims))
+            index.append('exp_' + task.name)
+            data.append(task.train_and_score_expert(embedder))
+            # figs
+            task.save_figs(embedder.time_of_init)
+        else:
+            print('---------------------------------------------')
+            print('Embedder has task "{}"'.format(task.name))
+            print('---------------------------------------------')
+    # save scores
     series = pd.Series(data=data, index=index)
-    p = config.Dirs.runs / embedder.time_of_init / 'scores.csv'
-    with p.open('a') as f:
-        series.to_csv(f, mode='a', header=False)
+    embedder.append_scores(series)

@@ -1,4 +1,5 @@
 import sys
+import pandas as pd
 from collections import Counter, OrderedDict
 from itertools import islice
 from sklearn import preprocessing
@@ -31,6 +32,8 @@ class EmbedderBase(object):
 
     def save_params(self):
         p = config.Dirs.runs / self.time_of_init / 'params.yaml'
+        if not p.parent.exists():
+            p.mkdir()
         with p.open('w', encoding='utf8') as outfile:
             yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
 
@@ -40,7 +43,7 @@ class EmbedderBase(object):
             for probe, freq in self.w2freq.items():
                 f.write('{} {}\n'.format(probe, freq))
 
-    def save_w2e(self):  # TODO serializing is faster (pickle, numpy)
+    def save_w2e(self):
         p = config.Dirs.runs / self.time_of_init / 'embeddings.txt'
         with p.open('w') as f:
             for probe, embedding in sorted(self.w2e.items()):
@@ -52,6 +55,22 @@ class EmbedderBase(object):
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
+
+    def append_scores(self, series):
+        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
+        with p.open('a') as f:
+            series.to_csv(f, mode='a', header=False)
+
+    def has_task(self, task_name):
+        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
+        with p.open('r') as f:
+            series = pd.Series.from_csv(p, header=None)
+            for task_name in ['exp_' + task_name, 'nov_' + task_name]:
+                try:
+                    series[task_name]
+                except KeyError:
+                    return False
+        return True
 
     # ///////////////////////////////////////////////////////////// corpus data
 
@@ -127,7 +146,7 @@ class EmbedderBase(object):
     def corpus_data(self):
         return self.load_corpus_data()
 
-    # ///////////////////////////////////////////////////////////// runs
+    # ///////////////////////////////////////////////////////////// embeddings
 
     def has_embeddings(self):
         for p in config.Dirs.runs.rglob('params.yaml'):
