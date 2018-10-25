@@ -29,7 +29,7 @@ class NymMatching:
         self.num_pairs = len(self.probes)
         self.distractor_nym_ids_mat = self.make_distractor_ids_mat()
         # evaluation
-        self.trials = []  # each result is a class with many attributes
+        self.trials = None
 
     @property
     def row_words(self):  # used to build sims
@@ -68,6 +68,7 @@ class NymMatching:
         return x_train, y_train, x_test, y_test
 
     def train_and_score_expert(self, embedder):  # TODO implement
+        self.trials = []  # need to flush trials (because multiple embedders)
         bools = [False, True] if config.Categorization.run_shuffled else [False]
         for shuffled in bools:
             trial = Trial(name='shuffled' if shuffled else '',

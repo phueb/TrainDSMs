@@ -5,9 +5,7 @@ from pathlib import Path
 class Dirs:
     tasks = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
     corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
-    figs = Path(os.getenv('FIGS_DIR', Path(__file__).parent.parent / 'figs'))
-    embeddings = Path(os.getenv('EMBEDDINGS_DIR', Path(__file__).parent.parent / 'embeddings'))
-    params = Path(os.getenv('PARAMS_DIR', Path(__file__).parent.parent / 'params'))
+    runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))
 
 
 class TaskData:
@@ -27,7 +25,7 @@ class Categorization:  # TODO make unique to each embedder
     run_shuffled = False
     device = 'cpu'
     num_folds = 6  # also determines number of examples in test vs. train splits
-    num_epochs = 400
+    num_epochs = 500
     num_evals = 10
     mb_size = 8
     log_freq = False

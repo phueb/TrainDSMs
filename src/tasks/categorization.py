@@ -29,6 +29,7 @@ class Trial(object):
                                config.Categorization.num_folds))
         self.cms = []  # confusion matrix (1 per fold)
 
+
 class Categorization:
     def __init__(self, cat_type):
         self.name = '{}_categorization'.format(cat_type)
@@ -39,7 +40,7 @@ class Categorization:
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
         # evaluation
-        self.trials = []  # each result is a class with many attributes
+        self.trials = None  # each result is a class with many attributes
         self.novice_probe_results = []  # for plotting
 
     @property
@@ -220,7 +221,7 @@ class Categorization:
 
             # TODO change to relation network
 
-    def save_figs(self, embedder_name):
+    def save_figs(self, time_of_init):
         for trial in self.trials:
             # aggregate over folds
             average_x_mat = np.sum(trial.x_mat, axis=2)
@@ -289,13 +290,14 @@ class Categorization:
                                                        cat2test_evals_to_criterion,
                                                        cat2trained_test_evals_to_criterion,
                                                        self.cats):
-                p = config.Dirs.figs / self.name / '{}_{}_{}.png'.format(fig_name, trial.name, embedder_name)
+                p = config.Dirs.runs / time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))
-                print('Saved "{}" figure to {}'.format(fig_name, config.Dirs.figs / self.name))
+                print('Saved {} to {}'.format(fig_name, p))
 
     def train_and_score_expert(self, embedder):
+        self.trials = []  # need to flush trials (because multiple embedders)
         bools = [False, True] if config.Categorization.run_shuffled else [False]
         for shuffled in bools:
             trial = Trial(name='shuffled' if shuffled else '',
@@ -324,7 +326,7 @@ class Categorization:
             trial.expert_probe_results = trial.test_softmax_probs[:, -1, :].mean(axis=1)  # 2d after slicing
             self.trials.append(trial)
         # expert_score
-        expert_score = np.mean(self.trials[0].test_acc_trajs[-1].mean())  # TODO test
+        expert_score = np.mean(self.trials[0].test_acc_trajs[-1].mean())
         return expert_score
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):

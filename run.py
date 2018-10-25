@@ -1,5 +1,6 @@
-import numpy as np
+import pandas as pd
 from itertools import chain
+import datetime
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
@@ -27,16 +28,14 @@ tasks = [
     # NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
     Categorization('semantic'),
-    # Categorization('syntactic')
+    Categorization('syntactic')
 ]
 
 # run full experiment
-nov2scores = {}
-exp2scores = {}
 for embedder in embedders:
     # embed
     if config.Embeddings.retrain or not embedder.has_embeddings():
-        print('Training embeddings')
+        print('Training runs')
         print('==========================================================================')
         embedder.train()
         if config.Embeddings.save:
@@ -44,15 +43,17 @@ for embedder in embedders:
             embedder.save_w2freq()
             embedder.save_w2e()
     else:
-        print('Found embeddings at {}'.format(embedder.embeddings_fname))
+        print('Found embeddings at {}'.format(config.Dirs.runs / embedder.time_of_init))
         print('==========================================================================')
         embedder.load_w2e()
     # tasks
+    data = []
+    index = []
     for task in tasks:
         print('---------------------------------------------')
         print('Starting task "{}"'.format(task.name))
         print('---------------------------------------------')
-        # check embeddings
+        # check runs
         for p in set(task.row_words + task.col_words):
             if p not in embedder.w2e:
                 raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
@@ -60,12 +61,18 @@ for embedder in embedders:
         sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
         print('Shape of similarity matrix: {}'.format(sims.shape))
         # score
-        nov2scores[embedder.time_of_init] = (task.name, task.score_novice(sims))
-        exp2scores[embedder.time_of_init] = (task.name, task.train_and_score_expert(embedder))
+        index.append('nov_' + task.name)
+        data.append(task.score_novice(sims))
+        index.append('exp_' + task.name)
+        data.append(task.train_and_score_expert(embedder))
 
-        # TODO save scores to csv after every loop
+        # TODO only run task if score doesn't already exist
 
-        print(nov2scores[embedder.time_of_init])
-        print(exp2scores[embedder.time_of_init])
+
         # figs
-        task.save_figs(embedder.name)  # TODO save in runs dir with embeddings and params
+        task.save_figs(embedder.time_of_init)
+    # save
+    series = pd.Series(data=data, index=index)
+    p = config.Dirs.runs / embedder.time_of_init / 'scores.csv'
+    with p.open('a') as f:
+        series.to_csv(f, mode='a', header=False)

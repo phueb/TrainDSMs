@@ -26,19 +26,11 @@ class EmbedderBase(object):
     # ///////////////////////////////////////////////////////////// I/O
 
     @property
-    def params_fname(self):
-        return '{}.yaml'.format(self.time_of_init)
-
-    @property
-    def embeddings_fname(self):
-        return '{}.txt'.format(self.time_of_init)
-
-    @property
     def w2freq_fname(self):
         return '{}_w2freq.txt'.format(config.Corpus.name)
 
     def save_params(self):
-        p = config.Dirs.embeddings / self.params_fname
+        p = config.Dirs.runs / self.time_of_init / 'params.yaml'
         with p.open('w', encoding='utf8') as outfile:
             yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
 
@@ -49,15 +41,14 @@ class EmbedderBase(object):
                 f.write('{} {}\n'.format(probe, freq))
 
     def save_w2e(self):  # TODO serializing is faster (pickle, numpy)
-        p = config.Dirs.embeddings / self.embeddings_fname
-        print('Saving embeddings at {}'.format(self.embeddings_fname))
+        p = config.Dirs.runs / self.time_of_init / 'embeddings.txt'
         with p.open('w') as f:
             for probe, embedding in sorted(self.w2e.items()):
                 embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
     def load_w2e(self):
-        mat = np.loadtxt(config.Dirs.embeddings / self.embeddings_fname, dtype='str', comments=None)
+        mat = np.loadtxt(config.Dirs.runs / self.time_of_init / 'embeddings.txt', dtype='str', comments=None)
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
@@ -136,16 +127,16 @@ class EmbedderBase(object):
     def corpus_data(self):
         return self.load_corpus_data()
 
-    # ///////////////////////////////////////////////////////////// embeddings
+    # ///////////////////////////////////////////////////////////// runs
 
     def has_embeddings(self):
-        for p in config.Dirs.embeddings.glob('*.yaml'):
+        for p in config.Dirs.runs.rglob('params.yaml'):
             with p.open('r') as f:
                 param2val = yaml.load(f)
                 if param2val == self.param2val:
-                    embed_p = p.parent / '{}.txt'.format(p.stem)
+                    embed_p = p.parent / 'embeddings.txt'
                     if embed_p.exists():
-                        time_of_init = embed_p.stem
+                        time_of_init = p.parent
                         return time_of_init
         return False
 
