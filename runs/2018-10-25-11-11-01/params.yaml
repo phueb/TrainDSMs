@@ -1,0 +1,9 @@
+count_type:
+- ww
+- forward
+- 7
+- flat
+norm_type: ppmi
+reduce_type:
+- svd
+- 200

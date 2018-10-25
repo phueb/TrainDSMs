@@ -78,14 +78,14 @@ for embedder in embedders:
             print('---------------------------------------------')
 
 
-# combine scores  # TODO need to add header to sores.csv to retain information about which embeder scored what
+# combine scores
 scores_list = []
 for p in config.Dirs.runs.rglob('scores.csv'):
     scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-
-    # TODO can header be added here?
-    print(scores)
-
+    scores = scores.groupby(scores.index).last()
+    scores.name = p.parent.name
     scores_list.append(scores)
 df = pd.concat(scores_list, axis=1)
+df.index.name = 'task'
+df.to_csv('all_scores.csv')
 print(df)
