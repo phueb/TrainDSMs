@@ -22,7 +22,8 @@ embedders = chain(
     (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
     (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
     (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
-    (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams)))
+    # (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
+)
 
 tasks = [
     # NymMatching('noun', 'synonym'),
@@ -50,7 +51,7 @@ for embedder in embedders:
     data = []
     index = []
     for task in tasks:
-        if config.Embeddings.retrain or not embedder.has_task(task.name):  # TODO test
+        if config.Embeddings.retrain or not embedder.has_task(task.name):
             print('---------------------------------------------')
             print('Starting task "{}"'.format(task.name))
             print('---------------------------------------------')
@@ -66,12 +67,25 @@ for embedder in embedders:
             data.append(task.score_novice(sims))
             index.append('exp_' + task.name)
             data.append(task.train_and_score_expert(embedder))
+            # save scores
+            scores = pd.Series(data=data, index=index)
+            embedder.append_scores(scores)
             # figs
             task.save_figs(embedder.time_of_init)
         else:
             print('---------------------------------------------')
             print('Embedder has task "{}"'.format(task.name))
             print('---------------------------------------------')
-    # save scores
-    series = pd.Series(data=data, index=index)
-    embedder.append_scores(series)
+
+
+# combine scores  # TODO need to add header to sores.csv to retain information about which embeder scored what
+scores_list = []
+for p in config.Dirs.runs.rglob('scores.csv'):
+    scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
+
+    # TODO can header be added here?
+    print(scores)
+
+    scores_list.append(scores)
+df = pd.concat(scores_list, axis=1)
+print(df)

@@ -33,7 +33,7 @@ class EmbedderBase(object):
     def save_params(self):
         p = config.Dirs.runs / self.time_of_init / 'params.yaml'
         if not p.parent.exists():
-            p.mkdir()
+            p.parent.mkdir()
         with p.open('w', encoding='utf8') as outfile:
             yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
 
@@ -56,20 +56,21 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
-    def append_scores(self, series):
+    def append_scores(self, scores_series):
         p = config.Dirs.runs / self.time_of_init / 'scores.csv'
         with p.open('a') as f:
-            series.to_csv(f, mode='a', header=False)
+            scores_series.to_csv(f, mode='a', header=False)
 
     def has_task(self, task_name):
         p = config.Dirs.runs / self.time_of_init / 'scores.csv'
-        with p.open('r') as f:
-            series = pd.Series.from_csv(p, header=None)
-            for task_name in ['exp_' + task_name, 'nov_' + task_name]:
-                try:
-                    series[task_name]
-                except KeyError:
-                    return False
+        if not p.exists():  # embedder is new
+            return False
+        series = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
+        for task_name in ['exp_' + task_name, 'nov_' + task_name]:
+            try:
+                series[task_name]
+            except KeyError:
+                return False
         return True
 
     # ///////////////////////////////////////////////////////////// corpus data
