@@ -5,6 +5,10 @@ import seaborn as sns
 from src import config
 
 
+def make_nym_figs():
+    raise NotImplementedError
+
+
 def make_categorizer_figs(train_acc_traj,
                           test_acc_traj,
                           train_softmax_traj,

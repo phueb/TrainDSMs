@@ -176,7 +176,7 @@ class Categorization:
             # train
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
 
-    def train_expert_on_train_folds(self, graph, trial, data, fold_id):
+    def train_expert_on_train_fold(self, graph, trial, data, fold_id):
         x_train, y_train, x_test, y_test, train_probes, test_probes = data
         num_train_probes, num_test_probes = len(x_train), len(x_test)
         num_train_steps = num_train_probes // config.Categorization.mb_size * config.Categorization.num_epochs
@@ -312,7 +312,7 @@ class Categorization:
                 x_test = data[2]
                 y_test = data[3]
                 test_probes = data[5]
-                self.train_expert_on_train_folds(graph, trial, data, fold_id)
+                self.train_expert_on_train_fold(graph, trial, data, fold_id)
                 # add confusion mat to trial (only includes data for current fold - must be summed over folds)
                 logits = graph.sess.run(graph.logits,
                                         feed_dict={graph.x: x_test, graph.y: y_test}).astype(np.int)

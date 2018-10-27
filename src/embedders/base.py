@@ -61,7 +61,7 @@ class EmbedderBase(object):
         with p.open('a') as f:
             scores_series.to_csv(f, mode='a', header=False)
 
-    def has_task(self, task_name):
+    def has_task(self, task_name):    # TODO scores should exists num_reps times on disk
         p = config.Dirs.runs / self.time_of_init / 'scores.csv'
         if not p.exists():  # embedder is new
             return False

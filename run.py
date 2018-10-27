@@ -1,6 +1,5 @@
 import pandas as pd
 from itertools import chain
-import datetime
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
@@ -16,20 +15,18 @@ from src.tasks.nym_matching import NymMatching
 from src.utils import w2e_to_sims
 
 
-# TODO timestamps should include year
-
 embedders = chain(
+    (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
     (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
     (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
-    (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
-    # (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
+    (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
 )
 
 tasks = [
-    # NymMatching('noun', 'synonym'),
+    NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
-    Categorization('semantic'),
-    Categorization('syntactic')
+    # Categorization('semantic'),
+    # Categorization('syntactic')
 ]
 
 # run full experiment
@@ -51,7 +48,7 @@ for embedder in embedders:
     data = []
     index = []
     for task in tasks:
-        if config.Embeddings.retrain or not embedder.has_task(task.name):
+        if config.Embeddings.retrain or not embedder.has_task(task.name):  # TODO task must exist config.num_reps times
             print('---------------------------------------------')
             print('Starting task "{}"'.format(task.name))
             print('---------------------------------------------')
@@ -82,7 +79,7 @@ for embedder in embedders:
 scores_list = []
 for p in config.Dirs.runs.rglob('scores.csv'):
     scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-    scores = scores.groupby(scores.index).last()
+    scores = scores.groupby(scores.index).mean()
     scores.name = p.parent.name
     scores_list.append(scores)
 df = pd.concat(scores_list, axis=1)

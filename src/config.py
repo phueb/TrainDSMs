@@ -37,7 +37,14 @@ class Categorization:  # TODO make unique to each embedder
 
 
 class NymMatching:
-    num_distractors = 5
+    mb_size = 8
+    num_epochs = 10
+    num_evals = 10
+    num_distractors = 4
+    device = 'cpu'
+    learning_rate = 0.1
+    run_shuffled = False
+    num_folds = 6
 
 
 class Embeddings:
