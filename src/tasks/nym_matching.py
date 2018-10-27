@@ -8,8 +8,12 @@ from src.figs import make_nym_figs
 class Trial(object):
     def __init__(self, name):
         self.name = name
-        self.train_acc_trajs_p = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
-        self.test_acc_trajs_p = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
+        self.train_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
+        self.test_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
+
+
+def siamese_leg(x):
+    return x
 
 
 class NymMatching:
@@ -37,17 +41,30 @@ class NymMatching:
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
         probes, nyms = both.T
-        return probes.tolist(), nyms.tolist()
+        # remove duplicate nyms
+        if config.NymMatching.remove_duplicate_nyms:
+            keep_ids = []
+            nym_set = set()
+            num_pairs = len(both)
+            for i in range(num_pairs):
+                if nyms[i] not in nym_set:
+                    keep_ids.append(i)
+                nym_set.add(nyms[i])
+        else:
+            num_pairs = len(both)
+            keep_ids = np.arange(num_pairs)
+        return probes[keep_ids].tolist(), nyms[keep_ids].tolist()
 
     def make_distractor_nym_ids_mat(self):
         res = []
         for n in range(self.num_pairs):
             choices = [i for i in range(self.num_pairs) if i != n]
-            res.append(np.random.choice(choices, config.NymMatching.num_distractors, replace=False))
+            distractor_nym_ids = np.random.choice(choices, config.NymMatching.num_distractors, replace=False)
+            res.append(distractor_nym_ids)
         res = np.vstack(res)
         return res
 
-    def make_data(self, w2e, fold_id, shuffled):  # TODO
+    def make_data(self, w2e, fold_id, shuffled):
         # train/test split (separately for each category)
         x1_train = []
         x2_train = []
@@ -55,14 +72,14 @@ class NymMatching:
         x1_test = []
         x2_test = []
         y_test = []
-        # to ensure 1:1 ratio of correct vs incorrect match, must use a subset of distractors encountered by novice
-        for n, probes_in_fold, nyms_in_fold, distractors_in_fold in enumerate(zip(
+        # permute nyms to result in distractors without duplicates and without "overlap" (with nyms)
+        distractors = np.roll(self.nyms, 1)
+        assert np.all(distractors != self.nyms)
+        assert len(set(distractors)) == len(distractors)
+        for n, (probes_in_fold, nyms_in_fold, distractors_in_fold) in enumerate(zip(
                 np.array_split(self.probes, config.NymMatching.num_folds),
-                np.array_split(self.distractor_nym_ids_mat[:, 0], config.NymMatching.num_folds),
+                np.array_split(distractors, config.NymMatching.num_folds),
                 np.array_split(self.nyms, config.NymMatching.num_folds))):
-
-            # TODO test
-
             x1s = [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
             x2s = [w2e[p] for p in nyms_in_fold] + [w2e[p] for p in distractors_in_fold]
             ys = [1] * len(nyms_in_fold) + [0] * len(nyms_in_fold)
@@ -77,22 +94,19 @@ class NymMatching:
                 y_test += ys
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
-        y_train = np.vstack(y_train)
+        y_train = np.array(y_train)
         x1_test = np.vstack(x1_test)
         x2_test = np.vstack(x2_test)
-        y_test = np.vstack(y_test)
+        y_test = np.array(y_test)
         # shuffle x-y mapping
         if shuffled:
             print('Shuffling category assignment')
             np.random.shuffle(y_train)
         return x1_train, x2_train, y_train, x1_test, x2_test, y_test
 
-    def make_matcher_graph(self, embed_size):
+    @staticmethod
+    def make_matcher_graph(embed_size):
         class Graph:
-            @staticmethod
-            def siamese_leg(x):
-                return x
-
             with tf.Graph().as_default():
                 with tf.device('/{}:0'.format(config.NymMatching.device)):
                     # placeholders
@@ -104,19 +118,18 @@ class NymMatching:
                         o2 = siamese_leg(x2)
                     # loss
                     y = tf.placeholder(tf.float32, [None])
-                    logits = tf.abs(o1 - o2)
-                    loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)
+                    abs_dist = tf.abs(o1 - o2)
+                    logits = tf.layers.dense(abs_dist, 1)
+                    loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=tf.squeeze(logits), labels=y)
                     optimizer = tf.train.GradientDescentOptimizer(learning_rate=config.NymMatching.learning_rate)
                     step = optimizer.minimize(loss)
-                with tf.device('/cpu:0'):
-                    correct = tf.nn.in_top_k(logits, y, 1)  # TODO does this work here?
-                    num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
                 # session
                 sess = tf.Session()
                 sess.run(tf.global_variables_initializer())
+
         return Graph()
 
-    def train_and_score_expert(self, embedder):  # TODO implement
+    def train_and_score_expert(self, embedder):
         self.trials = []  # need to flush trials (because multiple embedders)
         bools = [False, True] if config.NymMatching.run_shuffled else [False]
         for shuffled in bools:
@@ -150,9 +163,7 @@ class NymMatching:
                 print(distractor_sims)
                 print('correct_sim')
                 print(correct_sim)
-
         result = num_correct / self.num_pairs
-
         print('Accuracy at {} = {:.2f}'.format(self.name, result))
         print('Chance = {:.2f}'.format(1 / (config.NymMatching.num_distractors + 1)))
 
@@ -182,17 +193,20 @@ class NymMatching:
                                                                                     num_train_probes, num_train_steps):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
-                # train accuracy
-                num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x1: x1_train,
-                                                                           graph.x2: x2_train,
-                                                                           graph.y: y_train})
-                train_acc = num_correct / float(num_train_probes)
-                trial.train_acc_trajs[eval_id, fold_id] = train_acc
-                # test accuracy
-                num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x1: x1_test,
-                                                                           graph.x2: x2_train,
-                                                                           graph.y: y_test})
-                test_acc = num_correct / float(num_test_probes)
+
+                # TODO debug
+                logits = graph.sess.run(graph.logits, feed_dict={graph.x1: x1_train,
+                                                                 graph.x2: x2_train,
+                                                                 graph.y: y_train})
+
+                print(logits)
+                print(logits.shape)
+                print(y_train)
+                print(y_train.shape)
+
+                # TODO to evaluate - need to compare all pairs
+
+
                 trial.test_acc_trajs[eval_id, fold_id] = test_acc
                 print('step {:>6,}/{:>6,} |Train Acc={:.2f} |Test Acc={:.2f}'.format(
                     step,
@@ -211,4 +225,3 @@ class NymMatching:
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))
                 print('Saved {} to {}'.format(fig_name, p))
-

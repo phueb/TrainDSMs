@@ -37,6 +37,7 @@ class Categorization:  # TODO make unique to each embedder
 
 
 class NymMatching:
+    remove_duplicate_nyms = True
     mb_size = 8
     num_epochs = 10
     num_evals = 10
