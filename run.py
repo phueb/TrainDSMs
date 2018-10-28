@@ -23,10 +23,10 @@ embedders = chain(
 )
 
 tasks = [
-    # NymMatching('noun', 'synonym'),  # TODO collapse noun and verb synonyms? (data is small)
-    # NymMatching('verb', 'synonym'),
-    Categorization('semantic'),
-    Categorization('syntactic')
+    NymMatching('noun', 'synonym'),
+    NymMatching('verb', 'synonym'),
+    # Categorization('semantic'),  # TODO build siamese expert which outputs sims to use as input to bayesian-opt procedure
+    # Categorization('syntactic')
 ]
 
 # run full experiment
@@ -67,10 +67,6 @@ for embedder in embedders:
             data.append(task.score_novice(sims))
             index.append('exp_' + task.name)
             data.append(task.train_and_score_expert(embedder))
-            # save scores
-            if config.Task.append_scores:
-                scores = pd.Series(data=data, index=index)
-                embedder.append_scores(scores)
             # figs
             if config.Task.save_figs:
                 task.save_figs(embedder)
@@ -78,7 +74,10 @@ for embedder in embedders:
             print('---------------------------------------------')
             print('Embedder has task "{}"'.format(task.name))
             print('---------------------------------------------')
-
+    # save scores
+    if config.Task.append_scores:
+        scores = pd.Series(data=data, index=index)
+        embedder.append_scores(scores)
 
 # combine scores
 scores_list = []

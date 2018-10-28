@@ -85,8 +85,9 @@ class NymMatching:
                 # assume first one is always correct nym
                 dim1 = config.NymMatching.num_distractors + 1
                 x1_test += [[w2e[p]] * dim1 for p in probes_in_fold]
-                x2_test += [[w2e[nym]] + [w2e[d] for d in distractors]
-                            for nym, distractors in zip(nyms_in_fold, distractors_mat_in_test_fold)]  # TODO test
+                x2_test += [[w2e[nym]] +
+                            [w2e[d] for d in distractors]
+                            for nym, distractors in zip(nyms_in_fold, distractors_mat_in_test_fold)]
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -101,8 +102,9 @@ class NymMatching:
     @staticmethod
     def make_matcher_graph(embed_size):
 
-        def siamese_leg(x):
-            return tf.layers.dense(x, config.NymMatching.hidden_size)
+        def siamese_leg(x, wy):
+            y = tf.matmul(x, wy)
+            return y
 
         class Graph:
             with tf.Graph().as_default():
@@ -110,9 +112,11 @@ class NymMatching:
                     # placeholders
                     x1 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
+                    # siamese
+                    wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
                     with tf.variable_scope("siamese", reuse=tf.AUTO_REUSE) as scope:
-                        o1 = siamese_leg(x1)
-                        o2 = siamese_leg(x2)
+                        o1 = siamese_leg(x1, wy)
+                        o2 = siamese_leg(x2, wy)
                     # loss
                     y = tf.placeholder(tf.float32, [None])
                     labels_t = y
@@ -123,16 +127,17 @@ class NymMatching:
 
                     # TODO use cosine dist ?
 
-
                     C = tf.constant(config.NymMatching.margin)
                     # yi*||o1-o2||^2 + (1-yi)*max(0, C-||o1-o2||^2)
                     pos = tf.multiply(labels_t, eucd2)
                     neg = tf.multiply(labels_f, tf.pow(tf.maximum(tf.subtract(C, eucd), 0), 2))
                     losses = tf.add(pos, neg)
-                    loss = tf.reduce_mean(losses)
+                    loss_no_reg = tf.reduce_mean(losses)
+                    regularizer = tf.nn.l2_loss(wy)
+                    loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
+                                          config.NymMatching.beta * regularizer)
 
-
-                    optimizer = tf.train.GradientDescentOptimizer(learning_rate=config.NymMatching.learning_rate)
+                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=config.NymMatching.learning_rate)
                     step = optimizer.minimize(loss)
                 # session
                 sess = tf.Session()
@@ -154,8 +159,11 @@ class NymMatching:
                 data = self.make_data(embedder.w2e, fold_id, shuffled)
                 self.train_expert_on_train_folds(graph, trial, data, fold_id)
             self.trials.append(trial)
-            # expert_score
-        expert_score = np.mean(self.trials[0].test_acc_trajs[-1].mean())
+        # expert_score
+        mean_test_acc_traj = self.trials[0].test_acc_trajs.mean(axis=1)
+        best_eval_id = np.argmax(mean_test_acc_traj)
+        expert_score = mean_test_acc_traj[best_eval_id]
+        print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id))
         return expert_score
 
     def score_novice(self, sims, verbose=False):
@@ -229,7 +237,7 @@ class NymMatching:
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
-    def save_figs(self, embedder):  # TODO implement
+    def save_figs(self, embedder):
         for trial in self.trials:
             # figs
             for fig, fig_name in make_nym_figs():

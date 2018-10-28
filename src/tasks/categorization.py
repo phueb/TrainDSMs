@@ -284,7 +284,7 @@ class Categorization:
             false_col = [False for p in self.probes]
             feature_diagnosticity_mat = np.zeros((self.num_cats, embedder.dim1))
             pbar = pyprind.ProgBar(embedder.dim1)
-            print('Making feature_diagnosticity_mat...')  # TODO parallelize
+            print('Making feature_diagnosticity_mat...')
             for col_id, col in enumerate(probe_embed_mat.T):
                 pbar.update()
                 for cat_id, cat in enumerate(self.cats):
@@ -351,7 +351,10 @@ class Categorization:
             trial.expert_probe_results = trial.test_softmax_probs[:, -1, :].mean(axis=1)  # 2d after slicing
             self.trials.append(trial)
         # expert_score
-        expert_score = np.mean(self.trials[0].test_acc_trajs[-1].mean())
+        mean_test_acc_traj = self.trials[0].test_acc_trajs.mean(axis=1)
+        best_eval_id = np.argmax(mean_test_acc_traj)
+        expert_score = mean_test_acc_traj[best_eval_id]
+        print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id + 1))
         return expert_score
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):

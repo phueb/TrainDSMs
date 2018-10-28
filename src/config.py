@@ -10,10 +10,10 @@ class Dirs:
 
 class Task:
     vocab_sizes = [4096, 8192, 16384]
-    retrain = False
-    clear_scores = False
-    append_scores = False
-    save_figs = True
+    retrain = True
+    clear_scores = True
+    append_scores = True
+    save_figs = False
 
 
 class Categorization:  # TODO make unique to each embedder
@@ -29,7 +29,7 @@ class Categorization:  # TODO make unique to each embedder
     run_shuffled = False
     device = 'cpu'
     num_folds = 6  # also determines number of examples in test vs. train splits
-    num_epochs = 5  # 500
+    num_epochs = 500  # 500
     num_evals = 10
     mb_size = 8
     log_freq = False
@@ -41,21 +41,23 @@ class Categorization:  # TODO make unique to each embedder
     num_diagnosticity_steps = 50
 
 
-class NymMatching:
+class NymMatching:  # TODO embedder-dependent
     """
     SGD
-    cbow: lr=0.00001 + mb_size=2 + num_hiddens=128 + margin=100.0
-    lstm:
+    cbow: lr=0.00001 + mb_size=2 + num_output=128 + margin=100.0
+    AdaDelta
+    srn: lr=0.00001 + mb_size=2 + num_output=128 + margin=100.0 + beta=0.2
     """
-    margin = 100.0  # must be float and MUST be at least 40 or so  # TODO this is probably embedder-dependent
+    margin = 100.0  # must be float and MUST be at least 40 or so
     remove_duplicate_nyms = True
-    hidden_size = 128
+    beta = 0.3
+    num_output = 128
     mb_size = 2
     num_epochs = 500
     num_evals = 10
     num_distractors = 4
     device = 'cpu'
-    learning_rate = 0.00001
+    learning_rate = 0.1
     run_shuffled = False
     num_folds = 4
 
