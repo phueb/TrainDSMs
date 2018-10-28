@@ -56,6 +56,11 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
+    def clear_scores(self):
+        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
+        if p.exists():
+            p.unlink()
+
     def append_scores(self, scores_series):
         p = config.Dirs.runs / self.time_of_init / 'scores.csv'
         with p.open('a') as f:

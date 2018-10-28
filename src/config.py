@@ -8,8 +8,10 @@ class Dirs:
     runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))
 
 
-class TaskData:
+class Task:
     vocab_sizes = [4096, 8192, 16384]
+    retrain = False
+    clear_scores = True
 
 
 class Categorization:  # TODO make unique to each embedder
@@ -37,15 +39,22 @@ class Categorization:  # TODO make unique to each embedder
 
 
 class NymMatching:
+    """
+    SGD
+    cbow: lr=0.00001 + mb_size=2 + num_hiddens=128 + margin=100.0
+    lstm:
+    """
+    margin = 100.0  # must be float and MUST be at least 40 or so  # TODO this is probably embedder-dependent
     remove_duplicate_nyms = True
-    mb_size = 8
-    num_epochs = 10
+    hidden_size = 128
+    mb_size = 2
+    num_epochs = 500
     num_evals = 10
     num_distractors = 4
     device = 'cpu'
-    learning_rate = 0.1
+    learning_rate = 0.00001
     run_shuffled = False
-    num_folds = 6
+    num_folds = 4
 
 
 class Embeddings:

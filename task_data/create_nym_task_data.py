@@ -82,7 +82,7 @@ async def get_nyms(w):
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
-    for vocab_size in config.TaskData.vocab_sizes:
+    for vocab_size in config.Task.vocab_sizes:
         vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         assert len(vocab) == vocab_size
         probes = []

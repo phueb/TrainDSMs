@@ -6,7 +6,7 @@ from src import config
 
 
 def make_nym_figs():
-    raise NotImplementedError
+    return []
 
 
 def make_categorizer_figs(train_acc_traj,

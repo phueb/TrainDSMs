@@ -1,8 +1,6 @@
-nov_semantic_categorization,0.7140581453728446
-exp_semantic_categorization,0.4573594970010741
-nov_syntactic_categorization,0.674142583383404
-exp_syntactic_categorization,0.8157610907610907
-nov_semantic_categorization,0.713813459256844
-exp_semantic_categorization,0.4673471013255959
-nov_syntactic_categorization,0.6713328654467052
-exp_syntactic_categorization,0.8217134717134716
+nov_noun_synonym_matching,0.5904761904761905
+exp_noun_synonym_matching,0.5701566951566951
+nov_noun_synonym_matching,0.5904761904761905
+exp_noun_synonym_matching,0.5701566951566951
+nov_verb_synonym_matching,0.5045454545454545
+exp_verb_synonym_matching,0.4318181818181818

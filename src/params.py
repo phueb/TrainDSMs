@@ -88,7 +88,7 @@ class Word2VecParams:
     # w2vec_type = ['cbow', 'sg']
     w2vec_type = ['cbow']
     # embed_size = [32, 512]
-    embed_size = [32]
+    embed_size = [256]
     window_size = [7]
     num_epochs = [20]
 

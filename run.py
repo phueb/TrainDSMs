@@ -16,15 +16,15 @@ from src.utils import w2e_to_sims
 
 
 embedders = chain(
-    (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
-    (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
     (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
+    (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
+    (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
 )
 
 tasks = [
-    NymMatching('noun', 'synonym'),
-    # NymMatching('verb', 'synonym'),
+    NymMatching('noun', 'synonym'),  # TODO collapse noun and verb synonyms? (data is small)
+    NymMatching('verb', 'synonym'),
     # Categorization('semantic'),
     # Categorization('syntactic')
 ]
@@ -44,11 +44,14 @@ for embedder in embedders:
         print('Found embeddings at {}'.format(config.Dirs.runs / embedder.time_of_init))
         print('==========================================================================')
         embedder.load_w2e()
+    print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # tasks
+    if config.Task.clear_scores:
+        embedder.clear_scores()
     data = []
     index = []
     for task in tasks:
-        if config.Embeddings.retrain or not embedder.has_task(task.name):  # TODO task must exist config.num_reps times
+        if config.Task.retrain or not embedder.has_task(task.name):  # TODO task must exist config.num_reps times
             print('---------------------------------------------')
             print('Starting task "{}"'.format(task.name))
             print('---------------------------------------------')
