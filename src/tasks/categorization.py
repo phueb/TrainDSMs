@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
+import pyprind
 
 from src import config
 from src.figs import make_categorizer_figs
@@ -221,7 +222,7 @@ class Categorization:
 
             # TODO change to relation network
 
-    def save_figs(self, time_of_init):
+    def save_figs(self, embedder):
         for trial in self.trials:
             # aggregate over folds
             average_x_mat = np.sum(trial.x_mat, axis=2)
@@ -275,8 +276,32 @@ class Categorization:
                 cat2expert_result[cat].append(exp_acc)
             novice_results_by_cat = [np.mean(cat2novice_result[cat]) for cat in self.cats]
             expert_results_by_cat = [np.mean(cat2expert_result[cat]) for cat in self.cats]
+            # feature diagnosticity about category membership
+            probe_embed_mat = np.zeros((self.num_probes, embedder.dim1))
+            for n, p in enumerate(self.probes):
+                probe_embed_mat[n] = embedder.w2e[p]
+            true_col = [True for p in self.probes]
+            false_col = [False for p in self.probes]
+            feature_diagnosticity_mat = np.zeros((self.num_cats, embedder.dim1))
+            pbar = pyprind.ProgBar(embedder.dim1)
+            print('Making feature_diagnosticity_mat...')  # TODO parallelize
+            for col_id, col in enumerate(probe_embed_mat.T):
+                pbar.update()
+                for cat_id, cat in enumerate(self.cats):
+                    target_col = [True if p in self.cat2probes[cat] else False for p in self.probes]
+                    last_f1 = 0.0
+                    for thr in np.linspace(np.min(col), np.max(col), num=config.Categorization.num_diagnosticity_steps):
+                        thr_col = col > thr
+                        tp = np.sum((thr_col == target_col) & (thr_col == true_col))   # tp
+                        fp = np.sum((thr_col != target_col) & (thr_col == true_col))   # fp
+                        fn = np.sum((thr_col != target_col) & (thr_col == false_col))  # fn
+                        f1 = (2 * tp) / (2 * tp + fp + fn)
+                        if f1 > last_f1:
+                            feature_diagnosticity_mat[cat_id, col_id] = f1
+                            last_f1 = f1
             # figs
-            for fig, fig_name in make_categorizer_figs(train_acc_traj,
+            for fig, fig_name in make_categorizer_figs(feature_diagnosticity_mat,
+                                                       train_acc_traj,
                                                        test_acc_traj,
                                                        train_softmax_traj,
                                                        test_softmax_traj,
@@ -290,7 +315,7 @@ class Categorization:
                                                        cat2test_evals_to_criterion,
                                                        cat2trained_test_evals_to_criterion,
                                                        self.cats):
-                p = config.Dirs.runs / time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
+                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))

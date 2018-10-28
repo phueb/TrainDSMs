@@ -229,11 +229,11 @@ class NymMatching:
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
-    def save_figs(self, time_of_init):  # TODO implement
+    def save_figs(self, embedder):  # TODO implement
         for trial in self.trials:
             # figs
             for fig, fig_name in make_nym_figs():
-                p = config.Dirs.runs / time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
+                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))

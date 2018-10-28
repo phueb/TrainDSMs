@@ -11,7 +11,9 @@ class Dirs:
 class Task:
     vocab_sizes = [4096, 8192, 16384]
     retrain = False
-    clear_scores = True
+    clear_scores = False
+    append_scores = False
+    save_figs = True
 
 
 class Categorization:  # TODO make unique to each embedder
@@ -21,13 +23,13 @@ class Categorization:  # TODO make unique to each embedder
     ww ppmi svd-200: lr=0.1 + mb_size=8 + num_hiddens=64 + beta=0.0 - CANNOT LEARN WITH REGULARIZATION
     """
     # novice
-    num_opt_steps = 3
+    num_opt_steps = 1
     # expert
     beta = 0.0
     run_shuffled = False
     device = 'cpu'
     num_folds = 6  # also determines number of examples in test vs. train splits
-    num_epochs = 500
+    num_epochs = 5  # 500
     num_evals = 10
     mb_size = 8
     log_freq = False
@@ -36,6 +38,7 @@ class Categorization:  # TODO make unique to each embedder
     # figs
     softmax_criterion = 0.5
     num_bins = 10
+    num_diagnosticity_steps = 50
 
 
 class NymMatching:

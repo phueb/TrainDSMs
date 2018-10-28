@@ -23,10 +23,10 @@ embedders = chain(
 )
 
 tasks = [
-    NymMatching('noun', 'synonym'),  # TODO collapse noun and verb synonyms? (data is small)
-    NymMatching('verb', 'synonym'),
-    # Categorization('semantic'),
-    # Categorization('syntactic')
+    # NymMatching('noun', 'synonym'),  # TODO collapse noun and verb synonyms? (data is small)
+    # NymMatching('verb', 'synonym'),
+    Categorization('semantic'),
+    Categorization('syntactic')
 ]
 
 # run full experiment
@@ -68,10 +68,12 @@ for embedder in embedders:
             index.append('exp_' + task.name)
             data.append(task.train_and_score_expert(embedder))
             # save scores
-            scores = pd.Series(data=data, index=index)
-            embedder.append_scores(scores)
+            if config.Task.append_scores:
+                scores = pd.Series(data=data, index=index)
+                embedder.append_scores(scores)
             # figs
-            task.save_figs(embedder.time_of_init)
+            if config.Task.save_figs:
+                task.save_figs(embedder)
         else:
             print('---------------------------------------------')
             print('Embedder has task "{}"'.format(task.name))
