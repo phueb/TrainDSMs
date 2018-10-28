@@ -71,7 +71,7 @@ class EmbedderBase(object):
         if not p.exists():  # embedder is new
             return False
         series = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-        for task_name in ['exp_' + task_name, 'nov_' + task_name]:
+        for task_name in [task_name + '_exp', task_name + '_nov']:
             try:
                 series[task_name]
             except KeyError:

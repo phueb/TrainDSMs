@@ -63,9 +63,9 @@ for embedder in embedders:
             sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
             print('Shape of similarity matrix: {}'.format(sims.shape))
             # score
-            index.append('nov_' + task.name)
+            index.append(task.name + '_nov')
             data.append(task.score_novice(sims))
-            index.append('exp_' + task.name)
+            index.append(task.name + '_exp')
             data.append(task.train_and_score_expert(embedder))
             # figs
             if config.Task.save_figs:

@@ -184,9 +184,7 @@ class NymMatching:
                 print('correct_sim')
                 print(correct_sim)
         result = num_correct / self.num_pairs
-        print('Accuracy at {} = {:.2f}'.format(self.name, result))
-        print('Chance = {:.2f}'.format(1 / (config.NymMatching.num_distractors + 1)))
-
+        print('Novice Accuracy={:.2f} (chance={:.2f}'.format(result, 1 / (config.NymMatching.num_distractors + 1)))
         return result
 
     @staticmethod
