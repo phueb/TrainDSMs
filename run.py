@@ -31,9 +31,10 @@ tasks = [
     # CatMEmberVer('semantic'),
     # CatMEmberVer('syntactic')
     NymMatching('noun', 'antonym'),
+    # NymMatching('adjective', 'antonym'),  # TODO test adjectives
     # NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
-    # Categorization('semantic'),  # TODO make cat_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
+    # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
     # Categorization('syntactic')
 ]
 
@@ -72,7 +73,7 @@ for embedder in embedders:
             print('Shape of similarity matrix: {}'.format(sims.shape))
             # score
             index.append(task.name + '_nov')
-            data.append(task.score_novice(sims))
+            data.append(task.score_novice(sims))  # TODO where to save shuffled trial results?
             index.append(task.name + '_exp')
             data.append(task.train_and_score_expert(embedder))
             # figs

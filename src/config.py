@@ -74,7 +74,7 @@ class NymMatching:  # TODO embedder-dependent
     num_distractors = 4
     device = 'cpu'
     learning_rate = 0.1
-    run_shuffled = False
+    run_shuffled = True
     num_folds = 4
 
 

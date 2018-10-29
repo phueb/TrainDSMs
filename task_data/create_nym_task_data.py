@@ -10,8 +10,8 @@ from src import config
 from src.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
-NYM_TYPE = 'antonym'  # TODO test antonym
-POS = 'noun'
+NYM_TYPE = 'antonym'
+POS = 'adj'  # noun, verb, adj (not adjective)
 LEMMATIZE = True
 NUM_NYMS = 5
 VERBOSE = True
@@ -32,7 +32,8 @@ EXCLUDED = {'verb': ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
                      'rex', 'fix', 'ugh', 'fred', 'pussy', 'mot', 'um', 'oop',
                      'sh', 'pail', 'mr', 'will', 'fill', 'snapping', 'meg',
                      'victor', 'joe', 'foo', 'wait', 'phooey', 'ninny', 'sonny',
-                     'valentine', 'po', 'moira']}
+                     'valentine', 'po', 'moira'],
+            'adj': []}
 
 
 async def get_nyms(w):
@@ -52,7 +53,7 @@ async def fetch(session, w, verbose=VERBOSE):
         return await response.text()
 
 
-def scrape_nyms(page, w, verbose=VERBOSE):  # TODO remove antonym scraping? - collapse all POS for antonyms
+def scrape_nyms(page, w, verbose=VERBOSE):  # TODO collapse all POS for antonyms?
     if verbose:
         print('\nScraping {}s for "{}"'.format(NYM_TYPE, w))
     soup = BeautifulSoup(page, 'lxml')

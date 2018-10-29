@@ -101,7 +101,7 @@ class NymMatching:
         return x1_train, x2_train, y_train, x1_test, x2_test
 
     @staticmethod
-    def make_graph(embed_size):
+    def make_graph(embed_size, shuffled):
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -115,8 +115,8 @@ class NymMatching:
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     y = tf.placeholder(tf.float32, [None])
                     # siamese
-                    wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
-                    with tf.variable_scope("siamese", reuse=tf.AUTO_REUSE) as scope:
+                    with tf.variable_scope('siamese_{}'.format(shuffled), reuse=tf.AUTO_REUSE) as scope:
+                        wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
                         o1 = siamese_leg(x1, wy)
                         o2 = siamese_leg(x2, wy)
                     # loss
@@ -151,7 +151,7 @@ class NymMatching:
                 print('Fold {}/{}'.format(fold_id + 1, config.NymMatching.num_folds))
                 print('Training nym_matching expert {}...'.format(
                     'with shuffled in-out mapping' if shuffled else ''))
-                graph = self.make_graph(embedder.dim1)
+                graph = self.make_graph(embedder.dim1, shuffled)
                 data = self.make_data(embedder.w2e, fold_id, shuffled)
                 self.train_expert_on_train_fold(graph, trial, data, fold_id)
             self.trials.append(trial)
