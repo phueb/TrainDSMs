@@ -36,7 +36,8 @@ class NymMatching:
         return self.nyms
 
     def load_data(self):
-        p = config.Dirs.tasks / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / '{}_{}s'.format(self.pos, self.nym_type) / '{}_{}.txt'.format(
+            config.Corpus.name, config.Corpus.num_vocab)
         print('Loading {}'.format(p))
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
@@ -237,5 +238,5 @@ class NymMatching:
                 print('correct_sim')
                 print(correct_sim)
         result = num_correct / self.num_pairs
-        print('Novice Accuracy={:.2f} (chance={:.2f}'.format(result, 1 / (config.NymMatching.num_distractors + 1)))
+        print('Novice Accuracy={:.2f} (chance={:.2f})'.format(result, 1 / (config.NymMatching.num_distractors + 1)))
         return result

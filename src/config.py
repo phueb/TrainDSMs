@@ -11,8 +11,8 @@ class Dirs:
 class Task:
     vocab_sizes = [4096, 8192, 16384]
     retrain = True
-    clear_scores = True
-    append_scores = True
+    clear_scores = False
+    append_scores = False
     save_figs = False
 
 

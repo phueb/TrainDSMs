@@ -28,8 +28,9 @@ embedders = chain(
 # a matching task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
-    CatMEmberVer('semantic'),
-    CatMEmberVer('syntactic')
+    # CatMEmberVer('semantic'),
+    # CatMEmberVer('syntactic')
+    NymMatching('noun', 'antonym'),
     # NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
     # Categorization('semantic'),  # TODO make cat_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
