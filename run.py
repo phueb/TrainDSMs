@@ -30,8 +30,8 @@ embedders = chain(
 tasks = [
     # CatMEmberVer('semantic'),
     # CatMEmberVer('syntactic')
-    NymMatching('noun', 'antonym'),
-    # NymMatching('adjective', 'antonym'),  # TODO test adjectives
+    # NymMatching('noun', 'antonym'),
+    NymMatching('adj', 'antonym'),
     # NymMatching('noun', 'synonym'),
     # NymMatching('verb', 'synonym'),
     # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
