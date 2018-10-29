@@ -10,6 +10,7 @@ from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
 from src.tasks.categorization import Categorization
+from src.tasks.category_member_verification import CatMEmberVer
 from src.tasks.nym_matching import NymMatching
 
 from src.utils import w2e_to_sims
@@ -22,10 +23,16 @@ embedders = chain(
     (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
 )
 
+
+# a verification task consists of 2 words that either belong together or not.
+# a matching task consists of a word and multiple candidate words where only one candidate belongs with test word.
+
 tasks = [
-    NymMatching('noun', 'synonym'),
-    NymMatching('verb', 'synonym'),
-    # Categorization('semantic'),  # TODO build siamese expert which outputs sims to use as input to bayesian-opt procedure
+    CatMEmberVer('semantic'),
+    CatMEmberVer('syntactic')
+    # NymMatching('noun', 'synonym'),
+    # NymMatching('verb', 'synonym'),
+    # Categorization('semantic'),  # TODO make cat_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
     # Categorization('syntactic')
 ]
 

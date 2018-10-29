@@ -53,7 +53,7 @@ class Categorization:
         return self.probes
 
     def load_data(self):
-        p = config.Dirs.tasks / self.name / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
         probes, cats = both.T
@@ -219,9 +219,6 @@ class Categorization:
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
 
-
-            # TODO change to relation network
-
     def save_figs(self, embedder):
         for trial in self.trials:
             # aggregate over folds
@@ -358,75 +355,5 @@ class Categorization:
         return expert_score
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):
-        if probe_cats is None:
-            probe_cats = []
-            for p, cat in zip(self.probes, self.probe_cats):
-                probe_cats.append(cat)
-        assert len(probe_cats) == len(self.probes) == len(probe_sims)
 
-        def calc_p_and_r(thr):
-            num_probes = len(probe_sims)
-            hits = np.zeros(num_probes, float)
-            misses = np.zeros(num_probes, float)
-            fas = np.zeros(num_probes, float)
-            crs = np.zeros(num_probes, float)
-            # calc hits, misses, false alarms, correct rejections
-            for i in range(num_probes):
-                cat1 = probe_cats[i]
-                for j in range(num_probes):
-                    if i != j:
-                        cat2 = probe_cats[j]
-                        sim = probe_sims[i, j]
-                        if cat1 == cat2:
-                            if sim > thr:
-                                hits[i] += 1
-                            else:
-                                misses[i] += 1
-                        else:
-                            if sim > thr:
-                                fas[i] += 1
-                            else:
-                                crs[i] += 1
-            avg_probe_recall_list = np.divide(hits + 1, (hits + misses + 1))  # + 1 prevents inf and nan
-            avg_probe_precision_list = np.divide(crs + 1, (crs + fas + 1))
-            return avg_probe_precision_list, avg_probe_recall_list
-
-        def calc_probes_fs(thr, mean=True):
-            precision, recall = calc_p_and_r(thr)
-            probe_fs_list = 2 * (precision * recall) / (precision + recall)  # f1-score
-            if mean:
-                return np.mean(probe_fs_list)
-            else:
-                return probe_fs_list
-
-        def calc_probes_ba(thr, mean=True):
-            precision, recall = calc_p_and_r(thr)
-            probe_ba_list = (precision + recall) / 2  # balanced accuracy
-            if mean:
-                return np.mean(probe_ba_list)
-            else:
-                return probe_ba_list
-
-        # make thr range
-        test_word_sims_mean = np.asscalar(np.mean(probe_sims))
-        thr1 = max(0.0, round(min(0.9, round(test_word_sims_mean, 2)) - 0.1, 2))  # don't change
-        thr2 = round(thr1 + 0.2, 2)
-        # use bayes optimization to find best_thr
-        print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
-        gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
-        if metric == 'fs':
-            fn = calc_probes_fs
-        elif metric == 'ba':
-            fn = calc_probes_ba
-        else:
-            raise AttributeError('rnnlab: Invalid arg to "metric".')
-        bo = BayesianOptimization(fn, {'thr': (thr1, thr2)}, verbose=True)
-        bo.explore({'thr': [test_word_sims_mean]})
-        bo.maximize(init_points=2, n_iter=config.Categorization.num_opt_steps,
-                    acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
-        best_thr = bo.res['max']['max_params']['thr']
-        # use best_thr
-        results = fn(best_thr, mean=False)
-        self.novice_probe_results = results
-        result = np.mean(results)
-        return result
+        raise NotImplementedError  # TODO for each probe, correct categorization is if sim (p, cat label) > all sim (p, non-cat label)

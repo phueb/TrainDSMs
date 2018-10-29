@@ -9,7 +9,7 @@ CORPUS_NAME = 'childes-20180319'
 if __name__ == '__main__':
     for vocab_size in config.Task.vocab_sizes:
         vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
-        for task_name in ['semantic_categorization', 'syntactic_categorization']:
+        for task_name in ['semantic_categories', 'syntactic_categories']:
             # load all probes
             in_path = config.Dirs.tasks / task_name / 'complete.txt'
             probes, cats = np.loadtxt(in_path, dtype='str').T

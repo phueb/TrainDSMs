@@ -16,6 +16,22 @@ class Task:
     save_figs = False
 
 
+class CatMEmberVer:
+    # novice
+    num_opt_steps = 3
+    # expert
+    run_shuffled = False
+    num_epochs = 100
+    mb_size = 8
+    device = 'cpu'
+    num_output = 128
+    margin = 100.0  # TODO
+    beta = 0.2  # TODO
+    learning_rate = 0.1
+    num_evals = 10
+    num_folds = 2
+
+
 class Categorization:  # TODO make unique to each embedder
     """
     Adadelta

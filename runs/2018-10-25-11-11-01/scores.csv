@@ -1,4 +1,4 @@
-nov_noun_synonym_matching,0.4666666666666667
-exp_noun_synonym_matching,0.4772079772079772
-nov_verb_synonym_matching,0.37272727272727274
-exp_verb_synonym_matching,0.41363636363636364
+noun_synonym_matching_nov,0.49523809523809526
+noun_synonym_matching_exp,0.44693732193732194
+verb_synonym_matching_nov,0.39545454545454545
+verb_synonym_matching_exp,0.37272727272727274

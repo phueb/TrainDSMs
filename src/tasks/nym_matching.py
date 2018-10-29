@@ -66,7 +66,7 @@ class NymMatching:
         return res
 
     def make_data(self, w2e, fold_id, shuffled):
-        # train/test split (separately for each category)
+        # train/test split
         x1_train = []
         x2_train = []
         y_train = []
@@ -100,7 +100,7 @@ class NymMatching:
         return x1_train, x2_train, y_train, x1_test, x2_test
 
     @staticmethod
-    def make_matcher_graph(embed_size):
+    def make_graph(embed_size):
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -112,21 +112,18 @@ class NymMatching:
                     # placeholders
                     x1 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
+                    y = tf.placeholder(tf.float32, [None])
                     # siamese
                     wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
                     with tf.variable_scope("siamese", reuse=tf.AUTO_REUSE) as scope:
                         o1 = siamese_leg(x1, wy)
                         o2 = siamese_leg(x2, wy)
                     # loss
-                    y = tf.placeholder(tf.float32, [None])
                     labels_t = y
                     labels_f = tf.subtract(1.0, y)
                     eucd2 = tf.pow(tf.subtract(o1, o2), 2)
                     eucd2 = tf.reduce_sum(eucd2, 1)
                     eucd = tf.sqrt(eucd2 + 1e-6)
-
-                    # TODO use cosine dist ?
-
                     C = tf.constant(config.NymMatching.margin)
                     # yi*||o1-o2||^2 + (1-yi)*max(0, C-||o1-o2||^2)
                     pos = tf.multiply(labels_t, eucd2)
@@ -136,13 +133,11 @@ class NymMatching:
                     regularizer = tf.nn.l2_loss(wy)
                     loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
                                           config.NymMatching.beta * regularizer)
-
                     optimizer = tf.train.AdadeltaOptimizer(learning_rate=config.NymMatching.learning_rate)
                     step = optimizer.minimize(loss)
                 # session
                 sess = tf.Session()
                 sess.run(tf.global_variables_initializer())
-
         return Graph()
 
     def train_and_score_expert(self, embedder):
@@ -155,9 +150,9 @@ class NymMatching:
                 print('Fold {}/{}'.format(fold_id + 1, config.NymMatching.num_folds))
                 print('Training nym_matching expert {}...'.format(
                     'with shuffled in-out mapping' if shuffled else ''))
-                graph = self.make_matcher_graph(embedder.dim1)
+                graph = self.make_graph(embedder.dim1)
                 data = self.make_data(embedder.w2e, fold_id, shuffled)
-                self.train_expert_on_train_folds(graph, trial, data, fold_id)
+                self.train_expert_on_train_fold(graph, trial, data, fold_id)
             self.trials.append(trial)
         # expert_score
         mean_test_acc_traj = self.trials[0].test_acc_trajs.mean(axis=1)
@@ -165,6 +160,64 @@ class NymMatching:
         expert_score = mean_test_acc_traj[best_eval_id]
         print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id))
         return expert_score
+
+    @staticmethod
+    def generate_random_train_batches(x1, x2, y, num_probes, num_steps):
+        random_choices = np.random.choice(num_probes, config.NymMatching.mb_size * num_steps)
+        row_ids_list = np.split(random_choices, num_steps)
+        for n, row_ids in enumerate(row_ids_list):
+            assert len(row_ids) == config.NymMatching.mb_size
+            x1_batch = x1[row_ids]
+            x2_batch = x2[row_ids]
+            y_batch = y[row_ids]
+            yield n, x1_batch, x2_batch, y_batch
+
+    def train_expert_on_train_fold(self, graph, trial, data, fold_id):
+        x1_train, x2_train, y_train, x1_test, x2_test = data
+        num_train_probes, num_test_probes = len(x1_train), len(x1_test)
+        num_train_steps = num_train_probes // config.NymMatching.mb_size * config.NymMatching.num_epochs
+        eval_interval = num_train_steps // config.NymMatching.num_evals
+        eval_steps = np.arange(0, num_train_steps + eval_interval,
+                               eval_interval)[:config.NymMatching.num_evals].tolist()  # equal sized intervals
+        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
+        # training and eval
+        for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,
+                                                                                    num_train_probes, num_train_steps):
+            if step in eval_steps:
+                eval_id = eval_steps.index(step)
+                # train loss - can't evaluate accuracy because training requires 1:1 match vs. non-match
+                train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
+                                                                   graph.x2: x2_train,
+                                                                   graph.y: y_train})
+
+                # test acc - use multiple x2 (unlike training)
+                num_correct_test = 0
+                for x1_mat, x2_mat in zip(x1_test, x2_test):
+                    y = np.array([1] + [0] * config.NymMatching.num_distractors)  # TODO not needed?
+                    eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
+                                                                 graph.x2: x2_mat,
+                                                                 graph.y: y})
+                    if np.argmin(eucd) == 0:  # first one is always nym
+                        num_correct_test += 1
+                test_acc = num_correct_test / num_test_probes
+                trial.test_acc_trajs[eval_id, fold_id] = test_acc
+                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f}'.format(
+                    step,
+                    num_train_steps - 1,
+                    train_loss,
+                    test_acc))
+            # train
+            graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
+
+    def save_figs(self, embedder):
+        for trial in self.trials:
+            # figs
+            for fig, fig_name in make_nym_figs():
+                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
+                if not p.parent.exists():
+                    p.parent.mkdir(parents=True)
+                fig.savefig(str(p))
+                print('Saved {} to {}'.format(fig_name, p))
 
     def score_novice(self, sims, verbose=False):
         """
@@ -186,61 +239,3 @@ class NymMatching:
         result = num_correct / self.num_pairs
         print('Novice Accuracy={:.2f} (chance={:.2f}'.format(result, 1 / (config.NymMatching.num_distractors + 1)))
         return result
-
-    @staticmethod
-    def generate_random_train_batches(x1, x2, y, num_probes, num_steps):
-        random_choices = np.random.choice(num_probes, config.NymMatching.mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == config.NymMatching.mb_size
-            x1_batch = x1[row_ids]
-            x2_batch = x2[row_ids]
-            y_batch = y[row_ids]
-            yield n, x1_batch, x2_batch, y_batch
-
-    def train_expert_on_train_folds(self, graph, trial, data, fold_id):
-        x1_train, x2_train, y_train, x1_test, x2_test = data
-        num_train_probes, num_test_probes = len(x1_train), len(x1_test)
-        num_train_steps = num_train_probes // config.NymMatching.mb_size * config.NymMatching.num_epochs
-        eval_interval = num_train_steps // config.NymMatching.num_evals
-        eval_steps = np.arange(0, num_train_steps + eval_interval,
-                               eval_interval)[:config.NymMatching.num_evals].tolist()  # equal sized intervals
-        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
-        # training and eval
-        for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,
-                                                                                    num_train_probes, num_train_steps):
-            if step in eval_steps:
-                eval_id = eval_steps.index(step)
-                # train loss - can't evaluate accuracy because training requires 1:1 match vs. non-match
-                train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
-                                                                   graph.x2: x2_train,
-                                                                   graph.y: y_train})
-
-                # test acc - for each x1, use multiple x2 (unlike training)
-                num_correct_test = 0
-                for x1_mat, x2_mat in zip(x1_test, x2_test):
-                    y = np.array([1] + [0] * config.NymMatching.num_distractors)
-                    eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
-                                                                 graph.x2: x2_mat,
-                                                                 graph.y: y})
-                    if np.argmin(eucd) == 0:
-                        num_correct_test += 1
-                test_acc = num_correct_test / num_test_probes
-                trial.test_acc_trajs[eval_id, fold_id] = test_acc
-                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f}'.format(
-                    step,
-                    num_train_steps - 1,
-                    train_loss,
-                    test_acc))
-            # train
-            graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
-
-    def save_figs(self, embedder):
-        for trial in self.trials:
-            # figs
-            for fig, fig_name in make_nym_figs():
-                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                fig.savefig(str(p))
-                print('Saved {} to {}'.format(fig_name, p))

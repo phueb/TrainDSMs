@@ -10,6 +10,10 @@ def make_nym_figs():
     return []
 
 
+def make_cat_member_verification_figs():
+    return []
+
+
 def make_categorizer_figs(feature_diagnosticity_mat,
                           train_acc_traj,
                           test_acc_traj,
