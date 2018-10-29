@@ -21,8 +21,8 @@ class CatMEmberVer:
     num_opt_steps = 3
     # expert
     run_shuffled = False
-    num_epochs = 100
-    mb_size = 8
+    num_epochs = 500  # TODO loss is still decreasing - add more epochs
+    mb_size = 4
     device = 'cpu'
     num_output = 128
     margin = 100.0  # TODO
