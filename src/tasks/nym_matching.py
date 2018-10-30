@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from scipy.stats import norm
+from scipy.stats import norm, binom
 
 from src import config
 from src.figs import make_nym_figs
@@ -103,7 +103,7 @@ class NymMatching:
         return x1_train, x2_train, y_train, x1_test, x2_test
 
     @staticmethod
-    def make_graph(embed_size, shuffled):
+    def make_graph(embed_size, shuffled):  # TODO if multiple trials, need to rename scope each time
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -204,7 +204,10 @@ class NymMatching:
                 test_acc = num_correct_test / num_test_probes
                 trial.test_acc_trajs[eval_id, fold_id] = test_acc
                 print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f} p={:.4f}'.format(
-                    step, num_train_steps - 1, train_loss, test_acc, self.pval(test_acc)))
+                    step,
+                    num_train_steps - 1,
+                    train_loss, test_acc,
+                    self.pval(test_acc, n=num_test_probes)))
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
@@ -218,18 +221,13 @@ class NymMatching:
                 fig.savefig(str(p))
                 print('Saved {} to {}'.format(fig_name, p))
 
-    def pval(self, prop):
+    def pval(self, prop, n):
         """
         calculates probability that the null-hypothesis is true (that chance explains observed data).
         assumes that proportion of correct responses is binomially distributed
-        calculates pval using normal approximation of binomial distribution with continuity correction
         """
-        z_left = (prop - self.chance - 0.5 / self.num_pairs) / \
-                 np.sqrt(self.chance * (1 - self.chance) / self.num_pairs)
-        z_right = (prop - self.chance + 0.5 / self.num_pairs) / \
-                  np.sqrt(self.chance * (1 - self.chance) / self.num_pairs)
-        pval = norm.cdf(z_right) - norm.cdf(z_left)
-        return pval
+        pval_binom = 1 - binom.cdf(k=prop * n, n=n, p=self.chance)
+        return pval_binom
 
     def score_novice(self, sims, verbose=False):
         """
@@ -249,5 +247,8 @@ class NymMatching:
                 print('correct_sim')
                 print(correct_sim)
         result = num_correct / self.num_pairs
-        print('Novice Accuracy={:.2f} (chance={:.2f}, p={:.4f})'.format(result, self.chance, self.pval(result)))
+        print('Novice Accuracy={:.2f} (chance={:.2f}, p={:.4f})'.format(
+            result,
+            self.chance,
+            self.pval(result, n=self.num_pairs)))
         return result

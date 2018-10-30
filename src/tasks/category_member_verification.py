@@ -96,7 +96,7 @@ class CatMEmberVer:
         return x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids
 
     @staticmethod
-    def make_graph(embed_size, shuffled):
+    def make_graph(embed_size, shuffled):  # TODO if multiple trials, need to rename scope each time
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -146,7 +146,7 @@ class CatMEmberVer:
                 print('Fold {}/{}'.format(fold_id + 1, Params.num_folds))
                 print('Training {} expert {}...'.format(
                     self.name, 'with shuffled in-out mapping' if shuffled else ''))
-                graph = self.make_graph(embedder.dim1)
+                graph = self.make_graph(embedder.dim1, shuffled)
                 data = self.make_data(embedder.w2e, fold_id, shuffled)
                 self.train_expert_on_train_fold(graph, trial, data, fold_id)
             self.trials.append(trial)
@@ -285,6 +285,5 @@ class CatMEmberVer:
         best_thr = bo.res['max']['max_params']['thr']
         # use best_thr
         results = fn(best_thr, mean=False)
-        self.novice_probe_results = results
         result = np.mean(results)
         return result
