@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from scipy.stats import norm
 
 from src import config
 from src.figs import make_nym_figs
@@ -26,6 +27,7 @@ class NymMatching:
             assert len(set(self.distractors)) == len(self.distractors)
         # evaluation
         self.trials = None
+        self.chance = 1 / (config.NymMatching.num_distractors + 1)
 
     @property
     def row_words(self):  # used to build sims
@@ -139,6 +141,7 @@ class NymMatching:
                 # session
                 sess = tf.Session()
                 sess.run(tf.global_variables_initializer())
+
         return Graph()
 
     def train_and_score_expert(self, embedder):
@@ -194,19 +197,14 @@ class NymMatching:
                 # test acc - use multiple x2 (unlike training)
                 num_correct_test = 0
                 for x1_mat, x2_mat in zip(x1_test, x2_test):
-                    y = np.array([1] + [0] * config.NymMatching.num_distractors)  # TODO not needed?
                     eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
-                                                                 graph.x2: x2_mat,
-                                                                 graph.y: y})
+                                                                 graph.x2: x2_mat})
                     if np.argmin(eucd) == 0:  # first one is always nym
                         num_correct_test += 1
                 test_acc = num_correct_test / num_test_probes
                 trial.test_acc_trajs[eval_id, fold_id] = test_acc
-                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f}'.format(
-                    step,
-                    num_train_steps - 1,
-                    train_loss,
-                    test_acc))
+                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f} p={:.4f}'.format(
+                    step, num_train_steps - 1, train_loss, test_acc, self.pval(test_acc)))
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
@@ -219,6 +217,19 @@ class NymMatching:
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))
                 print('Saved {} to {}'.format(fig_name, p))
+
+    def pval(self, prop):
+        """
+        calculates probability that the null-hypothesis is true (that chance explains observed data).
+        assumes that proportion of correct responses is binomially distributed
+        calculates pval using normal approximation of binomial distribution with continuity correction
+        """
+        z_left = (prop - self.chance - 0.5 / self.num_pairs) / \
+                 np.sqrt(self.chance * (1 - self.chance) / self.num_pairs)
+        z_right = (prop - self.chance + 0.5 / self.num_pairs) / \
+                  np.sqrt(self.chance * (1 - self.chance) / self.num_pairs)
+        pval = norm.cdf(z_right) - norm.cdf(z_left)
+        return pval
 
     def score_novice(self, sims, verbose=False):
         """
@@ -238,5 +249,5 @@ class NymMatching:
                 print('correct_sim')
                 print(correct_sim)
         result = num_correct / self.num_pairs
-        print('Novice Accuracy={:.2f} (chance={:.2f})'.format(result, 1 / (config.NymMatching.num_distractors + 1)))
+        print('Novice Accuracy={:.2f} (chance={:.2f}, p={:.4f})'.format(result, self.chance, self.pval(result)))
         return result

@@ -1,3 +1,4 @@
+scipy
 gensim
 PyYAML
 beautifulsoup4

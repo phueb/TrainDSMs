@@ -6,11 +6,27 @@ from src import config
 from src.figs import make_cat_member_verification_figs
 
 
+class Params:
+
+    # TODO list all params and try all
+
+    run_shuffled = False
+    num_epochs = 500  # TODO loss is still decreasing - add more epochs
+    mb_size = 4
+    device = 'cpu'
+    num_output = 128
+    margin = 100.0  # TODO
+    beta = 0.2  # TODO
+    learning_rate = 0.1
+    num_evals = 10
+    num_folds = 2
+
+
 class Trial(object):
     def __init__(self, name, num_probes):
         self.name = name
-        self.train_acc_trajs = np.zeros((config.CatMEmberVer.num_evals, config.CatMEmberVer.num_folds))
-        self.test_probe_sims = [np.zeros((num_probes, num_probes)) for _ in range(config.CatMEmberVer.num_evals)]
+        self.train_acc_trajs = np.zeros((Params.num_evals, Params.num_folds))
+        self.test_probe_sims = [np.zeros((num_probes, num_probes)) for _ in range(Params.num_evals)]
 
 
 class CatMEmberVer:
@@ -55,9 +71,9 @@ class CatMEmberVer:
             np.random.shuffle(probes_copy)
             distractors = [p for p in probes_copy if p not in cat_probes][:len(cat_probes)]
             for n, (probes_in_fold, members_in_fold, distractors_in_fold) in enumerate(zip(
-                    np.array_split(cat_probes, config.CatMEmberVer.num_folds),
-                    np.array_split(cat_members, config.CatMEmberVer.num_folds),
-                    np.array_split(distractors, config.CatMEmberVer.num_folds))):
+                    np.array_split(cat_probes, Params.num_folds),
+                    np.array_split(cat_members, Params.num_folds),
+                    np.array_split(distractors, Params.num_folds))):
                 if n != fold_id:
                     x1_train += [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
                     x2_train += [w2e[n] for n in members_in_fold] + [w2e[d] for d in distractors_in_fold]
@@ -88,7 +104,7 @@ class CatMEmberVer:
 
         class Graph:
             with tf.Graph().as_default():
-                with tf.device('/{}:0'.format(config.CatMEmberVer.device)):
+                with tf.device('/{}:0'.format(Params.device)):
                     # placeholders
                     x1 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
@@ -104,7 +120,7 @@ class CatMEmberVer:
                     eucd2 = tf.pow(tf.subtract(o1, o2), 2)
                     eucd2 = tf.reduce_sum(eucd2, 1)
                     eucd = tf.sqrt(eucd2 + 1e-6)
-                    C = tf.constant(config.CatMEmberVer.margin)
+                    C = tf.constant(Params.margin)
                     # yi*||o1-o2||^2 + (1-yi)*max(0, C-||o1-o2||^2)
                     pos = tf.multiply(labels_t, eucd2)
                     neg = tf.multiply(labels_f, tf.pow(tf.maximum(tf.subtract(C, eucd), 0), 2))
@@ -112,8 +128,8 @@ class CatMEmberVer:
                     loss_no_reg = tf.reduce_mean(losses)
                     regularizer = tf.nn.l2_loss(wy)
                     loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
-                                          config.CatMEmberVer.beta * regularizer)
-                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=config.CatMEmberVer.learning_rate)
+                                          Params.beta * regularizer)
+                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=Params.learning_rate)
                     step = optimizer.minimize(loss)
                 # session
                 sess = tf.Session()
@@ -122,12 +138,12 @@ class CatMEmberVer:
 
     def train_and_score_expert(self, embedder):
         self.trials = []  # need to flush trials (because multiple embedders)
-        bools = [False, True] if config.CatMEmberVer.run_shuffled else [False]
+        bools = [False, True] if Params.run_shuffled else [False]
         for shuffled in bools:
             trial = Trial(name='shuffled' if shuffled else '', num_probes=self.num_probes)
-            for fold_id in range(config.CatMEmberVer.num_folds):
+            for fold_id in range(Params.num_folds):
                 # train
-                print('Fold {}/{}'.format(fold_id + 1, config.CatMEmberVer.num_folds))
+                print('Fold {}/{}'.format(fold_id + 1, Params.num_folds))
                 print('Training {} expert {}...'.format(
                     self.name, 'with shuffled in-out mapping' if shuffled else ''))
                 graph = self.make_graph(embedder.dim1)
@@ -148,10 +164,10 @@ class CatMEmberVer:
 
     @staticmethod
     def generate_random_train_batches(x1, x2, y, num_probes, num_steps):
-        random_choices = np.random.choice(num_probes, config.CatMEmberVer.mb_size * num_steps)
+        random_choices = np.random.choice(num_probes, Params.mb_size * num_steps)
         row_ids_list = np.split(random_choices, num_steps)
         for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == config.CatMEmberVer.mb_size
+            assert len(row_ids) == Params.mb_size
             x1_batch = x1[row_ids]
             x2_batch = x2[row_ids]
             y_batch = y[row_ids]
@@ -160,10 +176,10 @@ class CatMEmberVer:
     def train_expert_on_train_fold(self, graph, trial, data, fold_id):
         x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids = data
         num_train_probes, num_test_probes = len(x1_train), len(x1_test)
-        num_train_steps = num_train_probes // config.CatMEmberVer.mb_size * config.CatMEmberVer.num_epochs
-        eval_interval = num_train_steps // config.CatMEmberVer.num_evals
+        num_train_steps = num_train_probes // Params.mb_size * Params.num_epochs
+        eval_interval = num_train_steps // Params.num_evals
         eval_steps = np.arange(0, num_train_steps + eval_interval,
-                               eval_interval)[:config.CatMEmberVer.num_evals].tolist()  # equal sized intervals
+                               eval_interval)[:Params.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,
@@ -179,7 +195,7 @@ class CatMEmberVer:
                 for n, (x1_mat, x2_mat, test_probe_id) in enumerate(zip(x1_test, x2_test, test_probe_ids)):
                     eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
                                                                  graph.x2: x2_mat})
-                    sims_row = 1.0 - (eucd / config.CatMEmberVer.margin)
+                    sims_row = 1.0 - (eucd / Params.margin)
                     trial.test_probe_sims[eval_id][test_probe_id, :] = sims_row
                 test_bal_acc = 'need to complete all folds'
                 print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test BalancedAcc={}'.format(
@@ -264,7 +280,7 @@ class CatMEmberVer:
             raise AttributeError('rnnlab: Invalid arg to "metric".')
         bo = BayesianOptimization(fn, {'thr': (thr1, thr2)}, verbose=verbose)
         bo.explore({'thr': [test_word_sims_mean]})
-        bo.maximize(init_points=2, n_iter=config.CatMEmberVer.num_opt_steps,
+        bo.maximize(init_points=2, n_iter=config.Task.num_opt_steps,
                     acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
         best_thr = bo.res['max']['max_params']['thr']
         # use best_thr

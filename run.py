@@ -73,7 +73,7 @@ for embedder in embedders:
             print('Shape of similarity matrix: {}'.format(sims.shape))
             # score
             index.append(task.name + '_nov')
-            data.append(task.score_novice(sims))  # TODO where to save shuffled trial results?
+            data.append(task.score_novice(sims))  # TODO save shuffled trials in separate file - scores_shuffled.csv
             index.append(task.name + '_exp')
             data.append(task.train_and_score_expert(embedder))
             # figs

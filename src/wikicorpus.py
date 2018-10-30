@@ -45,7 +45,7 @@ class Corpus():
             title = json1_data['title'].lower()
             text = json1_data['text']
 
-            spacy_doc = nlp(text)
+            spacy_doc = nlp(text)  # TODO use Tokenizer only to improve performance
             doc_size = len(spacy_doc)
             token_counter += doc_size
             titles_outfile.write('{} {}\n'.format(title, doc_size))
