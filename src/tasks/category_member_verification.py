@@ -107,7 +107,7 @@ class CatMEmberVer:
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     y = tf.placeholder(tf.float32, [None])
                     # siamese
-                    with tf.variable_scope('trial_{}'.format(trial.params_id), reuse=tf.AUTO_REUSE) as scope:  # TODO test params_id is unique
+                    with tf.variable_scope('trial_{}'.format(trial.params_id), reuse=tf.AUTO_REUSE) as scope:
                         wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
                         o1 = siamese_leg(x1, wy)
                         o2 = siamese_leg(x2, wy)
@@ -133,28 +133,34 @@ class CatMEmberVer:
                 sess.run(tf.global_variables_initializer())
         return Graph()
 
-    def train_and_score_expert(self, embedder):
-        self.trials = []  # need to flush trials (because multiple embedders reuse task)
-        for params_id, (param2id, param2val) in enumerate(make_param2id(Params)):
-            trial = Trial(params_id, ObjectView(param2val), self.num_probes)
-            print('Training {} expert'.format(self.name))
-            print('==========================================================================')
-            for fold_id in range(trial.params.num_folds):
-                print('Fold {}/{}'.format(fold_id + 1, trial.params.num_folds))
-                graph = self.make_graph(trial, embedder.dim1)
-                data = self.make_data(trial, embedder.w2e, fold_id)
-                self.train_expert_on_train_fold(trial, graph, data)
-            self.trials.append(trial)
-        # expert_score
+    def get_best_expert_score(self, trial):
         best_expert_score = 0
         best_eval_id = 0
-        for eval_id, sims in enumerate(self.trials[0].test_probe_sims):
+        for eval_id, sims in enumerate(trial.test_probe_sims):
             expert_score = self.score_novice(sims, verbose=False)
             print('Balanced Accuracy at eval {} is {:.2f}'.format(eval_id + 1, expert_score))
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id
         print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
+        return best_expert_score, best_eval_id
+
+    def train_and_score_expert(self, embedder):
+        self.trials = []  # need to flush trials (because multiple embedders reuse task)
+        for params_id, (param2id, param2val) in enumerate(make_param2id(Params, stage1=False)):
+            trial = Trial(params_id, ObjectView(param2val), self.num_probes)
+            print('Training {} expert'.format(self.name))
+            for fold_id in range(trial.params.num_folds):
+                print('Fold {}/{}'.format(fold_id + 1, trial.params.num_folds))
+                graph = self.make_graph(trial, embedder.dim1)
+                data = self.make_data(trial, embedder.w2e, fold_id)
+                self.train_expert_on_train_fold(trial, graph, data)
+            self.get_best_expert_score(trial)
+            self.trials.append(trial)
+        # expert_score
+        # TODO get best across all best scores ?
+        raise NotImplementedError
+
         return best_expert_score
 
     @staticmethod

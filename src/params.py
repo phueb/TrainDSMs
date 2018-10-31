@@ -7,7 +7,7 @@ class ObjectView(object):
         self.__dict__ = d
 
 
-def make_param2id(paramsClass):
+def make_param2id(paramsClass, stage1=True):
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned
@@ -41,7 +41,8 @@ def make_param2id(paramsClass):
         d = {k: i for (k, v), i in zip(param2opts, ids)}
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
-        print('==========================================================================')
+        if stage1:
+            print('==========================================================================')
         for (k, v), i in zip(param2opts, ids):
             print(k, v[i])
         yield param2ids, param2val
