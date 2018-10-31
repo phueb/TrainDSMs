@@ -13,58 +13,73 @@ class Trial(object):
         self.test_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
 
 
-class NymDistinction:
-    def __init__(self, pos, nym_type):
-        self.name = '{}_{}_matching'.format(pos, nym_type)
-        self.pos = pos
+class NymDetection:
+    def __init__(self, nym_type):
+        self.name = '{}_detection'.format(nym_type)
         self.nym_type = nym_type
-        self.probes, self.nyms = self.load_data()
-        self.num_pairs = len(self.probes)
-        self.distractors_mat = self.make_distractors_mat()  # test
-        self.distractors = np.roll(self.nyms, 1)  # train (permuted such that no nym has same index as distractor)
-        if config.NymMatching.remove_duplicate_nyms:
-            assert np.all(self.distractors != self.nyms)
-            assert len(set(self.distractors)) == len(self.distractors)
+        self.probes, self.syns, self.ants = self.load_data()
+        self.num_probes = len(self.probes)
+        self.test_candidates_mat = None  # for evaluation  # TODO use for everything
         # evaluation
         self.trials = None
-        self.chance = 1 / (config.NymMatching.num_distractors + 1)
+        # sims
+        self.row_words = self.probes
+        self.col_words = sorted(set(self.syns + self.ants + self.probes))
 
-    @property
-    def row_words(self):  # used to build sims
-        return self.probes
-
-    @property
-    def col_words(self):
-        return self.nyms
-
-    def load_data(self):  # TODO load synonyms AND antonyms across all POS from same file
-        p = config.Dirs.tasks / '{}_{}s'.format(self.pos, self.nym_type) / '{}_{}.txt'.format(
+    def load_data(self):
+        p = config.Dirs.tasks / 'nyms' / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
         print('Loading {}'.format(p))
-        both = np.loadtxt(p, dtype='str')
-        np.random.shuffle(both)
-        probes, nyms = both.T
+        loaded = np.loadtxt(p, dtype='str')
+        np.random.shuffle(loaded)
+        probes, syns, ants = loaded.T
         # remove duplicate nyms
         if config.NymMatching.remove_duplicate_nyms:
             keep_ids = []
-            nym_set = set()
-            num_pairs = len(both)
-            for i in range(num_pairs):
-                if nyms[i] not in nym_set:
+            syn_set = set()
+            ant_set = set()
+            num_triplets = len(loaded)
+            for i in range(num_triplets):
+                if syns[i] not in syn_set and ants[i] not in ant_set:
                     keep_ids.append(i)
-                nym_set.add(nyms[i])
+                syn_set.add(syns[i])
+                ant_set.add(ants[i])
         else:
-            num_pairs = len(both)
-            keep_ids = np.arange(num_pairs)
-        return probes[keep_ids].tolist(), nyms[keep_ids].tolist()
+            num_triplets = len(loaded)
+            keep_ids = np.arange(num_triplets)
 
-    def make_distractors_mat(self):
+        print(len(probes))
+        print(len(keep_ids))  # TODO lots of data is lost by removing duplicates
+
+        return probes[keep_ids].tolist(), syns[keep_ids].tolist(), ants[keep_ids].tolist()
+
+    def make_test_candidates_mat(self, sims):  # TODO add second nearest neighbor ?
+        if self.nym_type == 'antonym':
+            nyms = self.ants
+            distractors = self.syns
+            neutrals = np.roll(self.ants, 1)
+        elif self.nym_type == 'synonym':
+            nyms = self.syns
+            distractors = self.ants
+            neutrals = np.roll(self.syns, 1)
+        else:
+            raise AttributeError('Invalid arg to "nym_type".')
+        first_neighbors = []
+        second_neighbors =[]
+        for n, p in enumerate(self.probes):  # otherwise argmax would return index for the probe itself
+            ids = np.argsort(sims[n])[::-1][:10]
+            nearest_neighbors = [self.col_words[i] for i in ids]
+            first_neighbors.append(nearest_neighbors[1])  # don't use id=zero because it returns the probe
+            second_neighbors.append(nearest_neighbors[2])
+        #
         res = []
-        for n in range(self.num_pairs):
-            choices = [i for i in range(self.num_pairs) if i != n]
-            nym_ids = np.random.choice(choices, config.NymMatching.num_distractors, replace=False)
-            distractors = [self.nyms[i] for i in nym_ids]
-            res.append(distractors)
+        for i in range(self.num_probes):
+            if second_neighbors[i] == nyms[i] or second_neighbors[i] == distractors[i]:
+                second_neighbors[i] = neutrals[i]
+            candidates = [nyms[i], distractors[i], first_neighbors[i], second_neighbors[i], neutrals[i]]
+            print(self.probes[i])
+            print(candidates)
+            res.append(candidates)
         res = np.vstack(res)
         return res
 
@@ -75,22 +90,26 @@ class NymDistinction:
         y_train = []
         x1_test = []
         x2_test = []
-        for n, (probes_in_fold, nyms_in_fold, distractors_in_train_fold, distractors_mat_in_test_fold) in enumerate(zip(
+        for n, (probes, candidate_rows) in enumerate(zip(
                 np.array_split(self.probes, config.NymMatching.num_folds),
-                np.array_split(self.nyms, config.NymMatching.num_folds),
-                np.array_split(self.distractors, config.NymMatching.num_folds),
-                np.array_split(self.distractors_mat, config.NymMatching.num_folds))):
+                np.array_split(self.test_candidates_mat, config.NymMatching.num_folds))):
+            nyms, distractors, first_neighbors, second_neighbors, neutrals = candidate_rows.T
             if n != fold_id:
-                x1_train += [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
-                x2_train += [w2e[n] for n in nyms_in_fold] + [w2e[d] for d in distractors_in_train_fold]
-                y_train += [1] * len(nyms_in_fold) + [0] * len(nyms_in_fold)
+                x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
+                x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in distractors]
+                y_train += [1] * len(probes) + [0] * len(probes)
+
+                # TODO test
+                if config.NymMatching.train_on_second_neighbors:
+                    x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
+                    x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in second_neighbors]
+                    y_train += [1] * len(probes) + [0] * len(probes)
             else:
                 # assume first one is always correct nym
-                dim1 = config.NymMatching.num_distractors + 1
-                x1_test += [[w2e[p]] * dim1 for p in probes_in_fold]
-                x2_test += [[w2e[nym]] +
-                            [w2e[d] for d in distractors]
-                            for nym, distractors in zip(nyms_in_fold, distractors_mat_in_test_fold)]
+                dim1 = candidate_rows.shape[1]
+                x1_test += [[w2e[p]] * dim1 for p in probes]
+                x2_test += [[w2e[nym], w2e[d], w2e[fn], w2e[sn], w2e[n]] for nym, d, fn, sn, n in zip(
+                        nyms, distractors, first_neighbors, second_neighbors, neutrals)]
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -221,34 +240,32 @@ class NymDistinction:
                 fig.savefig(str(p))
                 print('Saved {} to {}'.format(fig_name, p))
 
+    @property
+    def chance(self):
+        res = 1 / self.test_candidates_mat.shape[1]
+        return res
+
     def pval(self, prop, n):
         """
-        calculates probability that the null-hypothesis is true (that chance explains observed data).
+        1-tailed: is observed proportion higher than chance?
+        pval=1.0 when prop=0 because it is almost always true that a prop > 0.0 is observed
         assumes that proportion of correct responses is binomially distributed
         """
         pval_binom = 1 - binom.cdf(k=prop * n, n=n, p=self.chance)
         return pval_binom
 
     def score_novice(self, sims, verbose=False):
-        """
-        sims should be matrix of shape [num probes, num syms] where value at [i, j] is sim between probe i and nym j
-        the number of probes is not the number of types - repeated occurrences are allowed and counted
-        """
+        self.test_candidates_mat = self.make_test_candidates_mat(sims)  # constructed here because it requires sims
         num_correct = 0
-        for n, distractors_row in enumerate(self.distractors_mat):
-            distractor_nym_ids = [self.nyms.index(d) for d in distractors_row]
-            distractor_sims = sims[n, distractor_nym_ids]
-            correct_sim = sims[n, n]  # correct pairs are in diagonal
-            if np.all(distractor_sims < correct_sim):
-                num_correct += 1
+        for n, test_candidates in enumerate(self.test_candidates_mat):
+            candidate_sims = sims[n, [self.col_words.index(w) for w in test_candidates]]
             if verbose:
-                print('distractor_sims')
-                print(distractor_sims)
-                print('correct_sim')
-                print(correct_sim)
-        result = num_correct / self.num_pairs
+                print(np.around(candidate_sims, 2))
+            if np.all(candidate_sims[1:] < candidate_sims[0]):  # correct is always in first position
+                num_correct += 1
+        result = num_correct / self.num_probes
         print('Novice Accuracy={:.2f} (chance={:.2f}, p={:.4f})'.format(
             result,
             self.chance,
-            self.pval(result, n=self.num_pairs)))
+            self.pval(result, n=self.num_probes)))
         return result

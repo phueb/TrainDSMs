@@ -47,13 +47,13 @@ class NymMatching:  # TODO embedder-dependent
     srn: lr=0.00001 + mb_size=2 + num_output=128 + margin=100.0 + beta=0.2
     """
     margin = 100.0  # must be float and MUST be at least 40 or so
-    remove_duplicate_nyms = True
+    remove_duplicate_nyms = False  # needs to be False to get above chance
+    train_on_second_neighbors = False  # TODO test
     beta = 0.3
     num_output = 128
     mb_size = 2
     num_epochs = 500
     num_evals = 10
-    num_distractors = 4
     device = 'cpu'
     learning_rate = 0.1
     run_shuffled = True
