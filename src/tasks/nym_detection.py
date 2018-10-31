@@ -19,7 +19,7 @@ class NymDetection:
         self.nym_type = nym_type
         self.probes, self.syns, self.ants = self.load_data()
         self.num_probes = len(self.probes)
-        self.test_candidates_mat = None  # for evaluation  # TODO use for everything
+        self.test_candidates_mat = None  # for evaluation
         # evaluation
         self.trials = None
         # sims
@@ -35,6 +35,7 @@ class NymDetection:
         probes, syns, ants = loaded.T
         # remove duplicate nyms
         if config.NymMatching.remove_duplicate_nyms:
+            print('Removing dulicate nyms')
             keep_ids = []
             syn_set = set()
             ant_set = set()
@@ -44,16 +45,13 @@ class NymDetection:
                     keep_ids.append(i)
                 syn_set.add(syns[i])
                 ant_set.add(ants[i])
+            print('Keeping {} nyms out of {}'.format(len(keep_ids), len(probes)))
         else:
             num_triplets = len(loaded)
             keep_ids = np.arange(num_triplets)
-
-        print(len(probes))
-        print(len(keep_ids))  # TODO lots of data is lost by removing duplicates
-
         return probes[keep_ids].tolist(), syns[keep_ids].tolist(), ants[keep_ids].tolist()
 
-    def make_test_candidates_mat(self, sims):  # TODO add second nearest neighbor ?
+    def make_test_candidates_mat(self, sims, verbose=True):
         if self.nym_type == 'antonym':
             nyms = self.ants
             distractors = self.syns
@@ -74,11 +72,14 @@ class NymDetection:
         #
         res = []
         for i in range(self.num_probes):
-            if second_neighbors[i] == nyms[i] or second_neighbors[i] == distractors[i]:
+            if first_neighbors[i] == nyms[i]:
+                first_neighbors[i] = neutrals[i]
+            if second_neighbors[i] == nyms[i]:
                 second_neighbors[i] = neutrals[i]
             candidates = [nyms[i], distractors[i], first_neighbors[i], second_neighbors[i], neutrals[i]]
-            print(self.probes[i])
-            print(candidates)
+            if verbose:
+                print(self.probes[i])
+                print(candidates)
             res.append(candidates)
         res = np.vstack(res)
         return res
@@ -98,8 +99,6 @@ class NymDetection:
                 x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
                 x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in distractors]
                 y_train += [1] * len(probes) + [0] * len(probes)
-
-                # TODO test
                 if config.NymMatching.train_on_second_neighbors:
                     x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
                     x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in second_neighbors]

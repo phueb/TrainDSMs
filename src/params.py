@@ -7,7 +7,7 @@ class ObjectView(object):
         self.__dict__ = d
 
 
-def make_param2ids(paramsClass):
+def make_param2id(paramsClass):
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned

@@ -3,7 +3,7 @@ from itertools import chain
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from src.params import make_param2ids
+from src.params import make_param2id
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -17,19 +17,19 @@ from src.utils import w2e_to_sims
 
 
 embedders = chain(
-    (RNNEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RNNParams)),
-    (W2VecEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(Word2VecParams)),
-    (CountEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(CountParams)),
-    (RandomControlEmbedder(param2ids, param2val) for param2ids, param2val in make_param2ids(RandomControlParams))
+    (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
+    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
+    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
 )
 
 
 # a verification task consists of 2 words that either belong together or not.
-# a matching task consists of a word and multiple candidate words where only one candidate belongs with test word.
+# a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
-    # CatMEmberVer('semantic'),
-    # CatMEmberVer('syntactic')
+    CatMEmberVer('semantic'),
+    CatMEmberVer('syntactic'),
     NymDetection('antonym'),
     NymDetection('synonym'),
     # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
