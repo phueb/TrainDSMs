@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from scipy.stats import norm, binom
+from scipy.stats import binom
 
 from src import config
 from src.figs import make_nym_figs
@@ -13,7 +13,7 @@ class Trial(object):
         self.test_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
 
 
-class NymMatching:
+class NymDistinction:
     def __init__(self, pos, nym_type):
         self.name = '{}_{}_matching'.format(pos, nym_type)
         self.pos = pos
@@ -37,7 +37,7 @@ class NymMatching:
     def col_words(self):
         return self.nyms
 
-    def load_data(self):
+    def load_data(self):  # TODO load synonyms AND antonyms across all POS from same file
         p = config.Dirs.tasks / '{}_{}s'.format(self.pos, self.nym_type) / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
         print('Loading {}'.format(p))

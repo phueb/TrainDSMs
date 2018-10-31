@@ -11,7 +11,7 @@ from src.embedders.w2vec import W2VecEmbedder
 
 from src.tasks.categorization import Categorization
 from src.tasks.category_member_verification import CatMEmberVer
-from src.tasks.nym_matching import NymMatching
+from src.tasks.nym_matching import NymDistinction
 
 from src.utils import w2e_to_sims
 
@@ -30,10 +30,7 @@ embedders = chain(
 tasks = [
     # CatMEmberVer('semantic'),
     # CatMEmberVer('syntactic')
-    # NymMatching('noun', 'antonym'),
-    NymMatching('adj', 'antonym'),
-    # NymMatching('noun', 'synonym'),
-    # NymMatching('verb', 'synonym'),
+    NymDistinction('adj', 'antonym'),
     # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
     # Categorization('syntactic')
 ]
