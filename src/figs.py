@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from cytoolz import itertoolz
 
 from src import config
 
@@ -14,8 +13,7 @@ def make_cat_member_verification_figs():
     return []
 
 
-def make_categorizer_figs(feature_diagnosticity_mat,
-                          train_acc_traj,
+def make_categorizer_figs(train_acc_traj,
                           test_acc_traj,
                           train_softmax_traj,
                           test_softmax_traj,
@@ -30,53 +28,6 @@ def make_categorizer_figs(feature_diagnosticity_mat,
                           cat2trained_test_evals_to_criterion,
                           cats):
     num_cats = len(cats)
-
-    def make_feature_diagnosticity_distribution_fig():
-        chunk_size = 10  # number of unique default colors
-        chunk_ids_list = list(itertoolz.partition_all(chunk_size, np.arange(num_cats)))
-        num_rows = len(chunk_ids_list)
-        fig, axarr = plt.subplots(nrows=num_rows, ncols=1,
-                                  figsize=(config.Figs.width, 4 * num_rows),
-                                  dpi=config.Figs.dpi)
-        plt.suptitle('How diagnostic are embedding features\nabout category membership?')
-        if not isinstance(axarr, np.ndarray):
-            axarr = [axarr]
-        for ax, chunk_ids in zip(axarr, chunk_ids_list):
-            ax.spines['right'].set_visible(False)
-            ax.spines['top'].set_visible(False)
-            ax.tick_params(axis='both', which='both', top=False, right=False)
-            ax.set_xlabel('F1-score')
-            ax.set_ylabel('Frequency')
-            ax.set_xlim([0, 1])
-            # plot histograms
-            for cat, row in zip([cats[i] for i in chunk_ids], feature_diagnosticity_mat[chunk_ids, :]):
-                print('Highest f1-score for "{}" is {:.2f}'.format(cat, np.max(row)))
-                ax.hist(row,
-                        bins=None,
-                        linewidth=2,
-                        histtype='step',
-                        label=cat)
-            ax.legend(loc='best')
-        plt.tight_layout()
-        return fig
-
-    def make_feature_diagnosticity_fig():
-        fig, ax = plt.subplots(1, figsize=(config.Figs.width, config.Figs.width), dpi=config.Figs.dpi)
-        plt.title('How diagnostic is an embedding feature about a category?')
-        sns.heatmap(feature_diagnosticity_mat,
-                    ax=ax, square=False, annot=False, cbar_kws={"shrink": .5}, cmap='jet', vmin=0, vmax=1)
-        ax.set_xticks([])
-        ax.set_yticks(np.arange(num_cats) + 0.5)
-        ax.set_xticklabels([])
-        ax.set_yticklabels(cats, rotation=0)
-        ax.set_xlabel('Embedding Features')
-        # colorbar
-        cbar = ax.collections[0].colorbar
-        cbar.set_ticks([0, 0.5, 1])
-        cbar.set_ticklabels(['0.0', '0.5', '1.0'])
-        cbar.set_label('F1 score')
-        plt.tight_layout()
-        return fig
 
     def make_novice_vs_expert_fig(xs, ys, annotations=None):
         """
@@ -127,7 +78,7 @@ def make_categorizer_figs(feature_diagnosticity_mat,
         fig, ax = plt.subplots(1, figsize=(config.Figs.width, config.Figs.width), dpi=config.Figs.dpi)
         # ax.set_xlim([0, config.Categorization.num_evals])
         ax.set_xlabel('Number of Evaluation Steps to Criterion={}'.format(
-            config.Categorization.softmax_criterion),
+            config.Figs.softmax_criterion),
             fontsize=config.Figs.axlabel_fontsize)
         ylabel = 'Frequency'
         ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
@@ -140,19 +91,19 @@ def make_categorizer_figs(feature_diagnosticity_mat,
         trained_test_evals_to_criterion = np.concatenate(list(cat2trained_test_evals_to_criterion.values()))
         # trained
         ax.hist(train_evals_to_criterion,
-                config.Categorization.num_bins,
+                config.Figs.num_bins,
                 linewidth=3,
                 histtype='step',
                 label='train')
         # test
         ax.hist(test_evals_to_criterion,
-                config.Categorization.num_bins,
+                config.Figs.num_bins,
                 linewidth=3,
                 histtype='step',
                 label='test')
         # trained test
         ax.hist(trained_test_evals_to_criterion,
-                config.Categorization.num_bins,
+                config.Figs.num_bins,
                 linewidth=3,
                 histtype='step',
                 label='post-train test')
@@ -170,7 +121,7 @@ def make_categorizer_figs(feature_diagnosticity_mat,
         for ax, cat in zip(axarr, cats):
             ax.set_title(cat)
             ax.set_xlabel('Number of Evaluation Steps to Criterion={}'.format(
-                config.Categorization.softmax_criterion),
+                config.Figs.softmax_criterion),
                 fontsize=config.Figs.axlabel_fontsize)
             ylabel = 'Frequency'
             ax.set_ylabel(ylabel, fontsize=config.Figs.axlabel_fontsize)
@@ -184,12 +135,12 @@ def make_categorizer_figs(feature_diagnosticity_mat,
             trained_test_evals_to_criterion = cat2trained_test_evals_to_criterion[cat]
             # train
             ax.hist(train_evals_to_criterion,
-                    config.Categorization.num_bins,
+                    config.Figs.num_bins,
                     histtype='step',
                     label='train')
             # test
             ax.hist(test_evals_to_criterion,
-                    config.Categorization.num_bins,
+                    config.Figs.num_bins,
                     histtype='step',
                     label='test')
             # trained test
@@ -224,8 +175,6 @@ def make_categorizer_figs(feature_diagnosticity_mat,
         return fig
 
     return [
-        (make_feature_diagnosticity_distribution_fig(), 'feature_diagnosticity_distr'),
-        (make_feature_diagnosticity_fig(), 'feature_diagnosticity'),
         (make_novice_vs_expert_fig(novice_results_by_cat, expert_results_by_cat, cats), 'nov_vs_exp_cat'),
         (make_novice_vs_expert_fig(novice_results_by_probe, expert_results_by_probe), 'nov_vs_exp_probe'),
         (make_traj_fig(train_acc_traj, test_acc_traj), 'acc_traj'),

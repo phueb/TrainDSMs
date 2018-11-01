@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from src import config
 from src.params import make_param2id, ObjectView
@@ -81,11 +80,17 @@ class TaskBase(object):
                 with p.open('a') as f:
                     df.to_csv(f, mode='a', header=f.tell() == 0, index=False)
 
-    def save_figs(self, embedder, make_figs):  # TODO this function is called from child class via super() and passed make_figs
+    # ////////////////////////////////////////////////////// figs
+
+    def make_trial_figs(self, trial):
+        raise NotImplementedError('Must be implemented in child-class.')
+
+    def save_figs(self, embedder):  # TODO test
         for trial in self.trials:
-            # figs
-            for fig, fig_name in make_figs():
-                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.params_id)
+            for fig, fig_name in self.make_trial_figs(trial):
+                trial_dname = 'trial_{}'.format(trial.params_id)
+                fname = '{}_{}.png'.format(fig_name, trial.params_id)
+                p = config.Dirs.runs / embedder.time_of_init / self.name / trial_dname / fname
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))

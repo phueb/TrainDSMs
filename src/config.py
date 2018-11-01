@@ -39,3 +39,7 @@ class Figs:
     dpi = 196
     axlabel_fontsize = 12
     line_width = 2
+    # cat_label_ver
+    softmax_criterion = 0.5
+    num_bins = 10
+    num_diagnosticity_steps = 50

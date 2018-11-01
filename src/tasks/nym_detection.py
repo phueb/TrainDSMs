@@ -16,6 +16,7 @@ class Params:
     num_epochs = [500]
     learning_rate = [0.1]
     num_folds = [2, 4]
+    shuffled = [False, True]
 
 
 class NymDetection(TaskBase):
@@ -36,8 +37,8 @@ class NymDetection(TaskBase):
 
     def init_eval_data(self, trial):
         res = super().init_eval_data(trial)
-        res.train_acc_trajs = np.zeros((config.Task.num_evals, trial.params.num_folds))
         res.test_acc_trajs = np.zeros((config.Task.num_evals, trial.params.num_folds))
+        return res
 
     def make_data(self, trial, w2e, fold_id):
         # train/test split
@@ -106,7 +107,7 @@ class NymDetection(TaskBase):
                     losses = tf.add(pos, neg)
                     loss_no_reg = tf.reduce_mean(losses)
                     regularizer = tf.nn.l2_loss(wy)
-                    loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
+                    loss = tf.reduce_mean((1 - trial.params.beta) * loss_no_reg +
                                           trial.params.beta * regularizer)
                     optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                     step = optimizer.minimize(loss)
@@ -124,8 +125,12 @@ class NymDetection(TaskBase):
                                eval_interval)[:config.Task.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
-        for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,
-                                                                                    num_train_probes, num_train_steps):
+        for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train,
+                                                                                    x2_train,
+                                                                                    y_train,
+                                                                                    num_train_probes,
+                                                                                    num_train_steps,
+                                                                                    trial.params.mb_size):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # train loss - can't evaluate accuracy because training requires 1:1 match vs. non-match
@@ -141,7 +146,7 @@ class NymDetection(TaskBase):
                     if np.argmin(eucd) == 0:  # first one is always nym
                         num_correct_test += 1
                 test_acc = num_correct_test / num_test_probes
-                trial.test_acc_trajs[eval_id, fold_id] = test_acc
+                trial.eval.test_acc_trajs[eval_id, fold_id] = test_acc
                 print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f} p={:.4f}'.format(
                     step,
                     num_train_steps - 1,
@@ -151,11 +156,14 @@ class NymDetection(TaskBase):
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
     def get_best_trial_score(self, trial):
-        mean_test_acc_traj = trial.test_acc_trajs.mean(axis=1)
+        mean_test_acc_traj = trial.eval.test_acc_trajs.mean(axis=1)
         best_eval_id = np.argmax(mean_test_acc_traj)
         expert_score = mean_test_acc_traj[best_eval_id]
         print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id))
         return expert_score
+
+    def make_trial_figs(self, trial):
+        return make_nym_figs()
 
     # ///////////////////////////////////////// Overwritten Methods END
 

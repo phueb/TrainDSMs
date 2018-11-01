@@ -15,12 +15,6 @@ class Params:
     learning_rate = [0.1]
     num_hiddens = [32, 256]
 
-# TODO
-# figs
-softmax_criterion = 0.5
-num_bins = 10
-num_diagnosticity_steps = 50
-
 
 class CatLabelVer(TaskBase):
     def __init__(self, cat_type):
@@ -185,7 +179,8 @@ class CatLabelVer(TaskBase):
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
 
-    def train_expert_on_test_fold(self, graph, trial, x_test, y_test, fold_id, test_probes):
+    def train_expert_on_test_fold(self, trial, graph, data, fold_id):
+        x_train, y_train, x_test, y_test, train_probes, test_probes = data
         num_test_probes = len(x_test)
         num_train_steps = num_test_probes // trial.params.mb_size * trial.params.num_epochs
         eval_interval = num_train_steps // trial.params.num_evals
@@ -194,8 +189,11 @@ class CatLabelVer(TaskBase):
         print('Training on test data to collect number of eval steps to criterion for each probe')
         print('Test data size: {:,}'.format(num_test_probes))
         # training and eval
-        for step, x_batch, y_batch in self.generate_random_train_batches(x_test, y_test,
-                                                                         num_test_probes, num_train_steps):
+        for step, x_batch, y_batch in self.generate_random_train_batches(x_test,
+                                                                         y_test,
+                                                                         num_test_probes,
+                                                                         num_train_steps,
+                                                                         trial.params.mb_size):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # test softmax probs
@@ -216,14 +214,83 @@ class CatLabelVer(TaskBase):
     def get_best_trial_score(self, trial):
         raise NotImplementedError
 
+    def make_trial_figs(self, trial):
+        # aggregate over folds
+        average_x_mat = np.sum(trial.x_mat, axis=2)
+        average_cm = np.sum(trial.cms, axis=0)
+        # make average accuracy trajectories - careful not to take mean over arrays with zeros
+        train_no_zeros = np.where(trial.train_softmax_probs != 0, trial.train_softmax_probs, np.nan)  # zero to nan
+        test_no_zeros = np.where(trial.test_softmax_probs != 0, trial.test_softmax_probs, np.nan)
+        trained_test_no_zeros = np.where(trial.trained_test_softmax_probs != 0, trial.trained_test_softmax_probs, np.nan)
+        train_softmax_traj = np.nanmean(train_no_zeros, axis=(0, 2))
+        test_softmax_traj = np.nanmean(test_no_zeros, axis=(0, 2))
+        train_acc_traj = trial.train_acc_trajs.mean(axis=1)
+        test_acc_traj = trial.test_acc_trajs.mean(axis=1)
+        # make data for criterion fig
+        train_tmp = np.nanmean(train_no_zeros, axis=2)  # [num _probes, num_evals]
+        test_tmp = np.nanmean(test_no_zeros, axis=2)  # [num _probes, num_evals]
+        trained_test_tmp = np.nanmean(trained_test_no_zeros, axis=2)  # [num _probes, num_evals]
+        cat2train_evals_to_criterion = {cat: [] for cat in self.cats}
+        cat2test_evals_to_criterion = {cat: [] for cat in self.cats}
+        cat2trained_test_evals_to_criterion = {cat: [] for cat in self.cats}
+        for probe, cat, train_row, test_row, trained_test_row in zip(self.probes, self.probe_cats,
+                                                                     train_tmp, test_tmp, trained_test_tmp):
+            # train
+            for n, softmax_prob in enumerate(train_row):
+                if softmax_prob > config.Figs.softmax_criterion:
+                    cat2train_evals_to_criterion[cat].append(n)
+                    break
+            else:
+                cat2train_evals_to_criterion[cat].append(config.Task.num_evals)
+            # test
+            for n, softmax_prob in enumerate(test_row):
+                if softmax_prob > config.Figs.softmax_criterion:
+                    cat2test_evals_to_criterion[cat].append(n)
+                    break
+            else:
+                cat2test_evals_to_criterion[cat].append(config.Task.num_evals)
+            # trained test (test probes which have been trained after training on train probes completed)
+            for n, softmax_prob in enumerate(trained_test_row):
+                if softmax_prob > config.Figs.softmax_criterion:
+                    cat2trained_test_evals_to_criterion[cat].append(n)
+                    break
+            else:
+                cat2trained_test_evals_to_criterion[cat].append(config.Task.num_evals)
+        # novice vs expert by probe
+        novice_results_by_probe = self.novice_probe_results
+        expert_results_by_probe = trial.expert_probe_results
+        # novice vs expert by cat
+        cat2novice_result = {cat: [] for cat in self.cats}
+        cat2expert_result = {cat: [] for cat in self.cats}
+        for cat, nov_acc, exp_acc in zip(self.probe_cats, novice_results_by_probe, expert_results_by_probe):
+            cat2novice_result[cat].append(nov_acc)
+            cat2expert_result[cat].append(exp_acc)
+        novice_results_by_cat = [np.mean(cat2novice_result[cat]) for cat in self.cats]
+        expert_results_by_cat = [np.mean(cat2expert_result[cat]) for cat in self.cats]
+
+        return make_categorizer_figs(train_acc_traj,
+                                     test_acc_traj,
+                                     train_softmax_traj,
+                                     test_softmax_traj,
+                                     average_cm,
+                                     np.cumsum(average_x_mat, axis=1),
+                                     novice_results_by_cat,
+                                     expert_results_by_cat,
+                                     novice_results_by_probe,
+                                     expert_results_by_probe,
+                                     cat2train_evals_to_criterion,
+                                     cat2test_evals_to_criterion,
+                                     cat2trained_test_evals_to_criterion,
+                                     self.cats)
+
     # ////////////////////////////////////////////// Overwritten Methods END
 
     def load_data(self):
         p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
-        probes, cats = both.T
-        return probes.tolist(), cats.tolist()
+        probes, probe_cats = both.T
+        return probes.tolist(), probe_cats.tolist()
 
     @staticmethod
     def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
@@ -234,105 +301,6 @@ class CatLabelVer(TaskBase):
             x_batch = x[row_ids]
             y_batch = y[row_ids]
             yield n, x_batch, y_batch
-
-    def save_figs(self, embedder):  #TODO don't overwrite this method
-        for trial in self.trials:
-            # aggregate over folds
-            average_x_mat = np.sum(trial.x_mat, axis=2)
-            average_cm = np.sum(trial.cms, axis=0)
-            # make average accuracy trajectories - careful not to take mean over arrays with zeros
-            train_no_zeros = np.where(trial.train_softmax_probs != 0, trial.train_softmax_probs, np.nan)  # zero to nan
-            test_no_zeros = np.where(trial.test_softmax_probs != 0, trial.test_softmax_probs, np.nan)
-            trained_test_no_zeros = np.where(trial.trained_test_softmax_probs != 0, trial.trained_test_softmax_probs, np.nan)
-            train_softmax_traj = np.nanmean(train_no_zeros, axis=(0, 2))
-            test_softmax_traj = np.nanmean(test_no_zeros, axis=(0, 2))
-            train_acc_traj = trial.train_acc_trajs.mean(axis=1)
-            test_acc_traj = trial.test_acc_trajs.mean(axis=1)
-            # make data for criterion fig
-            train_tmp = np.nanmean(train_no_zeros, axis=2)  # [num _probes, num_evals]
-            test_tmp = np.nanmean(test_no_zeros, axis=2)  # [num _probes, num_evals]
-            trained_test_tmp = np.nanmean(trained_test_no_zeros, axis=2)  # [num _probes, num_evals]
-            cat2train_evals_to_criterion = {cat: [] for cat in self.cats}
-            cat2test_evals_to_criterion = {cat: [] for cat in self.cats}
-            cat2trained_test_evals_to_criterion = {cat: [] for cat in self.cats}
-            for probe, cat, train_row, test_row, trained_test_row in zip(self.probes, self.probe_cats,
-                                                                         train_tmp, test_tmp, trained_test_tmp):
-                # train
-                for n, softmax_prob in enumerate(train_row):
-                    if softmax_prob > config.Figs.softmax_criterion:
-                        cat2train_evals_to_criterion[cat].append(n)
-                        break
-                else:
-                    cat2train_evals_to_criterion[cat].append(config.Task.num_evals)
-                # test
-                for n, softmax_prob in enumerate(test_row):
-                    if softmax_prob > config.Figs.softmax_criterion:
-                        cat2test_evals_to_criterion[cat].append(n)
-                        break
-                else:
-                    cat2test_evals_to_criterion[cat].append(config.Task.num_evals)
-                # trained test (test probes which have been trained after training on train probes completed)
-                for n, softmax_prob in enumerate(trained_test_row):
-                    if softmax_prob > config.Figs.softmax_criterion:
-                        cat2trained_test_evals_to_criterion[cat].append(n)
-                        break
-                else:
-                    cat2trained_test_evals_to_criterion[cat].append(config.Task.num_evals)
-            # novice vs expert by probe
-            novice_results_by_probe = self.novice_probe_results
-            expert_results_by_probe = trial.expert_probe_results
-            # novice vs expert by cat
-            cat2novice_result = {cat: [] for cat in self.cats}
-            cat2expert_result = {cat: [] for cat in self.cats}
-            for cat, nov_acc, exp_acc in zip(self.probe_cats, novice_results_by_probe, expert_results_by_probe):
-                cat2novice_result[cat].append(nov_acc)
-                cat2expert_result[cat].append(exp_acc)
-            novice_results_by_cat = [np.mean(cat2novice_result[cat]) for cat in self.cats]
-            expert_results_by_cat = [np.mean(cat2expert_result[cat]) for cat in self.cats]
-            # feature diagnosticity about category membership
-            probe_embed_mat = np.zeros((self.num_probes, embedder.dim1))
-            for n, p in enumerate(self.probes):
-                probe_embed_mat[n] = embedder.w2e[p]
-            true_col = [True for p in self.probes]
-            false_col = [False for p in self.probes]
-            feature_diagnosticity_mat = np.zeros((self.num_cats, embedder.dim1))
-            pbar = pyprind.ProgBar(embedder.dim1)
-            print('Making feature_diagnosticity_mat...')
-            for col_id, col in enumerate(probe_embed_mat.T):
-                pbar.update()
-                for cat_id, cat in enumerate(self.cats):
-                    target_col = [True if p in self.cat2probes[cat] else False for p in self.probes]
-                    last_f1 = 0.0
-                    for thr in np.linspace(np.min(col), np.max(col), num=config.Figs.num_diagnosticity_steps):
-                        thr_col = col > thr
-                        tp = np.sum((thr_col == target_col) & (thr_col == true_col))   # tp
-                        fp = np.sum((thr_col != target_col) & (thr_col == true_col))   # fp
-                        fn = np.sum((thr_col != target_col) & (thr_col == false_col))  # fn
-                        f1 = (2 * tp) / (2 * tp + fp + fn)
-                        if f1 > last_f1:
-                            feature_diagnosticity_mat[cat_id, col_id] = f1
-                            last_f1 = f1
-            # figs
-            for fig, fig_name in make_categorizer_figs(feature_diagnosticity_mat,
-                                                       train_acc_traj,
-                                                       test_acc_traj,
-                                                       train_softmax_traj,
-                                                       test_softmax_traj,
-                                                       average_cm,
-                                                       np.cumsum(average_x_mat, axis=1),
-                                                       novice_results_by_cat,
-                                                       expert_results_by_cat,
-                                                       novice_results_by_probe,
-                                                       expert_results_by_probe,
-                                                       cat2train_evals_to_criterion,
-                                                       cat2test_evals_to_criterion,
-                                                       cat2trained_test_evals_to_criterion,
-                                                       self.cats):
-                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.name)
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                fig.savefig(str(p))
-                print('Saved {} to {}'.format(fig_name, p))
 
     def score_novice(self, probe_sims, probe_cats=None, metric='ba'):
 

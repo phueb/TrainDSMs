@@ -29,8 +29,8 @@ embedders = chain(
 
 tasks = [
     # CatMEmberVer('semantic'),
-    CatMEmberVer('syntactic'),
-    # NymDetection('antonym'),
+    # CatMEmberVer('syntactic'),
+    NymDetection('antonym'),
     # NymDetection('synonym'),
     # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
     # Categorization('syntactic')

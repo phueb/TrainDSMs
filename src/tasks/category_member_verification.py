@@ -171,6 +171,9 @@ class CatMEmberVer(TaskBase):
         print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
         return best_expert_score
 
+    def make_trial_figs(self, trial):
+        return make_cat_member_verification_figs()
+
     # //////////////////////////////////////////////////// Overwritten Methods END
 
     @staticmethod
