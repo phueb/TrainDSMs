@@ -34,7 +34,7 @@ class CatLabelDetection(TaskBase):
         self.novice_probe_results = None  # TODO test
         # sims
         self.row_words = self.probes
-        self.col_words = self.labels + ['thing']  # TODO test
+        self.col_words = self.labels
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
@@ -87,11 +87,6 @@ class CatLabelDetection(TaskBase):
         y_train = np.vstack(y_train)
         x_test = np.vstack(x_test)
         y_test = np.vstack(y_test)
-        assert len(x_train) == len(y_train)
-        assert len(x_test) == len(y_test)
-        assert len(x_train) + len(x_test) == self.num_probes
-        assert len(test_probes) == len(x_test)
-        assert len(train_probes) == len(x_train)
         # shuffle x-y mapping
         if trial.params.shuffled:
             print('Shuffling in-out mapping')
@@ -215,7 +210,11 @@ class CatLabelDetection(TaskBase):
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
 
     def get_best_trial_score(self, trial):
-        raise NotImplementedError
+        mean_test_acc_traj = trial.eval.test_acc_trajs.mean(axis=1)
+        best_eval_id = np.argmax(mean_test_acc_traj)
+        expert_score = mean_test_acc_traj[best_eval_id]
+        print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id))
+        return expert_score
 
     def make_trial_figs(self, trial):
         # aggregate over folds
@@ -305,24 +304,12 @@ class CatLabelDetection(TaskBase):
             y_batch = y[row_ids]
             yield n, x_batch, y_batch
 
-    def make_test_candidates_mat(self, sims, verbose=True):
-        distractors = ['thing'] * self.num_probes  # TODO think of adversarial examples
-        neutrals = np.roll(self.probe_labels, 1)
-        first_neighbors = []
-        second_neighbors =[]
-        for n, p in enumerate(self.probes):  # otherwise argmax would return index for the probe itself
-            ids = np.argsort(sims[n])[::-1][:10]
-            nearest_neighbors = [self.col_words[i] for i in ids]
-            first_neighbors.append(nearest_neighbors[1])  # don't use id=zero because it returns the probe
-            second_neighbors.append(nearest_neighbors[2])
-        #
+    def make_test_candidates_mat(self, verbose=True):
         res = []
         for i in range(self.num_probes):
-            if first_neighbors[i] == self.probe_labels[i]:
-                first_neighbors[i] = neutrals[i]
-            if second_neighbors[i] == self.probe_labels[i]:
-                second_neighbors[i] = neutrals[i]
-            candidates = [self.probe_labels[i], distractors[i], first_neighbors[i], second_neighbors[i], neutrals[i]]
+            correct_label = self.probe_labels[i]
+            candidates = [label for label in self.labels if label != correct_label]
+            candidates.insert(0, correct_label)
             if verbose:
                 print(self.probes[i])
                 print(candidates)
@@ -344,8 +331,8 @@ class CatLabelDetection(TaskBase):
         pval_binom = 1 - binom.cdf(k=prop * n, n=n, p=self.chance)
         return pval_binom
 
-    def score_novice(self, sims, verbose=True):  # TODO test
-        self.test_candidates_mat = self.make_test_candidates_mat(sims)  # constructed here because it requires sims
+    def score_novice(self, sims, verbose=True):
+        self.test_candidates_mat = self.make_test_candidates_mat()
         num_correct = 0
         for n, test_candidates in enumerate(self.test_candidates_mat):
             candidate_sims = sims[n, [self.col_words.index(w) for w in test_candidates]]
