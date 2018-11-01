@@ -43,10 +43,11 @@ def make_param2id(paramsClass, stage1=True):
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         if stage1:
             print('==========================================================================')
-        for (k, v), i in zip(param2opts, ids):
-            print(k, v[i])
-        yield param2ids, param2val
-
+            for (k, v), i in zip(param2opts, ids):
+                print(k, v[i])
+            yield param2ids, param2val
+        else:
+            yield param2val
 
 class CountParams:
     count_type = [

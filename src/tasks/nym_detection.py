@@ -25,8 +25,8 @@ class Trial(object):
         self.params = params
         self.df_row = None
         #
-        self.train_acc_trajs = np.zeros((params.num_evals, params.num_folds))
-        self.test_acc_trajs = np.zeros((params.num_evals, params.num_folds))
+        self.train_acc_trajs = np.zeros((config.Task.num_evals, params.num_folds))
+        self.test_acc_trajs = np.zeros((config.Task.num_evals, params.num_folds))
 
 
 class NymDetection:
@@ -35,8 +35,10 @@ class NymDetection:
         self.nym_type = nym_type
         self.probes, self.syns, self.ants = self.load_data()
         self.num_probes = len(self.probes)
-        self.test_candidates_mat = None  # for evaluation
+        # params
+        self.param2val_list = list(make_param2id(Params, stage1=False))
         # evaluation
+        self.test_candidates_mat = None  # for evaluation
         self.novice_score = None
         self.trials = None
         self.df_header = sorted([k for k in Params.__dict__.keys() if not k.startswith('_')])
@@ -189,7 +191,7 @@ class NymDetection:
 
     def train_and_score_expert(self, embedder):
         self.trials = []  # need to flush trials (because multiple embedders reuse task)
-        for params_id, (param2id, param2val) in enumerate(make_param2id(Params, stage1=False)):
+        for params_id, param2val in enumerate(self.param2val_list):
             trial = Trial(params_id, ObjectView(param2val))
             print('Training {} expert'.format(self.name))
             for fold_id in range(trial.params.num_folds):
@@ -229,9 +231,9 @@ class NymDetection:
         x1_train, x2_train, y_train, x1_test, x2_test = data
         num_train_probes, num_test_probes = len(x1_train), len(x1_test)
         num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
-        eval_interval = num_train_steps // trial.params.num_evals
+        eval_interval = num_train_steps // config.Task.num_evals
         eval_steps = np.arange(0, num_train_steps + eval_interval,
-                               eval_interval)[:trial.params.num_evals].tolist()  # equal sized intervals
+                               eval_interval)[:config.Task.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,

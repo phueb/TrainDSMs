@@ -56,17 +56,14 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
-    def has_task(self, task_name):    # TODO scores should exists num_reps times on disk
-        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
-        if not p.exists():  # embedder is new
+    def has_task(self, task):    # TODO scores should exists num_reps times on disk
+        p = config.Dirs.runs / self.time_of_init / task.name / 'scores.csv'
+        if p.exists():
+            df = pd.read_csv(p, index_col=False)
+            if len(df) == len(task.param2val_list):
+                return True
+        else:
             return False
-        series = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-        for task_name in [task_name + '_exp', task_name + '_nov']:
-            try:
-                series[task_name]
-            except KeyError:
-                return False
-        return True
 
     # ///////////////////////////////////////////////////////////// corpus data
 

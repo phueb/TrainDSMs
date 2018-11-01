@@ -37,6 +37,8 @@ class CatMEmberVer:
         self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
+        # params
+        self.param2val_list = list(make_param2id(Params, stage1=False))
         # evaluation
         self.novice_score = None
         self.trials = None  # each result is a class with many attributes
@@ -145,7 +147,7 @@ class CatMEmberVer:
 
     def train_and_score_expert(self, embedder):
         self.trials = []  # need to flush trials (because multiple embedders reuse task)
-        for params_id, (param2id, param2val) in enumerate(make_param2id(Params, stage1=False)):
+        for params_id, param2val in enumerate(self.param2val_list):  # TODO add logic to other tasks
             trial = Trial(params_id, ObjectView(param2val), self.num_probes)
             print('Training {} expert'.format(self.name))
             for fold_id in range(trial.params.num_folds):

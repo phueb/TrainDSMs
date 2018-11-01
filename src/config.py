@@ -10,11 +10,11 @@ class Dirs:
 
 class Task:
     vocab_sizes = [4096, 8192, 16384]
-    retrain = True
+    retrain = False
     clear_scores = True
     save_scores = True
     save_figs = False
-    num_opt_steps = 1
+    num_opt_steps = 3
     device = 'cpu'
     num_evals = 10
     remove_duplicate_nyms = False  # needs to be False to get above chance

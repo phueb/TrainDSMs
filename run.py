@@ -28,10 +28,10 @@ embedders = chain(
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
-    CatMEmberVer('semantic'),
+    # CatMEmberVer('semantic'),
     CatMEmberVer('syntactic'),
-    NymDetection('antonym'),
-    NymDetection('synonym'),
+    # NymDetection('antonym'),
+    # NymDetection('synonym'),
     # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
     # Categorization('syntactic')
 ]
@@ -54,7 +54,7 @@ for embedder in embedders:
     print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # tasks
     for task in tasks:
-        if config.Task.retrain or not embedder.has_task(task.name):  # TODO task must exist config.num_reps times
+        if config.Task.retrain or not embedder.has_task(task):  # TODO task must exist config.num_reps times
             print('---------------------------------------------')
             print('Starting task "{}"'.format(task.name))
             print('---------------------------------------------')
