@@ -9,7 +9,7 @@ from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
-from src.tasks.categorization import Categorization
+from src.tasks.category_label_verification import CatLabelVer
 from src.tasks.category_member_verification import CatMEmberVer
 from src.tasks.nym_detection import NymDetection
 

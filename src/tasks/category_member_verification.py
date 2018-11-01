@@ -1,15 +1,14 @@
 import numpy as np
 import tensorflow as tf
 from bayes_opt import BayesianOptimization
-import pandas as pd
 
 from src import config
 from src.figs import make_cat_member_verification_figs
-from src.params import make_param2id, ObjectView
+from src.tasks.base import TaskBase
 
 
 class Params:
-    shuffled = [False, True]  # TODO save shuffled data separately?
+    shuffled = [False, True]
     num_epochs = [500]
     mb_size = [4]
     num_output = [32, 256]
@@ -19,40 +18,31 @@ class Params:
     num_folds = [2, 4]
 
 
-class Trial(object):
-    def __init__(self, params_id, params, num_probes):
-        self.params_id = params_id
-        self.params = params
-        self.df_row = None
-        #
-        self.test_probe_sims = [np.zeros((num_probes, num_probes)) for _ in range(config.Task.num_evals)]
-
-
-class CatMEmberVer:
+class CatMEmberVer(TaskBase):
     def __init__(self, cat_type):
-        self.name = '{}_cat_mem_ver'.format(cat_type)
+        name = '{}_cat_mem_ver'.format(cat_type)
+        super().__init__(name, Params)
+        #
         self.cat_type = cat_type
-        self.probes, self.probe_cats = self.load_data()
+        self.probes, self.probe_cats = self.load_training_data()
         self.cats = sorted(set(self.probe_cats))
         self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
-        # params
-        self.param2val_list = list(make_param2id(Params, stage1=False))
-        # evaluation
-        self.novice_score = None
-        self.trials = None  # each result is a class with many attributes
-        self.df_header = sorted([k for k in Params.__dict__.keys() if not k.startswith('_')])
         # sims
         self.row_words = self.probes
         self.col_words = self.probes
 
-    def load_data(self):
-        p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        both = np.loadtxt(p, dtype='str')
-        np.random.shuffle(both)
-        probes, cats = both.T
-        return probes.tolist(), cats.tolist()
+    # ///////////////////////////////////////////// Overwritten Methods START
+
+    def init_eval_data(self, trial):
+        """
+        add task-specific attributes to EvalData class implemented in TaskBase
+        """
+        res = super().init_eval_data(trial)
+        res.test_probe_sims = [np.zeros((self.num_probes, self.num_probes))
+                               for _ in range(config.Task.num_evals)]
+        return res
 
     def make_data(self, trial, w2e, fold_id):
         # train/test split (separately for each category)
@@ -92,8 +82,7 @@ class CatMEmberVer:
             np.random.shuffle(y_train)
         return x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids
 
-    @staticmethod
-    def make_graph(trial, embed_size):
+    def make_graph(self, trial, embed_size):
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -124,7 +113,7 @@ class CatMEmberVer:
                     losses = tf.add(pos, neg)
                     loss_no_reg = tf.reduce_mean(losses)
                     regularizer = tf.nn.l2_loss(wy)
-                    loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
+                    loss = tf.reduce_mean((1 - trial.params.beta) * loss_no_reg +
                                           trial.params.beta * regularizer)
                     optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                     step = optimizer.minimize(loss)
@@ -133,57 +122,7 @@ class CatMEmberVer:
                 sess.run(tf.global_variables_initializer())
         return Graph()
 
-    def get_best_trial_score(self, trial):
-        best_expert_score = 0
-        best_eval_id = 0
-        for eval_id, sims in enumerate(trial.test_probe_sims):
-            expert_score = self.calc_balanced_accuracy(sims, verbose=False)
-            print('Balanced Accuracy at eval {} is {:.2f}'.format(eval_id + 1, expert_score))
-            if expert_score > best_expert_score:
-                best_expert_score = expert_score
-                best_eval_id = eval_id
-        print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
-        return best_expert_score
-
-    def train_and_score_expert(self, embedder):
-        self.trials = []  # need to flush trials (because multiple embedders reuse task)
-        for params_id, param2val in enumerate(self.param2val_list):  # TODO add logic to other tasks
-            trial = Trial(params_id, ObjectView(param2val), self.num_probes)
-            print('Training {} expert'.format(self.name))
-            for fold_id in range(trial.params.num_folds):
-                print('Fold {}/{}'.format(fold_id + 1, trial.params.num_folds))
-                graph = self.make_graph(trial, embedder.dim1)
-                data = self.make_data(trial, embedder.w2e, fold_id)
-                self.train_expert_on_train_fold(trial, graph, data)
-            # score
-            trial.df_row = [self.get_best_trial_score(trial), self.novice_score] + \
-                           [trial.params.__dict__[p] for p in self.df_header]
-            self.trials.append(trial)   # append trial before saving scores
-            p = config.Dirs.runs / embedder.time_of_init / self.name / 'scores.csv'
-            if config.Task.clear_scores and p.exists():
-                p.unlink()
-            # save
-            if config.Task.save_scores:
-                print('Saving score')
-                data = np.asarray([trial.df_row for trial in self.trials])  # TODO do not convert types
-                df = pd.DataFrame(data=data, columns=['exp_score', 'nov_score'] + self.df_header)
-                if not p.parent.exists():
-                    p.parent.mkdir()
-                with p.open('a') as f:
-                    df.to_csv(f, mode='a', header=f.tell() == 0, index=False)
-
-    @staticmethod
-    def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x1_batch = x1[row_ids]
-            x2_batch = x2[row_ids]
-            y_batch = y[row_ids]
-            yield n, x1_batch, x2_batch, y_batch
-
-    def train_expert_on_train_fold(self, trial, graph, data):
+    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
         x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids = data
         num_train_probes, num_test_probes = len(x1_train), len(x1_test)
         num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
@@ -210,7 +149,7 @@ class CatMEmberVer:
                     eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
                                                                  graph.x2: x2_mat})
                     sims_row = 1.0 - (eucd / trial.params.margin)
-                    trial.test_probe_sims[eval_id][test_probe_id, :] = sims_row
+                    trial.eval.test_probe_sims[eval_id][test_probe_id, :] = sims_row
                 test_bal_acc = 'need to complete all folds'
                 print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test BalancedAcc={}'.format(
                     step,
@@ -220,15 +159,38 @@ class CatMEmberVer:
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
-    def save_figs(self, embedder):
-        for trial in self.trials:
-            # figs
-            for fig, fig_name in make_cat_member_verification_figs():
-                p = config.Dirs.runs / embedder.time_of_init / self.name / '{}_{}.png'.format(fig_name, trial.params_id)
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                fig.savefig(str(p))
-                print('Saved {} to {}'.format(fig_name, p))
+    def get_best_trial_score(self, trial):
+        best_expert_score = 0
+        best_eval_id = 0
+        for eval_id, sims in enumerate(trial.eval.test_probe_sims):
+            expert_score = self.calc_balanced_accuracy(sims, verbose=False)
+            print('Balanced Accuracy at eval {} is {:.2f}'.format(eval_id + 1, expert_score))
+            if expert_score > best_expert_score:
+                best_expert_score = expert_score
+                best_eval_id = eval_id
+        print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
+        return best_expert_score
+
+    # //////////////////////////////////////////////////// Overwritten Methods END
+
+    @staticmethod
+    def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
+        random_choices = np.random.choice(num_probes, mb_size * num_steps)
+        row_ids_list = np.split(random_choices, num_steps)
+        for n, row_ids in enumerate(row_ids_list):
+            assert len(row_ids) == mb_size
+            x1_batch = x1[row_ids]
+            x2_batch = x2[row_ids]
+            y_batch = y[row_ids]
+            yield n, x1_batch, x2_batch, y_batch
+
+    def load_training_data(self):
+        p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(
+            config.Corpus.name, config.Corpus.num_vocab)
+        both = np.loadtxt(p, dtype='str')
+        np.random.shuffle(both)
+        probes, cats = both.T
+        return probes.tolist(), cats.tolist()
 
     def score_novice(self, probe_sims):
         self.novice_score = self.calc_balanced_accuracy(probe_sims)
