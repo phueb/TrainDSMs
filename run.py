@@ -28,13 +28,22 @@ embedders = chain(
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
+    CatLabelVer('semantic'),
     # CatMEmberVer('semantic'),
     # CatMEmberVer('syntactic'),
-    NymDetection('antonym'),
+    # NymDetection('antonym'),
     # NymDetection('synonym'),
-    # Categorization('semantic'),  # TODO make cat_label_verification task (in addition to cat_member_verfication task) verify  "cat" & "mammal" instead of "cat" & "dog"
+    # Categorization('semantic'),
     # Categorization('syntactic')
 ]
+
+# "sports" required for task "semantic_cat_label_ver" is not in w2e.
+# "insect" required for task "semantic_cat_label_ver" is not in w2e.
+# "clothing" required for task "semantic_cat_label_ver" is not in w2e.
+# "household" required for task "semantic_cat_label_ver" is not in w2e.
+# "electronics" required for task "semantic_cat_label_ver" is not in w2e.
+# "vehicles" required for task "semantic_cat_label_ver" is not in w2e.
+# "mammal" required for task "semantic_cat_label_ver" is not in w2e.
 
 # run full experiment
 for embedder in embedders:

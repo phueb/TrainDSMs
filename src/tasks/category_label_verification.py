@@ -22,13 +22,13 @@ class CatLabelVer(TaskBase):
         super().__init__(name, Params)
         #
         self.cat_type = cat_type
-        self.probes, self.probe_cats = self.load_data()
+        self.probes, self.probe_cats = self.load_training_data()
         self.cats = sorted(set(self.probe_cats))
         self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
         self.num_probes = len(self.probes)
         self.num_cats = len(self.cats)
         # evaluation
-        self.novice_probe_results = []  # for plotting TODO test
+        self.novice_probe_results = None  # for plotting TODO test
         # sims
         self.row_words = self.probes
         self.col_words = self.cats  # TODO test
@@ -90,7 +90,7 @@ class CatLabelVer(TaskBase):
         assert len(test_probes) == len(x_test)
         assert len(train_probes) == len(x_train)
         # shuffle x-y mapping
-        if trial.shuffled:
+        if trial.params.shuffled:
             print('Shuffling category assignment')
             np.random.shuffle(y_train)
         return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test), train_probes, test_probes
@@ -154,21 +154,21 @@ class CatLabelVer(TaskBase):
                 # train softmax probs
                 softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_train, graph.y: y_train})
                 for p, correct_cat_prob in zip(train_probes, softmax[np.arange(num_train_probes), y_train]):
-                    trial.train_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
+                    trial.eval.train_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
                 # test softmax probs
                 softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
                 for p, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
-                    trial.test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
+                    trial.eval.test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
                 # train accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_train, graph.y: y_train})
                 train_acc = num_correct / float(num_train_probes)
-                trial.train_acc_trajs[eval_id, fold_id] = train_acc
+                trial.eval.train_acc_trajs[eval_id, fold_id] = train_acc
                 # test accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
                 test_acc = num_correct / float(num_test_probes)
-                trial.test_acc_trajs[eval_id, fold_id] = test_acc
+                trial.eval.test_acc_trajs[eval_id, fold_id] = test_acc
                 # keep track of number of samples in each category
-                trial.x_mat[:, eval_id, fold_id] = [ys.count(cat_id) for cat_id in range(self.num_cats)]
+                trial.eval.x_mat[:, eval_id, fold_id] = [ys.count(cat_id) for cat_id in range(self.num_cats)]
                 ys = []
                 print('step {:>6,}/{:>6,} |Train Acc={:.2f} |Test Acc={:.2f}'.format(
                     step,
@@ -199,7 +199,7 @@ class CatLabelVer(TaskBase):
                 # test softmax probs
                 softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
                 for p, correct_cat_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
-                    trial.trained_test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
+                    trial.eval.trained_test_softmax_probs[self.probes.index(p), eval_id, fold_id] = correct_cat_prob
                 # accuracy
                 num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
                 test_acc = num_correct / float(num_test_probes)
@@ -216,16 +216,16 @@ class CatLabelVer(TaskBase):
 
     def make_trial_figs(self, trial):
         # aggregate over folds
-        average_x_mat = np.sum(trial.x_mat, axis=2)
-        average_cm = np.sum(trial.cms, axis=0)
+        average_x_mat = np.sum(trial.eval.x_mat, axis=2)
+        average_cm = np.sum(trial.eval.cms, axis=0)
         # make average accuracy trajectories - careful not to take mean over arrays with zeros
-        train_no_zeros = np.where(trial.train_softmax_probs != 0, trial.train_softmax_probs, np.nan)  # zero to nan
-        test_no_zeros = np.where(trial.test_softmax_probs != 0, trial.test_softmax_probs, np.nan)
-        trained_test_no_zeros = np.where(trial.trained_test_softmax_probs != 0, trial.trained_test_softmax_probs, np.nan)
+        train_no_zeros = np.where(trial.eval.train_softmax_probs != 0, trial.eval.train_softmax_probs, np.nan)  # zero to nan
+        test_no_zeros = np.where(trial.eval.test_softmax_probs != 0, trial.eval.test_softmax_probs, np.nan)
+        trained_test_no_zeros = np.where(trial.eval.trained_test_softmax_probs != 0, trial.eval.trained_test_softmax_probs, np.nan)
         train_softmax_traj = np.nanmean(train_no_zeros, axis=(0, 2))
         test_softmax_traj = np.nanmean(test_no_zeros, axis=(0, 2))
-        train_acc_traj = trial.train_acc_trajs.mean(axis=1)
-        test_acc_traj = trial.test_acc_trajs.mean(axis=1)
+        train_acc_traj = trial.eval.train_acc_trajs.mean(axis=1)
+        test_acc_traj = trial.eval.test_acc_trajs.mean(axis=1)
         # make data for criterion fig
         train_tmp = np.nanmean(train_no_zeros, axis=2)  # [num _probes, num_evals]
         test_tmp = np.nanmean(test_no_zeros, axis=2)  # [num _probes, num_evals]
@@ -258,7 +258,7 @@ class CatLabelVer(TaskBase):
                 cat2trained_test_evals_to_criterion[cat].append(config.Task.num_evals)
         # novice vs expert by probe
         novice_results_by_probe = self.novice_probe_results
-        expert_results_by_probe = trial.expert_probe_results
+        expert_results_by_probe = trial.eval.expert_probe_results
         # novice vs expert by cat
         cat2novice_result = {cat: [] for cat in self.cats}
         cat2expert_result = {cat: [] for cat in self.cats}
@@ -285,12 +285,12 @@ class CatLabelVer(TaskBase):
 
     # ////////////////////////////////////////////// Overwritten Methods END
 
-    def load_data(self):
-        p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+    def load_training_data(self):
+        p = config.Dirs.tasks / '{}_category_labels'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
         probes, probe_cats = both.T
-        return probes.tolist(), probe_cats.tolist()
+        return probes.tolist(), [c.lower() for c in probe_cats.tolist()]
 
     @staticmethod
     def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
