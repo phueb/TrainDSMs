@@ -53,10 +53,6 @@ for embedder in embedders:
         embedder.load_w2e()
     print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # tasks
-    if config.Task.clear_scores:
-        embedder.clear_scores()
-    data = []
-    index = []
     for task in tasks:
         if config.Task.retrain or not embedder.has_task(task.name):  # TODO task must exist config.num_reps times
             print('---------------------------------------------')
@@ -70,10 +66,8 @@ for embedder in embedders:
             sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
             print('Shape of similarity matrix: {}'.format(sims.shape))
             # score
-            index.append(task.name + '_nov')
-            data.append(task.score_novice(sims))  # TODO save shuffled trials in separate file - scores_shuffled.csv
-            index.append(task.name + '_exp')
-            data.append(task.train_and_score_expert(embedder))
+            task.score_novice(sims)
+            task.train_and_score_expert(embedder)
             # figs
             if config.Task.save_figs:
                 task.save_figs(embedder)
@@ -81,16 +75,13 @@ for embedder in embedders:
             print('---------------------------------------------')
             print('Embedder has task "{}"'.format(task.name))
             print('---------------------------------------------')
-    # save scores
-    if config.Task.append_scores:
-        scores = pd.Series(data=data, index=index)
-        embedder.append_scores(scores)
+
 
 # combine scores
 scores_list = []
 for p in config.Dirs.runs.rglob('scores.csv'):
     scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-    scores = scores.groupby(scores.index).mean()
+    scores = scores.groupby(scores.index).max()
     scores.name = p.parent.name
     scores_list.append(scores)
 df = pd.concat(scores_list, axis=1)

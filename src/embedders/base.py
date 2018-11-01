@@ -56,16 +56,6 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
-    def clear_scores(self):
-        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
-        if p.exists():
-            p.unlink()
-
-    def append_scores(self, scores_series):
-        p = config.Dirs.runs / self.time_of_init / 'scores.csv'
-        with p.open('a') as f:
-            scores_series.to_csv(f, mode='a', header=False)
-
     def has_task(self, task_name):    # TODO scores should exists num_reps times on disk
         p = config.Dirs.runs / self.time_of_init / 'scores.csv'
         if not p.exists():  # embedder is new

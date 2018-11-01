@@ -1,16 +1,32 @@
 import numpy as np
 import tensorflow as tf
 from scipy.stats import binom
+import pandas as pd
 
 from src import config
 from src.figs import make_nym_figs
+from src.params import make_param2id, ObjectView
+
+
+class Params:
+    margin = [50.0, 100.0]  # must be float and MUST be at least 40 or so
+    train_on_second_neighbors = [True]  # performance is much better with additional training
+    beta = [0.1, 0.3]
+    num_output = [32, 256]
+    mb_size = [2, 16]
+    num_epochs = [500]
+    learning_rate = [0.1]
+    num_folds = [2, 4]
 
 
 class Trial(object):
-    def __init__(self, name):
-        self.name = name
-        self.train_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
-        self.test_acc_trajs = np.zeros((config.NymMatching.num_evals, config.NymMatching.num_folds))
+    def __init__(self, params_id, params):
+        self.params_id = params_id
+        self.params = params
+        self.df_row = None
+        #
+        self.train_acc_trajs = np.zeros((params.num_evals, params.num_folds))
+        self.test_acc_trajs = np.zeros((params.num_evals, params.num_folds))
 
 
 class NymDetection:
@@ -21,7 +37,9 @@ class NymDetection:
         self.num_probes = len(self.probes)
         self.test_candidates_mat = None  # for evaluation
         # evaluation
+        self.novice_score = None
         self.trials = None
+        self.df_header = sorted([k for k in Params.__dict__.keys() if not k.startswith('_')])
         # sims
         self.row_words = self.probes
         self.col_words = sorted(set(self.syns + self.ants + self.probes))
@@ -34,7 +52,7 @@ class NymDetection:
         np.random.shuffle(loaded)
         probes, syns, ants = loaded.T
         # remove duplicate nyms
-        if config.NymMatching.remove_duplicate_nyms:
+        if config.Task.remove_duplicate_nyms:
             print('Removing dulicate nyms')
             keep_ids = []
             syn_set = set()
@@ -84,7 +102,7 @@ class NymDetection:
         res = np.vstack(res)
         return res
 
-    def make_data(self, w2e, fold_id, shuffled):
+    def make_data(self, trial, w2e, fold_id):
         # train/test split
         x1_train = []
         x2_train = []
@@ -92,14 +110,14 @@ class NymDetection:
         x1_test = []
         x2_test = []
         for n, (probes, candidate_rows) in enumerate(zip(
-                np.array_split(self.probes, config.NymMatching.num_folds),
-                np.array_split(self.test_candidates_mat, config.NymMatching.num_folds))):
+                np.array_split(self.probes, trial.params.num_folds),
+                np.array_split(self.test_candidates_mat, trial.params.num_folds))):
             nyms, distractors, first_neighbors, second_neighbors, neutrals = candidate_rows.T
             if n != fold_id:
                 x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
                 x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in distractors]
                 y_train += [1] * len(probes) + [0] * len(probes)
-                if config.NymMatching.train_on_second_neighbors:
+                if trial.params.train_on_second_neighbors:
                     x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
                     x2_train += [w2e[n] for n in nyms] + [w2e[d] for d in second_neighbors]
                     y_train += [1] * len(probes) + [0] * len(probes)
@@ -115,13 +133,13 @@ class NymDetection:
         x1_test = np.array(x1_test)
         x2_test = np.array(x2_test)
         # shuffle x-y mapping
-        if shuffled:
+        if trial.params.shuffled:
             print('Shuffling probe-nym mapping')
             np.random.shuffle(y_train)
         return x1_train, x2_train, y_train, x1_test, x2_test
 
     @staticmethod
-    def make_graph(embed_size, shuffled):  # TODO if multiple trials, need to rename scope each time
+    def make_graph(trial, embed_size):  # TODO base class method?
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -129,14 +147,14 @@ class NymDetection:
 
         class Graph:
             with tf.Graph().as_default():
-                with tf.device('/{}:0'.format(config.NymMatching.device)):
+                with tf.device('/{}:0'.format(config.Task.device)):
                     # placeholders
                     x1 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
                     y = tf.placeholder(tf.float32, [None])
                     # siamese
-                    with tf.variable_scope('siamese_{}'.format(shuffled), reuse=tf.AUTO_REUSE) as scope:
-                        wy = tf.get_variable('wy', shape=[embed_size, config.NymMatching.num_output], dtype=tf.float32)
+                    with tf.variable_scope('trial_{}'.format(trial.params_id), reuse=tf.AUTO_REUSE) as scope:
+                        wy = tf.get_variable('wy', shape=[embed_size, trial.params.num_output], dtype=tf.float32)
                         o1 = siamese_leg(x1, wy)
                         o2 = siamese_leg(x2, wy)
                     # loss
@@ -145,7 +163,7 @@ class NymDetection:
                     eucd2 = tf.pow(tf.subtract(o1, o2), 2)
                     eucd2 = tf.reduce_sum(eucd2, 1)
                     eucd = tf.sqrt(eucd2 + 1e-6)
-                    C = tf.constant(config.NymMatching.margin)
+                    C = tf.constant(trial.params.margin)
                     # yi*||o1-o2||^2 + (1-yi)*max(0, C-||o1-o2||^2)
                     pos = tf.multiply(labels_t, eucd2)
                     neg = tf.multiply(labels_f, tf.pow(tf.maximum(tf.subtract(C, eucd), 0), 2))
@@ -153,54 +171,67 @@ class NymDetection:
                     loss_no_reg = tf.reduce_mean(losses)
                     regularizer = tf.nn.l2_loss(wy)
                     loss = tf.reduce_mean((1 - config.Categorization.beta) * loss_no_reg +
-                                          config.NymMatching.beta * regularizer)
-                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=config.NymMatching.learning_rate)
+                                          trial.params.beta * regularizer)
+                    optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                     step = optimizer.minimize(loss)
                 # session
                 sess = tf.Session()
                 sess.run(tf.global_variables_initializer())
-
         return Graph()
 
-    def train_and_score_expert(self, embedder):
-        self.trials = []  # need to flush trials (because multiple embedders)
-        bools = [False, True] if config.NymMatching.run_shuffled else [False]
-        for shuffled in bools:
-            trial = Trial(name='shuffled' if shuffled else '')
-            for fold_id in range(config.NymMatching.num_folds):
-                # train
-                print('Fold {}/{}'.format(fold_id + 1, config.NymMatching.num_folds))
-                print('Training nym_matching expert {}...'.format(
-                    'with shuffled in-out mapping' if shuffled else ''))
-                graph = self.make_graph(embedder.dim1, shuffled)
-                data = self.make_data(embedder.w2e, fold_id, shuffled)
-                self.train_expert_on_train_fold(graph, trial, data, fold_id)
-            self.trials.append(trial)
-        # expert_score
-        mean_test_acc_traj = self.trials[0].test_acc_trajs.mean(axis=1)
+    @staticmethod
+    def get_best_trial_score(trial):
+        mean_test_acc_traj = trial.test_acc_trajs.mean(axis=1)
         best_eval_id = np.argmax(mean_test_acc_traj)
         expert_score = mean_test_acc_traj[best_eval_id]
         print('Expert score={:.2f} (at eval step {})'.format(expert_score, best_eval_id))
         return expert_score
 
+    def train_and_score_expert(self, embedder):
+        self.trials = []  # need to flush trials (because multiple embedders reuse task)
+        for params_id, (param2id, param2val) in enumerate(make_param2id(Params, stage1=False)):
+            trial = Trial(params_id, ObjectView(param2val))
+            print('Training {} expert'.format(self.name))
+            for fold_id in range(trial.params.num_folds):
+                print('Fold {}/{}'.format(fold_id + 1, trial.params.num_folds))
+                graph = self.make_graph(trial, embedder.dim1)
+                data = self.make_data(trial, embedder.w2e, fold_id)
+                self.train_expert_on_train_fold(trial, graph, data, fold_id)
+                # score
+                trial.df_row = [self.get_best_trial_score(trial), self.novice_score] + \
+                               [trial.params.__dict__[p] for p in self.df_header]
+                self.trials.append(trial)  # append trial before saving scores
+                p = config.Dirs.runs / embedder.time_of_init / self.name / 'scores.csv'
+                if config.Task.clear_scores and p.exists():
+                    p.unlink()
+                # save
+                if config.Task.save_scores:
+                    print('Saving score')
+                    data = np.asarray([trial.df_row for trial in self.trials])  # TODO do not convert types
+                    df = pd.DataFrame(data=data, columns=['exp_score', 'nov_score'] + self.df_header)
+                    if not p.parent.exists():
+                        p.parent.mkdir()
+                    with p.open('a') as f:
+                        df.to_csv(f, mode='a', header=f.tell() == 0, index=False)
+
     @staticmethod
-    def generate_random_train_batches(x1, x2, y, num_probes, num_steps):
-        random_choices = np.random.choice(num_probes, config.NymMatching.mb_size * num_steps)
+    def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
+        random_choices = np.random.choice(num_probes, mb_size * num_steps)
         row_ids_list = np.split(random_choices, num_steps)
         for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == config.NymMatching.mb_size
+            assert len(row_ids) == mb_size
             x1_batch = x1[row_ids]
             x2_batch = x2[row_ids]
             y_batch = y[row_ids]
             yield n, x1_batch, x2_batch, y_batch
 
-    def train_expert_on_train_fold(self, graph, trial, data, fold_id):
+    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
         x1_train, x2_train, y_train, x1_test, x2_test = data
         num_train_probes, num_test_probes = len(x1_train), len(x1_test)
-        num_train_steps = num_train_probes // config.NymMatching.mb_size * config.NymMatching.num_epochs
-        eval_interval = num_train_steps // config.NymMatching.num_evals
+        num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
+        eval_interval = num_train_steps // trial.params.num_evals
         eval_steps = np.arange(0, num_train_steps + eval_interval,
-                               eval_interval)[:config.NymMatching.num_evals].tolist()  # equal sized intervals
+                               eval_interval)[:trial.params.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train, x2_train, y_train,
@@ -262,9 +293,8 @@ class NymDetection:
                 print(np.around(candidate_sims, 2))
             if np.all(candidate_sims[1:] < candidate_sims[0]):  # correct is always in first position
                 num_correct += 1
-        result = num_correct / self.num_probes
+        self.novice_score = num_correct / self.num_probes
         print('Novice Accuracy={:.2f} (chance={:.2f}, p={:.4f})'.format(
-            result,
+            self.novice_score,
             self.chance,
-            self.pval(result, n=self.num_probes)))
-        return result
+            self.pval(self.novice_score, n=self.num_probes)))

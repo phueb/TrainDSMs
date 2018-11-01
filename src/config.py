@@ -11,12 +11,13 @@ class Dirs:
 class Task:
     vocab_sizes = [4096, 8192, 16384]
     retrain = True
-    clear_scores = False
-    append_scores = False
+    clear_scores = True
+    save_scores = True
     save_figs = False
     num_opt_steps = 1
     device = 'cpu'
     num_evals = 10
+    remove_duplicate_nyms = False  # needs to be False to get above chance
 
 
 class Categorization:  # TODO make unique to each embedder
@@ -38,22 +39,7 @@ class Categorization:  # TODO make unique to each embedder
     num_diagnosticity_steps = 50
 
 
-class NymMatching:  # TODO embedder-dependent
-    """
-    SGD
-    cbow: lr=0.00001 + mb_size=2 + num_output=128 + margin=100.0
-    AdaDelta
-    srn: lr=0.00001 + mb_size=2 + num_output=128 + margin=100.0 + beta=0.2
-    """
-    margin = 100.0  # must be float and MUST be at least 40 or so
-    remove_duplicate_nyms = False  # needs to be False to get above chance
-    train_on_second_neighbors = True  # performance is much better with additional training
-    beta = 0.3
-    num_output = 128
-    mb_size = 2
-    num_epochs = 500
-    learning_rate = 0.1
-    num_folds = 4
+
 
 
 class Embeddings:
