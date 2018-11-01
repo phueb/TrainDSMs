@@ -13,20 +13,20 @@ def make_cat_member_verification_figs():
     return []
 
 
-def make_categorizer_figs(train_acc_traj,
-                          test_acc_traj,
-                          train_softmax_traj,
-                          test_softmax_traj,
-                          cm,
-                          cum_x_mat,
-                          novice_results_by_cat,
-                          expert_results_by_cat,
-                          novice_results_by_probe,
-                          expert_results_by_probe,
-                          cat2train_evals_to_criterion,
-                          cat2test_evals_to_criterion,
-                          cat2trained_test_evals_to_criterion,
-                          cats):
+def make_cat_label_detection_figs(train_acc_traj,
+                                  test_acc_traj,
+                                  train_softmax_traj,
+                                  test_softmax_traj,
+                                  cm,
+                                  cum_x_mat,
+                                  novice_results_by_cat,
+                                  expert_results_by_cat,
+                                  novice_results_by_probe,
+                                  expert_results_by_probe,
+                                  cat2train_evals_to_criterion,
+                                  cat2test_evals_to_criterion,
+                                  cat2trained_test_evals_to_criterion,
+                                  cats):
     num_cats = len(cats)
 
     def make_novice_vs_expert_fig(xs, ys, annotations=None):

@@ -28,7 +28,7 @@ class NymDetection(TaskBase):
         self.probes, self.syns, self.ants = self.load_training_data()
         self.num_probes = len(self.probes)
         # evaluation
-        self.test_candidates_mat = None  # for evaluation
+        self.test_candidates_mat = None
         # sims
         self.row_words = self.probes
         self.col_words = sorted(set(self.syns + self.ants + self.probes))

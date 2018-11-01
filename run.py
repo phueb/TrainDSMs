@@ -9,7 +9,7 @@ from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
-from src.tasks.category_label_verification import CatLabelVer
+from src.tasks.category_label_detection import CatLabelDetection
 from src.tasks.category_member_verification import CatMEmberVer
 from src.tasks.nym_detection import NymDetection
 
@@ -28,7 +28,7 @@ embedders = chain(
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
-    CatLabelVer('semantic'),
+    CatLabelDetection('semantic'),
     # CatMEmberVer('semantic'),
     # CatMEmberVer('syntactic'),
     # NymDetection('antonym'),
