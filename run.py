@@ -28,13 +28,12 @@ embedders = chain(
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
+    NymDetection('antonym'),
+    NymDetection('synonym'),
     CatLabelDetection('semantic'),
-    # CatMEmberVer('semantic'),
-    # CatMEmberVer('syntactic'),
-    # NymDetection('antonym'),
-    # NymDetection('synonym'),
-    # Categorization('semantic'),
-    # Categorization('syntactic')
+    # CatLabelDetection('syntactic'),  # TODO what should labels be ?
+    CatMEmberVer('semantic'),
+    CatMEmberVer('syntactic'),
 ]
 
 # "sports" required for task "semantic_cat_label_ver" is not in w2e.

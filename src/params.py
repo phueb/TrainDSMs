@@ -1,6 +1,8 @@
 import numpy as np
 from itertools import cycle
 
+from src import config
+
 
 class ObjectView(object):
     def __init__(self, d):
@@ -41,6 +43,7 @@ def make_param2id(paramsClass, stage1=True):
         d = {k: i for (k, v), i in zip(param2opts, ids)}
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
+        param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
         if stage1:
             print('==========================================================================')
             for (k, v), i in zip(param2opts, ids):
@@ -48,6 +51,7 @@ def make_param2id(paramsClass, stage1=True):
             yield param2ids, param2val
         else:
             yield param2val
+
 
 class CountParams:
     count_type = [

@@ -182,7 +182,6 @@ class NymDetection(TaskBase):
     def load_training_data():
         p = config.Dirs.tasks / 'nyms' / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
-        print('Loading {}'.format(p))
         loaded = np.loadtxt(p, dtype='str')
         np.random.shuffle(loaded)
         probes, syns, ants = loaded.T
@@ -204,7 +203,7 @@ class NymDetection(TaskBase):
             keep_ids = np.arange(num_triplets)
         return probes[keep_ids].tolist(), syns[keep_ids].tolist(), ants[keep_ids].tolist()
 
-    def make_test_candidates_mat(self, sims, verbose=True):
+    def make_test_candidates_mat(self, sims, verbose=False):
         if self.nym_type == 'antonym':
             nyms = self.ants
             distractors = self.syns

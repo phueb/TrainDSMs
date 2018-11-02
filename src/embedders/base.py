@@ -58,12 +58,16 @@ class EmbedderBase(object):
 
     def has_task(self, task):    # TODO scores should exists num_reps times on disk
         p = config.Dirs.runs / self.time_of_init / task.name / 'scores.csv'
+        num_trained = 0
         if p.exists():
             df = pd.read_csv(p, index_col=False)
             if len(df) == len(task.param2val_list):
                 return True
-        else:
-            return False
+            else:
+                num_trained = len(df)
+        print('{} param configurations are pending'.format(
+            len(task.param2val_list) - num_trained))
+        return False
 
     # ///////////////////////////////////////////////////////////// corpus data
 

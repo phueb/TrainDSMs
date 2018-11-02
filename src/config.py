@@ -14,7 +14,7 @@ class Task:
     clear_scores = True
     save_scores = True
     save_figs = False
-    num_opt_steps = 1
+    num_opt_steps = 3
     device = 'cpu'
     num_evals = 10
     remove_duplicate_nyms = False  # needs to be False to get above chance
@@ -31,7 +31,7 @@ class Corpus:
     spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
-    num_vocab = 4096
+    num_vocab = 8192
 
 
 class Figs:

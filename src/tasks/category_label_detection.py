@@ -10,7 +10,7 @@ from src.tasks.base import TaskBase
 class Params:
     beta = [0.0, 0.3]
     num_folds = [2, 6]  # also determines number of examples in test vs. train splits
-    num_epochs = [500]  # 500
+    num_epochs = [500]
     mb_size = [8]
     learning_rate = [0.1]
     num_hiddens = [32, 256]
@@ -31,7 +31,7 @@ class CatLabelDetection(TaskBase):
         self.num_labels = len(self.labels)
         # evaluation
         self.test_candidates_mat = None
-        self.novice_probe_results = None  # TODO test
+        self.novice_probe_results = None  # TODO test figures
         # sims
         self.row_words = self.probes
         self.col_words = self.labels
