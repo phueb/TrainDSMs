@@ -9,9 +9,9 @@ class Dirs:
 
 
 class Task:
+    num_reps = 3  # TODO test
     vocab_sizes = [4096, 8192, 16384]
     retrain = False
-    clear_scores = True
     save_scores = True
     save_figs = False
     num_opt_steps = 3
@@ -31,7 +31,7 @@ class Corpus:
     spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
-    num_vocab = 8192
+    num_vocab = 4096
 
 
 class Figs:

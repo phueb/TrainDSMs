@@ -28,10 +28,10 @@ embedders = chain(
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
 tasks = [
-    NymDetection('antonym'),
-    NymDetection('synonym'),
     CatLabelDetection('semantic'),
     # CatLabelDetection('syntactic'),  # TODO what should labels be ?
+    NymDetection('antonym'),
+    NymDetection('synonym'),
     CatMEmberVer('semantic'),
     CatMEmberVer('syntactic'),
 ]
@@ -62,32 +62,33 @@ for embedder in embedders:
     print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # tasks
     for task in tasks:
-        if config.Task.retrain or not embedder.has_task(task):  # TODO task must exist config.num_reps times
-            print('---------------------------------------------')
-            print('Starting task "{}"'.format(task.name))
-            print('---------------------------------------------')
-            # check runs
-            for p in set(task.row_words + task.col_words):
-                if p not in embedder.w2e:
-                    raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
-            # similarities
-            sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
-            print('Shape of similarity matrix: {}'.format(sims.shape))
-            # score
-            task.score_novice(sims)
-            task.train_and_score_expert(embedder)
-            # figs
-            if config.Task.save_figs:
-                task.save_figs(embedder)
-        else:
-            print('---------------------------------------------')
-            print('Embedder has task "{}"'.format(task.name))
-            print('---------------------------------------------')
+        for rep_id in range(config.Task.num_reps):  # TODO test
+            if config.Task.retrain or not embedder.has_task(task, rep_id):
+                print('---------------------------------------------')
+                print('Starting task "{}"'.format(task.name))
+                print('---------------------------------------------')
+                # check runs
+                for p in set(task.row_words + task.col_words):
+                    if p not in embedder.w2e:
+                        raise KeyError('"{}" required for task "{}" is not in w2e.'.format(p, task.name))
+                # similarities
+                sims = w2e_to_sims(embedder.w2e, task.row_words, task.col_words, config.Embeddings.sim_method)
+                print('Shape of similarity matrix: {}'.format(sims.shape))
+                # score
+                task.score_novice(sims)
+                task.train_and_score_expert(embedder, rep_id)
+                # figs
+                if config.Task.save_figs:
+                    task.save_figs(embedder)
+            else:
+                print('---------------------------------------------')
+                print('Embedder has task "{}"'.format(task.name))
+                print('---------------------------------------------')
 
 
 # combine scores
 scores_list = []
-for p in config.Dirs.runs.rglob('scores.csv'):
+for p in config.Dirs.runs.rglob('scores_0.csv'):
     scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
     scores = scores.groupby(scores.index).max()
     scores.name = p.parent.name

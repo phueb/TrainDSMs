@@ -304,7 +304,7 @@ class CatLabelDetection(TaskBase):
             y_batch = y[row_ids]
             yield n, x_batch, y_batch
 
-    def make_test_candidates_mat(self, verbose=True):
+    def make_test_candidates_mat(self, verbose=False):
         res = []
         for i in range(self.num_probes):
             correct_label = self.probe_labels[i]
@@ -331,7 +331,7 @@ class CatLabelDetection(TaskBase):
         pval_binom = 1 - binom.cdf(k=prop * n, n=n, p=self.chance)
         return pval_binom
 
-    def score_novice(self, sims, verbose=True):
+    def score_novice(self, sims, verbose=False):
         self.test_candidates_mat = self.make_test_candidates_mat()
         num_correct = 0
         for n, test_candidates in enumerate(self.test_candidates_mat):
