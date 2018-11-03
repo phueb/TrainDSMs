@@ -9,7 +9,9 @@ class Dirs:
 
 
 class Task:
+    num_processes = 6
     num_reps = 3
+    num_folds = 4
     vocab_sizes = [4096, 8192, 16384]
     retrain = False
     save_scores = True

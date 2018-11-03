@@ -1,4 +1,3 @@
-import pandas as pd
 from itertools import chain
 
 from src import config
@@ -29,20 +28,14 @@ embedders = chain(
 
 tasks = [
     CatLabelDetection('semantic'),
-    # CatLabelDetection('syntactic'),  # TODO what should labels be ?
+    # CatLabelDetection('syntactic'),  # TODO what should labels be ? action, thing, property?
     NymDetection('antonym'),
     NymDetection('synonym'),
     CatMEmberVer('semantic'),
     CatMEmberVer('syntactic'),
 ]
 
-# "sports" required for task "semantic_cat_label_ver" is not in w2e.
-# "insect" required for task "semantic_cat_label_ver" is not in w2e.
-# "clothing" required for task "semantic_cat_label_ver" is not in w2e.
-# "household" required for task "semantic_cat_label_ver" is not in w2e.
-# "electronics" required for task "semantic_cat_label_ver" is not in w2e.
-# "vehicles" required for task "semantic_cat_label_ver" is not in w2e.
-# "mammal" required for task "semantic_cat_label_ver" is not in w2e.
+# TODO parallelize across tasks? celery: each expert training is a job
 
 # run full experiment
 for embedder in embedders:

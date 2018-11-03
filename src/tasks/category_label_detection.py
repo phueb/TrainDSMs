@@ -9,7 +9,6 @@ from src.tasks.base import TaskBase
 
 class Params:
     beta = [0.0, 0.3]
-    num_folds = [2, 6]  # also determines number of examples in test vs. train splits
     num_epochs = [500]
     mb_size = [8]
     learning_rate = [0.1]
@@ -19,7 +18,7 @@ class Params:
 
 class CatLabelDetection(TaskBase):
     def __init__(self, cat_type):
-        name = '{}_cat_label_ver'.format(cat_type)
+        name = '{}_cat_label_ver'.format(cat_type)  # TODO rename to detection
         super().__init__(name, Params)
         #
         self.cat_type = cat_type
@@ -44,21 +43,21 @@ class CatLabelDetection(TaskBase):
         """
         res = super().init_eval_data(trial)
         res.train_acc_trajs = np.zeros((config.Task.num_evals,
-                                        trial.params.num_folds))
+                                        config.Task.num_folds))
         res.test_acc_trajs = np.zeros((config.Task.num_evals,
-                                       trial.params.num_folds))
+                                       config.Task.num_folds))
         res.train_softmax_probs = np.zeros((self.num_probes,
                                             config.Task.num_evals,
-                                            trial.params.num_folds))
+                                            config.Task.num_folds))
         res.test_softmax_probs = np.zeros((self.num_probes,
                                            config.Task.num_evals,
-                                           trial.params.num_folds))
+                                           config.Task.num_folds))
         res.trained_test_softmax_probs = np.zeros((self.num_probes,
                                                    config.Task.num_evals,
-                                                   trial.params.num_folds))
+                                                   config.Task.num_folds))
         res.x_mat = np.zeros((self.num_labels,
                               config.Task.num_evals,
-                              trial.params.num_folds))
+                              config.Task.num_folds))
         res.cms = []  # confusion matrix (1 per fold)
         return res
 
@@ -72,7 +71,7 @@ class CatLabelDetection(TaskBase):
         test_probes = []
         for label, label_probes in self.label2probes.items():
             label_probes = self.label2probes[label].copy()
-            for n, probes_in_fold in enumerate(np.array_split(label_probes, trial.params.num_folds)):
+            for n, probes_in_fold in enumerate(np.array_split(label_probes, config.Task.num_folds)):
                 xs = [w2e[p] for p in probes_in_fold]
                 ys = [self.labels.index(label)] * len(probes_in_fold)
                 if n != fold_id:

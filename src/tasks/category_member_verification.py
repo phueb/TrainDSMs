@@ -15,7 +15,6 @@ class Params:
     margin = [100.0]
     beta = [0.0, 0.2]
     learning_rate = [0.1]
-    num_folds = [2, 4]
 
 
 class CatMEmberVer(TaskBase):
@@ -58,9 +57,9 @@ class CatMEmberVer(TaskBase):
             np.random.shuffle(probes_copy)
             distractors = [p for p in probes_copy if p not in cat_probes][:len(cat_probes)]
             for n, (probes_in_fold, members_in_fold, distractors_in_fold) in enumerate(zip(
-                    np.array_split(cat_probes, trial.params.num_folds),
-                    np.array_split(cat_members, trial.params.num_folds),
-                    np.array_split(distractors, trial.params.num_folds))):
+                    np.array_split(cat_probes, config.Task.num_folds),
+                    np.array_split(cat_members, config.Task.num_folds),
+                    np.array_split(distractors, config.Task.num_folds))):
                 if n != fold_id:
                     x1_train += [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
                     x2_train += [w2e[n] for n in members_in_fold] + [w2e[d] for d in distractors_in_fold]

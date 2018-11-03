@@ -15,7 +15,6 @@ class Params:
     mb_size = [2, 16]
     num_epochs = [500]
     learning_rate = [0.1]
-    num_folds = [2, 4]
     shuffled = [False, True]
 
 
@@ -37,7 +36,7 @@ class NymDetection(TaskBase):
 
     def init_eval_data(self, trial):
         res = super().init_eval_data(trial)
-        res.test_acc_trajs = np.zeros((config.Task.num_evals, trial.params.num_folds))
+        res.test_acc_trajs = np.zeros((config.Task.num_evals, config.Task.num_folds))
         return res
 
     def make_data(self, trial, w2e, fold_id):
@@ -48,8 +47,8 @@ class NymDetection(TaskBase):
         x1_test = []
         x2_test = []
         for n, (probes, candidate_rows) in enumerate(zip(
-                np.array_split(self.probes, trial.params.num_folds),
-                np.array_split(self.test_candidates_mat, trial.params.num_folds))):
+                np.array_split(self.probes, config.Task.num_folds),
+                np.array_split(self.test_candidates_mat, config.Task.num_folds))):
             nyms, distractors, first_neighbors, second_neighbors, neutrals = candidate_rows.T
             if n != fold_id:
                 x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
