@@ -5,6 +5,7 @@ count_type:
 - 7
 - flat
 norm_type: ppmi
+num_vocab: 4096
 reduce_type:
 - svd
 - 200

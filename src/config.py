@@ -9,7 +9,7 @@ class Dirs:
 
 
 class Task:
-    num_reps = 3  # TODO test
+    num_reps = 3
     vocab_sizes = [4096, 8192, 16384]
     retrain = False
     save_scores = True

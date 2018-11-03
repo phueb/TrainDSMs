@@ -17,8 +17,8 @@ from src.utils import w2e_to_sims
 
 
 embedders = chain(
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
+    (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
 )
@@ -62,7 +62,7 @@ for embedder in embedders:
     print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # tasks
     for task in tasks:
-        for rep_id in range(config.Task.num_reps):  # TODO test
+        for rep_id in range(config.Task.num_reps):
             if config.Task.retrain or not embedder.has_task(task, rep_id):
                 print('---------------------------------------------')
                 print('Starting task "{}"'.format(task.name))
@@ -86,14 +86,4 @@ for embedder in embedders:
                 print('---------------------------------------------')
 
 
-# combine scores
-scores_list = []
-for p in config.Dirs.runs.rglob('scores_0.csv'):
-    scores = pd.read_csv(p, header=None, squeeze=True, index_col=0)  # squeezes into series
-    scores = scores.groupby(scores.index).max()
-    scores.name = p.parent.name
-    scores_list.append(scores)
-df = pd.concat(scores_list, axis=1)
-df.index.name = 'task'
-df.to_csv('all_scores.csv')
-print(df)
+
