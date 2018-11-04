@@ -35,8 +35,6 @@ tasks = [
     CatMEmberVer('syntactic'),
 ]
 
-# TODO parallelize across tasks? celery: each expert training is a job
-
 # run full experiment
 for embedder in embedders:
     # embed
@@ -56,9 +54,8 @@ for embedder in embedders:
     # tasks
     for task in tasks:
         for rep_id in range(config.Task.num_reps):
-            if config.Task.retrain or not embedder.has_task(task, rep_id):
-                print('---------------------------------------------')
-                print('Starting task "{}"'.format(task.name))
+            if config.Task.retrain or not embedder.completed_task(task, rep_id):
+                print('Starting task "{}" replication {}'.format(task.name, rep_id))
                 print('---------------------------------------------')
                 # check runs
                 for p in set(task.row_words + task.col_words):
@@ -74,8 +71,7 @@ for embedder in embedders:
                 if config.Task.save_figs:
                     task.save_figs(embedder)
             else:
-                print('---------------------------------------------')
-                print('Embedder has task "{}"'.format(task.name))
+                print('Embedder completed "{}" replication {}'.format(task.name, rep_id))
                 print('---------------------------------------------')
 
 

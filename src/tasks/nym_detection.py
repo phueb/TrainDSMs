@@ -12,7 +12,7 @@ class Params:
     train_on_second_neighbors = [True]  # performance is much better with additional training
     beta = [0.1, 0.3]
     num_output = [32, 256]
-    mb_size = [2, 16]
+    mb_size = [2]
     num_epochs = [500]
     learning_rate = [0.1]
     shuffled = [False, True]

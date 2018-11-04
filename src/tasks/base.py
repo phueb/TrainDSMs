@@ -28,6 +28,7 @@ class TaskBase(object):
         self.novice_score = None
 
     def init_eval_data(self, trial):
+        print('Initializing evaluation data structure')
         return EvalData(trial.params_id)
 
     def make_data(self, trial, w2e, fold_id):
@@ -47,15 +48,15 @@ class TaskBase(object):
 
     # ////////////////////////////////////////////////////// train + score
 
-    def do_trial(self, trial, embedder):
+    def do_trial(self, trial, w2e, embed_size):
         trial.eval = self.init_eval_data(trial)
         assert hasattr(trial.eval, 'params_id')
         print('Training {} expert'.format(self.name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Task.num_folds):
             print('Fold {}/{}'.format(fold_id + 1, config.Task.num_folds))
-            graph = self.make_graph(trial, embedder.dim1)
-            data = self.make_data(trial, embedder.w2e, fold_id)
+            graph = self.make_graph(trial, embed_size)
+            data = self.make_data(trial, w2e, fold_id)
             self.train_expert_on_train_fold(trial, graph, data, fold_id)
             try:
                 self.train_expert_on_test_fold(trial, graph, data, fold_id)  # TODO test
@@ -75,7 +76,8 @@ class TaskBase(object):
             p.unlink()
         # run each trial in separate process
         pool = mp.Pool(processes=config.Task.num_processes)
-        results = [pool.apply_async(self.do_trial, args=(trial, embedder)) for trial in self.trials]
+        results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
+                   for trial in self.trials]
         df_rows = []
         try:
             for res in results:

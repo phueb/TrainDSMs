@@ -56,19 +56,20 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
-    def has_task(self, task, rep_id):
+    def completed_task(self, task, rep_id):
         p = config.Dirs.runs / self.time_of_init / task.name / 'scores_{}.csv'.format(rep_id)
         num_total = len(task.param2val_list)
         num_trained = 0
         if p.exists():
             df = pd.read_csv(p, index_col=False)
-            if len(df) == num_total:
-                return True
-            else:
-                num_trained = len(df)
+            num_trained = len(df)
+        print('---------------------------------------------')
         print('Replication {}: Training for {}/{} param configurations completed'.format(
             rep_id, num_trained, num_total))
-        return False
+        if num_trained == num_total:
+            return True
+        else:
+            return False
 
     # ///////////////////////////////////////////////////////////// corpus data
 
