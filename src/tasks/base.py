@@ -76,6 +76,9 @@ class TaskBase(object):
             p.unlink()
         # run each trial in separate process
         pool = mp.Pool(processes=config.Task.num_processes)
+        if config.Task.debug:
+            self.do_trial(self.trials[0], embedder.w2e, embedder.dim1)  # cannot pickle tensorflow errors
+            raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all tasks.')
         results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
                    for trial in self.trials]
         df_rows = []

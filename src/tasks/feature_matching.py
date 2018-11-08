@@ -1,9 +1,11 @@
 import numpy as np
 import tensorflow as tf
-from bayes_opt import BayesianOptimization
+from functools import partial
+import pandas as pd
 
 from src import config
-from src.figs import make_cat_member_verification_figs
+from src.utils import calc_balanced_accuracy
+from src.figs import make_feature_matching_figs
 from src.tasks.base import TaskBase
 
 
@@ -17,20 +19,23 @@ class Params:
     learning_rate = [0.1]
 
 
-class CatMEmberVer(TaskBase):
-    def __init__(self, cat_type):
-        name = '{}_cat_mem_ver'.format(cat_type)
+NUM_DISTRACTORS = 3
+
+
+class FeatureMatching(TaskBase):
+    def __init__(self, feature_type):
+        name = '{}_feature_matching'.format(feature_type)
         super().__init__(name, Params)
         #
-        self.cat_type = cat_type
-        self.probes, self.probe_cats = self.load_training_data()
-        self.cats = sorted(set(self.probe_cats))
-        self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
+        self.feature_type = feature_type
+        self.probes, self.probe_features_list = self.load_training_data()
+        self.probe2features = {p: fl for p, fl in zip(self.probes, self.probe_features_list)}
+        self.features = np.unique(np.concatenate(self.probe_features_list)).tolist()
         self.num_probes = len(self.probes)
-        self.num_cats = len(self.cats)
+        self.num_features = len(self.features)
         # sims
         self.row_words = self.probes
-        self.col_words = self.probes
+        self.col_words = self.features
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
@@ -39,36 +44,37 @@ class CatMEmberVer(TaskBase):
         add task-specific attributes to EvalData class implemented in TaskBase
         """
         res = super().init_eval_data(trial)
-        res.test_probe_sims = [np.zeros((self.num_probes, self.num_probes))
+        res.test_probe_sims = [np.zeros((self.num_probes, self.num_features))
                                for _ in range(config.Task.num_evals)]
         return res
 
     def make_data(self, trial, w2e, fold_id):
-        # train/test split (separately for each category)
+        # train/test split
         x1_train = []
         x2_train = []
         y_train = []
         x1_test = []
         x2_test = []
         test_probe_ids = []
-        probes_copy = self.probes[:]
-        for cat, cat_probes in self.cat2probes.items():
-            cat_members = np.roll(cat_probes, 1)
-            np.random.shuffle(probes_copy)
-            distractors = [p for p in probes_copy if p not in cat_probes][:len(cat_probes)]
-            for n, (probes_in_fold, members_in_fold, distractors_in_fold) in enumerate(zip(
-                    np.array_split(cat_probes, config.Task.num_folds),
-                    np.array_split(cat_members, config.Task.num_folds),
-                    np.array_split(distractors, config.Task.num_folds))):
-                if n != fold_id:
-                    x1_train += [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
-                    x2_train += [w2e[n] for n in members_in_fold] + [w2e[d] for d in distractors_in_fold]
-                    y_train += [1] * len(probes_in_fold) + [0] * len(probes_in_fold)
-                else:
-                    # test data to build chunk of sim matrix as input to balanced accuracy algorithm
-                    x1_test += [[w2e[p]] * self.num_probes for p in probes_in_fold]
-                    x2_test += [[w2e[p] for p in self.probes] for _ in probes_in_fold]
-                    test_probe_ids += [self.probes.index(p) for p in probes_in_fold]
+        probe_distractors_list = [np.random.choice([f for f in self.features if f not in self.probe2features[p]],
+                                                   size=NUM_DISTRACTORS, replace=False)
+                                  for p in self.probes]
+        for n, (probes, features_list, distractors_list) in enumerate(zip(
+                np.array_split(self.probes, config.Task.num_folds),
+                np.array_split(self.probe_features_list, config.Task.num_folds),
+                np.array_split(probe_distractors_list, config.Task.num_folds))):
+            if n != fold_id:
+
+                # TODO train on multiple features pre probe not just one
+
+                x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
+                x2_train += [w2e[fs[0]] for fs in features_list] + [w2e[ds[0]] for ds in distractors_list]
+                y_train += [1] * len(probes) + [0] * len(probes)
+            else:
+                # test data to build chunk of sim matrix as input to balanced accuracy algorithm
+                x1_test += [[w2e[p]] * self.num_features for p in probes]
+                x2_test += [[w2e[f] for f in self.features] for _ in probes]
+                test_probe_ids += [self.probes.index(p) for p in probes]
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -77,7 +83,7 @@ class CatMEmberVer(TaskBase):
         assert len(x1_train) == len(x2_train) == len(y_train)
         # shuffle x-y mapping
         if trial.params.shuffled:
-            print('Shuffling probe-cat_member mapping')
+            print('Shuffling input-output mapping')
             np.random.shuffle(y_train)
         return x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids
 
@@ -162,8 +168,10 @@ class CatMEmberVer(TaskBase):
         best_expert_score = 0
         best_eval_id = 0
         for eval_id, sims in enumerate(trial.eval.test_probe_sims):
-            expert_score = self.calc_balanced_accuracy(sims, verbose=False)
-            print('Balanced Accuracy at eval {} is {:.2f}'.format(eval_id + 1, expert_score))
+            calc_signals = partial(self.calc_signals, sims)
+            sims_mean = np.asscalar(np.mean(sims))
+            expert_score = calc_balanced_accuracy(calc_signals, sims_mean, verbose=False)
+            print('{} at eval {} is {:.2f}'.format(config.Task.metric, eval_id + 1, expert_score))
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id
@@ -171,7 +179,7 @@ class CatMEmberVer(TaskBase):
         return best_expert_score
 
     def make_trial_figs(self, trial):
-        return make_cat_member_verification_figs()
+        return make_feature_matching_figs()
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 
@@ -187,84 +195,45 @@ class CatMEmberVer(TaskBase):
             yield n, x1_batch, x2_batch, y_batch
 
     def load_training_data(self):
-        p = config.Dirs.tasks / '{}_categories'.format(self.cat_type) / '{}_{}.txt'.format(
+        p = config.Dirs.tasks / 'features' / self.feature_type / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
-        both = np.loadtxt(p, dtype='str')
-        np.random.shuffle(both)
-        probes, cats = both.T
-        return probes.tolist(), cats.tolist()
+        df = pd.read_csv(p, sep=' ', header=None, error_bad_lines=False)
+        df.sample(frac=1)  # shuffle rows
+        probes = []
+        probe_features = []
+        for n, row in df.iterrows():
+            probes.append(row[0])
+            probe_features.append([f for f in row[1:] if f is not np.nan])
+        return probes, probe_features
+
+    def calc_signals(self, probe_sims, thr):
+        num_probes = len(probe_sims)
+        tp = np.zeros(num_probes, float)
+        tn = np.zeros(num_probes, float)
+        fp = np.zeros(num_probes, float)
+        fn = np.zeros(num_probes, float)
+        # calc hits, misses, false alarms, correct rejections
+        for i in range(num_probes):
+            features1 = self.probe2features[self.probes[i]]  # TODO test
+            for j in range(self.num_features):
+                feature2 = self.features[j]
+                sim = probe_sims[i, j]
+                if feature2 in features1:
+                    if sim > thr:
+                        tp[i] += 1
+                    else:
+                        fn[i] += 1
+                else:
+                    if sim > thr:
+                        fp[i] += 1
+                    else:
+                        tn[i] += 1
+        return tp, tn, fp, fn
 
     def score_novice(self, probe_sims):
-        self.novice_score = self.calc_balanced_accuracy(probe_sims)
+        # np.random.shuffle(probe_sims)
+        # np.random.shuffle(probe_sims.T)
 
-    def calc_balanced_accuracy(self, probe_sims, probe_cats=None, metric='ba', verbose=True):
-        if probe_cats is None:
-            probe_cats = self.probe_cats
-        assert len(probe_cats) == len(probe_sims)
-
-        def calc_p_and_r(thr):
-            num_probes = len(probe_sims)
-            hits = np.zeros(num_probes, float)
-            misses = np.zeros(num_probes, float)
-            fas = np.zeros(num_probes, float)
-            crs = np.zeros(num_probes, float)
-            # calc hits, misses, false alarms, correct rejections
-            for i in range(num_probes):
-                cat1 = probe_cats[i]
-                for j in range(num_probes):
-                    if i != j:
-                        cat2 = probe_cats[j]
-                        sim = probe_sims[i, j]
-                        if cat1 == cat2:
-                            if sim > thr:
-                                hits[i] += 1
-                            else:
-                                misses[i] += 1
-                        else:
-                            if sim > thr:
-                                fas[i] += 1
-                            else:
-                                crs[i] += 1
-            avg_probe_recall_list = np.divide(hits + 1, (hits + misses + 1))  # + 1 prevents inf and nan
-            avg_probe_precision_list = np.divide(crs + 1, (crs + fas + 1))
-            return avg_probe_precision_list, avg_probe_recall_list
-
-        def calc_probes_fs(thr, mean=True):
-            precision, recall = calc_p_and_r(thr)
-            probe_fs_list = 2 * (precision * recall) / (precision + recall)  # f1-score
-            if mean:
-                return np.mean(probe_fs_list)
-            else:
-                return probe_fs_list
-
-        def calc_probes_ba(thr, mean=True):
-            precision, recall = calc_p_and_r(thr)
-            probe_ba_list = (precision + recall) / 2  # balanced accuracy
-            if mean:
-                return np.mean(probe_ba_list)
-            else:
-                return probe_ba_list
-
-        # make thr range
-        test_word_sims_mean = np.asscalar(np.mean(probe_sims))
-        thr1 = max(0.0, round(min(0.9, round(test_word_sims_mean, 2)) - 0.1, 2))  # don't change
-        thr2 = round(thr1 + 0.2, 2)
-        # use bayes optimization to find best_thr
-        if verbose:
-            print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
-        gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
-        if metric == 'fs':
-            fn = calc_probes_fs
-        elif metric == 'ba':
-            fn = calc_probes_ba
-        else:
-            raise AttributeError('rnnlab: Invalid arg to "metric".')
-        bo = BayesianOptimization(fn, {'thr': (thr1, thr2)}, verbose=verbose)
-        bo.explore({'thr': [test_word_sims_mean]})
-        bo.maximize(init_points=2, n_iter=config.Task.num_opt_steps,
-                    acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
-        best_thr = bo.res['max']['max_params']['thr']
-        # use best_thr
-        results = fn(best_thr, mean=False)
-        res = np.mean(results)
-        return res
+        calc_signals = partial(self.calc_signals, probe_sims)
+        sims_mean = np.asscalar(np.mean(probe_sims))
+        self.novice_score = calc_balanced_accuracy(calc_signals, sims_mean)

@@ -19,9 +19,9 @@ class Params:
     shuffled = [False, True]
 
 
-class NymDetection(TaskBase):
+class NymIdentification(TaskBase):
     def __init__(self, nym_type):
-        name = '{}_detection'.format(nym_type)
+        name = '{}_identification'.format(nym_type)
         super().__init__(name, Params)
         #
         self.nym_type = nym_type

@@ -16,12 +16,11 @@ class Params:
     shuffled = [False, True]
 
 
-class CatLabelDetection(TaskBase):
-    def __init__(self, cat_type):
-        name = '{}_cat_label_ver'.format(cat_type)  # TODO rename to detection
+class HypernymIdentification(TaskBase):
+    def __init__(self):
+        name = 'hypernym_identification'
         super().__init__(name, Params)
         #
-        self.cat_type = cat_type
         self.probes, self.probe_labels = self.load_training_data()
         self.labels = sorted(set(self.probe_labels))
         self.label2probes = {label: [p for p, c in zip(self.probes, self.probe_labels) if c == label]
@@ -287,7 +286,7 @@ class CatLabelDetection(TaskBase):
     # ////////////////////////////////////////////// Overwritten Methods END
 
     def load_training_data(self):
-        p = config.Dirs.tasks / '{}_category_labels'.format(self.cat_type) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / 'hypernyms' / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         both = np.loadtxt(p, dtype='str')
         np.random.shuffle(both)
         probes, probe_labels = both.T

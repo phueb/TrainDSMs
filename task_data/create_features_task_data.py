@@ -10,7 +10,7 @@ CORPUS_NAME = 'childes-20180319'
 VERBOSE = True
 LEMMATIZE = True
 
-RELATION = 'has'  # use 'is' or 'has'
+RELATION = 'is'  # use 'is' or 'has'
 
 
 def to_relation(col):
@@ -23,14 +23,24 @@ def to_object(col):
     return l[-1]
 
 
-probe2feature = {}
+probe2features = {'is': {'jar': ['round'],
+                         'candle': ['hot'],
+                         'basket': ['useful'],
+                         'buggy': ['fast'],
+                         'vest': ['comfortable'],
+                         'crayon': ['colorful'],
+                         'cat': ['alive'],
+                         'radio': ['loud', 'electronic'],
+                         'door': ['tall', 'heavy', 'creaky'],
+                         'squid': ['alive', 'wet', 'dangerous'],
+                         }}
 
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Task.vocab_sizes:
         # process features data
-        in_path = config.Dirs.tasks / 'semantic_features' / 'mcrae_features.csv'
+        in_path = config.Dirs.tasks / 'features' / 'mcrae_features.csv'
         df = pd.read_csv(in_path, index_col=False)
         concepts = [w.split('_')[0] for w in df['Concept']]
         df['concept'] = concepts
@@ -58,7 +68,7 @@ if __name__ == '__main__':
         if LEMMATIZE:
             probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
         # write to file
-        out_path = config.Dirs.tasks / 'semantic_features' / RELATION / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+        out_path = config.Dirs.tasks / 'features' / RELATION / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
         if not out_path.parent.exists():
             out_path.parent.mkdir(parents=True)
         with out_path.open('w') as f:
@@ -69,7 +79,8 @@ if __name__ == '__main__':
                 if not features:
                     continue
                 line = probe
-                for feature in features:
+                not_normed_features = probe2features[RELATION][probe] if probe in probe2features[RELATION] else []
+                for feature in features + not_normed_features:
                     if feature not in vocab or feature == probe:
                         continue
                     line += ' {}'.format(feature)
@@ -77,3 +88,5 @@ if __name__ == '__main__':
                     f.write(line + '\n')
                     if VERBOSE:
                         print(line)
+                else:
+                    print('\t"{}" has no features'.format(probe))

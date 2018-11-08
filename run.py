@@ -8,9 +8,10 @@ from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
-from src.tasks.category_label_detection import CatLabelDetection
-from src.tasks.category_member_verification import CatMEmberVer
-from src.tasks.nym_detection import NymDetection
+from src.tasks.hypernym_identification import HypernymIdentification
+from src.tasks.category_member_matching import CatMemberMatching
+from src.tasks.nym_detection import NymIdentification
+from src.tasks.feature_matching import FeatureMatching
 
 from src.utils import w2e_to_sims
 
@@ -23,8 +24,8 @@ embedders = chain(
 )
 
 
-# a verification task consists of 2 words that either belong together or not.
-# a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
+# a MATCHING task consists of matching a probe with multiple correct answers
+# an IDENTIFICATION task consists of identifying correct answer from multiple-choice question
 
 # TODO prediction task : use microsoft sentence completion (where candidates are given)
 # TODO use sum of similarities to calculate answer
@@ -33,12 +34,13 @@ embedders = chain(
 # TODO use WordRep (Gao et al., 2014) contains a large collection of relation triplets (44584 triplets in total)
 
 tasks = [
-    CatLabelDetection('semantic'),
-    # CatLabelDetection('syntactic'),  # TODO what should labels be ? action, thing, property?
-    NymDetection('antonym'),
-    NymDetection('synonym'),
-    CatMEmberVer('semantic'),
-    CatMEmberVer('syntactic'),
+    FeatureMatching('is'),
+    # FeatureMatching('has'),
+    # HypernymIdentification(),
+    # NymIdentification('antonym'),
+    # NymIdentification('synonym'),
+    # CatMemberMatching('semantic'),
+    # CatMemberMatching('syntactic'),
 ]
 
 # run full experiment

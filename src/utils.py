@@ -1,5 +1,6 @@
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from bayes_opt import BayesianOptimization
 import spacy
 
 from src import config
@@ -7,7 +8,53 @@ from src import config
 nlp = spacy.load('en_core_web_sm')
 
 
-def w2e_to_sims(w2e, row_words, col_words, method):  # TODO test
+def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
+
+    def calc_probes_fs(thr, mean=True):
+        tp, tn, fp, fn = calc_signals(thr)
+        precision = np.divide(tp + 1e-10, (tp + fp + 1e-10))
+        sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
+        probe_fs_list = 2 * (precision * sensitivity) / (precision + sensitivity)
+        if mean:
+            return np.mean(probe_fs_list)
+        else:
+            return probe_fs_list
+
+    def calc_probes_ba(thr, mean=True):
+        tp, tn, fp, fn = calc_signals(thr)
+        sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
+        specificity = np.divide(tn + 1e-10, (tn + fp + 1e-10))
+        probe_ba_list = (sensitivity + specificity) / 2  # balanced accuracy
+        if mean:
+            return np.mean(probe_ba_list)
+        else:
+            return probe_ba_list
+
+    # make thr range
+    thr1 = max(0.0, round(min(0.9, round(sims_mean, 2)) - 0.1, 2))  # don't change
+    thr2 = round(thr1 + 0.2, 2)
+    # use bayes optimization to find best_thr
+    if verbose:
+        print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
+    gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
+    if config.Task.metric == 'fs':
+        fun = calc_probes_fs
+    elif config.Task.metric == 'ba':
+        fun = calc_probes_ba
+    else:
+        raise AttributeError('rnnlab: Invalid arg to "metric".')
+    bo = BayesianOptimization(fun, {'thr': (thr1, thr2)}, verbose=verbose)
+    bo.explore({'thr': [sims_mean]})
+    bo.maximize(init_points=2, n_iter=config.Task.num_opt_steps,
+                acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
+    best_thr = bo.res['max']['max_params']['thr']
+    # use best_thr
+    results = fun(best_thr, mean=False)
+    res = np.mean(results)
+    return res
+
+
+def w2e_to_sims(w2e, row_words, col_words, method):
     x = np.vstack([w2e[w] for w in row_words])
     y = np.vstack([w2e[w] for w in col_words])
     # sim
