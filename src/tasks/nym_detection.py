@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 from scipy.stats import binom
+import time
 
 from src import config
 from src.figs import make_nym_figs
@@ -124,6 +125,7 @@ class NymDetection(TaskBase):
                                eval_interval)[:config.Task.num_evals].tolist()  # equal sized intervals
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
+        start = time.time()
         for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train,
                                                                                     x2_train,
                                                                                     y_train,
@@ -146,11 +148,13 @@ class NymDetection(TaskBase):
                         num_correct_test += 1
                 test_acc = num_correct_test / num_test_probes
                 trial.eval.test_acc_trajs[eval_id, fold_id] = test_acc
-                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f} p={:.4f}'.format(
+                print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |Test Acc={:.2f} p={:.4f} secs={:.1f}'.format(
                     step,
                     num_train_steps - 1,
                     train_loss, test_acc,
-                    self.pval(test_acc, n=num_test_probes)))
+                    self.pval(test_acc, n=num_test_probes),
+                    time.time() - start))
+                start = time.time()
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 

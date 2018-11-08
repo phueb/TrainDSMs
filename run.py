@@ -26,6 +26,12 @@ embedders = chain(
 # a verification task consists of 2 words that either belong together or not.
 # a detection task consists of a word and multiple candidate words where only one candidate belongs with test word.
 
+# TODO prediction task : use microsoft sentence completion (where candidates are given)
+# TODO use sum of similarities to calculate answer
+
+# TODO feature task:
+# TODO use WordRep (Gao et al., 2014) contains a large collection of relation triplets (44584 triplets in total)
+
 tasks = [
     CatLabelDetection('semantic'),
     # CatLabelDetection('syntactic'),  # TODO what should labels be ? action, thing, property?

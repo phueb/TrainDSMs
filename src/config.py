@@ -9,7 +9,7 @@ class Dirs:
 
 
 class Task:
-    num_processes = 4  # works best if in [2, 4, 8, 16, 32]
+    num_processes = 4  # too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     num_reps = 3
     num_folds = 4
     vocab_sizes = [4096, 8192, 16384]
