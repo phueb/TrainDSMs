@@ -9,7 +9,7 @@ class Dirs:
 
 
 class Task:
-    debug = False
+    debug = False  # catches tensorflow errors properly
     num_processes = 4  # too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     num_reps = 3
     num_folds = 4

@@ -10,13 +10,14 @@ from src.tasks.base import TaskBase
 
 
 class Params:
-    shuffled = [False, True]
+    shuffled = [False]  #TODO True, False
     num_epochs = [500]
-    mb_size = [4]
-    num_output = [32, 256]
+    mb_size = [32]  # TODO must be set larger when not balanced_training - use gpu?
+    num_output = [32, 256]  # TODO 32, 356
     margin = [100.0]
-    beta = [0.0, 0.2]
+    beta = [0.0]
     learning_rate = [0.1]
+    balance_training_data = [False, True]  # TODO test
 
 
 NUM_DISTRACTORS = 3
@@ -64,12 +65,23 @@ class FeatureMatching(TaskBase):
                 np.array_split(self.probe_features_list, config.Task.num_folds),
                 np.array_split(probe_distractors_list, config.Task.num_folds))):
             if n != fold_id:
+                if not trial.params.balance_training_data:
 
-                # TODO train on multiple features pre probe not just one
+                    # TODO train on multiple features per probe not just one - is this better (violates 1:1 pos:neg training ratio)
+                    x1_train += np.reshape([[w2e[p]] * self.num_features
+                                            for p in probes],
+                                           newshape=(self.num_features * len(probes), -1)).tolist()
+                    x2_train += np.reshape([[w2e[f] for f in self.features]
+                                            for _ in probes],
+                                           newshape=(self.num_features * len(probes), -1)).tolist()
+                    y_train += np.asarray([[1 if f in self.probe2features[p] else 0 for f in self.features]
+                                           for p in probes]).flatten().tolist()
 
-                x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
-                x2_train += [w2e[fs[0]] for fs in features_list] + [w2e[ds[0]] for ds in distractors_list]
-                y_train += [1] * len(probes) + [0] * len(probes)
+
+                else:
+                    x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
+                    x2_train += [w2e[fs[0]] for fs in features_list] + [w2e[ds[0]] for ds in distractors_list]
+                    y_train += [1] * len(probes) + [0] * len(probes)
             else:
                 # test data to build chunk of sim matrix as input to balanced accuracy algorithm
                 x1_test += [[w2e[p]] * self.num_features for p in probes]
