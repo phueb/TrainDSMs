@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 from functools import partial
 import pandas as pd
+from itertools import product
 
 from src import config
 from src.utils import calc_balanced_accuracy
@@ -10,17 +11,14 @@ from src.tasks.base import TaskBase
 
 
 class Params:
-    shuffled = [False]  #TODO True, False
+    shuffled = [False, True]
     num_epochs = [500]
-    mb_size = [32]  # TODO must be set larger when not balanced_training - use gpu?
-    num_output = [32, 256]  # TODO 32, 356
+    mb_size = [64, 128]
+    num_output = [32, 256]
     margin = [100.0]
     beta = [0.0]
     learning_rate = [0.1]
-    balance_training_data = [False, True]  # TODO test
-
-
-NUM_DISTRACTORS = 3
+    prop_negative = [0.1, 0.5]  # proportion of negative pairs to train on  (can dramatically improve performance)
 
 
 class FeatureMatching(TaskBase):
@@ -57,32 +55,25 @@ class FeatureMatching(TaskBase):
         x1_test = []
         x2_test = []
         test_probe_ids = []
-        probe_distractors_list = [np.random.choice([f for f in self.features if f not in self.probe2features[p]],
-                                                   size=NUM_DISTRACTORS, replace=False)
-                                  for p in self.probes]
-        for n, (probes, features_list, distractors_list) in enumerate(zip(
-                np.array_split(self.probes, config.Task.num_folds),
-                np.array_split(self.probe_features_list, config.Task.num_folds),
-                np.array_split(probe_distractors_list, config.Task.num_folds))):
+        np.random.seed(trial.params_id)  # otherwise randomization is the same in each process
+        shuffled_probes = self.probes[:]
+        np.random.shuffle(shuffled_probes)  # probes are shuffled when loaded but not between trials
+        all_pairs = list(product(shuffled_probes, self.features))  # produces all probe-feature pairs
+        for n, pairs in enumerate(np.array_split(all_pairs, config.Task.num_folds)):
             if n != fold_id:
-                if not trial.params.balance_training_data:
-                    x1_train += np.reshape([[w2e[p]] * self.num_features
-                                            for p in probes],
-                                           newshape=(self.num_features * len(probes), -1)).tolist()
-                    x2_train += np.reshape([[w2e[f] for f in self.features]
-                                            for _ in probes],
-                                           newshape=(self.num_features * len(probes), -1)).tolist()
-                    y_train += np.asarray([[1 if f in self.probe2features[p] else 0 for f in self.features]
-                                           for p in probes]).flatten().tolist()
-                else:
-                    x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
-                    x2_train += [w2e[fs[0]] for fs in features_list] + [w2e[ds[0]] for ds in distractors_list]
-                    y_train += [1] * len(probes) + [0] * len(probes)
+                for probe, feature in pairs:
+                    is_feature = 1 if feature in self.probe2features[probe] else 0
+                    if is_feature or bool(np.random.binomial(n=1, p=trial.params.prop_negative, size=1)):
+                        x1_train.append(w2e[probe])
+                        x2_train.append(w2e[feature])
+                        y_train.append(is_feature)
             else:
                 # test data to build chunk of sim matrix as input to balanced accuracy algorithm
-                x1_test += [[w2e[p]] * self.num_features for p in probes]
-                x2_test += [[w2e[f] for f in self.features] for _ in probes]
-                test_probe_ids += [self.probes.index(p) for p in probes]
+                test_probes = set(list(zip(*pairs))[0])
+                for test_probe in test_probes:
+                    x1_test += [[w2e[test_probe]] * self.num_features]
+                    x2_test += [[w2e[f] for f in self.features]]
+                    test_probe_ids.append(self.probes.index(test_probe))
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -222,7 +213,7 @@ class FeatureMatching(TaskBase):
         fn = np.zeros(num_probes, float)
         # calc hits, misses, false alarms, correct rejections
         for i in range(num_probes):
-            features1 = self.probe2features[self.probes[i]]  # TODO test
+            features1 = self.probe2features[self.probes[i]]
             for j in range(self.num_features):
                 feature2 = self.features[j]
                 sim = probe_sims[i, j]

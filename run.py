@@ -34,7 +34,7 @@ embedders = chain(
 # TODO use WordRep (Gao et al., 2014) contains a large collection of relation triplets (44584 triplets in total)
 
 tasks = [
-    # FeatureMatching('is'),
+    FeatureMatching('is'),
     # FeatureMatching('has'),
     # HypernymIdentification(),
     # NymIdentification('antonym'),

@@ -12,12 +12,12 @@ from src.tasks.base import TaskBase
 class Params:
     shuffled = [False, True]
     num_epochs = [500]
-    mb_size = [128]  # TODO 4?
+    mb_size = [64, 128]
     num_output = [32, 256]
     margin = [100.0]
     beta = [0.0]
     learning_rate = [0.1]
-    prop_negative = [0.5]  # proportion of negative pairs to train on  # TODO bA=83 when 0.1
+    prop_negative = [0.1, 0.5]  # proportion of negative pairs to train on  (can dramatically improve performance)
 
 
 class CohyponymMatching(TaskBase):
@@ -45,7 +45,7 @@ class CohyponymMatching(TaskBase):
                                for _ in range(config.Task.num_evals)]
         return res
 
-    def make_data(self, trial, w2e, fold_id):  # TODO use this code (logic to sample from all_pairs) for other matching task
+    def make_data(self, trial, w2e, fold_id):
         # train/test split
         x1_train = []
         x2_train = []
@@ -61,7 +61,7 @@ class CohyponymMatching(TaskBase):
             if n != fold_id:
                 for probe1, probe2 in pairs:
                     is_cohyponym = 1 if self.probe2cat[probe1] == self.probe2cat[probe2] else 0
-                    if is_cohyponym or bool(np.random.binomial(n=1, p=trial.params.prop_negative, size=1)):  # TODO test binomial
+                    if is_cohyponym or bool(np.random.binomial(n=1, p=trial.params.prop_negative, size=1)):
                         x1_train.append(w2e[probe1])
                         x2_train.append(w2e[probe2])
                         y_train.append(is_cohyponym)
