@@ -9,8 +9,8 @@ from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
 from src.tasks.hypernym_identification import HypernymIdentification
-from src.tasks.category_member_matching import CatMemberMatching
-from src.tasks.nym_detection import NymIdentification
+from src.tasks.cohyponym_matching import CohyponymMatching
+from src.tasks.nym_identification import NymIdentification
 from src.tasks.feature_matching import FeatureMatching
 
 from src.utils import w2e_to_sims
@@ -34,13 +34,13 @@ embedders = chain(
 # TODO use WordRep (Gao et al., 2014) contains a large collection of relation triplets (44584 triplets in total)
 
 tasks = [
-    FeatureMatching('is'),
+    # FeatureMatching('is'),
     # FeatureMatching('has'),
     # HypernymIdentification(),
     # NymIdentification('antonym'),
     # NymIdentification('synonym'),
-    # CatMemberMatching('semantic'),
-    # CatMemberMatching('syntactic'),
+    CohyponymMatching('semantic'),
+    CohyponymMatching('syntactic'),
 ]
 
 # run full experiment

@@ -1,32 +1,34 @@
 import numpy as np
 import tensorflow as tf
 from functools import partial
+from itertools import combinations
 
 from src import config
 from src.utils import calc_balanced_accuracy
-from src.figs import make_cat_member_matching_figs
+from src.figs import make_cohyponym_matching_figs
 from src.tasks.base import TaskBase
 
 
 class Params:
     shuffled = [False, True]
     num_epochs = [500]
-    mb_size = [4]
+    mb_size = [128]  # TODO 4?
     num_output = [32, 256]
     margin = [100.0]
-    beta = [0.0, 0.2]
+    beta = [0.0]
     learning_rate = [0.1]
+    prop_negative = [0.5]  # proportion of negative pairs to train on  # TODO bA=83 when 0.1
 
 
-class CatMemberMatching(TaskBase):
+class CohyponymMatching(TaskBase):
     def __init__(self, cat_type):
-        name = '{}_category_member_matching'.format(cat_type)
+        name = '{}_cohyponym_matching'.format(cat_type)
         super().__init__(name, Params)
         #
         self.cat_type = cat_type
         self.probes, self.probe_cats = self.load_training_data()
         self.cats = sorted(set(self.probe_cats))
-        self.cat2probes = {cat: [p for p, c in zip(self.probes, self.probe_cats) if c == cat] for cat in self.cats}
+        self.probe2cat = {p: cat for p, cat in zip(self.probes, self.probe_cats)}
         self.num_probes = len(self.probes)
         # sims
         self.row_words = self.probes
@@ -43,32 +45,33 @@ class CatMemberMatching(TaskBase):
                                for _ in range(config.Task.num_evals)]
         return res
 
-    def make_data(self, trial, w2e, fold_id):
-        # train/test split (separately for each category)
+    def make_data(self, trial, w2e, fold_id):  # TODO use this code (logic to sample from all_pairs) for other matching task
+        # train/test split
         x1_train = []
         x2_train = []
         y_train = []
         x1_test = []
         x2_test = []
         test_probe_ids = []
-        probes_copy = self.probes[:]
-        for cat, cat_probes in self.cat2probes.items():
-            cat_members = np.roll(cat_probes, 1)  # TODO each probe only sees 1 cat member - see all pairwise combinations?
-            np.random.shuffle(probes_copy)
-            distractors = [p for p in probes_copy if p not in cat_probes][:len(cat_probes)]
-            for n, (probes_in_fold, members_in_fold, distractors_in_fold) in enumerate(zip(
-                    np.array_split(cat_probes, config.Task.num_folds),
-                    np.array_split(cat_members, config.Task.num_folds),
-                    np.array_split(distractors, config.Task.num_folds))):
-                if n != fold_id:
-                    x1_train += [w2e[p] for p in probes_in_fold] + [w2e[p] for p in probes_in_fold]
-                    x2_train += [w2e[n] for n in members_in_fold] + [w2e[d] for d in distractors_in_fold]
-                    y_train += [1] * len(probes_in_fold) + [0] * len(probes_in_fold)
-                else:
-                    # test data to build chunk of sim matrix as input to balanced accuracy algorithm
-                    x1_test += [[w2e[p]] * self.num_probes for p in probes_in_fold]
-                    x2_test += [[w2e[p] for p in self.probes] for _ in probes_in_fold]
-                    test_probe_ids += [self.probes.index(p) for p in probes_in_fold]
+        np.random.seed(trial.params_id)  # otherwise randomization is the same in each process
+        shuffled_probes = self.probes[:]
+        np.random.shuffle(shuffled_probes)  # probes are shuffled when loaded but not between trials
+        all_pairs = list(combinations(shuffled_probes, 2))
+        for n, pairs in enumerate(np.array_split(all_pairs, config.Task.num_folds)):
+            if n != fold_id:
+                for probe1, probe2 in pairs:
+                    is_cohyponym = 1 if self.probe2cat[probe1] == self.probe2cat[probe2] else 0
+                    if is_cohyponym or bool(np.random.binomial(n=1, p=trial.params.prop_negative, size=1)):  # TODO test binomial
+                        x1_train.append(w2e[probe1])
+                        x2_train.append(w2e[probe2])
+                        y_train.append(is_cohyponym)
+            else:
+                # test data to build chunk of sim matrix as input to balanced accuracy algorithm
+                test_probes = set(list(zip(*pairs))[0])
+                for test_probe in test_probes:
+                    x1_test += [[w2e[test_probe]] * self.num_probes]
+                    x2_test += [[w2e[p] for p in self.probes]]
+                    test_probe_ids.append(self.probes.index(test_probe))
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -77,7 +80,7 @@ class CatMemberMatching(TaskBase):
         assert len(x1_train) == len(x2_train) == len(y_train)
         # shuffle x-y mapping
         if trial.params.shuffled:
-            print('Shuffling probe-cat_member mapping')
+            print('Shuffling probe-cohyponyn mapping')
             np.random.shuffle(y_train)
         return x1_train, x2_train, y_train, x1_test, x2_test, test_probe_ids
 
@@ -173,7 +176,7 @@ class CatMemberMatching(TaskBase):
         return best_expert_score
 
     def make_trial_figs(self, trial):
-        return make_cat_member_matching_figs()
+        return make_cohyponym_matching_figs()
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 
@@ -196,7 +199,7 @@ class CatMemberMatching(TaskBase):
         probes, cats = both.T
         return probes.tolist(), cats.tolist()
 
-    def calc_signals(self, probe_sims, thr):
+    def calc_signals(self, probe_sims, thr):  # TODO use 4 boolean masks (compare where e.g.hits should be to sim values) to calc signals rathern than 2 for loops to improve performance
         num_probes = len(probe_sims)
         tp = np.zeros(num_probes, float)
         tn = np.zeros(num_probes, float)

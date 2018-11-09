@@ -9,7 +9,7 @@ def make_nym_figs():
     return []
 
 
-def make_cat_member_matching_figs():
+def make_cohyponym_matching_figs():
     return []
 
 def make_feature_matching_figs():

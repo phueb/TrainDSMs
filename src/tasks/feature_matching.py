@@ -66,8 +66,6 @@ class FeatureMatching(TaskBase):
                 np.array_split(probe_distractors_list, config.Task.num_folds))):
             if n != fold_id:
                 if not trial.params.balance_training_data:
-
-                    # TODO train on multiple features per probe not just one - is this better (violates 1:1 pos:neg training ratio)
                     x1_train += np.reshape([[w2e[p]] * self.num_features
                                             for p in probes],
                                            newshape=(self.num_features * len(probes), -1)).tolist()
@@ -76,8 +74,6 @@ class FeatureMatching(TaskBase):
                                            newshape=(self.num_features * len(probes), -1)).tolist()
                     y_train += np.asarray([[1 if f in self.probe2features[p] else 0 for f in self.features]
                                            for p in probes]).flatten().tolist()
-
-
                 else:
                     x1_train += [w2e[p] for p in probes] + [w2e[p] for p in probes]
                     x2_train += [w2e[fs[0]] for fs in features_list] + [w2e[ds[0]] for ds in distractors_list]
