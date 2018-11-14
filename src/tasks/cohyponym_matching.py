@@ -57,6 +57,8 @@ class CohyponymMatching(TaskBase):
         shuffled_probes = self.probes[:]
         np.random.shuffle(shuffled_probes)  # probes are shuffled when loaded but not between trials
         all_pairs = list(combinations(shuffled_probes, 2))
+        if trial.params.prop_negative > 0.5:
+            raise ValueError('Setting "prop_negative" too high might cause memory error.')
         for n, pairs in enumerate(np.array_split(all_pairs, config.Task.num_folds)):
             if n != fold_id:
                 for probe1, probe2 in pairs:

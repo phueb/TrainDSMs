@@ -10,14 +10,14 @@ class Dirs:
 
 class Task:
     debug = False  # catches tensorflow errors properly
-    num_processes = 1  # too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
+    num_processes = 4  # too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     num_reps = 3
     num_folds = 4
     vocab_sizes = [4096, 8192, 16384]
     retrain = False
     save_scores = True
     save_figs = False
-    num_opt_steps = 1
+    num_opt_steps = 3
     device = 'cpu'
     num_evals = 10
     metric = 'ba'

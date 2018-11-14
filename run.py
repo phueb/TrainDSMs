@@ -35,10 +35,10 @@ embedders = chain(
 
 tasks = [
     FeatureMatching('is'),
-    # FeatureMatching('has'),
-    # HypernymIdentification(),
-    # NymIdentification('antonym'),
-    # NymIdentification('synonym'),
+    FeatureMatching('has'),
+    HypernymIdentification(),  # TODO make all tasks matching tasks? should work even when there is only 1 positive label per probe
+    NymIdentification('antonym'),
+    NymIdentification('synonym'),
     CohyponymMatching('semantic'),
     CohyponymMatching('syntactic'),
 ]
