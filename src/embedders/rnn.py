@@ -39,14 +39,14 @@ class RNNEmbedder(EmbedderBase):
         remainder = len(token_ids) % self.num_steps
         for i in range(self.num_steps):
             seq = np.roll(token_ids, i)  # rightward
-            seq = seq[:-remainder]
+            seq = seq[:-remainder] if remainder != 0 else seq
             x = np.reshape(seq, (-1, self.num_steps))
             y = np.roll(x, -1)
             yield i, x, y
 
     def gen_batches(self, token_ids, batch_size, verbose):
         batch_id = 0
-        for window_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
+        for step_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
             # exclude some rows to split x and y evenly by batch size
             shape0 = len(x)
             num_excluded = shape0 % batch_size
@@ -59,7 +59,7 @@ class RNNEmbedder(EmbedderBase):
             if verbose:
                 print('Excluding {} windows due to fixed batch size'.format(num_excluded))
                 print('{}/{} Generating {:,} batches with size {}...'.format(
-                    window_id + 1, self.num_steps, num_batches, batch_size))
+                    step_id + 1, self.num_steps, num_batches, batch_size))
             for x_b, y_b in zip(np.vsplit(x, num_batches),
                                 np.vsplit(y, num_batches)):
                 yield batch_id, x_b, y_b[:, -1]
@@ -119,7 +119,7 @@ class RNNEmbedder(EmbedderBase):
                 secs = time.time() - start_time
                 print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
 
-    def train(self, verbose=False):
+    def train(self, verbose=True):
         # split data
         train_numeric_docs = []
         valid_numeric_docs = []

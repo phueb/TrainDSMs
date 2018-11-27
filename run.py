@@ -17,8 +17,8 @@ from src.utils import w2e_to_sims
 
 
 embedders = chain(
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
 )
@@ -36,7 +36,7 @@ embedders = chain(
 tasks = [
     FeatureMatching('is'),
     FeatureMatching('has'),
-    HypernymIdentification(),  # TODO make all tasks matching tasks? should work even when there is only 1 positive label per probe
+    HypernymIdentification(),  # TODO make all tasks matching tasks? should work even when there is only 1 positive label per probe + make separate identification task that works for all
     NymIdentification('antonym'),
     NymIdentification('synonym'),
     CohyponymMatching('semantic'),

@@ -55,28 +55,28 @@ def make_param2id(paramsClass, stage1=True):
 
 class CountParams:
     count_type = [
-        # ['wd', None, None, None],
+        ['wd', None, None, None],
         # ['ww', 'forward',  7,  'linear'],
         ['ww', 'forward',  7,  'flat'],
+        ['ww', 'backward', 7,  'flat'],
         # ['ww', 'backward', 7,  'linear'],
-        # ['ww', 'backward', 7,  'flat'],
         # ['ww', 'forward',  16, 'linear'],
         # ['ww', 'forward',  16, 'flat'],
         # ['ww', 'backward', 16, 'linear'],
         # ['ww', 'backward', 16, 'flat']
     ]
     # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = ['ppmi']
+    norm_type = [None, 'ppmi']
     reduce_type = [
         ['svd', 200],
         ['svd', 30],
-        # [None, None]
+        [None, None]
     ]
 
 
 class RNNParams:
     rnn_type = ['lstm', 'srn']
-    embed_size = [512]
+    embed_size = [30, 200, 512]
     train_percent = [0.9]
     num_eval_steps = [1000]
     shuffle_per_epoch = [True]
@@ -91,13 +91,11 @@ class RNNParams:
 
 
 class Word2VecParams:
-    # w2vec_type = ['cbow', 'sg']
-    w2vec_type = ['cbow']
-    # embed_size = [32, 512]
-    embed_size = [256]
+    w2vec_type = ['cbow', 'sg']
+    embed_size = [30, 200, 512]
     window_size = [7]
     num_epochs = [20]
 
 
 class RandomControlParams:
-    embed_size = [512]
+    embed_size = [30, 200, 512]
