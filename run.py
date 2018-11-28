@@ -17,9 +17,9 @@ from src.utils import w2e_to_sims
 
 
 embedders = chain(
+    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
-    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
 )
 
