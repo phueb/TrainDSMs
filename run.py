@@ -27,13 +27,13 @@ embedders = chain(
 # an IDENTIFICATION task consists of identifying correct answer from multiple-choice question
 
 tasks = [
-    Matching('nyms', 'ant'),  # TODO test matching task on nyms
     Matching('nyms', 'syn'),
-    Matching('hypernyms'),
-    Matching('cohyponyms', 'semantic'),
-    Matching('cohyponyms', 'syntactic'),
-    Matching('features', 'is'),
-    Matching('features', 'has'),
+    # Matching('nyms', 'ant'),
+    # Matching('hypernyms'),
+    # Matching('cohyponyms', 'semantic'),
+    # Matching('cohyponyms', 'syntactic'),
+    # Matching('features', 'is'),
+    # Matching('features', 'has'),
 ]
 
 # run full experiment

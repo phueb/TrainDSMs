@@ -15,10 +15,10 @@ class Params:
     num_epochs = [500]
     mb_size = [64]
     num_output = [256]
-    margin = [100.0]
+    margin = [50.0, 100.0]
     beta = [0.0]
     learning_rate = [0.1]
-    prop_negative = [0.25]  # proportion of negative pairs to train on  (can dramatically improve performance)
+    prop_negative = [0.5]  # proportion of negative pairs to train on  (can dramatically improve performance)
 
 
 class Matching(TaskBase):
@@ -194,7 +194,9 @@ class Matching(TaskBase):
         p = config.Dirs.tasks / data_dir / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
         df = pd.read_csv(p, sep=' ', header=None, error_bad_lines=False)
-        df.sample(frac=1)  # shuffle rows
+        print(df)
+        df = df.sample(n=config.Task.max_num_pairs, replace=True)  # shuffle rows  # TODO is replace=False good idea?
+        print(df)
         probes = []
         probe_brothers = []
         for n, row in df.iterrows():
@@ -222,7 +224,7 @@ class Matching(TaskBase):
         fn = float(len(np.where((predicted != self.gold) & (self.gold == 1))[0]))
         return tp, tn, fp, fn
 
-    def make_gold(self):
+    def make_gold(self):  # used for signal detection
         res = np.zeros((self.num_probes, self.num_bros))
         for i in range(self.num_probes):
             bros1 = self.probe2bros[self.probes[i]]
