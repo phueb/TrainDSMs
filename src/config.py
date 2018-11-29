@@ -6,10 +6,11 @@ class Dirs:
     tasks = Path(os.getenv('TASK_DIR', Path(__file__).parent.parent / 'task_data'))
     corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
     runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))
+    categories = Path(os.getenv('CATEGORIES_DIR', Path(__file__).parent.parent / 'categories'))
 
 
 class Task:
-    debug = False  # catches tensorflow errors properly
+    debug = True  # catches tensorflow errors properly
     num_processes = 4  # too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     num_reps = 3
     num_folds = 4

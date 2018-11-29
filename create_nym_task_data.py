@@ -11,8 +11,7 @@ from src.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 LEMMATIZE = True
-NUM_NYMS = 5
-VERBOSE = True
+VERBOSE = False
 
 
 EXCLUDED = ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
@@ -32,10 +31,10 @@ EXCLUDED = ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
             'valentine', 'po', 'moira']
 
 
-async def get_nyms(w):
+async def get_nyms(w, nym_type):
     with aiohttp.ClientSession() as session:
         html = await fetch(session, w)
-    nyms = scrape_nyms(html, w)
+    nyms = scrape_nyms(html, w, nym_type)
     return nyms
 
 
@@ -49,17 +48,17 @@ async def fetch(session, w, verbose=VERBOSE):
         return await response.text()
 
 
-def scrape_nyms(page, w, verbose=VERBOSE):
+def scrape_nyms(page, w, nym_type, verbose=VERBOSE):
     if verbose:
         print('\nScraping for "{}"'.format(w))
     soup = BeautifulSoup(page, 'lxml')
     #
-    syns = find_synonyms(soup)
-    ants = find_antonyms(soup)
-    #
-    res = list(zip(syns, ants))
-    if len(res) > NUM_NYMS:
-        res = res[:NUM_NYMS]
+    if nym_type == 'syn':
+        res = find_synonyms(soup)
+    elif nym_type == 'ant':
+        res = find_antonyms(soup)
+    else:
+        raise AttributeError('Invalid arg to "nym_type".')
     return res
 
 
@@ -104,31 +103,29 @@ if __name__ == '__main__':
                         and w[1] not in list(string.punctuation) \
                         and w not in EXCLUDED:
                     if LEMMATIZE:
-                        for pos in ['noun', 'verb', 'adj']:  # TODO test
+                        for pos in ['noun', 'verb', 'adj']:
                             w = lemmatizer(w, pos)[0]
                             probes.append(w)
                     else:
                         probes.append(w)
         if LEMMATIZE:
             probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
-        out_path = config.Dirs.tasks / 'nyms' / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
-        if not out_path.parent.exists():
-            out_path.parent.mkdir()
-        with out_path.open('w') as f:
-            for probes_partition in itertoolz.partition(100, probes):  # web scraping must be done in chunks
-                loop = asyncio.get_event_loop()
-                nyms_lists = loop.run_until_complete(asyncio.gather(*[get_nyms(w) for w in probes_partition]))
-                # write to file
-                print('Writing {}'.format(out_path))
-                for probe, nyms_list in zip(probes_partition, nyms_lists):
-                    if not nyms_list:
-                        continue
-                    print(nyms_list)
-                    for syn, ant in nyms_list:
-                        if syn not in vocab or syn == probe:
+        #
+        for nym_type in ['syn', 'ant']:
+            out_path = config.Dirs.tasks / 'nyms' / nym_type / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+            if not out_path.parent.exists():
+                out_path.parent.mkdir()
+            with out_path.open('w') as f:
+                for probes_partition in itertoolz.partition(100, probes):  # web scraping must be done in chunks
+                    loop = asyncio.get_event_loop()
+                    nyms = loop.run_until_complete(asyncio.gather(*[get_nyms(w, nym_type) for w in probes_partition]))
+                    # write to file
+                    print('Writing {}'.format(out_path))
+                    for probe, nyms in zip(probes_partition, nyms):
+                        if not nyms:
                             continue
-                        if ant not in vocab or ant == probe:
-                            continue
-                        line = '{} {} {}\n'.format(probe, syn, ant)
+                        nyms = ' '.join([nym for nym in nyms
+                                         if nym != probe and nym in vocab])
+                        line = '{} {}\n'.format(probe, nyms)
                         print(line.strip('\n'))
                         f.write(line)

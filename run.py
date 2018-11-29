@@ -9,16 +9,15 @@ from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
 from src.tasks.hypernym_identification import HypernymIdentification
-from src.tasks.cohyponym_matching import CohyponymMatching
-from src.tasks.nym_identification import NymIdentification
-from src.tasks.feature_matching import FeatureMatching
+from src.tasks.nym_identification import NymIdentification  # TODO make identification class
+from src.tasks.matching import Matching
 
 from src.utils import w2e_to_sims
 
 
 embedders = chain(
-    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
+    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
 )
@@ -27,20 +26,14 @@ embedders = chain(
 # a MATCHING task consists of matching a probe with multiple correct answers
 # an IDENTIFICATION task consists of identifying correct answer from multiple-choice question
 
-# TODO prediction task : use microsoft sentence completion (where candidates are given)
-# TODO use sum of similarities to calculate answer
-
-# TODO feature task:
-# TODO use WordRep (Gao et al., 2014) contains a large collection of relation triplets (44584 triplets in total)
-
 tasks = [
-    FeatureMatching('is'),
-    FeatureMatching('has'),
-    HypernymIdentification(),  # TODO make all tasks matching tasks? should work even when there is only 1 positive label per probe + make separate identification task that works for all
-    NymIdentification('antonym'),
-    NymIdentification('synonym'),
-    CohyponymMatching('semantic'),
-    CohyponymMatching('syntactic'),
+    Matching('nyms', 'ant'),  # TODO test matching task on nyms
+    Matching('nyms', 'syn'),
+    Matching('hypernyms'),
+    Matching('cohyponyms', 'semantic'),
+    Matching('cohyponyms', 'syntactic'),
+    Matching('features', 'is'),
+    Matching('features', 'has'),
 ]
 
 # run full experiment

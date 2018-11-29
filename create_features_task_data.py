@@ -1,4 +1,5 @@
 import string
+import numpy as np
 from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 import pandas as pd
@@ -9,9 +10,6 @@ from src.embedders.base import EmbedderBase
 CORPUS_NAME = 'childes-20180319'
 VERBOSE = True
 LEMMATIZE = True
-
-RELATION = 'is'  # use 'is' or 'has'
-
 
 def to_relation(col):
     l = col.split('_')
@@ -33,7 +31,8 @@ probe2features = {'is': {'jar': ['round'],
                          'radio': ['loud', 'electronic'],
                          'door': ['tall', 'heavy', 'creaky'],
                          'squid': ['alive', 'wet', 'dangerous'],
-                         }}
+                         },
+                  'has': {}}
 
 
 if __name__ == '__main__':
@@ -68,25 +67,26 @@ if __name__ == '__main__':
         if LEMMATIZE:
             probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
         # write to file
-        out_path = config.Dirs.tasks / 'features' / RELATION / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
-        if not out_path.parent.exists():
-            out_path.parent.mkdir(parents=True)
-        with out_path.open('w') as f:
-            print('Writing {}'.format(out_path))
-            for probe in probes:
-                features = df.loc[(df['concept'] == probe) & (df['relation'] == RELATION)]['Feature'].apply(
-                    to_object).tolist()
-                if not features:
-                    continue
-                line = probe
-                not_normed_features = probe2features[RELATION][probe] if probe in probe2features[RELATION] else []
-                for feature in features + not_normed_features:
-                    if feature not in vocab or feature == probe:
+        for relation in ['has', 'is']:
+            out_path = config.Dirs.tasks / 'features' / relation / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+            if not out_path.parent.exists():
+                out_path.parent.mkdir(parents=True)
+            with out_path.open('w') as f:
+                print('Writing {}'.format(out_path))
+                for probe in probes:
+                    features = np.unique(df.loc[(df['concept'] == probe) & (df['relation'] == relation)]['Feature'].apply(
+                        to_object)).tolist()
+                    if not features:
                         continue
-                    line += ' {}'.format(feature)
-                if ' ' in line:  # check that features were added to line
-                    f.write(line + '\n')
-                    if VERBOSE:
-                        print(line)
-                else:
-                    print('\t"{}" has no features'.format(probe))
+                    line = probe
+                    not_normed_features = probe2features[relation][probe] if probe in probe2features[relation] else []
+                    for feature in features + not_normed_features:
+                        if feature not in vocab or feature == probe:
+                            continue
+                        line += ' {}'.format(feature)
+                    if ' ' in line:  # check that features were added to line
+                        f.write(line + '\n')
+                        if VERBOSE:
+                            print(line)
+                    else:
+                        print('\t"{}" has no features'.format(probe))

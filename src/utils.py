@@ -10,25 +10,19 @@ nlp = spacy.load('en_core_web_sm')
 
 def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
 
-    def calc_probes_fs(thr, mean=True):
+    def calc_probes_fs(thr):
         tp, tn, fp, fn = calc_signals(thr)
         precision = np.divide(tp + 1e-10, (tp + fp + 1e-10))
         sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
-        probe_fs_list = 2 * (precision * sensitivity) / (precision + sensitivity)
-        if mean:
-            return np.mean(probe_fs_list)
-        else:
-            return probe_fs_list
+        fs = 2 * (precision * sensitivity) / (precision + sensitivity)
+        return fs
 
-    def calc_probes_ba(thr, mean=True):
+    def calc_probes_ba(thr):
         tp, tn, fp, fn = calc_signals(thr)
-        sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
         specificity = np.divide(tn + 1e-10, (tn + fp + 1e-10))
-        probe_ba_list = (sensitivity + specificity) / 2  # balanced accuracy
-        if mean:
-            return np.mean(probe_ba_list)
-        else:
-            return probe_ba_list
+        sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
+        ba = (sensitivity + specificity) / 2  # balanced accuracy
+        return ba
 
     # make thr range
     thr1 = max(0.0, round(min(0.9, round(sims_mean, 2)) - 0.1, 2))  # don't change
@@ -49,7 +43,7 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
                 acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
     best_thr = bo.res['max']['max_params']['thr']
     # use best_thr
-    results = fun(best_thr, mean=False)
+    results = fun(best_thr)
     res = np.mean(results)
     return res
 

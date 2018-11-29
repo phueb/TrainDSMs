@@ -12,7 +12,7 @@ def make_nym_figs():
 def make_cohyponym_matching_figs():
     return []
 
-def make_feature_matching_figs():
+def make_matching_figs():
     return []
 
 
