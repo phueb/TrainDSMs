@@ -74,19 +74,14 @@ if __name__ == '__main__':
             with out_path.open('w') as f:
                 print('Writing {}'.format(out_path))
                 for probe in probes:
+                    not_normed_features = probe2features[relation][probe] if probe in probe2features[relation] else []
                     features = np.unique(df.loc[(df['concept'] == probe) & (df['relation'] == relation)]['Feature'].apply(
-                        to_object)).tolist()
+                        to_object)).tolist() + not_normed_features
+                    features = ' '.join([f for f in features
+                                         if f != probe and f in vocab])
                     if not features:
                         continue
-                    line = probe
-                    not_normed_features = probe2features[relation][probe] if probe in probe2features[relation] else []
-                    for feature in features + not_normed_features:
-                        if feature not in vocab or feature == probe:
-                            continue
-                        line += ' {}'.format(feature)
-                    if ' ' in line:  # check that features were added to line
-                        f.write(line + '\n')
-                        if VERBOSE:
-                            print(line)
-                    else:
-                        print('\t"{}" has no features'.format(probe))
+                    line = '{} {}\n'.format(probe, features)
+                    print(line.strip('\n'))
+                    f.write(line)
+

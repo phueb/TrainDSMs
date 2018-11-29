@@ -75,7 +75,7 @@ class RNNEmbedder(EmbedderBase):
         token_ids = np.hstack(numeric_docs)
         num_windows = len(token_ids)
         pbar = pyprind.ProgBar(num_windows, stream=sys.stdout)
-        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose):
+        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose=False):
             pbar.update()
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
             targets = torch.cuda.LongTensor(y_b)

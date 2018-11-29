@@ -18,7 +18,7 @@ class Params:
     margin = [100.0]
     beta = [0.0]
     learning_rate = [0.1]
-    prop_negative = [0.5]  # proportion of negative pairs to train on  (can dramatically improve performance)
+    prop_negative = [0.25]  # proportion of negative pairs to train on  (can dramatically improve performance)
 
 
 class Matching(TaskBase):

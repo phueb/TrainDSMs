@@ -122,10 +122,10 @@ if __name__ == '__main__':
                     # write to file
                     print('Writing {}'.format(out_path))
                     for probe, nyms in zip(probes_partition, nyms):
-                        if not nyms:
-                            continue
                         nyms = ' '.join([nym for nym in nyms
                                          if nym != probe and nym in vocab])
+                        if not nyms:
+                            continue
                         line = '{} {}\n'.format(probe, nyms)
                         print(line.strip('\n'))
                         f.write(line)

@@ -23,4 +23,6 @@ if __name__ == '__main__':
                     if probe in vocab:
                         cohyponyms = ' '.join([cohyponym for cohyponym in cat2probes[cat]
                                               if cohyponym != probe and cohyponym in vocab])
+                        if not cohyponyms:
+                            continue
                         f.write('{} {}\n'.format(probe, cohyponyms))

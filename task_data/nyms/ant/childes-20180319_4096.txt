@@ -1,1517 +1,1178 @@
-pet 
-straighten bend move twist
-hopping 
-march stay stop wait
-gabby quiet
-odd like
-bake cool freeze
-pink 
-main extra
-opposite like
-training 
-door 
-read forget lose miss write
-crazy calm sound hate smart
-tough easy loose soft gentle kind nice
-pencil 
-summer winter
-them 
-closer far away cool dry giving loose open
-bye hello
-kite question number
-filled empty
-throw pull stop hold keep slow catch explain help
-louder calm little low quiet shy small soft
-stick whole
-ladder part whole
-wide empty little narrow small tiny straight
-shoulder 
-chop join
-worry calm
-scoot slow wait stay stop walk
-s 
-question answer
-dressed bare open
-sticker fat heavy thick fresh strong
-correct wrong
-laying 
-iron loose moving soft
-quarter whole
-spill hide
-more less
-waking asleep sleepy
-golden dark stupid ugly
-lizard 
-dry full wet dripping exciting interesting juicy soggy
-plug mouth opening
-straight broken changing different mixed twisted
-shape difference
-bigger little minute poor small teeny thin tiny baby blah shy
-spank lose
-sort one
-certainly 
-flat rough broken sharp
-smell 
-ruin building construction rise win
-cranky happy nice
-squash pull fan open
-terrible beautiful good happy lucky nice wonderful great
-rather little
-teach hide learn keep secret
-salt hate
-crow 
-scared brave cool happy
-booboo help goodness favor good right
-drop lot mountain rise
-language silence quiet
-wet clear dry
-funny boring serious sad unhappy
-kick 
-promise break
-doggy plain dirty
-fighting kind nice
-pushed hold keep stop calm rest slow wait hide pull
-end bottom beginning cause construction means opening start
-like different away changing far
-sentence charge
-evil beautiful friendly gentle good helpful kind lovely nice right wonderful
-rusty 
-queen king
-trunk 
-patch sky whole
-super bad poor
-dropping pour do rise
-study 
-birdy 
-hello goodbye
-round straight low small soft tiny
-pinch lot
-difference 
-squishy hard thin
-speaking written
-stopping beginning go opening start
-mum 
-peacock old
-scratching smooth
-somehow 
-city 
-hall 
-plum 
-shouted 
-longer little low short small soft
-hid open bare show tell
-edge bottom center inside middle block surface
-hand check silence
-bang slowly
-rum regular
-comb twist upset
-one mixed together none
-squishing lose
-freeze heat warm melt go
-climb drop fall
-room 
-nail separate loose lose stop untie
-spin 
-choke free loose begin help open start
-riding stay stop free
-recognize forget miss lose
-purse 
-through stopping
-bringing hold keep lose free leave drop quit
-wrapped 
-packed clear empty
-steering 
-along apart far separate
-decided fuzzy
-knocked 
-human 
-acting 
-merry+go+round care
-perfectly 
-fighter 
-washed dirty
-evening morning
-catch key
-whole part broken hurt sick
-swim stop
-pour stop
-laughed cry
-bitsy big giant huge important large great
-changed kept
-coming away far gone past
-tell ask hide question keep figure guess listen
-held lost
-man woman
-twist line
-plan 
-tired fresh saved
-mushy hard
-hugging free give
-kind cold cool hard mean nasty rough bad
-holiday 
-littler big fat large giant huge long older tall great important open
-changing certain stable sure fixed
-hank line
-wild kind nice calm gentle
-great little low minute small soft teeny tiny thin few poor short stupid
-pretend 
-land sky sea
-cash 
-gobble nibble
-true different lying wrong changing evil
-tiny big giant huge important large great
-gentle excited hard healthy loud mean rough unhappy wild low sharp strong
-dark bright clean clear good happy light smart sunny plain shining
-keep hurt lose need want waste separate spend use give
-crown base bottom foot
-stuffy new open
-alike different opposite
-tongue listening quiet silence
-decide begin start grow plant wait
-sew separate rip tear
-elbow line
-mam child
-alarm calm
-most least
-sense lot
-spend build hold keep save take fill get
-have drop free give lose miss need pass spend stop kill want
-scratchy soft
-there away far past
-awake asleep
-heat cold cool
-fun boring unhappy bad sad
-racket calm order quiet silence
-sleeping waking
-ray 
-stretch 
-on off
-hurting fix help close give please protect sew calm
-spring end
-setting light
-tip base bottom
-landed lose
-pea old
-died bear begin grow live
-boiling cold cool freezing happy
-runny broken dry close frozen hard
-danger calm care guard
-hungry full stuffed
-night day light morning sense
-rocky even smooth flat happy healthy
-know miss forget
-bunch one
-sip down
-breaking strong
-parade hiding
-dough bill dollar
-clearly 
-thing nothing whole hate
-happily 
-answered agree ask leave question wonder
-ticklish calm easy stable strong
-send hold keep stop hide take
-mobile fixed stable
-turning stay straighten
-felt give
-horrible beautiful gentle good great happy kind nice pretty wonderful
-driver passenger
-store few little need want
-middle outside
-tippy certain stable strong sure
-accident plan
-near away far separate cool gone past
-became 
-really 
-definitely 
-worn fresh new saved
-shaving sew cover
-board one
-gone alive found living present saved around working
-strong broken easy lazy little loose moving small soft low
-cooking freezing
-brother sister
-outside middle certain good inside sure
-system part
-fancy plain poor ugly
-sour blah calm good kind nice sweet wonderful friendly happy tasty
-worker check
-pulling fix plant push sew
-messy clean
-without inside
-state 
-sleepy awake
-treat trouble need want work
-squeezing free loose give
-teasing 
-army whole
-plant animal
-copy difference opposite
-control 
-hot cold cool dry freezing calm old out
-balance difference
-basically extra
-borrow lose give pay return
-old new young green fresh late
-die bear begin grow live
-digging cover fill
-move rest
-want hate plenty
-visit go
-pointed nice
-person animal plant
-nothing something
-choose hate
-melt cool freeze separate stop fight
-particular regular
-uncle woman
-need have plenty
-passed hold keep lose miss stay stop wait get live take use
-easier difficult hard trying unhappy
-past after later present
 shadow light
-shy brave calm forward proud rash bent enough
-calling fun
-dig 
-wave line
-bat 
-mix separate clean part
-lonely close loved
-terrific good little minute small tiny wonderful bad calm low nasty poor
-fell build help join
-now later past
-dollar change
-hip old slow worn
-salty blah
-saved spent
-luck 
-energy 
-ink 
-taught stupid
-wondered answer believe know
-learning 
-touching happy hard
-view 
-untie tie
-behind front
-shaking 
-find 
-get drop give lose push spend stop free calm leave miss pass please understand
-devil friend angel god
-starting end
-diaper help
-cricket 
-suddenly slowly
-climbed drop fall
-moo quiet silence calm
-quit begin join stay come do finish
-jet white
-right evil left mad wrong
-prize poor
-everywhere 
-memory 
-deal 
-peck lose
-safe dangerous
-double single
-rise drop fall
-mean kind nice polite
-forgotten remembered
-bet 
-learned green stupid
-soft difficult hard heavy rough strong unhappy healthy loud smart well
-several none one
-everyone nobody
-bill 
-ran stay walk face meet rest slow wait serve stand stop
-zero somebody anything being something thing
-standing 
-then earlier
-following front first
-bend line
-captain bottom foot
-popped fix pull
-line inside fun
-name 
-someday never
-frank different lying shy
-bear hold keep lose
-every none
-poured stop
-noon midnight
-usually never
-having drop free give lose miss need pass spend stop kill want
-diddle give
-back beginning first front
-food 
-letter number
-pen pencil
-racing slow crawling
-abc 
-dust 
-fixed loose moving soft broken
-point lot whole
-maybe certainly definitely
-teacher 
-notice 
-forever never
-gas 
-disappear begin come face fight grow keep meet rise stay wait
-wan bright clear colorful fresh healthy strong
-nickel bill dollar
-apple old
-fair lying mean tricky decided dark rainy ugly
-fallen 
-become 
-grade 
-scary 
-haha work
-eat open build
-chasing 
-lovely horrible poor ugly unhappy awful
-hardly very
-going fixed
-meat outside
-throwing pull stop hold keep slow catch explain help
-hammer lose ruin stop
-zipper important big serious
-gingerbread main needed old used worn
-somebody nobody
-sloth energy life
-member whole
-passenger driver
-yelling whisper whispering
-took tire add give hold keep lose stop
-walked lose stay stop
-pick 
-measure whole
-lick lot
-carry drop fix hold keep stay stop leave lose
-peach sad
-fact lie
-share whole
-problem help opening
-kicked 
-angel devil
-erase build keep lose add
-poor full great happy lucky strong
-surface deep inside middle
-connect separate
-fire 
-web order
-skeleton 
-elastic hard difficult
-telling 
-rake plant
-use hurt
-sorry glad good happy nice
-looked forget miss
-beef 
-h work
-brain body dumbo
-turned stay straighten
-serve hold keep take
-tried 
-carrier 
-snuggle separate
-knob 
-seek answer find
-tail beginning front start head
-broke 
-clip grow
-scrambled rest stay stop
-electric boring
-flying slow ground
-lowly higher
-bad good great happy lucky wonderful just right true
-mummy grow freeze wet
-block whole opening
-train 
-tearing agree attach fix help join marry push sew wait
-stood leave lose move drop fall lay lie sit
-scrub dirty
-noisy calm quiet still
-needed 
-traffic 
-show hiding truth
-above below less under
-child 
-naughty calm good nice clean
-killed bear leave lose miss save build free help hold keep loose start begin
-magic 
-wipe dirty
-machine end
-war 
-statue 
-team one single
-scare 
-ready bare slow
-happening plan system
-quick later lazy slow stupid
-family 
-lean fat heavy thick fresh strong
-spot lot
-sleep energy
-trade fun
-ducky bad cool mean ugly horrible nasty
-storm calm quiet
-yellow strong brave
-muddy bright clean dry light sharp clear good
-scratch 
-someone nobody
-care calm help
-fork agree connect join
-resting 
-wonderful bad dark little nasty plain poor regular small tiny unhappy
-smile 
-pause go start
-dancing 
-shining dark
-loud calm little low quiet shy small soft
-boom 
-post 
-roof bottom
-unhappy happy glad lucky
-price cause
-ache 
-eve middle
-same different changing polar
-helped 
-juicy dry
-explain hide question wonder cloud
-return leaving question leave
-touch lot
-load whole
-little big fat large giant huge long older tall great important open
-baking freezing
+talk listening silence
+diving rise jump
+elbow line
+wanting enough present perfect
+empty busy filled full
+plain beautiful difficult hidden pretty
 before after behind later
-sink rise grow lift brave fight float
-roar quiet silence
-smash building construction rise win wonder
-spanking slow
-sky earth
-were die go leave lose pass quit stop
-buying selling
-sounded quiet
-lemon 
-zoom slow sew walk
-string 
-stay go start help leave
-apparently 
-all none zero
-proud lowly sad sorry
-big little minute poor small teeny thin tiny baby blah shy
-magnet fact truth
-teeny big huge large
-itch hate
-department whole
-girl boy
-excellent bad poor regular ugly
-shout 
-driving 
-chewing 
-dream truth fact
-time 
-plop rise
-waste building construction
-frightened brave cool happy calm
-leave difference
-space 
-thought thing
-pin loose
-easy difficult hard trying unhappy
-stable broken loose soft changing different shaky
-bolt key
-twisted clear even straight
-honey 
-trouble calm order help
-bandaid 
-attach forget loose lose separate untie
-jungle order
-come disappear go hide leave lose miss stop
-very 
-squirt 
-mixing separate clean part
-stupid bright careful serious sharp smart
-drag help
-skip stand stay wait face meet
-high little minute short small teeny tiny ground down low lowly mean soft upset
-trick truth meeting
-paper thick
-project fun
-pass closing
-piggy full
-gotten drop give lose push spend stop free calm leave miss pass please understand
-skirt center inside middle
-won lost
-cardboard thick
-cuz 
-higher smaller
-row 
-dumb bright sharp smart speaking
-feeling thing
-rub 
-pulled fix plant push sew
-colorful plain boring
-speak hold keep hide listen
-dip rise
-would forget keep pass
-bark 
-dribble pour
-peter build grow help pour rise stretch
-cracked fixed working
-pair one single
-square different new
-center outside
-quietly 
-seal 
-spitting swallow
-best last poor extra least low
-ugly beautiful nice pretty gentle good kind lovely safe
-clap 
-lesson 
-sound broken soft part sick wrong
-excuse 
-shore center middle
-helpful cold cool hurting
-bumped 
-squished lose
-furry smooth
-perfect bad poor wrong broken part
-builder 
-rubbing dirty please
-close far away cool dry giving loose open
-voice silence quiet
-friend 
-taste hate lot
-early old worn late later
-fix good
-toward 
-even broken changing different rough
-drew grow plant push
-trash sense
-moving fixed
-mark 
-alive dead
-enjoy hate need want
-handle 
-tin whole
-sharp boring calm flat frank kind lazy low nice slow stupid
-sock lose
-healthy gentle kind lazy soft poor sick worn
-quiet noisy loud
-recently before later
-tickle upset
-yell 
-camp calm
-talking hearing listening
-lulu awful bad dark horrible poor small stupid ugly unhappy
-crashed fix help
-important little narrow short small tiny
-figured 
-swallowed nibble hold keep doubt
-animal gentle
-couple 
-shade light
-switch 
-silence noise talk
-upset calm clean happy healthy sound strong well
-temperature cool
-forward back last later past shy
-dear cool
-rescue danger
-ghost angel god being
-written 
-peeling cover
-leash 
-message silence
-under above higher more over up
-grumpy happy nice
-shaky brave certain happy safe sound stable strong sure
-known hidden
-unscrew tighten
-day night evening
-stir calm order quiet
-whisper silence
-spinach old
-band whole
-checking forget guess help
-skipped stand stay wait face meet
-happen disappear lose stop
-field sky
-scream 
-cover 
-tire calm please build help rise
-absolutely 
-hang forget straighten do rise separate
-place office whole
-favorite 
-dinosaur new present
-hate love help like
-month 
-note 
-sheep fact truth
-matching different
-separate mixed together
-spilled 
-fluffy rough smooth
-size 
-hope doubt hate fact truth
-here there
-envelope middle
-favor hurt stop hate
-comfortable cold cool hard unhappy poor upset
-slip care
-rode stay stop free
-smiling 
-done saved
-pat wrong
-nicely 
-sun 
-lying frank
-knew miss forget
-special like regular least
-million little part need one valley want
-wicked clean friendly good kind nice helpful
-squeeze opening
-credit doubt cash
-bow line straighten
-nibble lot
-meow quiet silence calm
-babe 
-listening 
-stew calm control
-polite cold cool mean nasty rough
-kent miss forget
-set moving soft
-hiding 
-rinse dirty dry
-bright dark black horrible stupid unhappy
-tall little short small tiny low
-lose fight save win fill give hold keep take face meet
-heart hate head outside surface
-suit order
-possible 
-sir 
-triangle hate
-side important serious
-pup cause
-slice whole
-spilling hide
-seesaw stay
-begin close end finish lose ruin stop check die
-rip 
-max least
-desert 
-look 
-yawn close connect hold join keep
-open certain closed decided locked lying shut sure
-went face stay stop come wait break
-folding straighten open separate smooth free leave loose
-still broken moving
-crash 
-allowed hold keep
-suppose know stop measure
-idea thing truth
-guy girl
-blah exciting interesting
-wax drop fall stop
-quack real true
-imagine break ruin know
-steal give stay protect
-bar whole help
-count part guess
-smooth broken difficult excited hard loud noisy rough sharp strong wild changing different
-real hidden
-over less
-fishy real
-slide rise stay stop hold keep
-ripped sew close
-shark slow stupid
-run rise standing walking
-wiping dirty
-bout 
-leaving base
-bit lot whole
-ask answer tell
-been die go leave lose pass quit stop
-windy calm quiet
-picked grow plant
-thunder 
-angry calm cool happy nice
-bumpy calm even smooth
-cut closing whole
-earlier later
-messed 
-fall rise climb
-cotton 
-shoot bear hold keep walk
-nicer bad cool mean ugly horrible nasty
-bull sense truth fact
-cutting calm gentle kind nice stupid sweet
-meant 
-teaching 
-wife husband
-pride trouble
-miss plenty truth win
-knack want
-deep narrow light open quiet soft
-lip center middle inside
-already later
-shiny dark
-sweep 
-amazing bad poor
-putting forget leave take move change
-screaming 
-banging tap
-began close end finish lose ruin stop check die
-rash afraid careful shy
-living asleep dead
-root end extra outside
-map 
-toast 
-climbing drop fall
-stink 
-sunny dark rainy unhappy upset
-cloud light
-wedding 
-piece whole
-it 
-snort hide secret
-august 
-babysit miss forget
-first extra following last
-chest back
-missing enough found here present
-strange bad like poor regular
-spicy cold cool old clean
-nice bad cool mean ugly horrible nasty
-flavor 
-carrot block
-each none
-dripping pour
-fight calm quiet
-mountain valley
-artist 
-attached forget loose lose separate untie
-pay 
-mushroom 
-sweetie hate
-lock key
-naked covered strong hidden secret
-slowly fast quickly
-fantastic real regular serious bad little plain poor small tiny
-yoyo certain stable sure calm
-paying hold take keep upset lose
-doctor patient
-nasty calm easy gentle good kind nice polite wonderful clean friendly great happy helpful helping safe
-given 
-sand center middle
-mess calm order system beauty
-sudden lazy slow
-hug push
-bump 
-grouchy happy nice
-choice bad poor sad
-bulb 
-turn miss
-waving calm stay straighten
-chip whole
-completely 
-finished held kept saved
-everything nothing
-shake hold order calm fix please stay
-rid keep bear hold plant save get
-awesome bad boring disgusting good nice poor ugly
-ben daughter
-battery one
-rule 
-few big fat important large tall thick many much
-south right
-extra main needed old used worn
-just wrong
-parked 
-hill bottom
-incredible bad poor possible terrible
-cross happy
-leg whole
-learn lose miss pass spend teach
-base clean good high just kind nice
-design being
-bent straight
-trip fix
-up down
-home outside business commercial
-bring hold keep lose free leave drop quit
-reach 
-beautiful bad horrible poor rough ugly disgusting plain
-waited go hurry leave move do forward
-stayed go hurry leave move finish push
-wonder 
-counted guess
-neat dirty rough stupid
-goose block hate
-busy lazy quiet
-yep 
-bread 
-house office
-giant little minute small teeny tiny
-picture 
-laughing boring
-opening closing finish
-somewhere 
-tighten free give help loose lose melt open untie relax
-build mind
-ticket 
-grand bad poor small tiny low
-everyday different special
-noise calm quiet silence order
-chose hate
-quite 
-regular different special changing
-covered bare open empty
-excited calm bored
-cried please
-bloat tighten
-cause finish fruit
-floppy 
-low big huge important large above happy healthy high strong tall well
-heavy easy little poor small thin tiny skinny happy light moving
-aboard off
-invited stop answer
-taller little short small tiny low
-spent alive living fresh saved straight strong
-carrying drop fix hold keep stay stop leave lose
-agree 
-helper 
-ding help
-crooked straight good
-fellow 
-stinky dry
-giving getting taking
-selling buying
-thin big fat heavy large strong thick wide colorful
-dirt 
+fancy plain poor ugly
+baloney truth
+shut open free loose
 rainy dry
-meet 
-listen miss forget speak talk
-forgot carry learn remember take
-squish lose
-pardon hold
-sometime never
-country city
-happy down sad serious unhappy upset
-grabbed free give lose
-invite stop answer
-something nothing
-tight broken calm loose slow soft comfortable easy free giving open wide
-older younger
-last beginning middle opening first front starting
-smart dark lazy light slow stupid old worn
-sting help
-gotcha lose miss mistake
-laugh cry
-other same
-came disappear go hide leave lose miss stop
-freight 
-waiting go hurry leave move do forward
-touched well
-mash pull
-add guess
-charge 
-attention 
+wet clear dry
+pride trouble
+team one single
+jet white
+crazy calm sound hate smart
+hint lot
+big little minute poor small teeny thin tiny baby blah shy
+erase build keep lose add
+color white
+pen pencil
+unscrew tighten
+pile hole
+price cause
 wing base
-better smaller worse
-chase 
-threw pull stop hold keep slow catch explain help
-top poor bad below least low
-soggy cool dry hard
-remind forget
-yesterday tomorrow
-corn 
-talked cover listen hide
-seed being outside end
-half whole
-give hold keep take hide fight
-lady man
-ate open build
-had drop free give lose miss need pass spend stop kill want
-woof inside middle
-slipped correct perfect
-sign 
-please tire upset worry
-empire 
-plane broken changing different rough
-rocked calm stay hold
-check help
-sang 
-torn fixed working certain decided perfect sure
-eaten open build
-hold 
-chain 
-face hiding smile back behind
-arrived go hide leave lose miss disappear
-fourth whole
+late early live old
+bloat tighten
+copy difference opposite
+slept grow wake
+stinky dry
+mash pull
 growing dead
-huge little minute narrow poor short small teeny tiny
-musical 
-number part letter one
-sticky cool dry easy smooth
-master green copy
-crunch calm
-way end
-swing 
-swish bad poor
-sea land
-brought hold keep lose free leave drop quit
-totally 
+choke free loose begin help open start
+soft difficult hard heavy rough strong unhappy healthy loud smart well
+path closing
+wish hate
+burn freeze cool help wet
+count part guess
+search finding
+worry calm
+begin close end finish lose ruin stop check die
+fool brain
+harder soft easy nice
+mask truth
+bigger little minute poor small teeny thin tiny baby blah shy
+say ask hide hold keep listen question
+heart hate head outside surface
 remember forget miss
+huge little minute narrow poor short small teeny tiny
+passed hold keep lose miss stay stop wait get live take use
+breaking strong
+center outside
+seed being outside end
+nobody somebody
+stew calm control
+several none one
+float sink
+heat cold cool
+fantastic real regular serious bad little plain poor small tiny
+getting losing
+okay bad dark rainy wrong
+polar friendly hot warm same
+get drop give lose push spend stop free calm leave miss pass please understand
+electric boring
+lazy careful fresh interested
+well little poor rough sick small unhappy
+wait go act doing
+were die go leave lose pass quit stop
+branch whole company
+stood leave lose move drop fall lay lie sit
+dropping pour do rise
+shark slow stupid
+terrific good little minute small tiny wonderful bad calm low nasty poor
+fair lying mean tricky decided dark rainy ugly
+realize forget miss mistake lose
+gabby quiet
+taller little short small tiny low
+fighting kind nice
+sweetie hate
+board one
+paw guard please protect
+touch lot
+checked forget guess help
+stuffed empty
+frozen hot warm moving
+damn protect welcome bless favor
+floor ceiling
+knew miss forget
+half whole
+treating leave stop hurt
+built flat skinny
+confused clear
+choose hate
+runny broken dry close frozen hard
+finished held kept saved
+split closing
+taught stupid
+jump end opening
+hush noise yelling
+envelope middle
+wiping dirty
+evil beautiful friendly gentle good helpful kind lovely nice right wonderful
+calm excited nervous rough angry mad wild worried
+still broken moving
+worm helper
+tippy certain stable strong sure
+mixing separate clean part
+slow moving busy fast quick ready smart waiting
+skipped stand stay wait face meet
+man woman
+each none
+learned green stupid
+favor hurt stop hate
+later before earlier
+riding stay stop free
+someone nobody
+handsome rough ugly poor small
+other same
+bring hold keep lose free leave drop quit
+show hiding truth
+minute big huge large giant important rough
+snort hide secret
+alarm calm
+eaten open build
+particular regular
+die bear begin grow live
+happening plan system
+devil friend angel god
+figure part letter
+wore hide please
+belle fact dog
+hugging free give
+think doubt leave lose hate know forget
+help hurt check stop
+racket calm order quiet silence
+plop rise
+something nothing
+giving getting taking
+usually never
+straighten bend move twist
+shake hold order calm fix please stay
+above below less under
+lick lot
+mix separate clean part
+squishy hard thin
+blue clean happy
+opening closing finish
+measure whole
+project fun
+rake plant
+player fan
+owl police
+little big fat large giant huge long older tall great important open
+grouchy happy nice
+asked answer tell
+furry smooth
+floating heavy
+break closing combination
+carrot block
+dry full wet dripping exciting interesting juicy soggy
+father end mother
+mind being body
+patient loud rough wild frustrated
+spend build hold keep save take fill get
+ruin building construction rise win
+faster slow boring good loose
+crooked straight good
+run rise standing walking
+silence noise talk
+pulled fix plant push sew
+bought sold
+afraid brave calm happy cool
+rosy sad
+parade hiding
+yellow strong brave
+fast slow boring good loose
+poured stop
+crack poor bad
+trip fix
+arm body main
+throwing pull stop hold keep slow catch explain help
+grow drop lose narrow ruin stop hold keep
+even broken changing different rough
+wonderful bad dark little nasty plain poor regular small tiny unhappy
+understand lose miss free mistake
+stable broken loose soft changing different shaky
+monster angel god
+ticklish calm easy stable strong
+pin loose
+found break die end finish ruin stop upset
+tickled sad unhappy upset
+friendly bad cold cool hurting mean loose
+see miss forget
+early old worn late later
+black white clean good happy
+blow calm luck
+somebody nobody
+especially usually
+goofy smart
+thick easy little narrow skinny small thin loose low soft clear smart
+fence opening
+shaped ruin lose
+green healthy old
+piggy full
+dead alive living being interested live warm working
+crowded empty loose
+running broken
+bar whole help
+roof bottom
+share whole
+cool hot warm excited friendly kind poor square upset
+dear cool
+night day light morning sense
+master green copy
+dinosaur new present
+apple old
+zipper important big serious
+build mind
+short long enough high kind large polite tall thick
+beautiful bad horrible poor rough ugly disgusting plain
+trouble calm order help
+dip rise
+smooth broken difficult excited hard loud noisy rough sharp strong wild changing different
+yawn close connect hold join keep
+credit doubt cash
+bent straight
+cutting calm gentle kind nice stupid sweet
+dream truth fact
+disappear begin come face fight grow keep meet rise stay wait
+noisy calm quiet still
+living asleep dead
+camp calm
+peach sad
+quit begin join stay come do finish
+hurt happy healthy perfect well
+idea thing truth
+headache help
+below above more over
+following front first
+hide open bare show tell
+giant little minute small teeny tiny
+met lose miss separate
+behind front
+visit go
+bit lot whole
+nibble lot
+hey goodbye
+give hold keep take hide fight
+difficult easy helpful nice calm free friendly plain
+knack want
+house office
+round straight low small soft tiny
+none some
+fun boring unhappy bad sad
+sully clean
+mobile fixed stable
+sounded quiet
+sorry glad good happy nice
+moving fixed
+counting guess
+proud lowly sad sorry
+skin center inside middle body
+now later past
+place office whole
+messy clean
+happen disappear lose stop
+broken perfect fixed happy kept whole working
+ding help
+remembered forgotten lost
+sue free answer give
+leave difference
+back beginning first front
+magnet fact truth
+giddy calm careful serious
+awesome bad boring disgusting good nice poor ugly
+most least
+bake cool freeze
+same different changing polar
+easier difficult hard trying unhappy
+fly slow stay rest face land walk
+steal give stay protect
+hope doubt hate fact truth
+relax worry grow
+pup cause
+twisted clear even straight
+way end
+bitsy big giant huge important large great
+junk sense
+never always forever
+ask answer tell
+silly serious smart
+summer winter
+unhappy happy glad lucky
+climb drop fall
+hardly very
+waited go hurry leave move do forward
+flew slow stay rest face land walk
+art want
+music silence
+goodbye hello
+flat rough broken sharp
+wreck building construction
+hug push
+sink rise grow lift brave fight float
+long little low short small soft
+spot lot
+saved spent
+suit order
+known hidden
+person animal plant
+rum regular
+touched well
+angry calm cool happy nice
+whisper silence
+brain body dumbo
+pocket big giant huge important large tall
+let fight hold keep stop buy sell
+one mixed together none
+bumper few little wanting
+fold line
+chest back
+page inside middle
+sweetheart hate
+shaky brave certain happy safe sound stable strong sure
+squish lose
+letting fight hold keep stop buy sell
+spitting swallow
+tough easy loose soft gentle kind nice
+curly straight
+store few little need want
+spinning straighten stand
+high little minute short small teeny tiny ground down low lowly mean soft upset
+regular different special changing
+spare fat thick
+plug mouth opening
+skip stand stay wait face meet
+million little part need one valley want
+nickel bill dollar
+bunk sense truth
+question answer
+young old healthy older
+safe dangerous
+colorful plain boring
+spring end
+alone together
+creature plant
+end bottom beginning cause construction means opening start
+up down
+helpful cold cool hurting
+salty blah
+leaving base
+exciting boring
+beat fresh
+cooked cool freeze grow help wet
+soggy cool dry hard
+seeing asleep
+shot truth
+loose hard tight attached clean
+touching happy hard
+south right
+naked covered strong hidden secret
+main extra
+second important
+itch hate
+shaving sew cover
+bye hello
+stupid bright careful serious sharp smart
+love hate
+paper thick
+tickle upset
+slippery dry safe certain stable
+people animals plants
+closed beginning open running started starting working
+connect separate
+lulu awful bad dark horrible poor small stupid ugly unhappy
+bob face meet
+mixed alike like same separate single
+sore easy good happy well
+whoever nobody
+dumb bright sharp smart speaking
+army whole
+basically extra
+rocking calm stay hold
+yuck cry
+cheese nobody
+flying slow ground
+enjoy hate need want
+true different lying wrong changing evil
+having drop free give lose miss need pass spend stop kill want
+good poor evil mean wicked
+sentence charge
+queen king
+moo quiet silence calm
+bunch one
+office fun home
+separate mixed together
+on off
+home outside business commercial
+job fun
+wave line
+least big huge large most
+cranky happy nice
+every none
+different alike like same
+wax drop fall stop
+eat open build
+edge bottom center inside middle block surface
+chilly friendly hot warm
+shoot bear hold keep walk
+flap calm
+crown base bottom foot
+dining fast
+few big fat important large tall thick many much
+starting end
+new like old past regular worn
+serve hold keep take
+mummy grow freeze wet
+web order
+sweeping narrow
+gotcha lose miss mistake
+sheep fact truth
+then earlier
+knot opening line
+stick whole
+front last back
+mam child
+comfortable cold cool hard unhappy poor upset
+popping fix pull
+hammering lose ruin stop
+department whole
+do bear begin forget lose miss ruin start stop pass
+told ask hide question keep figure guess listen
+cross happy
+trick truth meeting
+drag help
+take whole
+naughty calm good nice clean
+march stay stop wait
+sneezed give
+yawning close connect hold join keep
+cried please
+cleaned dirty spend ruin
+lived dead
+hungry full stuffed
+hole mountain closing
+lot whole little
+hill bottom
+rise drop fall
+putting forget leave take move change
+easy difficult hard trying unhappy
+strange bad like poor regular
+country city
+much little
+upset calm clean happy healthy sound strong well
+hulk bit
+paying hold take keep upset lose
+hot cold cool dry freezing calm old out
+feeding hold keep take fast hurt
+covered bare open empty
+sleeping waking
+meat outside
+decide begin start grow plant wait
+add guess
+needle please help
+invited stop answer
+hairy smooth calm clean safe
+bad good great happy lucky wonderful just right true
+able slow stupid
+woof inside middle
+drip pour
+maybe certainly definitely
+teach hide learn keep secret
+jumped add lose rise face
+suddenly slowly
+freezing friendly hot warm good kind nice boiling
+prize poor
+sand center middle
+coming away far gone past
+slip care
+busy lazy quiet
+wrapping free loose untie straighten
+max least
+want hate plenty
+hurting fix help close give please protect sew calm
+treat trouble need want work
+hi goodbye
+already later
+neat dirty rough stupid
+rather little
+swam stop
+finish beginning opening start construction
+grew drop lose narrow ruin stop hold keep
+put forget leave take move change
+spinach old
+winter heat
+crunch calm
+meeting calm
+explain hide question wonder cloud
+dime bill dollar
+spicy cold cool old clean
+tip base bottom
+roller line
+horrible beautiful gentle good great happy kind nice pretty wonderful
+wide empty little narrow small tiny straight
+bright dark black horrible stupid unhappy
+shape difference
+wrong correct good just right sound true
+windy calm quiet
+fishy real
+tall little short small tiny low
+raking plant
+fever calm freeze
+accident plan
+killed bear leave lose miss save build free help hold keep loose start begin
+white dark strong black dirty
+picked grow plant
+ate open build
+shell center inside middle
+freeze heat warm melt go
+apart together
+forward back last later past shy
+ugly beautiful nice pretty gentle good kind lovely safe
+waiting go hurry leave move do forward
+fell build help join
+in old past
+wondered answer believe know
+oil dry
+sense lot
+roar quiet silence
+shade light
+without inside
+turned stay straighten
+bottom top
+thinking dumb stupid
+nail separate loose lose stop untie
+sloth energy life
+doggy plain dirty
+secret known open light clear
+missing enough found here present
+rest beginning go hurt noise start upset work worry base energy
+helping whole
+ahead behind
+hang forget straighten do rise separate
+sail go land stay stop walk
+dark bright clean clear good happy light smart sunny plain shining
+ground sky
+pushed hold keep stop calm rest slow wait hide pull
+trade fun
+calling fun
+vacation work
+old new young green fresh late
+took tire add give hold keep lose stop
+sitting standing
+buying selling
+booboo help goodness favor good right
+once later
+fall rise climb
+hate love help like
+game afraid able working
+spent alive living fresh saved straight strong
+scratching smooth
+iron loose moving soft
+elastic hard difficult
+near away far separate cool gone past
+racing slow crawling
+opposite like
+attach forget loose lose separate untie
+laugh cry
+aha mistake
+suppose know stop measure
+woman man
+fluffy rough smooth
+yelling whisper whispering
+reached go leave lose stop miss
+middle outside
+correct wrong
+point lot whole
+rinse dirty dry
+guy girl
+careful loose rash
+slowly fast quickly
+frightened brave cool happy calm
+live dead
+promise break
+wrote ruin keep stop read
+party work
+sew separate rip tear
+double single
+fact lie
+matter nothing zero
+sticking go leave stop free loose open separate forget
+sick healthy perfect sound strong well clean gentle happy nice
+frank different lying shy
+send hold keep stop hide take
+missed found remembered
+tiny big giant huge important large great
+cozy cool
+incredible bad poor possible terrible
+rode stay stop free
+spill hide
+borrow lose give pay return
+gingerbread main needed old used worn
+choice bad poor sad
+y center middle
+combing twist upset
+flour build
+interesting boring disgusting ugly
+tight broken calm loose slow soft comfortable easy free giving open wide
+through stopping
+popped fix pull
+scoot slow wait stay stop walk
+sky earth
+squished lose
+recently before later
+rocked calm stay hold
+peter build grow help pour rise stretch
+yoyo certain stable sure calm
+boiling cold cool freezing happy
+free busy expensive mean
+better smaller worse
+visited listen
+splinter whole
+lie truth
+done saved
+pump answer
+sticky cool dry easy smooth
+gave hold keep take hide fight
+after before
+animal gentle
+plane broken changing different rough
+banging tap
+off here on present
+younger old healthy older
+stay go start help leave
+pretty ugly disgusting
+earlier later
+need have plenty
+wall inside middle opening help
+wan bright clear colorful fresh healthy strong
+rubbing dirty please
+please tire upset worry
+drying full wet dripping exciting interesting juicy soggy
+small big fat great huge important large tall thick wide giant excellent fine giving kind
+hand check silence
+push pull
+head extra last least second
+wild kind nice calm gentle
+had drop free give lose miss need pass spend stop kill want
+imagine break ruin know
+scale part whole
+under above higher more over up
+band whole
+grumpy happy nice
+hip old slow worn
+field sky
+quickly later slowly
+higher smaller
+drew grow plant push
+pair one single
+speak hold keep hide listen
+waste building construction
+carry drop fix hold keep stay stop leave lose
+tie break win
+digging cover fill
+nothing something
+cloud light
+fiddle work
+terrible beautiful good happy lucky nice wonderful great
+exercise rest fun
+flop wonder
+low big huge important large above happy healthy high strong tall well
+write ruin keep stop read
+drop lot mountain rise
+number part letter one
+climbed drop fall
+tricky certain easy healthy smooth stable strong sure frank
+wear building construction
+super bad poor
+change bill dollar
+self other
+tore agree attach fix help join marry push sew wait
+ben daughter
+puzzle calm explain help lose
+aboard off
+babysit miss forget
+polite cold cool mean nasty rough
+lean fat heavy thick fresh strong
+juicy dry
+filled empty
+make break ruin end finish kill lose separate measure stop
+decided fuzzy
+stop beginning go help opening start
+brought hold keep lose free leave drop quit
+deep narrow light open quiet soft
+allowed hold keep
+fit stupid wrong poor
+died bear begin grow live
+alike different opposite
+gone alive found living present saved around working
+wrench give straighten
+interested bored fair
+ran stay walk face meet rest slow wait serve stand stop
+thin big fat heavy large strong thick wide colorful
+just wrong
+slipped correct perfect
+colored real white
+dough bill dollar
+merry sad serious unhappy upset
+fork agree connect join
+woke nap sleep
+mountain valley
+next earlier
+catch key
+real hidden
+grain lot whole
+open certain closed decided locked lying shut sure
+triangle hate
+sweet mean salty sour stinky ugly
+gotten drop give lose push spend stop free calm leave miss pass please understand
+lovely horrible poor ugly unhappy awful
+sour blah calm good kind nice sweet wonderful friendly happy tasty
+lying frank
+watering dirty dry
+married single
+tire calm please build help rise
+start end finish close coming stop
+tuna afraid shy
+hid open bare show tell
+ship hold keep
+learn lose miss pass spend teach
+louder calm little low quiet shy small soft
+kite question number
+letter number
+nasty calm easy gentle good kind nice polite wonderful clean friendly great happy helpful helping safe
+whole part broken hurt sick
+dirty bright clean clear neat good nice
+comb twist upset
+worn fresh new saved
+hurry calm quiet rest wait
+walked lose stay stop
+ringing low soft
+blew hide secret come save
+shy brave calm forward proud rash bent enough
+trying easy
+everything nothing
+be die go leave lose pass quit stop
+awful beautiful gentle good great happy kind nice safe wonderful
+surprised calm
+hammer lose ruin stop
+play work
+rid keep bear hold plant save get
+biggest little minute poor small teeny thin tiny baby blah shy
+welcome bad
+wind calm
+bumpy calm even smooth
+over less
+odd like
+older younger
+wipe dirty
+mother end father
+day night evening
+match difference
+alive dead
+felt give
+angel devil
+stir calm order quiet
+use hurt
+member whole
+looking forget miss
+drink food
+left right
+noise calm quiet silence order
+bathing dirty dry
+tell ask hide question keep figure guess listen
+single together attached double married mixed
+down above happy higher
+foot lid top
+poor full great happy lucky strong
+have drop free give lose miss need pass spend stop kill want
+along apart far separate
+melt cool freeze separate stop fight
+work fun
+stuffy new open
+feeling thing
+playing face listen watch work
+language silence quiet
+fresh old warm gentle kind polite tired used worn
+tongue listening quiet silence
+outside middle certain good inside sure
+medium different
+funny boring serious sad unhappy
+laughed cry
+lowly higher
+fuzzy clear smooth
+began close end finish lose ruin stop check die
+answered agree ask leave question wonder
+waving calm stay straighten
+bonk flop
+body mind nothing one thought
+shave sew cover
+tail beginning front start head
+sleepy awake
+asleep awake
+scrub dirty
+top poor bad below least low
+swallow nibble hold keep doubt
+hank line
+garbage sense
+first extra following last
+packed clear empty
+attached forget loose lose separate untie
+dripping pour
+truth lie
+perfect bad poor wrong broken part
+listen miss forget speak talk
+someday never
+scrambled rest stay stop
+stopping beginning go opening start
+conversation listening quiet silence
+noon midnight
+too little
+talking hearing listening
+snack meal
+zoom slow sew walk
+son daughter
+move rest
+bare secret covered full
+keep hurt lose need want waste separate spend use give
+moved kept
+ladder part whole
+moment whole
+washed dirty
+screw straighten help unscrew
+come disappear go hide leave lose miss stop
+duck face meet rise jump
+everyone nobody
+clean dark dirty
+patch sky whole
+went face stay stop come wait break
+problem help opening
+rocky even smooth flat happy healthy
+pinch lot
+awake asleep
+important little narrow short small tiny
+darling hate
+bang slowly
+spread stop
+chose hate
+happened disappear lose stop
+hidden bare bright clear known open plain out seen showing
+bringing hold keep lose free leave drop quit
+great little low minute small soft teeny tiny thin few poor short stupid
+zero somebody anything being something thing
+brave afraid careful shy frightened
+reading writing
+boring bright exciting interesting new smart different
+tighten free give help loose lose melt open untie relax
+sharp boring calm flat frank kind lazy low nice slow stupid
+yesterday tomorrow
+tired fresh saved
+mad calm happy sound
+crashed fix help
+sea land
+close far away cool dry giving loose open
+nicer bad cool mean ugly horrible nasty
+package whole
+extra main needed old used worn
+forever never
+sit move stand straighten
+warm calm cold cool freezing unhappy
+baby big giant huge important large tall
+machine end
+h work
+landed lose
+miss plenty truth win
+cow calm help please
+soon late later far never
+lose fight save win fill give hold keep take face meet
+held lost
+cut closing whole
+grabbed free give lose
+temperature cool
+face hiding smile back behind
+side important serious
+fight calm quiet
+joke work
+thought thing
+sock lose
+purpose hate beginning start
+word silence quiet break question
+block whole opening
+rough calm easy flat gentle nice polite smooth soft neat even regular
+counted guess
+lou beautiful nice pretty wonderful
+ghost angel god being
+sleep energy
+order fighting keeping answer mess
+shore center middle
+emergency calm
+teeny big huge large
+excited calm bored
+tangled clear
+carrying drop fix hold keep stay stop leave lose
+happy down sad serious unhappy upset
+hour whole
+selling buying
+pause go start
+bend line
+rolled straight spread
+turning stay straighten
+answer problem question quiet silence trouble
+seek answer find
+kind cold cool hard mean nasty rough bad
+ceiling floor
+jungle order
+lady man
+threw pull stop hold keep slow catch explain help
+sound broken soft part sick wrong
+doubt calm
+plastic hard
+slide rise stay stop hold keep
+ducky bad cool mean ugly horrible nasty
+leg whole
+husband wife
+checking forget guess help
+beginning end finish close
+squeeze opening
+story truth
+bull sense truth fact
+check help
+dumped fill hold keep load hide save
+mr girl
+forgot carry learn remember take
+act quiet rest
+scratchy soft
+matty clean straight
+best last poor extra least low
+clip grow
+evening morning
+setting light
+shining dark
+sudden lazy slow
+heavy easy little poor small thin tiny skinny happy light moving
+turkey brain
+seen miss forget
+narrow fat free giving loose open strong away far poor thick wide
+excellent bad poor regular ugly
+kent miss forget
+or neither
 star extra
 sent kept
-indeed 
-seeing asleep
-confused clear
-belle fact dog
-least big huge large most
-win 
-lucky bad
-jam 
-stuffed empty
-wish hate
-eyed 
-alone together
-eye 
-zip 
-shot truth
-met lose miss separate
-new like old past regular worn
-join loose open part separate leave
-plenty need want few little
-interesting boring disgusting ugly
-float sink
-many few
-wind calm
+fourth whole
+blah exciting interesting
+scared brave cool happy
+chip whole
 reason body mistake
-fence opening
-smelling lose miss
-kicking 
-after before
-fold line
-weigh 
-fuzz 
-running broken
-doubt calm
-pow break
-hey goodbye
-counter same
-well little poor rough sick small unhappy
-bleep 
-mother end father
-spell 
-wrapping free loose untie straighten
-young old healthy older
-year whole
-finish beginning opening start construction
-closed beginning open running started starting working
-drinking 
-broken perfect fixed happy kept whole working
-order fighting keeping answer mess
-wall inside middle opening help
-fat little skinny small thin tiny soft lean poor
-power 
-once later
-able slow stupid
-shaped ruin lose
-winter heat
-emergency calm
-black white clean good happy
-duck face meet rise jump
-cost 
-together upset worried
-frozen hot warm moving
-ice water
-rolled straight spread
-dime bill dollar
-asked answer tell
-dining fast
-lately old
-save hold lose hurt waste
-silver black dark
-screw straighten help unscrew
-crawl 
-remembered forgotten lost
-cool hot warm excited friendly kind poor square upset
-baloney truth
-seen miss forget
-large empty little minute narrow poor short small teeny tiny
-sit move stand straighten
-much little
-see miss forget
-branch whole company
-music silence
-ruler 
-younger old healthy older
-crack poor bad
-grain lot whole
-clever stupid
-shell center inside middle
-owe pay
-floating heavy
-marry separate break lose part
-potty cool
-treating leave stop hurt
-sneezed give
-often 
-tasty 
-expensive 
-moment whole
-sweet mean salty sour stinky ugly
-awful beautiful gentle good great happy kind nice safe wonderful
-shave sew cover
-stop beginning go help opening start
-be die go leave lose pass quit stop
-natural changing particular different fixed
-realize forget miss mistake lose
-plastic hard
-son daughter
-left right
-go 
-mistake fact truth
-sticking go leave stop free loose open separate forget
-course 
-bonk flop
-plugged mouth opening
-hint lot
-skin center inside middle body
-checked forget guess help
-dizzy clear heavy smart
-station 
-beginning end finish close
-think doubt leave lose hate know forget
-say ask hide hold keep listen question
-cheese nobody
-part whole
-relax worry grow
-jump end opening
-picnic 
-pool want
-flop wonder
-player fan
-concert 
-spinning straighten stand
-tuna afraid shy
-apart together
-empty busy filled full
-peel 
-swam stop
-flour build
-looking forget miss
-married single
-cheek 
-cooked cool freeze grow help wet
-watering dirty dry
-bob face meet
-bathing dirty dry
-sprinkle 
-rocking calm stay hold
-net 
-trying easy
-hard soft easy nice
-secret known open light clear
-wear building construction
-roman 
-hulk bit
-dirty bright clean clear neat good nice
-matty clean straight
-drip pour
-rosy sad
-turkey brain
-clean dark dirty
-burn freeze cool help wet
-pretty ugly disgusting
-seat 
-stack 
-cream 
-drink food
-bother calm help
-dumped fill hold keep load hide save
-tie break win
-spare fat thick
-hush noise yelling
-treasure 
-fine bad poor regular small stupid ugly dark rainy rough thick
-down above happy higher
-ahead behind
-hammering lose ruin stop
-kept broken forgotten
-scratched 
-owl police
-practice 
-staying go hurry leave move finish push
-watching 
-sweeping narrow
-inside known outside
-talk listening silence
-asleep awake
-wait go act doing
-chilly friendly hot warm
-pile hole
-frustrating help forward lose open push
-narrow fat free giving loose open strong away far poor thick wide
-life 
-surprise 
-heaven 
-feeding hold keep take fast hurt
-playing face listen watch work
-wooden 
-none some
-beauty dog
-reached go leave lose stop miss
-fever calm freeze
-buddy 
-merrily 
-steam 
-thirsty wet
-off here on present
-knot opening line
-yuck cry
-freezing friendly hot warm good kind nice boiling
-clear rainy dark closed fuzzy
-disgusting beautiful friendly good great kind nice polite wonderful clean
-ear 
-present late old away far past
-danced 
-understand lose miss free mistake
-too little
-built flat skinny
-giddy calm careful serious
-mostly 
-afraid brave calm happy cool
-spread stop
-sue free answer give
-crowded empty loose
-believe forget
-rest beginning go hurt noise start upset work worry base energy
-damn protect welcome bless favor
-gave hold keep take hide fight
-drying full wet dripping exciting interesting juicy soggy
-meeting calm
-tore agree attach fix help join marry push sew wait
-father end mother
-good poor evil mean wicked
-below above more over
-darling hate
-biggest little minute poor small teeny thin tiny baby blah shy
-snack meal
-sat move stand straighten
-nobody somebody
-curly straight
+pass closing
+turn miss
+doctor patient
+closer far away cool dry giving loose open
+piece whole
+grand bad poor small tiny low
 biting kind nice calm sweet
-joke work
-whine 
-hairy smooth calm clean safe
-circle center inside middle
-answer problem question quiet silence trouble
-blue clean happy
-protect hurt waste open
-squeak 
-fuzzy clear smooth
-grab free give lose
-basement 
-pocket big giant huge important large tall
-love hate
-winner 
-instrument end
-goodbye hello
-ground sky
-easily 
-calm excited nervous rough angry mad wild worried
-chew 
-write ruin keep stop read
-shut open free loose
-bottom top
-blow calm luck
-blonde 
-faster slow boring good loose
-merry sad serious unhappy upset
-slow moving busy fast quick ready smart waiting
-mood hate
-fill 
-front last back
-yawning close connect hold join keep
-in old past
-happened disappear lose stop
-headache help
-rough calm easy flat gentle nice polite smooth soft neat even regular
-purpose hate beginning start
-difficult easy helpful nice calm free friendly plain
-hurt happy healthy perfect well
-bunk sense truth
-hidden bare bright clear known open plain out seen showing
-test 
-pie 
-lou beautiful nice pretty wonderful
-puzzle calm explain help lose
-medicine 
-wrench give straighten
-snowing keep stay stop
-thick easy little narrow skinny small thin loose low soft clear smart
-mad calm happy sound
-yummy bad dry horrible
-missed found remembered
-fiddle work
-full empty wanting hungry
-friendly bad cold cool hurting mean loose
-kid 
-reading writing
-smiled 
-vacuum 
-week 
-scotch 
-sweetheart hate
-money 
-wreck building construction
-corner center middle
-messing 
-fast slow boring good loose
-handsome rough ugly poor small
-surprised calm
-hour whole
-sore easy good happy well
-polish 
-follow 
-sick healthy perfect sound strong well clean gentle happy nice
-baby big giant huge important large tall
-or neither
-wore hide please
-sliding rise stay stop hold keep
-rattle 
-live dead
-vacation work
-flew slow stay rest face land walk
-head extra last least second
-lazy careful fresh interested
-foot lid top
-tear closing
-break closing combination
-plain beautiful difficult hidden pretty
-matter nothing zero
-combination 
-officer 
-loose hard tight attached clean
-whoop 
-polar friendly hot warm same
-finally 
-sell buy hide hold keep
-keeping 
-floor ceiling
-breathe hide secret
-fit stupid wrong poor
-forget carry learn remember take
-hi goodbye
-conversation listening quiet silence
-gift hurt taking
-could 
-free busy expensive mean
-boy girl
-key extra
-grew drop lose narrow ruin stop hold keep
-late early live old
-shame pride
-mind being body
-construction truth ruin
-ceiling floor
-search finding
-someplace 
-knock 
-pal 
-scar 
-light dark unhappy black difficult heavy serious
-quickly later slowly
-realized 
-knocking 
-bumper few little wanting
-sad glad good happy nice great lucky
-carefully 
-later before earlier
-careful loose rash
-sure 
-slept grow wake
-group one whole
-long little low short small soft
-lay 
-ship hold keep
-loop line
-rhyme 
-cow calm help please
-next earlier
-tricky certain easy healthy smooth stable strong sure frank
-bounce 
-truth lie
-hole mountain closing
-interested bored fair
-probably 
-different alike like same
-make break ruin end finish kill lose separate measure stop
-moved kept
-don 
-whining 
-blink 
-ginger 
-job fun
-minute big huge large giant important rough
-change bill dollar
-company 
-twinkle 
-raking plant
-jumping 
-chance 
-oil dry
-list 
-page inside middle
-hide open bare show tell
-helping whole
-creature plant
-morning 
-cleaned dirty spend ruin
-wanted 
-mask truth
-needle please help
-belong 
-chased 
-garbage sense
-wrote ruin keep stop read
-hit flop
-being 
-body mind nothing one thought
-blew hide secret come save
-punch 
-bouncing 
-record 
-skinny fat heavy thick large
-work fun
-hurry calm quiet rest wait
-disappeared begin come face fight grow keep meet rise stay wait
-direction 
-cold friendly good hot kind nice warm stupid excited interested
-art want
-brave afraid careful shy frightened
-arm body main
-word silence quiet break question
-roller line
-warm calm cold cool freezing unhappy
-glued 
-buggy 
-split closing
-junk sense
-exactly 
-sully clean
-tickled sad unhappy upset
-party work
-splinter whole
-jellyfish calm certain clear cool happy sure quiet
-working 
-figure part letter
-counting guess
-glad sad unhappy upset
-roast 
-game afraid able working
-harder soft easy nice
-mail conversation
-drank 
-office fun home
-worm helper
-popping fix pull
-fly slow stay rest face land walk
-push pull
-enough 
-peek 
-take whole
-snap 
-bought sold
-strawberry 
-single together attached double married mixed
-dean 
-pump answer
-yelled 
-colored real white
-fog 
-woke nap sleep
-silly serious smart
-soon late later far never
-white dark strong black dirty
-lift 
-hear lose
-today old past
-flap calm
-start end finish close coming stop
-play work
-grow drop lose narrow ruin stop hold keep
-welcome bad
-act quiet rest
-nap 
-medium different
-showed cover hide take close
-lie truth
-paw guard please protect
-small big fat great huge important large tall thick wide giant excellent fine giving kind
-swallow nibble hold keep doubt
-certain 
-monster angel god
-sail go land stay stop walk
-path closing
-bored excited interested
-bare secret covered full
-found break die end finish ruin stop upset
-lived dead
-self other
-powder 
-never always forever
-put forget leave take move change
-do bear begin forget lose miss ruin start stop pass
-whoever nobody
-roll 
-beat fresh
-cozy cool
-especially usually
-color white
-slippery dry safe certain stable
-visited listen
-let fight hold keep stop buy sell
-people animals plants
-scale part whole
-weird boring good natural plain real regular known
-fool brain
-cute disgusting ugly unhappy
-story truth
-patient loud rough wild frustrated
-husband wife
-package whole
-fed hold keep take fast hurt
-goofy smart
-woman man
-mixed alike like same separate single
-whispering screaming yelling
-okay bad dark rainy wrong
-sitting standing
-pickle 
-ripe 
-letting fight hold keep stop buy sell
-blanket 
-wee big huge large giant great important tall
-pull fix plant push sew
-rain 
-wanting enough present perfect
-boring bright exciting interesting new smart different
-worried calm happy
-try 
-help hurt check stop
-sing 
+everyday different special
 played face listen watch work
-aha mistake
-mr girl
+care calm help
+climbing drop fall
+root end extra outside
+changing certain stable sure fixed
+remind forget
+wee big huge large giant great important tall
+lip center middle inside
+laughing boring
+present late old away far past
+mail conversation
+design being
+speaking written
+haha work
+danger calm care guard
+past after later present
+dribble pour
+spilling hide
+fat little skinny small thin tiny soft lean poor
+captain bottom foot
+squash pull fan open
+plenty need want few little
+clear rainy dark closed fuzzy
+shiny dark
+golden dark stupid ugly
+here there
+lost seen alive found living
+cute disgusting ugly unhappy
+spanking slow
+return leaving question leave
+flush broken rough
+bear hold keep lose
+circle center inside middle
+together upset worried
+silver black dark
+won lost
+base clean good high just kind nice
+clever stupid
+fix good
+kill bear leave lose miss save build free help hold keep loose start begin
+land sky sea
+going fixed
+pull fix plant push sew
+sell buy hide hold keep
+fed hold keep take fast hurt
+sip down
+straight broken changing different mixed twisted
+gobble nibble
+mess calm order system beauty
+message silence
+ready bare slow
+pool want
+merry+go+round care
+glad sad unhappy upset
+instrument end
+taste hate lot
+tearing agree attach fix help join marry push sew wait
+key extra
+like different away changing far
+believe forget
+many few
+quack real true
+join loose open part separate leave
+pour stop
+peck lose
+recognize forget miss lose
+brother sister
+surface deep inside middle
+eve middle
+smelling lose miss
+tear closing
+loop line
+diddle give
+frustrating help forward lose open push
+bother calm help
+looked forget miss
+invite stop answer
+wife husband
+pointed nice
+natural changing particular different fixed
 out interested new saved warm here in possible
-diving rise jump
-exciting boring
-tangled clear
-combing twist upset
+dizzy clear heavy smart
+light dark unhappy black difficult heavy serious
+skirt center inside middle
+all none zero
+construction truth ruin
+jellyfish calm certain clear cool happy sure quiet
+full empty wanting hungry
+protect hurt waste open
+lucky bad
+meow quiet silence calm
+baking freezing
+swim stop
+there away far past
+ripped sew close
+matching different
+voice silence quiet
+hit flop
+nice bad cool mean ugly horrible nasty
+forgotten remembered
+muddy bright clean dry light sharp clear good
+plant animal
+sliding rise stay stop hold keep
+yummy bad dry horrible
+disgusting beautiful friendly good great kind nice polite wonderful clean
+sad glad good happy nice great lucky
+bow line straighten
+goose block hate
+load whole
+marry separate break lose part
+read forget lose miss write
+dollar change
+strong broken easy lazy little loose moving small soft low
+pardon hold
+squishing lose
+battery one
+mood hate
+rescue danger
+swallowed nibble hold keep doubt
+driver passenger
+thirsty wet
+sort one
+waking asleep sleepy
+special like regular least
+lonely close loved
+dressed bare open
+balance difference
+chop join
+square different new
+save hold lose hurt waste
+salt hate
+littler big fat large giant huge long older tall great important open
+plugged mouth opening
+hear lose
+last beginning middle opening first front starting
+swish bad poor
+boy girl
+quick later lazy slow stupid
+trash sense
+forget carry learn remember take
+showed cover hide take close
+cause finish fruit
+longer little low short small soft
+more less
+mean kind nice polite
+inside known outside
+large empty little minute narrow poor short small teeny tiny
+quiet noisy loud
+peacock old
+group one whole
+corner center middle
+thing nothing whole hate
+storm calm quiet
+spank lose
+cooking freezing
+lately old
+pulling fix plant push sew
+bolt key
+know miss forget
+been die go leave lose pass quit stop
+right evil left mad wrong
+pow break
+fixed loose moving soft broken
+wicked clean friendly good kind nice helpful
+uncle woman
+hard soft easy nice
+grab free give lose
+worried calm happy
+throw pull stop hold keep slow catch explain help
+line inside fun
+slice whole
+girl boy
+skinny fat heavy thick large
+sometime never
+smart dark lazy light slow stupid old worn
+seesaw stay
+weird boring good natural plain real regular known
+worker check
+staying go hurry leave move finish push
+mushy hard
+changed kept
+sticker fat heavy thick fresh strong
+snuggle separate
+would forget keep pass
+gift hurt taking
+cold friendly good hot kind nice warm stupid excited interested
+sunny dark rainy unhappy upset
+smash building construction rise win wonder
+snowing keep stay stop
+sat move stand straighten
+untie tie
+mistake fact truth
+healthy gentle kind lazy soft poor sick worn
+cardboard thick
+counter same
+kept broken forgotten
+cracked fixed working
+set moving soft
+today old past
+system part
+peeling cover
+year whole
+beauty dog
+stayed go hurry leave move finish push
+passenger driver
+arrived go hide leave lose miss disappear
+hello goodbye
+pat wrong
+fine bad poor regular small stupid ugly dark rainy rough thick
+came disappear go hide leave lose miss stop
+sting help
+pea old
+talked cover listen hide
