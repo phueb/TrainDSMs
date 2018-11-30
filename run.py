@@ -8,7 +8,7 @@ from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
-from src.tasks.hypernym_identification import HypernymIdentification
+from src.tasks.hypernym_classification import HypernymClassification
 from src.tasks.nym_identification import NymIdentification  # TODO make identification class
 from src.tasks.matching import Matching
 
@@ -28,12 +28,12 @@ embedders = chain(
 
 tasks = [
     Matching('nyms', 'syn'),
-    # Matching('nyms', 'ant'),
-    # Matching('hypernyms'),
-    # Matching('cohyponyms', 'semantic'),
-    # Matching('cohyponyms', 'syntactic'),
-    # Matching('features', 'is'),
-    # Matching('features', 'has'),
+    Matching('nyms', 'ant'),
+    Matching('hypernyms'),
+    Matching('cohyponyms', 'semantic'),
+    Matching('cohyponyms', 'syntactic'),
+    Matching('features', 'is'),
+    Matching('features', 'has'),
 ]
 
 # run full experiment

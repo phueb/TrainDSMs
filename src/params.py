@@ -99,3 +99,4 @@ class Word2VecParams:
 
 class RandomControlParams:
     embed_size = [30, 200, 512]
+    random_type = ['normal']

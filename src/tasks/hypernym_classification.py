@@ -16,9 +16,9 @@ class Params:
     shuffled = [False, True]
 
 
-class HypernymIdentification(TaskBase):
+class HypernymClassification(TaskBase):
     def __init__(self):
-        name = 'hypernym_identification'
+        name = 'hypernym_classification'
         super().__init__(name, Params)
         #
         self.probes, self.probe_labels = self.load_training_data()
