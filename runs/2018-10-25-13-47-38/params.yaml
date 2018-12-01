@@ -1,4 +1,0 @@
-corpus_name: childes-20180319
-embed_size: 512
-num_vocab: 4096
-random_type: normal

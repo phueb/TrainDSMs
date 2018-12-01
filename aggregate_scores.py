@@ -12,7 +12,7 @@ for shuffled in [False, True]:
         print(time_of_init)
         col = []
         task_names = []
-        # vertically stack all replications and tasks
+        # vertically stack all replications and evals
         for scores_p in model_p.rglob('scores_*.csv'):
             task_name = scores_p.parent.name
             # get max across param configurations per task

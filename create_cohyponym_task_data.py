@@ -7,7 +7,7 @@ CORPUS_NAME = 'childes-20180319'
 
 
 if __name__ == '__main__':
-    for vocab_size in config.Task.vocab_sizes:
+    for vocab_size in config.Eval.vocab_sizes:
         vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         for data_name1 in ['semantic', 'syntactic']:
             # load all probes

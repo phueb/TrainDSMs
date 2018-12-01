@@ -37,7 +37,7 @@ probe2features = {'is': {'jar': ['round'],
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
-    for vocab_size in config.Task.vocab_sizes:
+    for vocab_size in config.Eval.vocab_sizes:
         # process features data
         in_path = config.Dirs.tasks / 'features' / 'mcrae_features.csv'
         df = pd.read_csv(in_path, index_col=False)

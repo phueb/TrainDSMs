@@ -31,15 +31,15 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
     if verbose:
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
     gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
-    if config.Task.metric == 'fs':
+    if config.Eval.metric == 'fs':
         fun = calc_probes_fs
-    elif config.Task.metric == 'ba':
+    elif config.Eval.metric == 'ba':
         fun = calc_probes_ba
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')
     bo = BayesianOptimization(fun, {'thr': (thr1, thr2)}, verbose=verbose)
     bo.explore({'thr': [sims_mean]})
-    bo.maximize(init_points=2, n_iter=config.Task.num_opt_steps,
+    bo.maximize(init_points=2, n_iter=config.Eval.num_opt_steps,
                 acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
     best_thr = bo.res['max']['max_params']['thr']
     # use best_thr

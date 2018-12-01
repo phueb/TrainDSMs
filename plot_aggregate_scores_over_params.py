@@ -101,7 +101,7 @@ for embedder_p in config.Dirs.runs.glob('*'):
         all_embedders_data.append(embedder_data)
         param2val_list.append(param2val)
 
-# remove embedders that did not complete all tasks
+# remove embedders that did not complete all evals
 num_tasks_list = [len(embedder_data) for embedder_data in all_embedders_data]
 argmax = np.argmax(num_tasks_list)
 max_num_tasks = num_tasks_list[argmax]
@@ -119,7 +119,7 @@ colors = plt.cm.get_cmap('tab10')
 num_embedders = len(embedders_data)
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
-title = '{} Performance on {} tasks'.format(embedder, TASK_CLASS)
+title = '{} Performance on {} evals'.format(embedder, TASK_CLASS)
 plt.title(title, fontsize=TITLE_FONTSIZE, y=LEG1_Y)
 plt.xlabel(INCLUDE_DICT, fontsize=AX_FONTSIZE)
 if TASK_CLASS == 'matching':

@@ -5,7 +5,7 @@ import seaborn as sns
 from src import config
 
 
-def make_nym_figs():
+def make_identification_figs():
     return []
 
 

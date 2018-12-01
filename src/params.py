@@ -68,15 +68,15 @@ class CountParams:
     # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
     norm_type = [None, 'ppmi']
     reduce_type = [
-        ['svd', 200],
         ['svd', 30],
+        ['svd', 200],
         [None, None]
     ]
 
 
 class RNNParams:
     rnn_type = ['lstm', 'srn']
-    embed_size = [30, 200, 512]
+    embed_size = [200]
     train_percent = [0.9]
     num_eval_steps = [1000]
     shuffle_per_epoch = [True]
@@ -92,11 +92,11 @@ class RNNParams:
 
 class Word2VecParams:
     w2vec_type = ['cbow', 'sg']
-    embed_size = [30, 200, 512]
+    embed_size = [30, 200]
     window_size = [7]
     num_epochs = [20]
 
 
 class RandomControlParams:
-    embed_size = [30, 200, 512]
+    embed_size = [200]
     random_type = ['normal']
