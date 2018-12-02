@@ -151,3 +151,8 @@ class Comparator:  # TODO is this okay to be un-initialized (e.g. tensorflow gra
     @staticmethod
     def train_expert_on_test_fold(trial, graph, data, fold_id):
         raise NotImplementedError
+
+    # ////////////////////////////////////////////////////////////////////// figs
+
+    def make_trial_figs(self, trial):
+        raise NotImplementedError

@@ -67,7 +67,7 @@ class Matching(EvalBase):
         # balanced acc
         calc_signals = partial(calc_signals, eval_sims_mat, gold)
         sims_mean = np.asscalar(np.mean(eval_sims_mat))
-        res = calc_balanced_accuracy(calc_signals, sims_mean)
+        res = calc_balanced_accuracy(calc_signals, sims_mean, verbose=False if not is_expert else False)
         # significance test
         pval_binom = 'notImplemented'  # TODO implement
         # console

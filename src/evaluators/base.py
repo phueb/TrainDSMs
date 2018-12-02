@@ -3,7 +3,7 @@ import multiprocessing as mp
 import numpy as np
 
 from src import config
-from src.params import make_param2id, ObjectView
+from src.params import make_param2val_list, ObjectView
 
 
 class ResultsData:
@@ -31,7 +31,7 @@ class EvalBase(object):
         self.full_name = '{}_{}_{}_{}'.format(arch.name, self.name, data_name1, data_name2)
         #
         ArchParams = arch.params
-        param2val_list = list(make_param2id(ArchParams, EvParams))
+        param2val_list = make_param2val_list(ArchParams, EvParams)
         self.trials = [Trial(n, ObjectView(param2val))
                        for n, param2val in enumerate(param2val_list)]
         merged_keys = list(ArchParams.__dict__.keys()) + list(EvParams.__dict__.keys())

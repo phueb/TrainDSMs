@@ -1,19 +1,21 @@
+import numpy as np
 import tensorflow as tf
 
 from src import config
 
-class Params:
+
+class ClassifierParams:
+    shuffled = [False, True]
     beta = [0.0, 0.3]
     num_epochs = [500]
     mb_size = [8]
     learning_rate = [0.1]
     num_hiddens = [32, 256]
-    shuffled = [False, True]
 
 
-class Classifier:  # TODO inherit from something?
-    def __init__(self):
-        pass
+class Classifier:
+    name = 'classifier'
+    params = ClassifierParams
 
     def init_results_data(self, trial):  # TODO how to preserve classification figs when classification is just an arhcitecture?
         """
@@ -39,7 +41,8 @@ class Classifier:  # TODO inherit from something?
         res.cms = []  # confusion matrix (1 per fold)
         return res
 
-    def split_and_vectorize_eval_data(self, trial, w2e, fold_id):  # TODO test
+    @staticmethod
+    def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
         # split
         x_train = []
         y_train = []
@@ -47,11 +50,11 @@ class Classifier:  # TODO inherit from something?
         y_test = []
         train_probes = []
         test_probes = []
-        for probe, relata in self.probe2relata.items():
+        for probe, relata in evaluator.probe2relata.items():
             for n, relata_chunk in enumerate(np.array_split(relata, config.Eval.num_folds)):
                 probes = [probe] * len(relata_chunk)
                 xs = [w2e[p] for p in probes]
-                ys = [self.relata.index(relatum) for relatum in relata_chunk]
+                ys = [evaluator.relata.index(relatum) for relatum in relata_chunk]
                 if n != fold_id:
                     x_train += xs
                     y_train += ys
@@ -70,8 +73,8 @@ class Classifier:  # TODO inherit from something?
             np.random.shuffle(y_train)
         return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test), train_probes, test_probes
 
-
-    def make_graph(self, trial, embed_size):
+    @staticmethod
+    def make_graph(trial, embed_size):
         # TODO need a multilabel graph where answers are similarities [-1, 1]
         # TODO this way, the sim matrix can be reconstructed
 
@@ -114,8 +117,17 @@ class Classifier:  # TODO inherit from something?
 
         return Graph()
 
+    @staticmethod
+    def train_expert_on_train_fold(trial, graph, data, fold_id):
+        def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
+            random_choices = np.random.choice(num_probes, mb_size * num_steps)
+            row_ids_list = np.split(random_choices, num_steps)
+            for n, row_ids in enumerate(row_ids_list):
+                assert len(row_ids) == mb_size
+                x_batch = x[row_ids]
+                y_batch = y[row_ids]
+                yield n, x_batch, y_batch
 
-    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
         x_train, y_train, x_test, y_test, train_probes, test_probes = data
         num_train_probes, num_test_probes = len(x_train), len(x_test)
         num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
@@ -125,11 +137,11 @@ class Classifier:  # TODO inherit from something?
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         ys = []
-        for step, x_batch, y_batch in self.generate_random_train_batches(x_train,
-                                                                         y_train,
-                                                                         num_train_probes,
-                                                                         num_train_steps,
-                                                                         trial.params.mb_size):
+        for step, x_batch, y_batch in generate_random_train_batches(x_train,
+                                                                    y_train,
+                                                                    num_train_probes,
+                                                                    num_train_steps,
+                                                                    trial.params.mb_size):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # train softmax probs
@@ -160,8 +172,16 @@ class Classifier:  # TODO inherit from something?
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
             ys += y_batch.tolist()  # collect ys for each eval
 
-
     def train_expert_on_test_fold(self, trial, graph, data, fold_id):
+        def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
+            random_choices = np.random.choice(num_probes, mb_size * num_steps)
+            row_ids_list = np.split(random_choices, num_steps)
+            for n, row_ids in enumerate(row_ids_list):
+                assert len(row_ids) == mb_size
+                x_batch = x[row_ids]
+                y_batch = y[row_ids]
+                yield n, x_batch, y_batch
+
         x_train, y_train, x_test, y_test, train_probes, test_probes = data
         num_test_probes = len(x_test)
         num_train_steps = num_test_probes // trial.params.mb_size * trial.params.num_epochs
@@ -171,7 +191,7 @@ class Classifier:  # TODO inherit from something?
         print('Training on test data to collect number of eval steps to criterion for each probe')
         print('Test data size: {:,}'.format(num_test_probes))
         # training and eval
-        for step, x_batch, y_batch in self.generate_random_train_batches(x_test,
+        for step, x_batch, y_batch in generate_random_train_batches(x_test,
                                                                          y_test,
                                                                          num_test_probes,
                                                                          num_train_steps,
@@ -193,16 +213,7 @@ class Classifier:  # TODO inherit from something?
             # train
             graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
 
-    @staticmethod
-    def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x_batch = x[row_ids]
-            y_batch = y[row_ids]
-            yield n, x_batch, y_batch
-
+    # ////////////////////////////////////////////////////////////////////// figs
 
     def make_trial_figs(self, trial):
         # aggregate over folds

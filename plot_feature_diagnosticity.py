@@ -7,7 +7,7 @@ from itertools import chain
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from src.params import make_param2id
+from src.params import gen_all_param_combinations
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -76,10 +76,10 @@ num_probes = len(probes)
 num_cats = len(cats)
 
 embedders = chain(
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
-    (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
-    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams))
+    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
+    (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
+    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams))
 )
 
 for embedder in embedders:

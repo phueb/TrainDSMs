@@ -9,16 +9,9 @@ class ObjectView(object):
         self.__dict__ = d
 
 
-def make_param2id(paramsClass, paramsClass2=None):  # TODO split into two functions
-    """
-    return list of mappings from param name to integer which is index to possible param values
-    all possible combinations are returned
-    """
-    # merge if necessary
-    d2 = {} if paramsClass2 is None else paramsClass2.__dict__
-    merged_d = {k: v for k, v in chain(paramsClass.__dict__.items(), d2.items())}
-    #
-    param2opts = sorted([(k, v) for k, v in merged_d.items()
+def iter_over_cycles(d):
+    # lengths
+    param2opts = sorted([(k, v) for k, v in d.items()
                          if not k.startswith('_')])
     lengths = []
     for k, v in param2opts:
@@ -42,19 +35,43 @@ def make_param2id(paramsClass, paramsClass2=None):  # TODO split into two functi
         param_ids.append(i)
     assert sorted(list(set(param_ids))) == sorted(param_ids)
     assert len(param_ids) == total
+    return param2opts, param_ids
+
+
+def make_param2val_list(paramsClass, paramsClass2):# TODO test
+    # merge
+    meta_d = {'corpus_name': [config.Corpus.name], 'num_vocab': [config.Corpus.num_vocab]}
+    merged_d = {k: v for k, v in chain(paramsClass.__dict__.items(),
+                                       paramsClass2.__dict__.items(),
+                                       meta_d.items())}
+    #
+    param2opts, param_ids = iter_over_cycles(merged_d)
+    #
+    res = []
+    for ids in param_ids:
+        param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
+        res.append(param2val)
+    return res
+
+
+def gen_all_param_combinations(params_class):
+    """
+    return list of mappings from param name to integer which is index to possible param values
+    all possible combinations are returned
+    """
+    d = params_class.__dict__
+    #
+    param2opts, param_ids = iter_over_cycles(d)
     # map param names to integers corresponding to which param value to use
     for ids in param_ids:
         d = {k: i for (k, v), i in zip(param2opts, ids)}
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        if paramsClass2 is None:
-            print('==========================================================================')
-            for (k, v), i in zip(param2opts, ids):
-                print(k, v[i])
-            yield param2ids, param2val
-        else:
-            yield param2val
+        print('==========================================================================')
+        for (k, v), i in zip(param2opts, ids):
+            print(k, v[i])
+        yield param2ids, param2val
 
 
 class CountParams:
