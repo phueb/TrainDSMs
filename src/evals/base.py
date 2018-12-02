@@ -1,13 +1,16 @@
 import pandas as pd
 import multiprocessing as mp
+import numpy as np
 
 from src import config
 from src.params import make_param2id, ObjectView
 
 
 class ResultsData:
-    def __init__(self, params_id):
+    def __init__(self, params_id, eval_candidates_mat):
         self.params_id = params_id
+        self.eval_sims_mats = [np.zeros_like(eval_candidates_mat, float)  # TODO test
+                               for _ in range(config.Eval.num_evals)]
 
 
 class Trial(object):
@@ -25,16 +28,32 @@ class EvalBase(object):
         self.trials = [Trial(n, ObjectView(param2val))
                        for n, param2val in enumerate(self.param2val_list)]
         self.df_header = sorted([k for k in Params.__dict__.keys() if not k.startswith('_')])
+        #
+        self.metric = None
         self.novice_score = None
-        # evaluation data
+        self.row_words = None
+        self.col_words = None
         self.eval_candidates_mat = None
 
-    def init_results_data(self, trial):
-        print('Initializing evaluation data structure')
-        return ResultsData(trial.params_id)
+    # ////////////////////////////////////////////////////// eval-specific
+
+    def to_eval_sims_mat(self, sims_mat):
+        raise NotImplementedError('Must be implemented in child-class.')
 
     def make_eval_data(self, sims):
         raise NotImplementedError('Must be implemented in child-class.')
+
+    def check_negative_example(self, trial, p=None, c=None):
+        raise NotImplementedError('Must be implemented in child-class.')
+
+    def score(self, eval_sims_mat, is_expert):
+        raise NotImplementedError('Must be implemented in child-class.')
+
+    # ////////////////////////////////////////////////////// eval-specific
+
+    def init_results_data(self, trial):
+        print('Initializing evaluation data structure')
+        return ResultsData(trial.params_id, self.eval_candidates_mat)
 
     def split_and_vectorize_eval_data(self, trial, w2e, fold_id):
         raise NotImplementedError('Must be implemented in child-class.')
@@ -48,10 +67,11 @@ class EvalBase(object):
     def train_expert_on_test_fold(self, trial, graph, data, fold_id):
         raise NotImplementedError('Must be implemented in child-class.')
 
-    def get_best_trial_score(self, trial):
-        raise NotImplementedError('Must be implemented in child-class.')
-
     # ////////////////////////////////////////////////////// train + score
+
+    def score_novice(self, sims_mat):
+        eval_sims_mat = self.to_eval_sims_mat(sims_mat)
+        self.novice_score = self.score(eval_sims_mat, is_expert=False)
 
     def do_trial(self, trial, w2e, embed_size):
         trial.results = self.init_results_data(trial)
@@ -96,7 +116,7 @@ class EvalBase(object):
             raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
         # save score obtained in each trial
         for df_row in df_rows:
-            if config.Eval.save_scores:
+            if config.Eval.save_scores:  # TODO take into account architecture when saving data
                 print('Saving trial score')
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
@@ -108,6 +128,18 @@ class EvalBase(object):
                               index=False)
         # close pool
         pool.close()
+
+    def get_best_trial_score(self, trial):
+        best_expert_score = 0
+        best_eval_id = 0
+        for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
+            expert_score = self.score(eval_sims_mat, is_expert=True)
+            print('{} at eval {} is {:.2f}'.format(self.metric, eval_id + 1, expert_score))
+            if expert_score > best_expert_score:
+                best_expert_score = expert_score
+                best_eval_id = eval_id
+        print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
+        return best_expert_score
 
     # ////////////////////////////////////////////////////// figs
 

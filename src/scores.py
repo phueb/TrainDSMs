@@ -10,7 +10,7 @@ def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):  # TODO test
     """
     assert eval_sims_mat.shape == eval_candidates_mat.shape
     num_correct = 0
-    for eval_sims_row, eval_probe, eval_candidates in zip(eval_sims_mat, eval_probes, eval_candidates_mat):
+    for eval_sims_row in eval_sims_mat:
         if np.all(eval_sims_row[1:] < eval_sims_row[0]):  # correct is always in first position
             num_correct += 1
     res = num_correct / len(eval_probes)
@@ -40,9 +40,9 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
     if verbose:
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
     gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
-    if config.Eval.metric == 'fs':
+    if config.Eval.matching_metric == 'fs':
         fun = calc_probes_fs
-    elif config.Eval.metric == 'ba':
+    elif config.Eval.matching_metric == 'ba':
         fun = calc_probes_ba
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')
