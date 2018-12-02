@@ -5,7 +5,7 @@ from src import config
 from src.params import make_param2id, ObjectView
 
 
-class EvalData:
+class ResultsData:
     def __init__(self, params_id):
         self.params_id = params_id
 
@@ -15,7 +15,7 @@ class Trial(object):
         self.params_id = params_id
         self.params = params
         self.df_row = None
-        self.eval = None
+        self.results = None
 
 
 class EvalBase(object):
@@ -26,12 +26,17 @@ class EvalBase(object):
                        for n, param2val in enumerate(self.param2val_list)]
         self.df_header = sorted([k for k in Params.__dict__.keys() if not k.startswith('_')])
         self.novice_score = None
+        # evaluation data
+        self.eval_candidates_mat = None
 
-    def init_eval_data(self, trial):
+    def init_results_data(self, trial):
         print('Initializing evaluation data structure')
-        return EvalData(trial.params_id)
+        return ResultsData(trial.params_id)
 
-    def make_data(self, trial, w2e, fold_id):
+    def make_eval_data(self, sims):
+        raise NotImplementedError('Must be implemented in child-class.')
+
+    def split_and_vectorize_eval_data(self, trial, w2e, fold_id):
         raise NotImplementedError('Must be implemented in child-class.')
 
     def make_graph(self, trial, embed_size):
@@ -49,14 +54,14 @@ class EvalBase(object):
     # ////////////////////////////////////////////////////// train + score
 
     def do_trial(self, trial, w2e, embed_size):
-        trial.eval = self.init_eval_data(trial)
-        assert hasattr(trial.eval, 'params_id')
+        trial.results = self.init_results_data(trial)
+        assert hasattr(trial.results, 'params_id')
         print('Training {} expert'.format(self.name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
             print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
+            data = self.split_and_vectorize_eval_data(trial, w2e, fold_id)
             graph = self.make_graph(trial, embed_size)
-            data = self.make_data(trial, w2e, fold_id)
             self.train_expert_on_train_fold(trial, graph, data, fold_id)
             try:
                 self.train_expert_on_test_fold(trial, graph, data, fold_id)  # TODO test

@@ -1,4 +1,5 @@
 from itertools import chain
+import numpy as np
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
@@ -8,7 +9,7 @@ from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
-from src.evals.hypernym_classification import HypernymClassification
+from src.evals.classification import Classification  # TODO make classification an architecture not an evaluation
 from src.evals.identification import Identification
 from src.evals.matching import Matching
 
@@ -17,9 +18,9 @@ from src.utils import w2e_to_sims
 
 embedders = chain(
     (RNNEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RNNParams)),
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in make_param2id(RandomControlParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in make_param2id(CountParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in make_param2id(Word2VecParams)),
 )
 
 
@@ -27,9 +28,12 @@ embedders = chain(
 # an IDENTIFICATION eval consists of identifying correct answer from multiple-choice question
 
 evals = [
-    Identification('nyms', 'syn'),
-    Identification('nyms', 'ant'),  # TODO test
-    # Matching('cohyponyms', 'semantic'),
+    # Classification('cohyponyms', 'semantic'),  # TODO test multilabel graph
+    # Classification('cohyponyms', 'syntactic'),
+    # Identification('nyms', 'syn'),  # TODO below chance - somethign is wrong
+    # Identification('nyms', 'ant'),
+    # Identification('cohyponyms', 'semantic'),  # TODO not enough lures
+    Matching('cohyponyms', 'semantic'),
     # Matching('cohyponyms', 'syntactic'),
     # Matching('nyms', 'syn'),
     # Matching('nyms', 'ant'),
@@ -64,11 +68,18 @@ for embedder in embedders:
                 for p in set(eval.row_words + eval.col_words):
                     if p not in embedder.w2e:
                         raise KeyError('"{}" required for eval "{}" is not in w2e.'.format(p, eval.name))
+                # shuffle - only need to shuffle across reps (not across processes)
+                np.random.seed(rep_id)
+                np.random.shuffle(eval.row_words)
+                np.random.seed(rep_id)
+                np.random.shuffle(eval.col_words)    # TODO test
+
                 # similarities
-                sims = w2e_to_sims(embedder.w2e, eval.row_words, eval.col_words, config.Embeddings.sim_method)
-                print('Shape of similarity matrix: {}'.format(sims.shape))
+                eval_sims_mat = w2e_to_sims(embedder.w2e, eval.row_words, eval.col_words, config.Embeddings.sim_method)
+                print('Shape of similarity matrix: {}'.format(eval_sims_mat.shape))
                 # score
-                eval.score_novice(sims)
+                eval.eval_candidates_mat = eval.make_eval_data(eval_sims_mat)
+                eval.score_novice(eval_sims_mat)
                 eval.train_and_score_expert(embedder, rep_id)
                 # figs
                 if config.Eval.save_figs:
