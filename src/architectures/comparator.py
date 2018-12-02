@@ -6,34 +6,45 @@ import time
 from src import config
 
 
-class Comparator:  # TODO inherit from something?
-    def __init__(self):
-        pass
+class ComparatorParams:
+    shuffled = [False, True]
+    margin = [50.0, 100.0]  # must be float and MUST be at least 40 or so
+    num_epochs = [100]
+    beta = [0.0]
+    learning_rate = [0.1]
+    mb_size = [4]
+    num_output = [100]
 
-    def split_and_vectorize_eval_data(self, trial, w2e, fold_id):
+
+class Comparator:  # TODO is this okay to be un-initialized (e.g. tensorflow graph is not duplicated?)
+    name = 'comparator'
+    params = ComparatorParams
+
+    @staticmethod
+    def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
         # split
         x1_train = []
         x2_train = []
         y_train = []
         x1_test = []
         x2_test = []
-        test_probes = []
+        eval_sims_mat_row_ids = []
         for n, (eval_probes, candidate_rows) in enumerate(zip(
-                np.array_split(self.row_words, config.Eval.num_folds),
-                np.array_split(self.eval_candidates_mat, config.Eval.num_folds))):
+                np.array_split(evaluator.row_words, config.Eval.num_folds),
+                np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds))):
             if n != fold_id:
                 for probe, candidates in zip(eval_probes, candidate_rows):
                     for p, c in product([probe], candidates):
-                        if c in self.probe2relata[p] or self.check_negative_example(trial, p, c):
+                        if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                             x1_train.append(w2e[probe])
                             x2_train.append(w2e[c])
-                            y_train.append(1 if c in self.probe2relata[p] else 0)
+                            y_train.append(1 if c in evaluator.probe2relata[p] else 0)
             else:
                 # test data to build chunk of eval_sim_mat
                 for probe, candidates in zip(eval_probes, candidate_rows):
                     x1_test += [[w2e[probe]] * len(candidates)]
                     x2_test += [[w2e[c] for c in candidates]]
-                    test_probes.append(probe)
+                    eval_sims_mat_row_ids.append(evaluator.row_words.index(probe))
         x1_train = np.vstack(x1_train)
         x2_train = np.vstack(x2_train)
         y_train = np.array(y_train)
@@ -43,9 +54,10 @@ class Comparator:  # TODO inherit from something?
         if trial.params.shuffled:
             print('Shuffling supervisory signal')
             np.random.shuffle(y_train)
-        return x1_train, x2_train, y_train, x1_test, x2_test, test_probes
+        return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids
 
-    def make_graph(self, trial, embed_size):
+    @staticmethod
+    def make_graph(trial, embed_size):
 
         def siamese_leg(x, wy):
             y = tf.matmul(x, wy)
@@ -83,10 +95,23 @@ class Comparator:  # TODO inherit from something?
                 # session
                 sess = tf.Session()
                 sess.run(tf.global_variables_initializer())
+
         return Graph()
 
-    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
-        x1_train, x2_train, y_train, x1_test, x2_test, test_probes = data
+    @staticmethod
+    def train_expert_on_train_fold(trial, graph, data, fold_id):
+        def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
+            random_choices = np.random.choice(num_probes, mb_size * num_steps)
+            row_ids_list = np.split(random_choices, num_steps)
+            for n, row_ids in enumerate(row_ids_list):
+                assert len(row_ids) == mb_size
+                x1_batch = x1[row_ids]
+                x2_batch = x2[row_ids]
+                y_batch = y[row_ids]
+                yield n, x1_batch, x2_batch, y_batch
+
+        assert isinstance(fold_id, int)
+        x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids = data
         num_train_probes, num_test_probes = len(x1_train), len(x1_test)
         num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
         eval_interval = num_train_steps // config.Eval.num_evals
@@ -95,12 +120,12 @@ class Comparator:  # TODO inherit from something?
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
         # training and eval
         start = time.time()
-        for step, x1_batch, x2_batch, y_batch in self.generate_random_train_batches(x1_train,
-                                                                                    x2_train,
-                                                                                    y_train,
-                                                                                    num_train_probes,
-                                                                                    num_train_steps,
-                                                                                    trial.params.mb_size):
+        for step, x1_batch, x2_batch, y_batch in generate_random_train_batches(x1_train,
+                                                                               x2_train,
+                                                                               y_train,
+                                                                               num_train_probes,
+                                                                               num_train_steps,
+                                                                               trial.params.mb_size):
             if step in eval_steps:
                 eval_id = eval_steps.index(step)
                 # train loss
@@ -109,12 +134,11 @@ class Comparator:  # TODO inherit from something?
                                                                    graph.y: y_train})
 
                 # test acc cannot be computed because only partial probe sims mat is available
-                for x1_mat, x2_mat, test_probe in zip(x1_test, x2_test, test_probes):
+                for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids):
                     eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
                                                                  graph.x2: x2_mat})
                     eval_sims_mat_row = 1.0 - (eucd / trial.params.margin)
-                    row_id = self.row_words.index(test_probe)
-                    trial.results.eval_sims_mats[eval_id][row_id, :] = eval_sims_mat_row
+                    trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
                 print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f}'.format(
                     step,
                     num_train_steps - 1,
@@ -124,16 +148,6 @@ class Comparator:  # TODO inherit from something?
             # train
             graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
-    def train_expert_on_test_fold(self, trial, graph, data, fold_id):
-        raise NotImplementedError
-
     @staticmethod
-    def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x1_batch = x1[row_ids]
-            x2_batch = x2[row_ids]
-            y_batch = y[row_ids]
-            yield n, x1_batch, x2_batch, y_batch
+    def train_expert_on_test_fold(trial, graph, data, fold_id):
+        raise NotImplementedError

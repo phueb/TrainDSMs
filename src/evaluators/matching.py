@@ -1,38 +1,23 @@
 import numpy as np
 from functools import partial
 
-
 from src import config
 from src.scores import calc_balanced_accuracy
 from src.figs import make_matching_figs
-from src.evals.base import EvalBase
+from src.evaluators.base import EvalBase
 
 
-class Params:
-    shuffled = [False, True]
-    margin = [50.0, 100.0]
-    num_epochs = [100]
-    mb_size = [64]
-    num_output = [100]
-    beta = [0.0]
-    learning_rate = [0.1]
+class MatchingParams:
     prop_negative = [0.1]  # TODO
     # TODO add option to balance neg:pos
-
     if any([i > 0.5 for i in prop_negative]):  # TODO test
         raise ValueError('Setting "prop_negative" too high might cause memory error.')
 
 
 class Matching(EvalBase):
-    def __init__(self, data_name1, data_name2=None):
-        if data_name2 is not None:
-            name = '{}_{}_matching'.format(data_name1, data_name2)  # reversed is okay
-        else:
-            name = '{}_matching'.format(data_name1)
-        super().__init__(name, Params)
-        #
-        self.data_name1 = data_name1
-        self.data_name2 = data_name2
+    def __init__(self, Arch, data_name1, data_name2=None):
+        arch = Arch()
+        super().__init__(arch, 'matching', data_name1, data_name2, MatchingParams)
         #
         probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
         relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
@@ -94,25 +79,13 @@ class Matching(EvalBase):
 
     def init_results_data(self, trial):
         """
-        add architecture-specific attributes to EvalData class implemented in TaskBase
+        add architecture-specific attributes to EvalData class implemented in EvalBase
         """
         res = super().init_results_data(trial)
 
         res.arch_name = self.arch.name  # TODO test
 
         return res
-
-    def split_and_vectorize_eval_data(self, trial, w2e, fold_id):
-        raise NotImplementedError  # TODO
-
-    def make_graph(self, trial, embed_size):
-        raise NotImplementedError  # TODO
-
-    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
-        raise NotImplementedError  # TODO
-
-    def train_expert_on_test_fold(self, trial, graph, data, fold_id):
-        raise NotImplementedError
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 

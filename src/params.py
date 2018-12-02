@@ -1,5 +1,5 @@
 import numpy as np
-from itertools import cycle
+from itertools import cycle, chain
 
 from src import config
 
@@ -9,14 +9,18 @@ class ObjectView(object):
         self.__dict__ = d
 
 
-def make_param2id(paramsClass, stage1=True):
+def make_param2id(paramsClass, paramsClass2=None):  # TODO split into two functions
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned
     """
-    lengths = []
-    param2opts = sorted([(k, v) for k, v in paramsClass.__dict__.items()
+    # merge if necessary
+    d2 = {} if paramsClass2 is None else paramsClass2.__dict__
+    merged_d = {k: v for k, v in chain(paramsClass.__dict__.items(), d2.items())}
+    #
+    param2opts = sorted([(k, v) for k, v in merged_d.items()
                          if not k.startswith('_')])
+    lengths = []
     for k, v in param2opts:
         lengths.append(len(v))
     total = np.prod(lengths)
@@ -44,7 +48,7 @@ def make_param2id(paramsClass, stage1=True):
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        if stage1:
+        if paramsClass2 is None:
             print('==========================================================================')
             for (k, v), i in zip(param2opts, ids):
                 print(k, v[i])

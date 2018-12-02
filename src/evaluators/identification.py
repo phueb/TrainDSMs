@@ -3,28 +3,18 @@ from scipy.stats import binom
 
 from src import config
 from src.figs import make_identification_figs
-from src.evals.base import EvalBase
+from src.evaluators.base import EvalBase
 from src.scores import calc_accuracy
 
-# TODO make two params - 1 for each arch - switch between the two?
-class Params:
-    shuffled = [False, True]
-    margin = [50.0, 100.0]  # must be float and MUST be at least 40 or so
+
+class IdentificationParams:
     train_on_second_neighbors = [True]  # performance is much better with additional training
-    beta = [0.0, 0.2]
-    num_output = [100]
-    mb_size = [4]  # TODO what's a good value?
-    num_epochs = [100]
-    learning_rate = [0.1]
 
 
 class Identification(EvalBase):
-    def __init__(self, data_name1, data_name2):  # data_name2 is not optional because lures must be specified
-        name = '{}_{}_identification'.format(data_name1, data_name2)  # reversed is okay
-        super().__init__(name, Params)
-        #
-        self.data_name1 = data_name1
-        self.data_name2 = data_name2
+    def __init__(self, Arch, data_name1, data_name2):
+        arch = Arch()
+        super().__init__(arch, 'matching', data_name1, data_name2, IdentificationParams)
         #
         probes, probe_relata, probe_lures = self.load_probes()
         relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
@@ -40,8 +30,8 @@ class Identification(EvalBase):
     # ///////////////////////////////////////////// Overwritten Methods START
 
     def to_eval_sims_mat(self, sims_mat):
-        res = np.zeros_like(self.eval_candidates_mat)  # TODO test
-        for i, candidates_row in enumerate(self.eval_candidates_mat):
+        res = np.zeros_like(self.eval_candidates_mat)
+        for i, candidates_row in enumerate(self.eval_candidates_mat):  # TODO test
             eval_probe = self.row_words[i]
             for j, candidate in enumerate(candidates_row):
                 res[i, j] = sims_mat[self.row_words.index(eval_probe), self.col_words.index(candidate)]
@@ -127,18 +117,6 @@ class Identification(EvalBase):
 
         return res
 
-    def split_and_vectorize_eval_data(self, trial, w2e, fold_id):
-        raise NotImplementedError  # TODO
-
-    def make_graph(self, trial, embed_size):
-        raise NotImplementedError  # TODO
-
-    def train_expert_on_train_fold(self, trial, graph, data, fold_id):
-        raise NotImplementedError  # TODO
-
-    def train_expert_on_test_fold(self, trial, graph, data, fold_id):
-        raise NotImplementedError
-
     # ///////////////////////////////////////// Overwritten Methods END
 
     def load_probes(self):
@@ -172,7 +150,7 @@ class Identification(EvalBase):
                 probe_relata.append(relata)
                 probe_lures.append(probes2relata2[probe])
         # no need for downsampling because identification eval is much less memory consuming
-        # (identification eval is for testing hypotheses about training on specifically selected negative pairs)
+        # (identification evaluation is for testing hypotheses about training on specifically selected negative pairs)
         # rather than on all possible negative pairs - this provides a strong test of the idea that
         # it matter more WHICH negative pairings are trained, rather than HOW MANY)
         # no need for shuffling because shuffling is done when eval data is created

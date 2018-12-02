@@ -8,13 +8,13 @@ from src import config
 
 MIN_NUM_REPS = 3
 
-EMBEDDER_CLASS = 'count'
+EMBEDDER_CLASS = 'w2vec'
 EMBEDDER_TYPE = None  # can be None
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
-# INCLUDE_DICT.update({'embed_size': 512})
-INCLUDE_DICT.update({'reduce_type': ['svd', 200]})
-TASK_CLASS = 'classification'
+# INCLUDE_DICT.update({'embed_size': 200})
+# INCLUDE_DICT.update({'reduce_type': ['svd', 200]})
+TASK_CLASS = 'matching'
 
 LEG1_Y = 1.2
 NUM_LEG_COLS = 6
@@ -101,7 +101,7 @@ for embedder_p in config.Dirs.runs.glob('*'):
         all_embedders_data.append(embedder_data)
         param2val_list.append(param2val)
 
-# remove embedders that did not complete all evals
+# remove embedders that did not complete all evaluators
 num_tasks_list = [len(embedder_data) for embedder_data in all_embedders_data]
 argmax = np.argmax(num_tasks_list)
 max_num_tasks = num_tasks_list[argmax]
@@ -119,7 +119,7 @@ colors = plt.cm.get_cmap('tab10')
 num_embedders = len(embedders_data)
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
-title = '{} Performance on {} evals'.format(embedder, TASK_CLASS)
+title = '{} Performance on {} evaluators'.format(embedder, TASK_CLASS)
 plt.title(title, fontsize=TITLE_FONTSIZE, y=LEG1_Y)
 plt.xlabel(INCLUDE_DICT, fontsize=AX_FONTSIZE)
 if TASK_CLASS == 'matching':
@@ -145,7 +145,10 @@ for embedder_id, embedder_data in enumerate(embedders_data):
     lines = []
     for task_id, (task_name, y_e, y_s, y_n) in enumerate(embedder_data):
         x = embedder_id + (task_id / (num_tasks + 1))
-        y_c = task_name2y_c[task_name]
+        try:
+            y_c = task_name2y_c[task_name]
+        except KeyError:
+            y_c = np.array([0])
         l1, = ax.bar(x + 0 * bw, y_e.mean(), width=bw, yerr=y_e.std(), color=colors(task_id))
         l2, = ax.bar(x + 1*bw, y_s.mean(), width=bw, yerr=y_s.std(), color=colors(task_id), alpha=0.75)
         l3, = ax.bar(x + 2*bw, y_c.mean(), width=bw, yerr=y_c.std(), color=colors(task_id), alpha=0.5)

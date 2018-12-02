@@ -163,10 +163,6 @@ class EmbedderBase(object):
         assert mat.shape[1] > 1
         scaler = preprocessing.StandardScaler()
         res = scaler.fit_transform(mat)
-        print('Before standardization:')
-        print('mean={:.2f} std={:.2f}'.format(np.mean(mat), np.std(mat)))
-        print('After standardization:')
-        print('mean={:.2f} std={:.2f}'.format(np.mean(res), np.std(res)))
         return res
 
     @staticmethod
