@@ -107,12 +107,7 @@ class Identification(EvalBase):
         for i, candidates_row in enumerate(self.eval_candidates_mat):
             eval_probe = self.row_words[i]
             for j, candidate in enumerate(candidates_row):
-
-
-                # TODO don't use .index() - but it's okay here right because sims has same entries?
-
-
-                row_id = self.row_words.index(eval_probe)
+                row_id = self.row_words.index(eval_probe)  # can use .index() because duplicate sim rows are identical
                 col_id = self.col_words.index(candidate)
                 res[i, j] = sims_mat[row_id, col_id]
         return res

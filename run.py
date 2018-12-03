@@ -43,23 +43,23 @@ for embedder in embedders:
     # evaluate
     for architecture in [comparator, classifier]:
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'semantic'),
-            # Matching(architecture, 'cohyponyms', 'syntactic'),
-            # Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice
-            # Matching(architecture, 'nyms', 'ant'),
-            # Matching(architecture, 'hypernyms'),
-            # Matching(architecture, 'features', 'is'),
-            # Matching(architecture, 'features', 'has'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'syntactic'),
+            Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice
+            Matching(architecture, 'nyms', 'ant'),
+            Matching(architecture, 'hypernyms'),
+            Matching(architecture, 'features', 'is'),
+            Matching(architecture, 'features', 'has'),
 
-            Identification(architecture, 'nyms', 'syn'),  # TODO below chance - somethign is wrong
-            # Identification(architecture, 'nyms', 'ant'),
-            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures
+            Identification(architecture, 'nyms', 'syn'),
+            Identification(architecture, 'nyms', 'ant'),
+            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - build in a threshold below which eval is skipped
         ]:
             for rep_id in range(config.Eval.num_reps):
                 if config.Eval.retrain or not embedder.completed_task(ev, rep_id):
                     print('Starting evaluation "{}" replication {}'.format(ev.full_name, rep_id))
                     print('---------------------------------------------')
-                    # make eval data
+                    # make eval data - row_words can contain duplicates
                     vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
                     all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
                     ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
@@ -71,7 +71,7 @@ for embedder in embedders:
                         if p not in embedder.w2e:
                             raise KeyError('"{}" required for evaluation "{}" is not in w2e.'.format(p, ev.name))
                     # score
-                    sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)
+                    sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows
                     ev.score_novice(sims_mat)
                     ev.train_and_score_expert(embedder, rep_id)
                     # figs

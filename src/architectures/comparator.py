@@ -8,11 +8,11 @@ from src import config
 
 class Params:
     shuffled = [False, True]
-    margin = [50.0, 100.0]  # must be float and MUST be at least 40 or so
+    margin = [50.0, 100.0]  # must be float, 50 is better than 100 on identification
     mb_size = [64]
-    beta = [0.1]
+    beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
-    num_output = [100]
+    num_output = [100]  # 100 is better than 30
     # arch-evaluator interaction
     num_epochs = None  # larger for matching vs identification task
 
