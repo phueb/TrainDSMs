@@ -40,9 +40,9 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
     if verbose:
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
     gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
-    if config.Eval.matching_metric == 'fs':
+    if config.Eval.matching_metric == 'F1':
         fun = calc_probes_fs
-    elif config.Eval.matching_metric == 'ba':
+    elif config.Eval.matching_metric == 'BalAcc':
         fun = calc_probes_ba
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')

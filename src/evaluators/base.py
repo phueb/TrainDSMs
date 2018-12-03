@@ -22,7 +22,7 @@ class Trial(object):
 
 
 class EvalBase(object):
-    def __init__(self, arch, name, data_name1, data_name2, EvParams):
+    def __init__(self, arch, name, data_name1, data_name2, ev_params_class):
         self.arch = arch
         #
         self.name = name
@@ -30,44 +30,58 @@ class EvalBase(object):
         self.data_name2 = data_name2
         self.full_name = '{}_{}_{}_{}'.format(arch.name, self.name, data_name1, data_name2)
         #
-        ArchParams = arch.params
-        param2val_list = make_param2val_list(ArchParams, EvParams)
+        param2val_list = make_param2val_list(arch.Params, ev_params_class)
         self.trials = [Trial(n, ObjectView(param2val))
                        for n, param2val in enumerate(param2val_list)]
-        merged_keys = list(ArchParams.__dict__.keys()) + list(EvParams.__dict__.keys())
+        merged_keys = list(arch.Params.__dict__.keys()) + list(ev_params_class.__dict__.keys())
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
-        self.metric = None
         self.novice_score = None
+        self.all_row_words = None
+        self.all_col_words = None
         self.row_words = None
         self.col_words = None
         self.eval_candidates_mat = None
 
     # ////////////////////////////////////////////////////// evaluator-specific
 
-    def to_eval_sims_mat(self, sims_mat):
-        raise NotImplementedError('Must be implemented in child-class.')
-
-    def make_eval_data(self, sims):
+    def make_all_eval_data(self, vocab_sims_mat, vocab):
         raise NotImplementedError('Must be implemented in child-class.')
 
     def check_negative_example(self, trial, p=None, c=None):
         raise NotImplementedError('Must be implemented in child-class.')
 
-    def score(self, eval_sims_mat, is_expert):
+    def score(self, eval_sims_mat):
         raise NotImplementedError('Must be implemented in child-class.')
 
-    # ////////////////////////////////////////////////////// architecture-specific
+    def print_score(self, expert_score, is_expert):
+        raise NotImplementedError('Must be implemented in child-class.')
 
-    def init_results_data(self, trial):
-        print('Initializing evaluation data structure')
-        return ResultsData(trial.params_id, self.eval_candidates_mat)
+    def to_eval_sims_mat(self, sims_mat):
+        raise NotImplementedError('Must be implemented in child-class.')
+
+    # //////////////////////////////////////////////////////
+
+    def downsample(self, all_eval_candidates_mat, rep_id):  # TODO test
+        # shuffle + down sample
+        np.random.seed(rep_id)
+        num_all = len(all_eval_candidates_mat)
+        min_num_all = min(num_all, config.Eval.max_num_all) if self.name == 'matching' else num_all
+        row_words = []
+        eval_candidates_mat = []
+        for rnd_id in np.random.choice(np.arange(min_num_all), size=min_num_all, replace=False):
+            row_words.append(self.all_row_words[rnd_id])
+            eval_candidates_mat.append(all_eval_candidates_mat[rnd_id])
+        eval_candidates_mat = np.vstack(eval_candidates_mat)
+        col_words = sorted(np.unique(eval_candidates_mat).tolist())
+        return row_words, col_words, eval_candidates_mat
 
     # ////////////////////////////////////////////////////// train + score
 
     def score_novice(self, sims_mat):
         eval_sims_mat = self.to_eval_sims_mat(sims_mat)
-        self.novice_score = self.score(eval_sims_mat, is_expert=False)
+        self.novice_score = self.score(eval_sims_mat)
+        self.print_score(self.novice_score, is_expert=False)
 
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
@@ -110,8 +124,9 @@ class EvalBase(object):
         best_expert_score = 0
         best_eval_id = 0
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
-            expert_score = self.score(eval_sims_mat, is_expert=True)
-            print('{} at eval {} is {:.2f}'.format(self.metric, eval_id + 1, expert_score))
+            print('Eval {}'.format(eval_id + 1))
+            expert_score = self.score(eval_sims_mat)
+            self.print_score(expert_score, is_expert=True)
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id
@@ -119,17 +134,17 @@ class EvalBase(object):
         return best_expert_score
 
     def do_trial(self, trial, w2e, embed_size):
-        trial.results = self.init_results_data(trial)
+        trial.results = self.arch.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
         print('Training expert on "{}"'.format(self.full_name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
             print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
             data = self.arch.split_and_vectorize_eval_data(self, trial, w2e, fold_id)
-            graph = self.arch.make_graph(trial, embed_size)
-            self.arch.train_expert_on_train_fold(trial, graph, data, fold_id)
+            graph = self.arch.make_graph(self, trial, embed_size)
+            self.arch.train_expert_on_train_fold(self, trial, graph, data, fold_id)
             try:
-                self.arch.train_expert_on_test_fold(trial, graph, data, fold_id)  # TODO test
+                self.arch.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
             except NotImplementedError:
                 pass
         # score trial

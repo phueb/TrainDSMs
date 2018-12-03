@@ -8,15 +8,17 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [0.1]  # TODO
+    prop_negative = [0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
+    # arch-evaluator interaction
+    num_epochs = [100]  # 100 is better than 10 or 20 or 50
+
     # TODO add option to balance neg:pos
     if any([i > 0.5 for i in prop_negative]):  # TODO test
         raise ValueError('Setting "prop_negative" too high might cause memory error.')
 
 
 class Matching(EvalBase):
-    def __init__(self, Arch, data_name1, data_name2=None):
-        arch = Arch()
+    def __init__(self, arch, data_name1, data_name2=None):
         super().__init__(arch, 'matching', data_name1, data_name2, MatchingParams)
         #
         probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
@@ -31,18 +33,15 @@ class Matching(EvalBase):
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def to_eval_sims_mat(self, sims_mat):
-        return sims_mat
-
-    def make_eval_data(self, sims, verbose=False):
-        num_row_words = len(self.row_words)
-        eval_candidates_mat = np.asarray([self.col_words for _ in range(num_row_words)])
-        return eval_candidates_mat
+    def make_all_eval_data(self, vocab_sims_mat, vocab):
+        num_row_words = len(self.all_row_words)
+        all_eval_candidates_mat = np.asarray([self.all_col_words for _ in range(num_row_words)])
+        return all_eval_candidates_mat
 
     def check_negative_example(self, trial, p=None, c=None):
         return bool(self.binomial(n=1, p=trial.params.prop_negative, size=1))
 
-    def score(self, eval_sims_mat, is_expert):
+    def score(self, eval_sims_mat):
         # make gold (signal detection masks)
         num_rows = len(self.row_words)
         num_cols = len(self.col_words)
@@ -67,25 +66,18 @@ class Matching(EvalBase):
         # balanced acc
         calc_signals = partial(calc_signals, eval_sims_mat, gold)
         sims_mean = np.asscalar(np.mean(eval_sims_mat))
-        res = calc_balanced_accuracy(calc_signals, sims_mean, verbose=False if not is_expert else False)
+        res = calc_balanced_accuracy(calc_signals, sims_mean, verbose=False)
+        return res
+
+    def print_score(self, score, is_expert):
         # significance test
         pval_binom = 'notImplemented'  # TODO implement
-        # console
-        print('{} Accuracy={:.2f} (chance={:.2f}, p={})'.format(
-            'Expert' if is_expert else 'Novice', res, 0.5, pval_binom))
-        return res
+        chance = 0.5
+        print('{} {}={:.2f} (chance={:.2f}, p={})'.format(
+            'Expert' if is_expert else 'Novice', self.metric, score, chance, pval_binom))
 
-    # //////////////////////////////////////////////////// architecture specific
-
-    def init_results_data(self, trial):
-        """
-        add architecture-specific attributes to EvalData class implemented in EvalBase
-        """
-        res = super().init_results_data(trial)
-
-        res.arch_name = self.arch.name  # TODO test
-
-        return res
+    def to_eval_sims_mat(self, sims_mat):
+        return sims_mat
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 

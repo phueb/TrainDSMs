@@ -38,11 +38,11 @@ def iter_over_cycles(d):
     return param2opts, param_ids
 
 
-def make_param2val_list(paramsClass, paramsClass2):# TODO test
+def make_param2val_list(params_class1, params_class2):
     # merge
     meta_d = {'corpus_name': [config.Corpus.name], 'num_vocab': [config.Corpus.num_vocab]}
-    merged_d = {k: v for k, v in chain(paramsClass.__dict__.items(),
-                                       paramsClass2.__dict__.items(),
+    merged_d = {k: v for k, v in chain(params_class1.__dict__.items(),
+                                       params_class2.__dict__.items(),
                                        meta_d.items())}
     #
     param2opts, param_ids = iter_over_cycles(merged_d)

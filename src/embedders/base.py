@@ -3,18 +3,21 @@ import pandas as pd
 from collections import Counter, OrderedDict
 from itertools import islice
 from sklearn import preprocessing
-
+import spacy
 import numpy as np
 import pyprind
 import yaml
 import datetime
 from cached_property import cached_property
+from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
 
 from spacy.tokenizer import Tokenizer
 
 from src import config
-from src.utils import nlp
+
+
+nlp = spacy.load('en_core_web_sm')
 
 
 class EmbedderBase(object):
@@ -186,3 +189,12 @@ class EmbedderBase(object):
     def dim1(self):
         res = next(iter(self.w2e.items()))[1].shape[0]
         return res
+
+
+def w2e_to_sims(w2e, row_words, col_words):
+    x = np.vstack([w2e[w] for w in row_words])
+    y = np.vstack([w2e[w] for w in col_words])
+    # sim
+    res = cosine_similarity(x, y)
+    print('Shape of similarity matrix: {}'.format(res.shape))
+    return np.around(res, config.Embeddings.precision)
