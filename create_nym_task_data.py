@@ -14,7 +14,7 @@ LEMMATIZE = True
 VERBOSE = False
 
 
-EXCLUDED = ['do', 'is', 'be', 'wow', 'was', 'did', 'are',
+EXCLUDED = ['do', 'is', 'be', 'been', 'wow', 'was', 'did', 'are', 'lou', 'in',
             'let', 'am', 'cow', 'got', 'woo', 'squirrel',
             'lets', 'wolf', 'harry', 'market', 'tires', 'crane',
             'neigh', 'parrot', 'waffle', 'flounder', 'fries',

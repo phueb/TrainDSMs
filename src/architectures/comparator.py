@@ -10,7 +10,7 @@ class Params:
     shuffled = [False, True]
     margin = [50.0, 100.0]  # must be float and MUST be at least 40 or so
     mb_size = [64]
-    beta = [0.0]
+    beta = [0.1]
     learning_rate = [0.1]
     num_output = [100]
     # arch-evaluator interaction
@@ -36,11 +36,14 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x1_test = []
     x2_test = []
     eval_sims_mat_row_ids = []
-    for n, (eval_probes, candidate_rows) in enumerate(zip(
+    num_row_words = len(evaluator.row_words)
+    row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicates
+    for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
-            np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds))):
+            np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
+            np.array_split(row_word_ids, config.Eval.num_folds))):
         if n != fold_id:
-            for probe, candidates in zip(eval_probes, candidate_rows):
+            for probe, candidates in zip(row_words, candidate_rows):
                 for p, c in product([probe], candidates):
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[probe])
@@ -48,10 +51,10 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
                         y_train.append(1 if c in evaluator.probe2relata[p] else 0)
         else:
             # test data to build chunk of eval_sim_mat
-            for probe, candidates in zip(eval_probes, candidate_rows):
+            for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 x1_test += [[w2e[probe]] * len(candidates)]
                 x2_test += [[w2e[c] for c in candidates]]
-                eval_sims_mat_row_ids.append(evaluator.row_words.index(probe))
+                eval_sims_mat_row_ids.append(eval_sims_mat_row_id)
     x1_train = np.vstack(x1_train)
     x2_train = np.vstack(x2_train)
     y_train = np.array(y_train)
@@ -108,15 +111,19 @@ def make_graph(evaluator, trial, embed_size):
 
 
 def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
-    def generate_random_train_batches(x1, x2, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x1_batch = x1[row_ids]
-            x2_batch = x2[row_ids]
-            y_batch = y[row_ids]
-            yield n, x1_batch, x2_batch, y_batch
+    def gen_batches_in_order(x1, x2, y):
+        assert len(x1) == len(x2) == len(y)
+        num_rows = len(x1)
+        num_adj = num_rows - (num_rows % trial.params.mb_size)
+        print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
+        step = 0
+        for epoch_id in range(trial.params.num_epochs):
+            row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
+            # split into batches
+            num_splits = num_adj // trial.params.mb_size
+            for row_ids in np.split(row_ids, num_splits):
+                yield step, x1[row_ids],  x2[row_ids], y[row_ids]
+                step += 1
 
     assert evaluator is not None  # arbitrary usage of evaluator
     assert isinstance(fold_id, int)  # arbitrary usage of fold_id
@@ -129,30 +136,25 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # training and eval
     start = time.time()
-    for step, x1_batch, x2_batch, y_batch in generate_random_train_batches(x1_train,
-                                                                           x2_train,
-                                                                           y_train,
-                                                                           num_train_probes,
-                                                                           num_train_steps,
-                                                                           trial.params.mb_size):
+    for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):
         if step in eval_steps:
             eval_id = eval_steps.index(step)
             # train loss
             train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
                                                                graph.x2: x2_train,
                                                                graph.y: y_train})
-
-            # test acc cannot be computed because only partial probe sims mat is available
+            # test acc cannot be computed because only partial eval sims mat is available
             for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids):
                 eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
                                                              graph.x2: x2_mat})
                 eval_sims_mat_row = 1.0 - (eucd / trial.params.margin)
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
-            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f}'.format(
+            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f} |any nans={}'.format(
                 step,
                 num_train_steps - 1,
                 train_loss,
-                time.time() - start))
+                time.time() - start,
+                np.any(np.isnan(trial.results.eval_sims_mats[eval_id]))))
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})

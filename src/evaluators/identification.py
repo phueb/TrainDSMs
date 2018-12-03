@@ -10,39 +10,39 @@ from src.scores import calc_accuracy
 class IdentificationParams:
     train_on_second_neighbors = [True]  # performance is much better with additional training
     # arch-evaluator interaction
-    num_epochs = [500]
+    num_epochs = [500]  # 500 is better than 100 or 200, 300
 
 
 class Identification(EvalBase):
     def __init__(self, arch, data_name1, data_name2):
         super().__init__(arch, 'identification', data_name1, data_name2, IdentificationParams)
         #
-        probes, probe_relata, probe_lures = self.load_probes()
-        relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
-        lures = sorted(np.unique(np.concatenate(probe_lures)).tolist())
-        self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
-        self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
-        # sims
-        self.all_row_words = probes
-        self.all_col_words = sorted(set(probes + relata + lures))  # must be a set even if each is a set
-        # misc
+        self.probe2relata = None
+        self.probe2lures = None
         self.metric = 'acc'
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
     def make_all_eval_data(self, vocab_sims_mat, vocab, verbose=False):
         """
-        use all_row_words and all_col_words and downsample afterwards
+        actual evaluation data is sampled from result of this method
         """
+        # load
+        probes, probe_relata, probe_lures = self.load_probes()
+        self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
+        self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
         # make lures and relata
         if config.Eval.remove_duplicates_for_identification:
-            eval_relata = [np.random.choice(self.probe2relata[p], 1)[0] for p in self.all_row_words]
-            eval_lures = [np.random.choice(self.probe2lures[p], 1)[0] for p in self.all_row_words]
+            all_eval_probes = probes  # leave this - eval_probes is different from probes if duplicates are not removed
+            eval_relata = [np.random.choice(self.probe2relata[p], 1)[0] for p in all_eval_probes]
+            eval_lures = [np.random.choice(self.probe2lures[p], 1)[0] for p in all_eval_probes]
         else:
+            all_eval_probes = []
             eval_relata = []
             eval_lures = []
-            for probe in self.all_row_words:
+            for probe in probes:
                 for relatum, lure in zip(self.probe2relata[probe], self.probe2lures[probe]):
+                    all_eval_probes.append(probe)
                     eval_relata.append(relatum)
                     eval_lures.append(lure)
         # get neutrals + neighbors
@@ -51,27 +51,27 @@ class Identification(EvalBase):
         neutrals = np.roll(eval_relata, num_roll)  # avoids relatum to be wrong answer in next pair
         first_neighbors = []
         second_neighbors =[]
-        for p in self.all_row_words:
+        for p in all_eval_probes:
             row_id = vocab.index(p)
             ids = np.argsort(vocab_sims_mat[row_id])[::-1][:10]
             nearest_neighbors = [vocab[i] for i in ids]
             first_neighbors.append(nearest_neighbors[1])  # don't use id=zero because it returns the probe
             second_neighbors.append(nearest_neighbors[2])
         # make candidates_mat
-        eval_candidates_mat = []
-        num_row_words = len(self.all_row_words)
-        for i in range(num_row_words):
+        all_eval_candidates_mat = []
+        num_eval_probes = len(all_eval_probes)
+        for i in range(num_eval_probes):
             if first_neighbors[i] == eval_relata[i]:
                 first_neighbors[i] = neutrals[i]
             if second_neighbors[i] == eval_relata[i]:
                 second_neighbors[i] = neutrals[i]
             candidates = [eval_relata[i], eval_lures[i], first_neighbors[i], second_neighbors[i], neutrals[i]]
             if verbose:
-                print(self.all_row_words[i])
+                print(all_eval_probes[i])
                 print(candidates)
-            eval_candidates_mat.append(candidates)
-        eval_candidates_mat = np.vstack(eval_candidates_mat)
-        return eval_candidates_mat
+            all_eval_candidates_mat.append(candidates)
+        all_eval_candidates_mat = np.vstack(all_eval_candidates_mat)
+        return all_eval_probes, all_eval_candidates_mat
 
     def check_negative_example(self, trial, p=None, c=None):
         assert p is not None
@@ -103,10 +103,15 @@ class Identification(EvalBase):
             'Expert' if is_expert else 'Novice', self.metric, score, chance, pval_binom))
 
     def to_eval_sims_mat(self, sims_mat):
-        res = np.zeros_like(self.eval_candidates_mat)
-        for i, candidates_row in enumerate(self.eval_candidates_mat):  # TODO test
+        res = np.full_like(self.eval_candidates_mat, np.nan, dtype=float)
+        for i, candidates_row in enumerate(self.eval_candidates_mat):
             eval_probe = self.row_words[i]
             for j, candidate in enumerate(candidates_row):
+
+
+                # TODO don't use .index() - but it's okay here right because sims has same entries?
+
+
                 row_id = self.row_words.index(eval_probe)
                 col_id = self.col_words.index(candidate)
                 res[i, j] = sims_mat[row_id, col_id]

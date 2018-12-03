@@ -9,7 +9,7 @@ from src.params import make_param2val_list, ObjectView
 class ResultsData:
     def __init__(self, params_id, eval_candidates_mat):
         self.params_id = params_id
-        self.eval_sims_mats = [np.zeros_like(eval_candidates_mat, float)  # TODO test
+        self.eval_sims_mats = [np.full_like(eval_candidates_mat, np.nan, dtype=float)
                                for _ in range(config.Eval.num_evals)]
 
 
@@ -37,8 +37,6 @@ class EvalBase(object):
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
         self.novice_score = None
-        self.all_row_words = None
-        self.all_col_words = None
         self.row_words = None
         self.col_words = None
         self.eval_candidates_mat = None
@@ -62,7 +60,7 @@ class EvalBase(object):
 
     # //////////////////////////////////////////////////////
 
-    def downsample(self, all_eval_candidates_mat, rep_id):  # TODO test
+    def downsample(self, all_eval_probes, all_eval_candidates_mat, rep_id):
         # shuffle + down sample
         np.random.seed(rep_id)
         num_all = len(all_eval_candidates_mat)
@@ -70,7 +68,7 @@ class EvalBase(object):
         row_words = []
         eval_candidates_mat = []
         for rnd_id in np.random.choice(np.arange(min_num_all), size=min_num_all, replace=False):
-            row_words.append(self.all_row_words[rnd_id])
+            row_words.append(all_eval_probes[rnd_id])
             eval_candidates_mat.append(all_eval_candidates_mat[rnd_id])
         eval_candidates_mat = np.vstack(eval_candidates_mat)
         col_words = sorted(np.unique(eval_candidates_mat).tolist())

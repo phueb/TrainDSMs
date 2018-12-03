@@ -52,22 +52,24 @@ for embedder in embedders:
             # Matching(architecture, 'features', 'has'),
 
             Identification(architecture, 'nyms', 'syn'),  # TODO below chance - somethign is wrong
-            Identification(architecture, 'nyms', 'ant'),
-            Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures
+            # Identification(architecture, 'nyms', 'ant'),
+            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures
         ]:
             for rep_id in range(config.Eval.num_reps):
                 if config.Eval.retrain or not embedder.completed_task(ev, rep_id):
                     print('Starting evaluation "{}" replication {}'.format(ev.full_name, rep_id))
                     print('---------------------------------------------')
-                    # check runs
-                    for p in set(ev.all_row_words + ev.all_col_words):
+                    # make eval data
+                    vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
+                    all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
+                    ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
+                        all_eval_probes, all_eval_candidates_mat, rep_id)
+                    print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
+                    print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
+                    # check embeddings for words
+                    for p in set(ev.row_words + ev.col_words):
                         if p not in embedder.w2e:
                             raise KeyError('"{}" required for evaluation "{}" is not in w2e.'.format(p, ev.name))
-                    # make eval_candidates_mat
-                    vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
-                    all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
-                    # downsample + shuffle (no need to shuffle between trials)
-                    ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(all_eval_candidates_mat, rep_id)
                     # score
                     sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)
                     ev.score_novice(sims_mat)

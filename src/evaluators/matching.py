@@ -21,22 +21,22 @@ class Matching(EvalBase):
     def __init__(self, arch, data_name1, data_name2=None):
         super().__init__(arch, 'matching', data_name1, data_name2, MatchingParams)
         #
-        probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
-        relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
-        self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
-        # sims
-        self.all_row_words = probes
-        self.all_col_words = relata
-        # misc
+        self.probe2relata = None
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
     def make_all_eval_data(self, vocab_sims_mat, vocab):
-        num_row_words = len(self.all_row_words)
-        all_eval_candidates_mat = np.asarray([self.all_col_words for _ in range(num_row_words)])
-        return all_eval_candidates_mat
+        # load
+        probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
+        relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
+        self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
+        #
+        all_eval_probes = probes
+        num_eval_probes = len(all_eval_probes)
+        all_eval_candidates_mat = np.asarray([relata for _ in range(num_eval_probes)])
+        return all_eval_probes, all_eval_candidates_mat
 
     def check_negative_example(self, trial, p=None, c=None):
         return bool(self.binomial(n=1, p=trial.params.prop_negative, size=1))

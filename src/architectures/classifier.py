@@ -44,7 +44,7 @@ def init_results_data(evaluator, eval_data_class):
     return eval_data_class
 
 
-def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
+def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):  # TODO don't .index() into row_words
     # split
     x_train = []
     y_train = []

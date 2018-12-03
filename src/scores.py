@@ -4,7 +4,7 @@ from bayes_opt import BayesianOptimization
 from src import config
 
 
-def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):  # TODO test
+def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):
     """
     eval_sims has same shape as eval_candidates_mat (to save memory)
     """
