@@ -19,7 +19,14 @@ class MatchingParams:
 
 class Matching(EvalBase):
     def __init__(self, arch, data_name1, data_name2=None):
-        super().__init__(arch, 'matching', data_name1, data_name2, MatchingParams)
+        super().__init__(arch.name,
+                         arch.Params,
+                         arch.init_results_data,
+                         arch.split_and_vectorize_eval_data,
+                         arch.make_graph,
+                         arch.train_expert_on_train_fold,
+                         arch.train_expert_on_test_fold,
+                         'matching', data_name1, data_name2, MatchingParams)
         #
         self.probe2relata = None
         self.binomial = np.random.binomial

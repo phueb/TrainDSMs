@@ -15,7 +15,14 @@ class IdentificationParams:
 
 class Identification(EvalBase):
     def __init__(self, arch, data_name1, data_name2):
-        super().__init__(arch, 'identification', data_name1, data_name2, IdentificationParams)
+        super().__init__(arch.name,
+                         arch.Params,
+                         arch.init_results_data,
+                         arch.split_and_vectorize_eval_data,
+                         arch.make_graph,
+                         arch.train_expert_on_train_fold,
+                         arch.train_expert_on_test_fold,
+                         'identification', data_name1, data_name2, IdentificationParams)
         #
         self.probe2relata = None
         self.probe2lures = None

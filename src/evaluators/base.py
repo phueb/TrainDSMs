@@ -22,18 +22,32 @@ class Trial(object):
 
 
 class EvalBase(object):
-    def __init__(self, arch, name, data_name1, data_name2, ev_params_class):
-        self.arch = arch
+    def __init__(self,
+                 arch_name,
+                 arch_params,
+                 init_results_data,
+                 split_and_vectorize_eval_data,
+                 make_graph,
+                 train_expert_on_train_fold,
+                 train_expert_on_test_fold,
+                 name, data_name1, data_name2, ev_params_class):
+        # pass functions separately because module cannot be pickled (which multiprocessing requires)
+        self.init_results_data = init_results_data
+        self.split_and_vectorize_eval_data = split_and_vectorize_eval_data
+        self.make_graph = make_graph
+        self.train_expert_on_train_fold = train_expert_on_train_fold
+        self.train_expert_on_test_fold = train_expert_on_test_fold
         #
+        self.arch_name = arch_name
         self.name = name
         self.data_name1 = data_name1
         self.data_name2 = data_name2
-        self.full_name = '{}_{}_{}_{}'.format(arch.name, self.name, data_name1, data_name2)
+        self.full_name = '{}_{}_{}_{}'.format(arch_name, self.name, data_name1, data_name2)
         #
-        param2val_list = make_param2val_list(arch.Params, ev_params_class)
+        param2val_list = make_param2val_list(arch_params, ev_params_class)
         self.trials = [Trial(n, ObjectView(param2val))
                        for n, param2val in enumerate(param2val_list)]
-        merged_keys = list(arch.Params.__dict__.keys()) + list(ev_params_class.__dict__.keys())
+        merged_keys = list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys())
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
         self.novice_score = None
@@ -85,7 +99,7 @@ class EvalBase(object):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
         data_name = '{}_{}'.format(self.data_name1, self.data_name2)
         fname = 'scores_{}.csv'.format(rep_id)
-        p = config.Dirs.runs / embedder.time_of_init / self.arch.name / self.name / data_name / fname
+        p = config.Dirs.runs / embedder.time_of_init / self.arch_name / self.name / data_name / fname
         if p.exists():
             print('Removing {}'.format(p))
             p.unlink()
@@ -132,17 +146,17 @@ class EvalBase(object):
         return best_expert_score
 
     def do_trial(self, trial, w2e, embed_size):
-        trial.results = self.arch.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
+        trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
         print('Training expert on "{}"'.format(self.full_name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
             print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
-            data = self.arch.split_and_vectorize_eval_data(self, trial, w2e, fold_id)
-            graph = self.arch.make_graph(self, trial, embed_size)
-            self.arch.train_expert_on_train_fold(self, trial, graph, data, fold_id)
+            data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id)
+            graph = self.make_graph(self, trial, embed_size)
+            self.train_expert_on_train_fold(self, trial, graph, data, fold_id)
             try:
-                self.arch.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
+                self.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
             except NotImplementedError:
                 pass
         # score trial
@@ -161,7 +175,7 @@ class EvalBase(object):
             for fig, fig_name in self.make_trial_figs(trial):
                 trial_dname = 'trial_{}'.format(trial.params_id)
                 fname = '{}_{}.png'.format(fig_name, trial.params_id)
-                p = config.Dirs.runs / embedder.time_of_init / self.arch.name / self.name / trial_dname / fname
+                p = config.Dirs.runs / embedder.time_of_init / self.arch_name / self.name / trial_dname / fname
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))
