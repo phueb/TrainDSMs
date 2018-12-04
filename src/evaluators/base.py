@@ -47,7 +47,7 @@ class EvalBase(object):
         self.param2val_list = make_param2val_list(arch_params, ev_params_class)
         self.trials = [Trial(n, ObjectView(param2val))
                        for n, param2val in enumerate(self.param2val_list)]
-        merged_keys = list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys())
+        merged_keys = set(list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys()))
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
         self.novice_score = None
