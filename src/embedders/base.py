@@ -60,7 +60,7 @@ class EmbedderBase(object):
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
     def completed_eval(self, ev, rep_id):
-        p = config.Dirs.runs / self.time_of_init / ev.name / 'scores_{}.csv'.format(rep_id)
+        p = ev.make_scores_p(self.time_of_init, rep_id)
         num_total = len(ev.param2val_list)
         num_trained = 0
         if p.exists():

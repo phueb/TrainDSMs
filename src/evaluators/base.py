@@ -88,6 +88,12 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
+    def make_scores_p(self, time_of_init, rep_id):
+        data_name = '{}_{}'.format(self.data_name1, self.data_name2)
+        fname = 'scores_{}.csv'.format(rep_id)
+        res = config.Dirs.runs / time_of_init / self.arch_name / self.name / data_name / fname
+        return res
+
     # ////////////////////////////////////////////////////// train + score
 
     def score_novice(self, sims_mat):
@@ -97,9 +103,7 @@ class EvalBase(object):
 
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
-        data_name = '{}_{}'.format(self.data_name1, self.data_name2)
-        fname = 'scores_{}.csv'.format(rep_id)
-        p = config.Dirs.runs / embedder.time_of_init / self.arch_name / self.name / data_name / fname
+        p = self.make_scores_p(embedder.time_of_init, rep_id)
         if p.exists():
             print('Removing {}'.format(p))
             p.unlink()
