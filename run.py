@@ -56,7 +56,7 @@ for embedder in embedders:
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - build in a threshold below which eval is skipped
         ]:
             for rep_id in range(config.Eval.num_reps):
-                if config.Eval.retrain or not embedder.completed_task(ev, rep_id):
+                if config.Eval.retrain or not embedder.completed_eval(ev, rep_id):
                     print('Starting evaluation "{}" replication {}'.format(ev.full_name, rep_id))
                     print('---------------------------------------------')
                     # make eval data - row_words can contain duplicates

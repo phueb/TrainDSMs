@@ -44,9 +44,9 @@ class EvalBase(object):
         self.data_name2 = data_name2
         self.full_name = '{}_{}_{}_{}'.format(arch_name, self.name, data_name1, data_name2)
         #
-        param2val_list = make_param2val_list(arch_params, ev_params_class)
+        self.param2val_list = make_param2val_list(arch_params, ev_params_class)
         self.trials = [Trial(n, ObjectView(param2val))
-                       for n, param2val in enumerate(param2val_list)]
+                       for n, param2val in enumerate(self.param2val_list)]
         merged_keys = list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys())
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #

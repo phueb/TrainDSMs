@@ -59,9 +59,9 @@ class EmbedderBase(object):
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
-    def completed_task(self, task, rep_id):
-        p = config.Dirs.runs / self.time_of_init / task.name / 'scores_{}.csv'.format(rep_id)
-        num_total = len(task.param2val_list)
+    def completed_eval(self, ev, rep_id):
+        p = config.Dirs.runs / self.time_of_init / ev.name / 'scores_{}.csv'.format(rep_id)
+        num_total = len(ev.param2val_list)
         num_trained = 0
         if p.exists():
             df = pd.read_csv(p, index_col=False)
