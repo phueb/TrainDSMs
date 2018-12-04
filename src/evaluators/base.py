@@ -123,10 +123,10 @@ class EvalBase(object):
             if config.Eval.save_scores:
                 print('Saving trial score')
                 df = pd.DataFrame(data=[df_row],
-                                  columns=['exp_score', 'nov_score'] + self.df_header)  # TODO test
+                                  columns=['exp_score', 'nov_score'] + self.df_header)
                 print(df)
                 if not p.parent.exists():
-                    p.parent.mkdir()
+                    p.parent.mkdir(parents=True)
                 with p.open('a') as f:
                     df.to_csv(f, mode='a', header=f.tell() == 0,
                               index=False)
