@@ -6,15 +6,16 @@ import copy
 
 from src import config
 
-MIN_NUM_REPS = 3
+MIN_NUM_REPS = 2
 
-EMBEDDER_CLASS = 'w2vec'
+EMBEDDER_CLASS = 'rnn'
 EMBEDDER_TYPE = None  # can be None
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
 # INCLUDE_DICT.update({'embed_size': 200})
 # INCLUDE_DICT.update({'reduce_type': ['svd', 200]})
-TASK_CLASS = 'matching'
+EVALUATOR_NAME = 'matching'
+ARCHITECTURE_NAME = 'comparator'
 
 LEG1_Y = 1.2
 NUM_LEG_COLS = 6
@@ -24,7 +25,31 @@ LEG_FONTSIZE = 12
 AX_FONTSIZE = 12
 WIDTH_PER_EMBEDDER = 5
 HEIGHT = 10
-DPI = 192 / 2
+DPI = 192 / 1
+
+
+def get_task_data(task_p):
+    # get score distributions (distributions are over replications)
+    scores_ps = [p for p in task_p.glob('scores_*.csv')]
+    if len(scores_ps) < MIN_NUM_REPS:
+        print('Excluding due to number of reps')
+        return []
+    scores = pd.concat([pd.read_csv(p, index_col=False) for p in scores_ps], axis=1)
+    bool_id_c = (scores['shuffled'] == False).values[:, 0]
+    bool_id_s = (scores['shuffled'] == True).values[:, 0]
+    distrs_c = scores[bool_id_c]['exp_score'].values
+    distrs_s = scores[bool_id_s]['exp_score'].values
+    score_nov = scores['nov_score'].values[0, 0]
+    if distrs_c.size == 0 or distrs_s.size == 0:
+        print('Excluding because no scores found')
+        return []
+    # get distribution with largest mean (over params)
+    largest_distr_c = distrs_c[np.argmax(np.mean(distrs_c, axis=1))]  # correct input-output mapping
+    largest_distr_s = distrs_s[np.argmax(np.mean(distrs_s, axis=1))]  # shuffled input-output mapping
+    assert len(largest_distr_c) == len(largest_distr_s)
+    task_name = task_p.name
+    res = (task_name, largest_distr_c, largest_distr_s, score_nov)
+    return res
 
 
 def add_double_legend(lines_list, labels1, labels2):
@@ -51,55 +76,43 @@ for embedder_p in config.Dirs.runs.glob('*'):
         embedder_type = param2val[key]
     except KeyError:
         if 'random_type' in param2val:
-            print('Found RandomControl')
-            for task_p in embedder_p.glob('*/**'):
-                task_name = task_p.name
-                ps = [p for p in task_p.glob('scores_*.csv')]
-                if len(ps) < MIN_NUM_REPS:
-                    continue
-                scores = pd.concat([pd.read_csv(p, index_col=False) for p in task_p.glob('scores_*.csv')], axis=1)
-                bool_id_c = (scores['shuffled'] == False).values[:, 0]
-                distrs_c = scores[bool_id_c]['exp_score'].values
-                largest_distr_c = distrs_c[np.argmax(np.mean(distrs_c, axis=1))]
+            print('Found RandomControl {}'.format(embedder_p.name))
+            for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):  # TODO test
+                print(task_p)
+                task_data = get_task_data(task_p)
+                task_name = task_data[0]
+                largest_distr_c = task_data[1]
                 task_name2y_c[task_name] = largest_distr_c
+                print('randomControl: {}={}'.format(task_name, largest_distr_c))
         continue
     else:
         if EMBEDDER_TYPE is not None and embedder_type != EMBEDDER_TYPE:
             continue
         else:
-            print('\nFound {}'.format(embedder_type))
+            time_of_init = embedder_p.name
+            print('\nFound {} {}'.format(embedder_type, time_of_init))
     # exclude
     if not all([param2val[k] == v for k, v in INCLUDE_DICT.items()]):
         print('Excluding {}'.format(embedder_type))
         continue
     # collect data
     embedder_data = []
-    for task_p in embedder_p.glob('*/**'):  # only directories excluding model_p
-        task_name = task_p.name
-        if TASK_CLASS not in task_name:
+    print('Looking for scores...')
+    task_ps = [p for p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME))]
+    for task_p in task_ps:
+        task_data = get_task_data(task_p)
+        if not task_data:
             continue
         else:
-            print(task_name)
-        # get score distributions (distributions are over replications)
-        ps = [p for p in task_p.glob('scores_*.csv')]
-        if len(ps) < MIN_NUM_REPS:
-            continue
-        scores = pd.concat([pd.read_csv(p, index_col=False) for p in task_p.glob('scores_*.csv')], axis=1)
-        bool_id_c = (scores['shuffled'] == False).values[:, 0]
-        bool_id_s = (scores['shuffled'] == True).values[:, 0]
-        distrs_c = scores[bool_id_c]['exp_score'].values
-        distrs_s = scores[bool_id_s]['exp_score'].values
-        score_nov = scores['nov_score'].values[0, 0]
-        if distrs_c.size == 0 or distrs_s.size == 0:
-            continue
-        # get distribution with largest mean (over params)
-        largest_distr_c = distrs_c[np.argmax(np.mean(distrs_c, axis=1))]  # correct input-output mapping
-        largest_distr_s = distrs_s[np.argmax(np.mean(distrs_s, axis=1))]  # shuffled input-output mapping
-        assert len(largest_distr_c) == len(largest_distr_s)
-        embedder_data.append((task_name, largest_distr_c, largest_distr_s, score_nov))
+            embedder_data.append(task_data)
     if embedder_data:
         all_embedders_data.append(embedder_data)
         param2val_list.append(param2val)
+
+if not all_embedders_data:
+    raise ValueError('\nDid not find any scores.')
+else:
+    print('\nCollected scores for {} embedders'.format(len(all_embedders_data)))  # TODO plot soesn't show if only 1 embedder data found
 
 # remove embedders that did not complete all evaluators
 num_tasks_list = [len(embedder_data) for embedder_data in all_embedders_data]
@@ -119,14 +132,14 @@ colors = plt.cm.get_cmap('tab10')
 num_embedders = len(embedders_data)
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
-title = '{} Performance on {} evaluators'.format(embedder, TASK_CLASS)
+title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)
 plt.title(title, fontsize=TITLE_FONTSIZE, y=LEG1_Y)
 plt.xlabel(INCLUDE_DICT, fontsize=AX_FONTSIZE)
-if TASK_CLASS == 'matching':
+if EVALUATOR_NAME == 'matching':
     ylabel = 'Balanced Accuracy'
     ylims = [0.5, 1]
     yticks = np.arange(0.5, 1 + Y_STEP_SIZE, Y_STEP_SIZE)
-elif TASK_CLASS in ['identification', 'classification']:
+elif EVALUATOR_NAME in ['identification', 'classification']:
     ylabel = 'Accuracy'
     ylims = [0, 1]
     yticks = np.arange(0, 1 + Y_STEP_SIZE, Y_STEP_SIZE)

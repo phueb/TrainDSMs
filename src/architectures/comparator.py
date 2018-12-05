@@ -35,7 +35,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     y_train = []
     x1_test = []
     x2_test = []
-    eval_sims_mat_row_ids = []
+    eval_sims_mat_row_ids_test = []
+    eval_sims_mat_row_ids_train = []
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicates
     for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
@@ -43,18 +44,29 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
             np.array_split(row_word_ids, config.Eval.num_folds))):
         if n != fold_id:
-            for probe, candidates in zip(row_words, candidate_rows):
+            for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[probe])
                         x2_train.append(w2e[c])
                         y_train.append(1 if c in evaluator.probe2relata[p] else 0)
+                        eval_sims_mat_row_ids_train.append(eval_sims_mat_row_id)
         else:
             # test data to build chunk of eval_sim_mat
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 x1_test += [[w2e[probe]] * len(candidates)]
                 x2_test += [[w2e[c] for c in candidates]]
-                eval_sims_mat_row_ids.append(eval_sims_mat_row_id)
+                eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
+
+    # TODO debug - train/test leak? - random-vectors-control gets above chance after expert training
+    for i in eval_sims_mat_row_ids_train:
+        assert i not in eval_sims_mat_row_ids_test
+    else:
+        print('Number of total  train+test items={}'.format(len(eval_sims_mat_row_ids_train) +
+                                                            len(eval_sims_mat_row_ids_test)))
+        print('Number of unique train+test items={}'.format(len(np.unique(eval_sims_mat_row_ids_train)) +
+                                                            len(np.unique(eval_sims_mat_row_ids_test))))
+
     x1_train = np.vstack(x1_train)
     x2_train = np.vstack(x2_train)
     y_train = np.array(y_train)
@@ -64,7 +76,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     if trial.params.shuffled:
         print('Shuffling supervisory signal')
         np.random.shuffle(y_train)
-    return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids
+    return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test
 
 
 def make_graph(evaluator, trial, embed_size):

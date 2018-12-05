@@ -33,23 +33,20 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
         ba = (sensitivity + specificity) / 2  # balanced accuracy
         return ba
 
-    # make thr range
-    thr1 = max(0.0, round(min(0.9, round(sims_mean, 2)) - 0.1, 2))  # don't change
-    thr2 = round(thr1 + 0.2, 2)
     # use bayes optimization to find best_thr
     if verbose:
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
-    gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
+    gp_params = {"alpha": 1e-6, "n_restarts_optimizer": 2}
     if config.Eval.matching_metric == 'F1':
         fun = calc_probes_fs
     elif config.Eval.matching_metric == 'BalAcc':
         fun = calc_probes_ba
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')
-    bo = BayesianOptimization(fun, {'thr': (thr1, thr2)}, verbose=verbose)
+    bo = BayesianOptimization(fun, {'thr': (-1.0, 1.0)}, verbose=verbose)
     bo.explore({'thr': [sims_mean]})
     bo.maximize(init_points=2, n_iter=config.Eval.num_opt_steps,
-                acq="poi", xi=0.001, **gp_params)  # smaller xi: exploitation
+                acq="poi", xi=0.01, **gp_params)  # smaller xi: exploitation
     best_thr = bo.res['max']['max_params']['thr']
     # use best_thr
     results = fun(best_thr)

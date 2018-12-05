@@ -1,5 +1,4 @@
 from itertools import chain
-import numpy as np
 
 from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
@@ -18,9 +17,9 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 embedders = chain(
+    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
-    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
 )
 
@@ -41,7 +40,10 @@ for embedder in embedders:
         embedder.load_w2e()
     print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
     # evaluate
-    for architecture in [comparator, classifier]:
+    for architecture in [
+        comparator,
+        # classifier
+    ]:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),
