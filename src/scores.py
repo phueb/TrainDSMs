@@ -36,7 +36,7 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
     # use bayes optimization to find best_thr
     if verbose:
         print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
-    gp_params = {"alpha": 1e-6, "n_restarts_optimizer": 2}
+    gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
     if config.Eval.matching_metric == 'F1':
         fun = calc_probes_fs
     elif config.Eval.matching_metric == 'BalAcc':

@@ -123,14 +123,19 @@ def make_graph(evaluator, trial, embed_size):
 
 
 def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
-    def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x_batch = x[row_ids]
-            y_batch = y[row_ids]
-            yield n, x_batch, y_batch
+    def gen_batches_in_order(x1, x2, y):
+        assert len(x1) == len(x2) == len(y)
+        num_rows = len(x1)
+        num_adj = num_rows - (num_rows % trial.params.mb_size)
+        print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
+        step = 0
+        for epoch_id in range(trial.params.num_epochs):
+            row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
+            # split into batches
+            num_splits = num_adj // trial.params.mb_size
+            for row_ids in np.split(row_ids, num_splits):
+                yield step, x1[row_ids],  x2[row_ids], y[row_ids]
+                step += 1
 
     x_train, y_train, x_test, y_test, train_probes, test_probes = data
     num_train_probes, num_test_probes = len(x_train), len(x_test)

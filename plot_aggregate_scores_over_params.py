@@ -8,7 +8,7 @@ from src import config
 
 MIN_NUM_REPS = 2
 
-EMBEDDER_CLASS = 'rnn'
+EMBEDDER_CLASS = 'random'
 EMBEDDER_TYPE = None  # can be None
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
@@ -49,6 +49,10 @@ def get_task_data(task_p):
     assert len(largest_distr_c) == len(largest_distr_s)
     task_name = task_p.name
     res = (task_name, largest_distr_c, largest_distr_s, score_nov)
+
+    # TODO debug
+    print(task_name, largest_distr_c.mean(), largest_distr_s.mean())
+
     return res
 
 
@@ -65,9 +69,11 @@ def add_double_legend(lines_list, labels1, labels2):
 
 # collect data for plotting
 all_embedders_data = []
-param2val_list = []
+all_param2val_list = []
+all_time_of_init_list = []
 task_name2y_c = {}
 for embedder_p in config.Dirs.runs.glob('*'):
+    time_of_init = embedder_p.name
     # check embedder_class and type
     with (embedder_p / 'params.yaml').open('r') as f:
         param2val = yaml.load(f)
@@ -76,7 +82,7 @@ for embedder_p in config.Dirs.runs.glob('*'):
         embedder_type = param2val[key]
     except KeyError:
         if 'random_type' in param2val:
-            print('Found RandomControl {}'.format(embedder_p.name))
+            print('Found RandomControl {}'.format(time_of_init))
             for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):  # TODO test
                 print(task_p)
                 task_data = get_task_data(task_p)
@@ -89,7 +95,6 @@ for embedder_p in config.Dirs.runs.glob('*'):
         if EMBEDDER_TYPE is not None and embedder_type != EMBEDDER_TYPE:
             continue
         else:
-            time_of_init = embedder_p.name
             print('\nFound {} {}'.format(embedder_type, time_of_init))
     # exclude
     if not all([param2val[k] == v for k, v in INCLUDE_DICT.items()]):
@@ -107,7 +112,11 @@ for embedder_p in config.Dirs.runs.glob('*'):
             embedder_data.append(task_data)
     if embedder_data:
         all_embedders_data.append(embedder_data)
-        param2val_list.append(param2val)
+        all_param2val_list.append(param2val)
+        all_time_of_init_list.append(time_of_init)
+
+        # TODO debug
+        print(param2val['embed_size'])
 
 if not all_embedders_data:
     raise ValueError('\nDid not find any scores.')
@@ -121,15 +130,21 @@ max_num_tasks = num_tasks_list[argmax]
 task_names = [d[0] for d in all_embedders_data[argmax]]
 labels1 = [task_name.replace('_', '\n') for task_name in task_names]
 embedders_data = []
-for embedder_data in all_embedders_data:
+param2val_list = []
+time_of_init_list = []
+for embedder_data, param2val, time_of_init in zip(all_embedders_data,
+                                                  all_param2val_list,
+                                                  all_time_of_init_list):
     num_tasks = len(embedder_data)
     if num_tasks == max_num_tasks:
         embedders_data.append(embedder_data)
+        param2val_list.append(param2val)
+        time_of_init_list.append(time_of_init)
 
 # fig
 print()
 colors = plt.cm.get_cmap('tab10')
-num_embedders = len(embedders_data)
+num_embedders = len(embedders_data) + 1
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
 title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)
@@ -170,8 +185,9 @@ for embedder_id, embedder_data in enumerate(embedders_data):
 # tick labels
 ax.set_xticks(np.arange(num_embedders) + (max_num_tasks / 2 * bw * num_bars))
 ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()
-                               if k not in INCLUDE_DICT.keys()])
-                    for param2val in param2val_list], fontsize=AX_FONTSIZE)
+                               if k not in INCLUDE_DICT.keys()] + [time_of_init])
+                    for param2val, time_of_init in zip(param2val_list, time_of_init_list)],
+                   fontsize=AX_FONTSIZE)
 ax.set_yticks(yticks)
 ax.set_yticklabels(yticks, fontsize=AX_FONTSIZE)
 # legend
