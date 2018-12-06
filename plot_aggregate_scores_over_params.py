@@ -115,13 +115,10 @@ for embedder_p in config.Dirs.runs.glob('*'):
         all_param2val_list.append(param2val)
         all_time_of_init_list.append(time_of_init)
 
-        # TODO debug
-        print(param2val['embed_size'])
-
 if not all_embedders_data:
     raise ValueError('\nDid not find any scores.')
 else:
-    print('\nCollected scores for {} embedders'.format(len(all_embedders_data)))  # TODO plot soesn't show if only 1 embedder data found
+    print('\nCollected scores for {} embedders'.format(len(all_embedders_data)))
 
 # remove embedders that did not complete all evaluators
 num_tasks_list = [len(embedder_data) for embedder_data in all_embedders_data]
@@ -144,7 +141,7 @@ for embedder_data, param2val, time_of_init in zip(all_embedders_data,
 # fig
 print()
 colors = plt.cm.get_cmap('tab10')
-num_embedders = len(embedders_data) + 1
+num_embedders = len(embedders_data) + 1  # TODO plot soesn't show if only 1 embedder data found
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
 title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)

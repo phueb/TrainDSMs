@@ -8,13 +8,9 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [0.3]  # TODO   # 0.3 is better than 0.1 or 0.2 but not 0.5
+    prop_negative = [0.3, 0.3]  # TODO   # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
     num_epochs = [100]  # 100 is better than 10 or 20 or 50
-
-    # TODO add option to balance neg:pos
-    if any([i > 0.5 for i in prop_negative]):  # TODO test
-        raise ValueError('Setting "prop_negative" too high might cause memory error.')
 
 
 class Matching(EvalBase):
@@ -28,7 +24,6 @@ class Matching(EvalBase):
                          arch.train_expert_on_test_fold,
                          'matching', data_name1, data_name2, MatchingParams)
         #
-        self.probe2relata = None
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
 
@@ -46,7 +41,13 @@ class Matching(EvalBase):
         return all_eval_probes, all_eval_candidates_mat
 
     def check_negative_example(self, trial, p=None, c=None):
-        return bool(self.binomial(n=1, p=trial.params.prop_negative, size=1))
+        if trial.params.prop_negative is None:  # balance positive : negative  approximately  1 : 1  # TODO test
+            prob = self.pos_prob
+        else:
+            if trial.params.prop_negative > 0.5:
+                raise ValueError('Setting "prop_negative" too high might cause memory error.')
+            prob = trial.params.prop_negative
+        return bool(self.binomial(n=1, p=prob, size=1))
 
     def score(self, eval_sims_mat):
         # make gold (signal detection masks)

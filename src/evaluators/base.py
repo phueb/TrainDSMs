@@ -50,10 +50,12 @@ class EvalBase(object):
         merged_keys = set(list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys()))
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
+        self.probe2relata = None
         self.novice_score = None
         self.row_words = None
         self.col_words = None
         self.eval_candidates_mat = None
+        self.pos_prob = None
 
     # ////////////////////////////////////////////////////// evaluator-specific
 
@@ -93,6 +95,17 @@ class EvalBase(object):
         fname = 'scores_{}.csv'.format(rep_id)
         res = config.Dirs.runs / time_of_init / self.arch_name / self.name / data_name / fname
         return res
+
+    def calc_pos_prob(self):
+        num_positive = 0
+        num_total = self.eval_candidates_mat.size
+        for row_word, candidates in zip(self.row_words, self.eval_candidates_mat):
+            for c in candidates:
+                if c in self.probe2relata[row_word]:
+                    num_positive += 1
+        prob = num_positive / num_total
+        print('Probability of positive examples={}'.format(prob))
+        return prob
 
     # ////////////////////////////////////////////////////// train + score
 

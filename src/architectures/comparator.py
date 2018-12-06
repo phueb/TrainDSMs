@@ -46,7 +46,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
-                    if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
+                    if (c in evaluator.probe2relata[p] and config.Eval.only_negative_examples) \
+                            or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[probe])
                         x2_train.append(w2e[c])
                         y_train.append(1 if c in evaluator.probe2relata[p] else 0)
@@ -58,14 +59,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
                 x2_test += [[w2e[c] for c in candidates]]
                 eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
 
-    # TODO debug - train/test leak? - random-vectors-control gets above chance after expert training
-    for i in eval_sims_mat_row_ids_train:
-        assert i not in eval_sims_mat_row_ids_test
-    else:
-        print('Number of total  train+test items={}'.format(len(eval_sims_mat_row_ids_train) +
-                                                            len(eval_sims_mat_row_ids_test)))
-        print('Number of unique train+test items={}'.format(len(np.unique(eval_sims_mat_row_ids_train)) +
-                                                            len(np.unique(eval_sims_mat_row_ids_test))))
+
 
     x1_train = np.vstack(x1_train)
     x2_train = np.vstack(x2_train)

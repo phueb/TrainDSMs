@@ -17,8 +17,8 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 embedders = chain(
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
+    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
 )
@@ -68,6 +68,8 @@ for embedder in embedders:
                         all_eval_probes, all_eval_candidates_mat, rep_id)
                     print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
                     print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
+                    #
+                    ev.pos_prob = ev.calc_pos_prob()
                     # check embeddings for words
                     for p in set(ev.row_words + ev.col_words):
                         if p not in embedder.w2e:
