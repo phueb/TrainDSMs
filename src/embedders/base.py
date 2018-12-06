@@ -118,6 +118,12 @@ class EmbedderBase(object):
                     doc[n] = config.Corpus.UNK
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
+        # save vocab
+        p = config.Dirs.corpora / '{}_vocab.txt'.format(config.Corpus.name)
+        if not p.exists():
+            with p.open('w') as f:
+                for v in vocab:
+                    f.write('{}\n'.format(v))
         return numeric_docs, vocab, deterministic_w2f, docs
 
     @property
@@ -126,7 +132,12 @@ class EmbedderBase(object):
 
     @property
     def vocab(self):
-        return self.corpus_data[1]
+        p = config.Dirs.corpora / '{}_vocab.txt'.format(config.Corpus.name)
+        if p.exists():
+            vocab = np.loadtxt(p, 'str').tolist()
+        else:
+            vocab = self.corpus_data[1]
+        return vocab
 
     @property
     def w2freq(self):
