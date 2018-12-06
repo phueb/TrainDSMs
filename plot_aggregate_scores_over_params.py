@@ -8,8 +8,9 @@ from src import config
 
 MIN_NUM_REPS = 2
 
-EMBEDDER_CLASS = 'random'
+EMBEDDER_CLASS = 'rnn'
 EMBEDDER_TYPE = None  # can be None
+EMBED_SIZES = [30, 200]
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
 # INCLUDE_DICT.update({'embed_size': 200})
@@ -49,10 +50,8 @@ def get_task_data(task_p):
     assert len(largest_distr_c) == len(largest_distr_s)
     task_name = task_p.name
     res = (task_name, largest_distr_c, largest_distr_s, score_nov)
-
-    # TODO debug
-    print(task_name, largest_distr_c.mean(), largest_distr_s.mean())
-
+    #
+    print(task_name, largest_distr_c.mean().round(2), largest_distr_s.mean().round(2))
     return res
 
 
@@ -71,7 +70,7 @@ def add_double_legend(lines_list, labels1, labels2):
 all_embedders_data = []
 all_param2val_list = []
 all_time_of_init_list = []
-task_name2y_c = {}
+task_name2y_c = {embed_size: {} for embed_size in EMBED_SIZES}
 for embedder_p in config.Dirs.runs.glob('*'):
     time_of_init = embedder_p.name
     # check embedder_class and type
@@ -82,14 +81,12 @@ for embedder_p in config.Dirs.runs.glob('*'):
         embedder_type = param2val[key]
     except KeyError:
         if 'random_type' in param2val:
-            print('Found RandomControl {}'.format(time_of_init))
-            for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):  # TODO test
-                print(task_p)
+            print('\nFound RandomControl {}'.format(time_of_init))
+            for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):
                 task_data = get_task_data(task_p)
                 task_name = task_data[0]
                 largest_distr_c = task_data[1]
-                task_name2y_c[task_name] = largest_distr_c
-                print('randomControl: {}={}'.format(task_name, largest_distr_c))
+                task_name2y_c[param2val['embed_size']][task_name] = largest_distr_c
         continue
     else:
         if EMBEDDER_TYPE is not None and embedder_type != EMBEDDER_TYPE:
@@ -141,7 +138,7 @@ for embedder_data, param2val, time_of_init in zip(all_embedders_data,
 # fig
 print()
 colors = plt.cm.get_cmap('tab10')
-num_embedders = len(embedders_data) + 1  # TODO plot soesn't show if only 1 embedder data found
+num_embedders = len(embedders_data) + 1  # TODO plot doesn't show if only 1 embedder data found
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
 title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)
@@ -165,13 +162,13 @@ ax.set_ylim(ylims)
 num_bars = 4
 lines = []
 bw = (1 / (max_num_tasks + 1)) / num_bars
-for embedder_id, embedder_data in enumerate(embedders_data):
+for embedder_id, (embedder_data, param2val) in enumerate(zip(embedders_data, param2val_list)):
     num_tasks = len(embedder_data)
     lines = []
     for task_id, (task_name, y_e, y_s, y_n) in enumerate(embedder_data):
         x = embedder_id + (task_id / (num_tasks + 1))
         try:
-            y_c = task_name2y_c[task_name]
+            y_c = task_name2y_c[param2val['embed_size']][task_name]
         except KeyError:
             y_c = np.array([0])
         l1, = ax.bar(x + 0 * bw, y_e.mean(), width=bw, yerr=y_e.std(), color=colors(task_id))

@@ -101,7 +101,7 @@ class Matching(EvalBase):
             for line in f.read().splitlines():
                 spl = line.split()
                 probe = spl[0]
-                # keep number of relata constant
+                # keep number of relata constant  # TODO instead of some global value, due this dynamically for each task - and jsut specify True or False
                 if config.Eval.num_relata is not None:
                     relata = spl[1:config.Eval.num_relata + 1]
                     if len(relata) != config.Eval.num_relata:
