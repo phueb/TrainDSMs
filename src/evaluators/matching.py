@@ -14,7 +14,7 @@ class MatchingParams:
 
 
 class Matching(EvalBase):
-    def __init__(self, arch, data_name1, data_name2=None):
+    def __init__(self, arch, data_name1, data_name2=None, matching_params=None):
         super().__init__(arch.name,
                          arch.Params,
                          arch.init_results_data,
@@ -22,7 +22,7 @@ class Matching(EvalBase):
                          arch.make_graph,
                          arch.train_expert_on_train_fold,
                          arch.train_expert_on_test_fold,
-                         'matching', data_name1, data_name2, MatchingParams)
+                         'matching', data_name1, data_name2, matching_params or MatchingParams)
         #
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric

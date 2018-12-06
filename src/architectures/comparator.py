@@ -142,7 +142,10 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     assert isinstance(fold_id, int)  # arbitrary usage of fold_id
     x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids = data
     num_train_probes, num_test_probes = len(x1_train), len(x1_test)
-    num_train_steps = num_train_probes // trial.params.mb_size * trial.params.num_epochs
+    if num_train_probes < trial.params.mb_size:
+        raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
+            num_train_probes, trial.params.mb_size))
+    num_train_steps = (num_train_probes // trial.params.mb_size) * trial.params.num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
