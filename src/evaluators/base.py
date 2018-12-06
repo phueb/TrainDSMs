@@ -85,7 +85,7 @@ class EvalBase(object):
         eval_candidates_mat = []
         for rnd_id in np.random.choice(np.arange(min_num_all_rows), size=min_num_all_rows, replace=False):
             row_words.append(all_eval_probes[rnd_id])
-            eval_candidates_mat.append(all_eval_candidates_mat[rnd_id, :config.Eval.max_num_eval_cols])  # TODO test down-sample cols
+            eval_candidates_mat.append(all_eval_candidates_mat[rnd_id, :config.Eval.max_num_eval_cols])
         eval_candidates_mat = np.vstack(eval_candidates_mat)
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat

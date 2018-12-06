@@ -8,7 +8,7 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [0.3, 0.3]  # TODO   # 0.3 is better than 0.1 or 0.2 but not 0.5
+    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
     num_epochs = [100]  # 100 is better than 10 or 20 or 50
 
@@ -41,6 +41,8 @@ class Matching(EvalBase):
         return all_eval_probes, all_eval_candidates_mat
 
     def check_negative_example(self, trial, p=None, c=None):
+        if c in self.probe2relata[p]:
+            raise RuntimeError('While checking negative example, found positive example')
         if trial.params.prop_negative is None:  # balance positive : negative  approximately  1 : 1  # TODO test
             prob = self.pos_prob
         else:
@@ -98,8 +100,18 @@ class Matching(EvalBase):
         with p.open('r') as f:
             for line in f.read().splitlines():
                 spl = line.split()
-                probes.append(spl[0])
-                probe_relata.append(spl[1:])
+                probe = spl[0]
+                # keep number of relata constant
+                if config.Eval.num_relata is not None:
+                    relata = spl[1:config.Eval.num_relata + 1]
+                    if len(relata) != config.Eval.num_relata:
+                        print('Skipping "{}"'.format(probe))
+                        continue
+                else:
+                    relata = spl[1:]
+                probes.append(probe)
+                probe_relata.append(relata)
+
         return probes, probe_relata
 
     # ///////////////////////////////////////////////////// figs

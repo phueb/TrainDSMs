@@ -47,7 +47,7 @@ for embedder in embedders:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice - probably because items are not good - interesting finding
+            Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice - probably because training subselection of items is worse than training on all of them
             Matching(architecture, 'nyms', 'ant'),
             Matching(architecture, 'hypernyms'),
             Matching(architecture, 'features', 'is'),
@@ -55,7 +55,7 @@ for embedder in embedders:
 
             Identification(architecture, 'nyms', 'syn'),
             Identification(architecture, 'nyms', 'ant'),
-            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - build in a threshold below which eval is skipped
+            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold
         ]:
             for rep_id in range(config.Eval.num_reps):
                 if config.Eval.retrain or not embedder.completed_eval(ev, rep_id):
