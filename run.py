@@ -17,8 +17,8 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 embedders = chain(
-    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
+    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
 )
@@ -45,13 +45,13 @@ for embedder in embedders:
         # classifier
     ]:
         for ev in [
+            Matching(architecture, 'features', 'is'),
+            Matching(architecture, 'features', 'has'),
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice - probably because training subselection of items is worse than training on all of them
             Matching(architecture, 'nyms', 'ant'),
             Matching(architecture, 'hypernyms'),
-            Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
 
             Identification(architecture, 'nyms', 'syn'),
             Identification(architecture, 'nyms', 'ant'),

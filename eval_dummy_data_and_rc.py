@@ -7,22 +7,23 @@ from src.embedders.base import w2e_to_sims
 
 config.Eval.save_scores = False
 config.Eval.only_negative_examples = False
-config.Eval.matching_metric = 'CohensKappa'  # 'BalAcc'
+config.Eval.matching_metric = 'CohensKappa'  # 'CohensKappa'  # 'BalAcc'
 
 LOAD_DUMMY_DATA = True
 DATA_NAME1 = 'cohyponyms'
-DATA_NAME2 = 'semantic'
+DATA_NAME2 = 'syntactic'
 
 EMBED_SIZE = 200
-NUM_CATS = 30  # divide NUM_PROBES equally
-NUM_PROBES = 600  # needs to be more than mb_size
-NUM_RELATA = 600  # a smaller number than vocab size increases probability of reusing relata across probes
-MIN_NUM_RELATA = 4  # this also changes prob of pos examples
-MAX_NUM_RELATA = 50  # this also changes prob of pos examples
-UNIFORM_RELATA_PROBS = False
+NUM_CATS = 5  # divide NUM_PROBES equally
+NUM_PROBES = 200  # needs to be more than mb_size
+NUM_RELATA = 200  # a smaller number than vocab size increases probability of reusing relata across probes
+MIN_NUM_RELATA = 10
+MAX_NUM_RELATA = 50  # set the two equal to obtain equal sized categories
+UNIFORM_RELATA_PROBS = True
 PROBES_AS_RELATA = False
+SHUFFLE_PROBE_RELATA_MAPPING = False  #
 
-VERBOSE = True
+VERBOSE = False
 
 
 def load_probes():
@@ -73,18 +74,25 @@ if LOAD_DUMMY_DATA:
     #
     if NUM_CATS is not None:
         print('Splitting dummy data into {} categories'.format(NUM_CATS))
-        cat_sizes = np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=NUM_CATS)
-        probe_relata = []
+        if MIN_NUM_RELATA != MAX_NUM_RELATA:
+            cat_sizes = np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=NUM_CATS)
+            adj_last_cs = NUM_PROBES - np.sum(cat_sizes)
+            cat_sizes[-1] += adj_last_cs
+        else:
+            if NUM_PROBES % NUM_CATS != 0:
+                raise ValueError('NUM_PROBES needs to be divisible by NUM_CATS')
+            cat_sizes = [NUM_PROBES // NUM_CATS] * NUM_CATS
+        # relata
         idx = 0
         probe_it = iter(probes)
         if PROBES_AS_RELATA:
             relata = probes
         else:
-            relata = np.random.choice(vocab, size=NUM_PROBES, replace=False).tolist()
+            relata = np.random.choice(vocab, size=NUM_RELATA, replace=False).tolist()
+        # probe_relata
+        probe_relata = []
         for cs in cat_sizes:
             cat_relata = relata[idx: idx + cs]
-            if len(cat_relata) == 0:
-                continue
             idx += cs
             #
             for _ in range(cs):
@@ -108,8 +116,12 @@ if LOAD_DUMMY_DATA:
 else:
     print('LOADING REAL DATA')
     probes, probe_relata = load_probes()
-    # np.random.shuffle(probes)  # this abolishes above-chance performance
 
+if SHUFFLE_PROBE_RELATA_MAPPING:
+    np.random.shuffle(probes)
+
+print('Num probes={}| num probe_relata={}'.format(len(probes), len(probe_relata)))
+assert len(probes) == len(probe_relata)
 
 if VERBOSE:
     for p, pr, in zip(probes, probe_relata):

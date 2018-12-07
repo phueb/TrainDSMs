@@ -84,6 +84,8 @@ for embedder_p in config.Dirs.runs.glob('*'):
             print('\nFound RandomControl {}'.format(time_of_init))
             for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):
                 task_data = get_task_data(task_p)
+                if not task_data:
+                    continue
                 task_name = task_data[0]
                 largest_distr_c = task_data[1]
                 task_name2y_c[param2val['embed_size']][task_name] = largest_distr_c
@@ -138,7 +140,7 @@ for embedder_data, param2val, time_of_init in zip(all_embedders_data,
 # fig
 print()
 colors = plt.cm.get_cmap('tab10')
-num_embedders = len(embedders_data) + 1  # TODO plot doesn't show if only 1 embedder data found
+num_embedders = len(embedders_data) + (1 if len(embedders_data) == 1 else 0)
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
 embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
 title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)

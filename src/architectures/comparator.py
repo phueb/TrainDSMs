@@ -43,6 +43,9 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
             np.array_split(row_word_ids, config.Eval.num_folds))):
+
+        # TODO control for symmetry of pairs: A:B vs. B:A - otherwise this is a train/test leak
+
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):

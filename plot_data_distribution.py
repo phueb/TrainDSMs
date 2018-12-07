@@ -4,7 +4,7 @@ import numpy as np
 from src import config
 
 DATA_NAME1 = 'cohyponyms'
-DATA_NAME2 = 'semantic'
+DATA_NAME2 = 'syntactic'
 
 def load_probes():
     data_dir = '{}/{}'.format(DATA_NAME1, DATA_NAME2) if DATA_NAME2 is not None else DATA_NAME1
@@ -48,4 +48,4 @@ ax.spines['top'].set_visible(False)
 ax.set_xticks([])
 ax.set_xticklabels([])
 fig.tight_layout()
-# plt.show()
+plt.show()

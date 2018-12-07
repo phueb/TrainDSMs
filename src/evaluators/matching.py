@@ -8,7 +8,7 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
+    prop_negative = [0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
     num_epochs = [100]  # 100 is better than 10 or 20 or 50
 
@@ -98,24 +98,30 @@ class Matching(EvalBase):
         data_dir = '{}/{}'.format(self.data_name1, self.data_name2) if self.data_name2 is not None else self.data_name1
         p = config.Dirs.tasks / data_dir / '{}_{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab)
-        probes = []
-        probe_relata = []
+        probes1 = []
+        probe_relata1 = []
+        num_relata_list = []
+        # read file
         with p.open('r') as f:
             for line in f.read().splitlines():
                 spl = line.split()
                 probe = spl[0]
-                # keep number of relata constant  # TODO instead of some global value, due this dynamically for each task - and jsut specify True or False
-                if config.Eval.num_relata is not None:
-                    relata = spl[1:config.Eval.num_relata + 1]
-                    if len(relata) != config.Eval.num_relata:
-                        print('Skipping "{}"'.format(probe))
-                        continue
-                else:
-                    relata = spl[1:]
-                probes.append(probe)
-                probe_relata.append(relata)
-
-        return probes, probe_relata
+                relata = spl[1:]
+                probes1.append(probe)
+                probe_relata1.append(relata)
+                num_relata_list.append(len(relata))
+        # keep number of relata constant  # TODO doing this is not ideal due to small size of data (relata)
+        min_num_relata = min(num_relata_list)
+        if config.Eval.standardize_num_relata:
+            probes2 = []
+            probe_relata2 = []
+            for probe, relata in zip(probes1, probe_relata1):
+                probes2.append(probe)
+                probe_relata2.append(relata[:min_num_relata])
+        else:
+            probes2 = probes1
+            probe_relata2 = probe_relata1
+        return probes2, probe_relata2
 
     # ///////////////////////////////////////////////////// figs
 
