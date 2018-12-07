@@ -9,7 +9,7 @@ config.Eval.save_scores = False
 config.Eval.only_negative_examples = False
 config.Eval.matching_metric = 'CohensKappa'  # 'BalAcc'
 
-LOAD_DUMMY_DATA = False
+LOAD_DUMMY_DATA = True
 DATA_NAME1 = 'cohyponyms'
 DATA_NAME2 = 'semantic'
 
@@ -17,11 +17,11 @@ EMBED_SIZE = 200
 NUM_CATS = 30  # divide NUM_PROBES equally
 NUM_PROBES = 600  # needs to be more than mb_size
 NUM_RELATA = 600  # a smaller number than vocab size increases probability of reusing relata across probes
-MIN_NUM_RELATA = 8  # this also changes prob of pos examples
-MAX_NUM_RELATA = 40  # this also changes prob of pos examples
+MIN_NUM_RELATA = 4  # this also changes prob of pos examples
+MAX_NUM_RELATA = 50  # this also changes prob of pos examples
 UNIFORM_RELATA_PROBS = False
 
-VERBOSE = False
+VERBOSE = True
 
 
 def load_probes():
@@ -68,33 +68,35 @@ embedder = RandomControlEmbedderDummy(EMBED_SIZE, vocab)
 # probes + relata
 if LOAD_DUMMY_DATA:
     print('LOADING DUMMY DATA')
-    probes = np.random.choice(vocab, size=NUM_PROBES, replace=False)
-    if NUM_CATS is None:  # not using cohyponym task
-        from_vocab = np.random.choice(vocab, size=NUM_RELATA, replace=False)
-    else:
-        from_vocab = probes
-    if UNIFORM_RELATA_PROBS:
-        from_vocab_probs = None
-    else:
-        num_rv = len(from_vocab)
-        logits = np.logspace(0, 1, num=num_rv)
-        from_vocab_probs = logits / logits.sum()
+    probes = np.random.choice(vocab, size=NUM_PROBES, replace=False).tolist()
     #
     if NUM_CATS is not None:
         print('Splitting dummy data into {} categories'.format(NUM_CATS))
         cat_sizes = np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=NUM_CATS)
         probe_relata = []
         idx = 0
+        probe_it = iter(probes)
         for cs in cat_sizes:
-            relata = from_vocab[idx: idx + cs]
-            if len(relata) == 0:
+            cat_relata = probes[idx: idx + cs]
+            if len(cat_relata) == 0:
                 continue
             idx += cs
             #
             for _ in range(cs):
-                probe_relata.append(relata)
+                try:
+                    probe = next(probe_it)
+                except StopIteration:
+                    break
+                probe_relata.append([r for r in cat_relata if r != probe])
     else:
-        probe_relata = [np.random.choice(from_vocab,
+        relata = np.random.choice(vocab, size=NUM_RELATA, replace=False).tolist()
+        if UNIFORM_RELATA_PROBS:
+            from_vocab_probs = None
+        else:
+            num_rv = len(relata)
+            logits = np.logspace(0, 1, num=num_rv)
+            from_vocab_probs = logits / logits.sum()
+        probe_relata = [np.random.choice(relata,
                                          size=np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=1),
                                          replace=False,
                                          p=from_vocab_probs) for _ in range(NUM_PROBES)]

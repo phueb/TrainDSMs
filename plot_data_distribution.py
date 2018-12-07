@@ -3,8 +3,8 @@ import numpy as np
 
 from src import config
 
-DATA_NAME1 = 'hypernyms'
-DATA_NAME2 = None
+DATA_NAME1 = 'cohyponyms'
+DATA_NAME2 = 'semantic'
 
 def load_probes():
     data_dir = '{}/{}'.format(DATA_NAME1, DATA_NAME2) if DATA_NAME2 is not None else DATA_NAME1
@@ -27,6 +27,8 @@ probes, probe_relata = load_probes()
 num_total_probes = len(probes)
 num_unique_probes = len(np.unique(probes))
 num_unique_relata = len(np.unique(np.concatenate(probe_relata)))
+
+print(DATA_NAME1, DATA_NAME2)
 print('Num total probes={}'.format(num_total_probes))
 print('Num unique probes={}'.format(num_unique_probes))
 print('Num unique relata={}'.format(num_unique_relata))
