@@ -51,7 +51,10 @@ class Matching(EvalBase):
             prob = trial.params.prop_negative
         return bool(self.binomial(n=1, p=prob, size=1))
 
-    def score(self, eval_sims_mat):
+    def score(self, eval_sims_mat, verbose=False):
+        # the random-control embedder sim mean should be higher because it can learn global properties of data only
+        if verbose:
+            print('Mean of eval_sims_mat={:.4f}'.format(eval_sims_mat.mean()))
         # make gold (signal detection masks)
         num_rows = len(self.row_words)
         num_cols = len(self.col_words)

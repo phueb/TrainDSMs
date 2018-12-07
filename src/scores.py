@@ -24,7 +24,23 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
         precision = np.divide(tp + 1e-10, (tp + fp + 1e-10))
         sensitivity = np.divide(tp + 1e-10, (tp + fn + 1e-10))  # aka recall
         fs = 2 * (precision * sensitivity) / (precision + sensitivity)
+
+        # TODO debug f-score  - it is below 0.5
+
+        print('prec={:.2f} sens={:.2f}, | tp={} tn={} | fp={} fn={}'.format(precision, sensitivity, tp, tn, fp, fn))
         return fs
+
+    def calc_probes_ck(thr):
+        tp, tn, fp, fn = calc_signals(thr)
+        totA = np.divide(tp + tn, (tp + tn + fp + fn))
+        #
+        pyes = ((tp + fp) / (tp + fp + tn + fn)) * ((tp + fn) / (tp + fp + tn + fn))
+        pno = ((fn + tn) / (tp + fp + tn + fn)) * ((fp + tn) / (tp + fp + tn + fn))
+        #
+        randA = pyes + pno
+        ck = (totA - randA) / (1 - randA)
+        # print('totA={:.2f} randA={:.2f}'.format(totA, randA))
+        return ck
 
     def calc_probes_ba(thr):
         tp, tn, fp, fn = calc_signals(thr)
@@ -35,12 +51,14 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
 
     # use bayes optimization to find best_thr
     if verbose:
-        print('Finding best thresholds between {} and {} using bayesian-optimization...'.format(thr1, thr2))
+        print('Finding best thresholds between using bayesian-optimization...')
     gp_params = {"alpha": 1e-5, "n_restarts_optimizer": 2}
     if config.Eval.matching_metric == 'F1':
         fun = calc_probes_fs
     elif config.Eval.matching_metric == 'BalAcc':
         fun = calc_probes_ba
+    elif config.Eval.matching_metric == 'CohensKappa':
+        fun = calc_probes_ck
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')
     bo = BayesianOptimization(fun, {'thr': (-1.0, 1.0)}, verbose=verbose)

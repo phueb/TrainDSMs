@@ -6,11 +6,38 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 config.Eval.save_scores = False
-config.Eval.only_negative_examples = False  # TODO
+config.Eval.only_negative_examples = False
+config.Eval.matching_metric = 'CohensKappa'  # 'BalAcc'
 
-EMBED_SIZE = 30
-NUM_PROBES = 500  # needs to be more than mb_size
-NUM_PROBE_RELATA = 40  # this also changes prob of pos examples
+LOAD_DUMMY_DATA = False
+DATA_NAME1 = 'cohyponyms'
+DATA_NAME2 = 'semantic'
+
+EMBED_SIZE = 200
+NUM_CATS = 30  # divide NUM_PROBES equally
+NUM_PROBES = 600  # needs to be more than mb_size
+NUM_RELATA = 600  # a smaller number than vocab size increases probability of reusing relata across probes
+MIN_NUM_RELATA = 8  # this also changes prob of pos examples
+MAX_NUM_RELATA = 40  # this also changes prob of pos examples
+UNIFORM_RELATA_PROBS = False
+
+VERBOSE = False
+
+
+def load_probes():
+    data_dir = '{}/{}'.format(DATA_NAME1, DATA_NAME2) if DATA_NAME2 is not None else DATA_NAME1
+    p = config.Dirs.tasks / data_dir / '{}_{}.txt'.format(
+        config.Corpus.name, config.Corpus.num_vocab)
+    probes = []
+    probe_relata = []
+    with p.open('r') as f:
+        for line in f.read().splitlines():
+            spl = line.split()
+            probe = spl[0]
+            relata = spl[1:]
+            probes.append(probe)
+            probe_relata.append(relata)
+    return probes, probe_relata
 
 
 class MatchingParams:
@@ -30,7 +57,7 @@ class RandomControlEmbedderDummy():
         self.time_of_init = 'test'
 
     def make_w2e(self):
-        return {w: np.random.uniform(-1.0, 1.0, self.embed_size) for w in self.vocab}
+        return {w: np.random.normal(-1.0, 1.0, self.embed_size) for w in self.vocab}
 
 
 # embedder
@@ -39,10 +66,48 @@ vocab = np.loadtxt(p, 'str')
 embedder = RandomControlEmbedderDummy(EMBED_SIZE, vocab)
 
 # probes + relata
-probes = np.random.choice(vocab, size=NUM_PROBES, replace=False)
-probe_relata = [np.random.choice(vocab,
-                                 size=NUM_PROBE_RELATA,
-                                 replace=False) for _ in range(NUM_PROBES)]
+if LOAD_DUMMY_DATA:
+    print('LOADING DUMMY DATA')
+    probes = np.random.choice(vocab, size=NUM_PROBES, replace=False)
+    if NUM_CATS is None:  # not using cohyponym task
+        from_vocab = np.random.choice(vocab, size=NUM_RELATA, replace=False)
+    else:
+        from_vocab = probes
+    if UNIFORM_RELATA_PROBS:
+        from_vocab_probs = None
+    else:
+        num_rv = len(from_vocab)
+        logits = np.logspace(0, 1, num=num_rv)
+        from_vocab_probs = logits / logits.sum()
+    #
+    if NUM_CATS is not None:
+        print('Splitting dummy data into {} categories'.format(NUM_CATS))
+        cat_sizes = np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=NUM_CATS)
+        probe_relata = []
+        idx = 0
+        for cs in cat_sizes:
+            relata = from_vocab[idx: idx + cs]
+            if len(relata) == 0:
+                continue
+            idx += cs
+            #
+            for _ in range(cs):
+                probe_relata.append(relata)
+    else:
+        probe_relata = [np.random.choice(from_vocab,
+                                         size=np.random.randint(MIN_NUM_RELATA, MAX_NUM_RELATA + 1, size=1),
+                                         replace=False,
+                                         p=from_vocab_probs) for _ in range(NUM_PROBES)]
+else:
+    print('LOADING REAL DATA')
+    probes, probe_relata = load_probes()
+    # np.random.shuffle(probes)  # this abolishes above-chance performance
+
+
+if VERBOSE:
+    for p, pr, in zip(probes, probe_relata):
+        print(p, len(pr), pr)
+    raise SystemExit
 
 # all_eval_probes + all_eval_candidates_mat
 relata = sorted(np.unique(np.concatenate(probe_relata)))
