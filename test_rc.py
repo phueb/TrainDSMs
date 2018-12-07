@@ -20,6 +20,7 @@ NUM_RELATA = 600  # a smaller number than vocab size increases probability of re
 MIN_NUM_RELATA = 4  # this also changes prob of pos examples
 MAX_NUM_RELATA = 50  # this also changes prob of pos examples
 UNIFORM_RELATA_PROBS = False
+PROBES_AS_RELATA = False
 
 VERBOSE = True
 
@@ -76,8 +77,12 @@ if LOAD_DUMMY_DATA:
         probe_relata = []
         idx = 0
         probe_it = iter(probes)
+        if PROBES_AS_RELATA:
+            relata = probes
+        else:
+            relata = np.random.choice(vocab, size=NUM_PROBES, replace=False).tolist()
         for cs in cat_sizes:
-            cat_relata = probes[idx: idx + cs]
+            cat_relata = relata[idx: idx + cs]
             if len(cat_relata) == 0:
                 continue
             idx += cs
