@@ -36,41 +36,43 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x1_test = []
     x2_test = []
     eval_sims_mat_row_ids_test = []
-    eval_sims_mat_row_ids_train = []
+    test_pairs = []  # prevent trian/test leak
+    train_pairs = []  # prevent trian/test leak
     num_row_words = len(evaluator.row_words)
-    row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicates
+    row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
+
+
+    # test - always make test data first to populate test_pairs before making training data
+    row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
+    candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
+    row_word_ids_chunk = np.array_split(row_word_ids, config.Eval.num_folds)[fold_id]
+    for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
+        for p, c in product([probe], candidates):
+            test_pairs.append((p, c))
+            test_pairs.append((c, p))  # crucial to collect both orderings
+        #
+        x1_test += [[w2e[probe]] * len(candidates)]
+        x2_test += [[w2e[c] for c in candidates]]
+        eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
+    # train
     for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
             np.array_split(row_word_ids, config.Eval.num_folds))):
-
-        # TODO control for symmetry of pairs: A:B vs. B:A - otherwise this is a train/test leak
-
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
                     if config.Eval.only_negative_examples and c in evaluator.probe2relata[p]:  # TODO test
                         continue
+                    if (p, c) in test_pairs:
+                        continue
+                    else:
+                        train_pairs.append((p, c))
+                        train_pairs.append((c, p))
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
-                        x1_train.append(w2e[probe])
+                        x1_train.append(w2e[p])
                         x2_train.append(w2e[c])
                         y_train.append(1 if c in evaluator.probe2relata[p] else 0)
-                        eval_sims_mat_row_ids_train.append(eval_sims_mat_row_id)
-        else:
-            # test data to build chunk of eval_sim_mat
-            for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
-                x1_test += [[w2e[probe]] * len(candidates)]
-                x2_test += [[w2e[c] for c in candidates]]
-                eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
-    # check for test to train data leak
-    for i in eval_sims_mat_row_ids_train:
-        assert i not in eval_sims_mat_row_ids_test
-    else:
-        print('Number of total  train+test items={}'.format(len(eval_sims_mat_row_ids_train) +
-                                                            len(eval_sims_mat_row_ids_test)))
-        print('Number of unique train+test items={}'.format(len(np.unique(eval_sims_mat_row_ids_train)) +
-                                                            len(np.unique(eval_sims_mat_row_ids_test))))
-
     x1_train = np.vstack(x1_train)
     x2_train = np.vstack(x2_train)
     y_train = np.array(y_train)

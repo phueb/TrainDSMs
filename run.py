@@ -45,11 +45,11 @@ for embedder in embedders:
         # classifier
     ]:
         for ev in [
+            Matching(architecture, 'cohyponyms', 'syntactic'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'features', 'is'),
             Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'cohyponyms', 'semantic'),
-            Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'nyms', 'syn'),  # TODO expert is well below novice - probably because training subselection of items is worse than training on all of them
+            Matching(architecture, 'nyms', 'syn'),
             Matching(architecture, 'nyms', 'ant'),
             Matching(architecture, 'hypernyms'),
 
