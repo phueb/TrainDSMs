@@ -43,7 +43,7 @@ class Matching(EvalBase):
     def check_negative_example(self, trial, p=None, c=None):
         if c in self.probe2relata[p]:
             raise RuntimeError('While checking negative example, found positive example')
-        if trial.params.prop_negative is None:  # balance positive : negative  approximately  1 : 1  # TODO test
+        if trial.params.prop_negative is None:  # balance positive : negative  approximately  1 : 1
             prob = self.pos_prob
         else:
             if trial.params.prop_negative > 0.5:

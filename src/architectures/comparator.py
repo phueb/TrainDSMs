@@ -37,11 +37,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x2_test = []
     eval_sims_mat_row_ids_test = []
     test_pairs = []  # prevent trian/test leak
-    train_pairs = []  # prevent trian/test leak
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
-
-
     # test - always make test data first to populate test_pairs before making training data
     row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
     candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
@@ -66,9 +63,6 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
                         continue
                     if (p, c) in test_pairs:
                         continue
-                    else:
-                        train_pairs.append((p, c))
-                        train_pairs.append((c, p))
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[p])
                         x2_train.append(w2e[c])
