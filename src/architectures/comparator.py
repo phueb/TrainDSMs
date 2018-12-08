@@ -36,7 +36,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x1_test = []
     x2_test = []
     eval_sims_mat_row_ids_test = []
-    test_pairs = []  # prevent trian/test leak
+    test_pairs = set()  # prevent train/test leak
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
     # test - always make test data first to populate test_pairs before making training data
@@ -45,8 +45,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     row_word_ids_chunk = np.array_split(row_word_ids, config.Eval.num_folds)[fold_id]
     for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
         for p, c in product([probe], candidates):
-            test_pairs.append((p, c))
-            test_pairs.append((c, p))  # crucial to collect both orderings
+            test_pairs.add((p, c))
+            test_pairs.add((c, p))  # crucial to collect both orderings
         #
         x1_test += [[w2e[probe]] * len(candidates)]
         x2_test += [[w2e[c] for c in candidates]]
@@ -59,8 +59,9 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
-                    if config.Eval.only_negative_examples and c in evaluator.probe2relata[p]:  # TODO test
-                        continue
+                    if config.Eval.only_negative_examples:
+                        if c in evaluator.probe2relata[p]:  # splitting if statement into two is faster # TODO test
+                            continue
                     if (p, c) in test_pairs:
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):

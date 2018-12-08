@@ -82,7 +82,9 @@ for embedder_p in config.Dirs.runs.glob('*'):
     except KeyError:
         if 'random_type' in param2val:
             print('\nFound RandomControl {}'.format(time_of_init))
-            for task_p in embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)):
+            rc_task_ps = list(embedder_p.rglob('{}/{}/*'.format(ARCHITECTURE_NAME, EVALUATOR_NAME)))
+            print('with {} tasks'.format(len(rc_task_ps)))
+            for task_p in rc_task_ps:
                 task_data = get_task_data(task_p)
                 if not task_data:
                     continue
