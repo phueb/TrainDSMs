@@ -8,7 +8,7 @@ from src import config
 
 MIN_NUM_REPS = 2
 
-EMBEDDER_CLASS = 'rnn'
+EMBEDDER_CLASS = 'count'
 EMBEDDER_TYPE = None  # can be None
 EMBED_SIZES = [30, 200]
 
@@ -18,6 +18,7 @@ INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
 EVALUATOR_NAME = 'matching'
 ARCHITECTURE_NAME = 'comparator'
 
+CHANCE_LINE = np.nan
 LEG1_Y = 1.2
 NUM_LEG_COLS = 6
 Y_STEP_SIZE = 0.25
@@ -90,7 +91,8 @@ for embedder_p in config.Dirs.runs.glob('*'):
                     continue
                 task_name = task_data[0]
                 largest_distr_c = task_data[1]
-                task_name2y_c[param2val['embed_size']][task_name] = largest_distr_c
+                embed_size = param2val['embed_size']
+                task_name2y_c[embed_size][task_name] = largest_distr_c
         continue
     else:
         if EMBEDDER_TYPE is not None and embedder_type != EMBEDDER_TYPE:
@@ -163,6 +165,7 @@ ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.set_ylim(ylims)
 # plot
+ax.axhline(y=CHANCE_LINE, color='grey', zorder=1)
 num_bars = 4
 lines = []
 bw = (1 / (max_num_tasks + 1)) / num_bars
@@ -171,8 +174,9 @@ for embedder_id, (embedder_data, param2val) in enumerate(zip(embedders_data, par
     lines = []
     for task_id, (task_name, y_e, y_s, y_n) in enumerate(embedder_data):
         x = embedder_id + (task_id / (num_tasks + 1))
+        embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
         try:
-            y_c = task_name2y_c[param2val['embed_size']][task_name]
+            y_c = task_name2y_c[embed_size][task_name]
         except KeyError:
             y_c = np.array([0])
         l1, = ax.bar(x + 0 * bw, y_e.mean(), width=bw, yerr=y_e.std(), color=colors(task_id))
