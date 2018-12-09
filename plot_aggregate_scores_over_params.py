@@ -8,14 +8,14 @@ from src import config
 
 MIN_NUM_REPS = 2
 
-EMBEDDER_CLASS = 'count'
+EMBEDDER_CLASS = 'rnn'
 EMBEDDER_TYPE = None  # can be None
 EMBED_SIZES = [30, 200]
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
 # INCLUDE_DICT.update({'embed_size': 200})
 # INCLUDE_DICT.update({'reduce_type': ['svd', 200]})
-EVALUATOR_NAME = 'matching'
+EVALUATOR_NAME = 'identification'
 ARCHITECTURE_NAME = 'comparator'
 
 CHANCE_LINE = np.nan

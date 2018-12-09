@@ -8,9 +8,11 @@ from src.scores import calc_accuracy
 
 
 class IdentificationParams:
-    train_on_second_neighbors = [True]  # performance is much better with additional training
+    only_positive_examples = [True, False]  # performance can be much better without negative examples
+    train_on_second_neighbors = [True]  # performance can be much better with additional training
     # arch-evaluator interaction
     num_epochs = [500]  # 500 is better than 100 or 200, 300
+
 
 
 class Identification(EvalBase):
@@ -68,7 +70,7 @@ class Identification(EvalBase):
         all_eval_candidates_mat = []
         num_eval_probes = len(all_eval_probes)
         for i in range(num_eval_probes):
-            if first_neighbors[i] == eval_relata[i]:
+            if first_neighbors[i] == eval_relata[i]:  # TODO doesn't exclude laternative spellings or morphologies (or alternative synonyms)
                 first_neighbors[i] = neutrals[i]
             if second_neighbors[i] == eval_relata[i]:
                 second_neighbors[i] = neutrals[i]
@@ -83,6 +85,10 @@ class Identification(EvalBase):
     def check_negative_example(self, trial, p=None, c=None):
         assert p is not None
         assert c is not None
+        #
+        if trial.params.only_positive_examples:
+            return False  # this is much better than training on negatives
+        #
         if c in self.probe2lures[p]:
             return True
         elif c in self.eval_candidates_mat[:, 3]:  # relata, lures, fns, sns, neutrals

@@ -8,7 +8,7 @@ from src import config
 
 class Params:
     shuffled = [False, True]
-    margin = [50.0, 100.0]  # must be float, 50 is better than 100 on identification
+    margin = [5.0, 100.0]  # must be float, 50 is better than 100 on identification
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
@@ -160,17 +160,20 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                                                                graph.x2: x2_train,
                                                                graph.y: y_train})
             # test acc cannot be computed because only partial eval sims mat is available
+            eucds = []
             for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids):
                 eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
                                                              graph.x2: x2_mat})
+                eucds.append(eucd)
                 eval_sims_mat_row = 1.0 - (eucd / trial.params.margin)
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
-            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f} |any nans={}'.format(
+            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f} |any nans={} |mean-eucd={:.1f}'.format(
                 step,
                 num_train_steps - 1,
                 train_loss,
                 time.time() - start,
-                np.any(np.isnan(trial.results.eval_sims_mats[eval_id]))))
+                np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
+                np.mean(eucds)))
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})

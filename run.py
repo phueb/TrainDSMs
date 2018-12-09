@@ -17,9 +17,9 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 embedders = chain(
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
 )
 
@@ -53,7 +53,8 @@ for embedder in embedders:
             # Matching(architecture, 'nyms', 'ant'),
             # Matching(architecture, 'hypernyms'),
 
-            Identification(architecture, 'nyms', 'syn'),
+            Identification(architecture, 'nyms', 'syn'),  # TODO used to get above chance - what's wrong? -
+            # TODO - maybe previously syns were only adjectives with adjectives, nouns with nouns, etc.
             Identification(architecture, 'nyms', 'ant'),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold
         ]:
