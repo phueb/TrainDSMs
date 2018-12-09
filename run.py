@@ -17,10 +17,10 @@ from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 
 embedders = chain(
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
 )
 
 # run full experiment
@@ -45,17 +45,17 @@ for embedder in embedders:
         # classifier
     ]:
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'syntactic'),
-            # Matching(architecture, 'cohyponyms', 'semantic'),
-            # Matching(architecture, 'features', 'is'),
-            # Matching(architecture, 'features', 'has'),
-            # Matching(architecture, 'nyms', 'syn'),
-            # Matching(architecture, 'nyms', 'ant'),
-            # Matching(architecture, 'hypernyms'),
+            Matching(architecture, 'cohyponyms', 'syntactic'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'features', 'is'),
+            Matching(architecture, 'features', 'has'),
+            Matching(architecture, 'nyms', 'syn'),
+            Matching(architecture, 'nyms', 'ant'),
+            Matching(architecture, 'hypernyms'),
 
-            Identification(architecture, 'nyms', 'syn'),  # TODO used to get above chance - what's wrong? -
+            # Identification(architecture, 'nyms', 'syn'),  # TODO used to get above chance - what's wrong? -
             # TODO - maybe previously syns were only adjectives with adjectives, nouns with nouns, etc.
-            Identification(architecture, 'nyms', 'ant'),
+            # Identification(architecture, 'nyms', 'ant'),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold
         ]:
             for rep_id in range(config.Eval.num_reps):

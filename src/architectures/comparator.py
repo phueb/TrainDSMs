@@ -8,7 +8,7 @@ from src import config
 
 class Params:
     shuffled = [False, True]
-    margin = [5.0, 100.0]  # must be float, 50 is better than 100 on identification
+    margin = [50.0, 100.0]  # must be float, 50 is better than 100 on identification
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]

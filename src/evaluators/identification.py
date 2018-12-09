@@ -11,8 +11,7 @@ class IdentificationParams:
     only_positive_examples = [True, False]  # performance can be much better without negative examples
     train_on_second_neighbors = [True]  # performance can be much better with additional training
     # arch-evaluator interaction
-    num_epochs = [500]  # 500 is better than 100 or 200, 300
-
+    num_epochs = [500]  # 500 is better than 100 or 200, 300 (when mb_size=500)
 
 
 class Identification(EvalBase):
@@ -28,6 +27,7 @@ class Identification(EvalBase):
         #
         self.probe2relata = None
         self.probe2lures = None
+        self.probe2sns = None
         self.metric = 'acc'
 
     # ///////////////////////////////////////////// Overwritten Methods START
@@ -40,6 +40,7 @@ class Identification(EvalBase):
         probes, probe_relata, probe_lures = self.load_probes()
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
+        self.probe2sns = {p: set() for p in probes}
         # make lures and relata
         if config.Eval.remove_duplicates_for_identification:
             all_eval_probes = probes  # leave this - eval_probes is different from probes if duplicates are not removed
@@ -68,15 +69,15 @@ class Identification(EvalBase):
             second_neighbors.append(nearest_neighbors[2])
         # make candidates_mat
         all_eval_candidates_mat = []
-        num_eval_probes = len(all_eval_probes)
-        for i in range(num_eval_probes):
-            if first_neighbors[i] == eval_relata[i]:  # TODO doesn't exclude laternative spellings or morphologies (or alternative synonyms)
-                first_neighbors[i] = neutrals[i]
-            if second_neighbors[i] == eval_relata[i]:
-                second_neighbors[i] = neutrals[i]
-            candidates = [eval_relata[i], eval_lures[i], first_neighbors[i], second_neighbors[i], neutrals[i]]
+        for n, probe in enumerate(all_eval_probes):
+            if first_neighbors[n] == eval_relata[n]:  # TODO doesn't exclude laternative spellings or morphologies (or alternative synonyms)
+                first_neighbors[n] = neutrals[n]
+            if second_neighbors[n] == eval_relata[n]:
+                second_neighbors[n] = neutrals[n]
+            candidates = [eval_relata[n], eval_lures[n], first_neighbors[n], second_neighbors[n], neutrals[n]]
+            self.probe2sns[probe].add(second_neighbors[n])
             if verbose:
-                print(all_eval_probes[i])
+                print(all_eval_probes[n])
                 print(candidates)
             all_eval_candidates_mat.append(candidates)
         all_eval_candidates_mat = np.vstack(all_eval_candidates_mat)
@@ -91,7 +92,7 @@ class Identification(EvalBase):
         #
         if c in self.probe2lures[p]:
             return True
-        elif c in self.eval_candidates_mat[:, 3]:  # relata, lures, fns, sns, neutrals
+        elif c in self.probe2sns[p]:
             if trial.params.train_on_second_neighbors:
                 return True
             else:
