@@ -45,13 +45,13 @@ for embedder in embedders:
         # classifier
     ]:
         for ev in [
-            Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'cohyponyms', 'semantic'),
-            Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'nyms', 'syn'),
-            Matching(architecture, 'nyms', 'ant'),
-            Matching(architecture, 'hypernyms'),
+            # Matching(architecture, 'cohyponyms', 'syntactic'),
+            # Matching(architecture, 'cohyponyms', 'semantic'),
+            # Matching(architecture, 'features', 'is'),
+            # Matching(architecture, 'features', 'has'),
+            # Matching(architecture, 'nyms', 'syn'),
+            # Matching(architecture, 'nyms', 'ant'),
+            # Matching(architecture, 'hypernyms'),
 
             Identification(architecture, 'nyms', 'syn'),
             Identification(architecture, 'nyms', 'ant'),

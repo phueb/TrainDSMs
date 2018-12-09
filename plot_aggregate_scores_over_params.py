@@ -21,7 +21,7 @@ ARCHITECTURE_NAME = 'comparator'
 CHANCE_LINE = np.nan
 LEG1_Y = 1.2
 NUM_LEG_COLS = 6
-Y_STEP_SIZE = 0.25
+Y_STEP_SIZE = 0.1
 TITLE_FONTSIZE = 24
 LEG_FONTSIZE = 12
 AX_FONTSIZE = 12
@@ -153,7 +153,7 @@ plt.xlabel(INCLUDE_DICT, fontsize=AX_FONTSIZE)
 if EVALUATOR_NAME == 'matching':
     ylabel = 'Balanced Accuracy'
     ylims = [0.5, 1]
-    yticks = np.arange(0.5, 1 + Y_STEP_SIZE, Y_STEP_SIZE)
+    yticks = np.arange(0.5, 1, Y_STEP_SIZE).round(2)
 elif EVALUATOR_NAME in ['identification', 'classification']:
     ylabel = 'Accuracy'
     ylims = [0, 1]
@@ -164,8 +164,10 @@ plt.ylabel(ylabel, fontsize=AX_FONTSIZE)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.set_ylim(ylims)
+ax.set_axisbelow(True)  # grid belw bars
+ax.yaxis.grid(True)
 # plot
-ax.axhline(y=CHANCE_LINE, color='grey', zorder=1)
+ax.axhline(y=CHANCE_LINE, color='grey', zorder=0)
 num_bars = 4
 lines = []
 bw = (1 / (max_num_tasks + 1)) / num_bars
