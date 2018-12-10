@@ -9,7 +9,7 @@ from src import config
 MIN_NUM_REPS = 2
 
 EMBEDDER_CLASS = 'rnn'
-EMBEDDER_TYPE = None  # can be None
+EMBEDDER_NAME = None  # can be None
 EMBED_SIZES = [30, 200]
 
 INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
@@ -79,7 +79,7 @@ for embedder_p in config.Dirs.runs.glob('*'):
         param2val = yaml.load(f)
     key = EMBEDDER_CLASS + '_type'
     try:
-        embedder_type = param2val[key]
+        embedder_name = param2val[key]
     except KeyError:
         if 'random_type' in param2val:
             print('\nFound RandomControl {}'.format(time_of_init))
@@ -95,13 +95,13 @@ for embedder_p in config.Dirs.runs.glob('*'):
                 task_name2y_c[embed_size][task_name] = largest_distr_c
         continue
     else:
-        if EMBEDDER_TYPE is not None and embedder_type != EMBEDDER_TYPE:
+        if EMBEDDER_NAME is not None and embedder_name != EMBEDDER_NAME:
             continue
         else:
-            print('\nFound {} {}'.format(embedder_type, time_of_init))
+            print('\nFound {} {}'.format(embedder_name, time_of_init))
     # exclude
     if not all([param2val[k] == v for k, v in INCLUDE_DICT.items()]):
-        print('Excluding {}'.format(embedder_type))
+        print('Excluding {}'.format(embedder_name))
         continue
     # collect data
     embedder_data = []
@@ -146,7 +146,7 @@ print()
 colors = plt.cm.get_cmap('tab10')
 num_embedders = len(embedders_data) + (1 if len(embedders_data) == 1 else 0)
 fig, ax = plt.subplots(figsize=(WIDTH_PER_EMBEDDER * num_embedders, HEIGHT), dpi=DPI)
-embedder = EMBEDDER_TYPE or EMBEDDER_CLASS
+embedder = EMBEDDER_NAME or EMBEDDER_CLASS
 title = '{} Scores for {} + {}'.format(embedder, ARCHITECTURE_NAME, EVALUATOR_NAME)
 plt.title(title, fontsize=TITLE_FONTSIZE, y=LEG1_Y)
 plt.xlabel(INCLUDE_DICT, fontsize=AX_FONTSIZE)
