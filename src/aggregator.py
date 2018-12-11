@@ -177,11 +177,11 @@ class Aggregator:
                   (df['embed_size'] == embed_size) &\
                   (df['evaluation'] == self.evaluation)
         filtered_df = df[bool_id]
-        #
-        bars = None
+        # constants
+        bw = 0.2
         hatches = cycle(['-', '\\', 'x'])
         colors = plt.cm.get_cmap('tab10')
-        #
+        # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
         title = 'Scores for\n{} + {} + {} + embed_size={}'.format(arch, self.evaluation, task, embed_size)
@@ -196,12 +196,16 @@ class Aggregator:
         ax.set_axisbelow(True)  # grid belw bars
         # plot
         ax.axhline(y=y_chance, color='grey', zorder=0)
-        bw = 0.2
+        bars_list = []
         param2val_list = []
+        embedder_names = []
         for embedder_id, (embedder, embedder_df) in enumerate(filtered_df.groupby('embedder')):
             time_of_init = embedder_df['time_of_init'].iloc[0]
             param2val = self.load_param2val(time_of_init=time_of_init)
             param2val_list.append(param2val)
+            embedder_name = self.to_embedder_name(param2val)
+            embedder_names.append(embedder_name)
+            #
             bars = []
             x = embedder_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
@@ -217,10 +221,11 @@ class Aggregator:
                             color=colors(embedder_id),
                             edgecolor='black',
                             hatch=next(hatches))
-                bars.append((copy.copy(b)))
+                bars.append(copy.copy(b))
+            bars_list.append(bars)
         # tick labels
         num_embedders = len(param2val_list)
-        ax.set_xticks(np.arange(1, num_embedders + 1, 1))  # TODO
+        ax.set_xticks(np.arange(1, num_embedders + 1, 1))
         ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()
                                        if k not in include_dict.keys()])
                             for param2val in param2val_list],
@@ -228,10 +233,10 @@ class Aggregator:
         ax.set_yticks(yticks)
         ax.set_yticklabels(yticks, fontsize=yax_fontsize)
         # legend
-
         plt.tight_layout()
+        labels1 = embedder_names
         labels2 = self.stages
-        # self.add_double_legend(bars, labels1, labels2, leg1_y)  # TODO labels1 are embedders
+        self.add_double_legend(bars_list, labels1, labels2, leg1_y)  # TODO labels1 are embedders
         fig.subplots_adjust(bottom=0.1)
         plt.show()
         
@@ -252,12 +257,24 @@ class Aggregator:
 
     @staticmethod
     def add_double_legend(bars_list, labels1, labels2, leg1_y, leg_fs=12, num_leg1_cols=8, num_leg2_cols=4):
-        leg1 = plt.legend([l[0] for l in bars_list], labels1, loc='upper center',
+        leg1 = plt.legend([bar[0] for bar in bars_list], labels1, loc='upper center',
                           bbox_to_anchor=(0.5, leg1_y), ncol=num_leg1_cols, frameon=False, fontsize=leg_fs)
         for bars in bars_list:
             for bar in bars:
                 bar.set_color('black')
         plt.legend(bars_list[0], labels2, loc='upper center',
-                   bbox_to_anchor=(0.5, leg1_y - 0.2), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
+                   bbox_to_anchor=(0.5, leg1_y - 0.1), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
         plt.gca().add_artist(leg1)  # order of legend creation matters here
 
+    @staticmethod
+    def to_embedder_name(param2val):
+        if 'random_type' in param2val:
+            return param2val['random_type']
+        elif 'rnn_type' in param2val:
+            return param2val['rnn_type']
+        elif 'w2vec_type' in param2val:
+            return param2val['w2vec_type']
+        elif 'count_type' in param2val:
+            return param2val['count_type'][0]
+        else:
+            raise RuntimeError('Unknown embedder name')
