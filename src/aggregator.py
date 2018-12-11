@@ -4,6 +4,7 @@ from itertools import count
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
+from pathlib import Path
 
 from src import config
 
@@ -12,7 +13,7 @@ from src import config
 
 class Aggregator:
     def __init__(self, ev_name):
-        self.ev_name = ev_name
+        self.evaluation = ev_name
         self.df_index = ['embed_size',
                          'time_of_init',
                          'embedder',
@@ -22,13 +23,19 @@ class Aggregator:
                          'replication',
                          'stage',
                          'score']
+        self.df = None
         self.counter = count(0, 1)
         self.stages = ['novice', 'expert', 'expert+rs']
 
     @staticmethod
-    def load_param2val(embedder_p):
-        with (embedder_p / 'params.yaml').open('r') as f:
-            res = yaml.load(f)
+    def load_param2val(embedder_p=None, time_of_init=None):
+        if time_of_init is not None:
+            embedder_p = config.Dirs.runs / time_of_init
+        if embedder_p is not None:
+            with (embedder_p / 'params.yaml').open('r') as f:
+                res = yaml.load(f)
+        else:
+            raise RuntimeError('Must specify "embedder_p" or "time_of_init" to retrieve param2val.')
         return res
 
     @staticmethod
@@ -45,7 +52,14 @@ class Aggregator:
         else:
             raise RuntimeError('Did not find embedder name')
 
-    def make_df(self):
+    def make_df(self, load_from_file=False):
+        p = Path('{}.csv'.format(self.evaluation))
+        if p.exists() and load_from_file:
+            print('Loading data frame from file. Re-export data to file if data has changed')
+            res = pd.read_csv(p)
+            self.df = res
+            return res
+        #
         dfs = []
         for embedder_p in config.Dirs.runs.glob('*'):
             print('\n\n////////////////////////////////////////////////')
@@ -61,17 +75,18 @@ class Aggregator:
                 dfs.append(df)
         res = pd.concat(dfs, axis=0)
         if dfs:
+            self.df = res
             return res
         else:
             return pd.DataFrame()
 
     def make_embedder_df(self, embedder_p, embed_size, time_of_init, embedder):
         dfs = []
-        for arch_p in embedder_p.glob('*/{}'.format(self.ev_name)):
+        for arch_p in embedder_p.glob('*/{}'.format(self.evaluation)):
             arch = arch_p.parent.name
             print('\t', arch)
-            print('\t\t', self.ev_name)
-            df = self.make_arch_df(arch_p, embed_size, time_of_init, embedder, arch, self.ev_name)
+            print('\t\t', self.evaluation)
+            df = self.make_arch_df(arch_p, embed_size, time_of_init, embedder, arch, self.evaluation)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -112,7 +127,7 @@ class Aggregator:
             print('\t\t\t\t\t', stage)
             df = self.make_stage_df(scores_df, embed_size, time_of_init, embedder, arch, ev, task, rep, stage)
             if len(df) > 0:
-                dfs.append(df)  # TODO try removing all tehse if statements
+                dfs.append(df)
         if dfs:
             return pd.concat(dfs, axis=0)
         else:
@@ -139,47 +154,69 @@ class Aggregator:
     # ///////////////////////////////////////////////////// plotting
     
     def show_task_plot(self,
-                       arch_name,
-                       task_name,  # TODO
+                       arch,
+                       task,  # TODO
                        embed_size,
+                       load_from_file=False,
                        include_dict=None,
                        min_num_reps=2,
                        y_step=0.1,
-                       ax_fontsize=24,
-                       t_fontsize=24,
+                       ax_fontsize=20,
+                       t_fontsize=20,
                        dpi=192,
-                       height=10,
-                       width=10,
+                       height=8,
+                       width=12,
                        leg1_y=1.2):
-        df = self.make_df()  # TODO use df
+        if include_dict is None:
+            include_dict = {}
+        # filter by arch + task + embed_size + evaluation
+        df = self.make_df(load_from_file=load_from_file)  # TODO use df
+        bool_id = (df['arch'] == arch) &\
+                  (df['task'] == task) &\
+                  (df['embed_size'] == embed_size) &\
+                  (df['evaluation'] == self.evaluation)
+        filtered_df = df[bool_id]
         #
+        bars = None
         colors = plt.cm.get_cmap('tab10')
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
-        title = 'Scores for {} + {}'.format(arch_name, self.ev_name)
+        title = 'Scores for\n{} + {} + {} + embed_size={}'.format(arch, self.evaluation, task, embed_size)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
         ax.set_ylim(ylims)
         plt.ylabel(ylabel, fontsize=ax_fontsize)
-        ax.set_xlabel(include_dict or [], fontsize=ax_fontsize)
+        ax.set_xlabel(include_dict, fontsize=ax_fontsize)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.set_axisbelow(True)  # grid belw bars
         # plot
         ax.axhline(y=y_chance, color='grey', zorder=0)
-        lines = []
-        bw = 1.0  # TODO
-        for embedder_id, (embedder_data, param2val) in enumerate(zip(embedders_data, param2val_list)):
-            lines = []
-            for stage in self.stages:
-                x = 0.0  # TODO
-                l1, = ax.bar(x + 0 * bw, y_e.mean(), width=bw, yerr=y_e.std(), color=colors(task_id))
-                l2, = ax.bar(x + 1 * bw, y_s.mean(), width=bw, yerr=y_s.std(), color=colors(task_id), alpha=0.75)
-                l3, = ax.bar(x + 3 * bw, y_n, width=bw, color=colors(task_id), alpha=0.5)
-                lines.append((copy.copy(l1), copy.copy(l2), copy.copy(l3)))
+        bw = 0.2
+        param2val_list = []
+        for embedder_id, (embedder, embedder_df) in enumerate(filtered_df.groupby('embedder')):
+            time_of_init = embedder_df['time_of_init'].iloc[0]
+            param2val = self.load_param2val(time_of_init=time_of_init)
+            param2val_list.append(param2val)
+            bars = []
+            x = embedder_id + 0.5
+            for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
+                num_reps = len(stage_df)
+                if num_reps < min_num_reps:
+                    print('Skipping due to num_reps={}<min_num_reps'.format(num_reps))
+                    continue
+                x += bw
+                ys = stage_df['score']
+                b, = ax.bar(x + 0 * bw, ys.mean(), width=bw, yerr=ys.std(), color=colors(embedder_id))
+                bars.append((copy.copy(b)))
+
+        # TODO test
+        ax.set_xticks(np.arange(0, 8, 0.2))
+        plt.show()
+
         # tick labels
-        ax.set_xticks([])  # TODO
+        ax.set_xticks(np.arange(0, 8, 0.2))  # TODO
         ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()
                                        if k not in include_dict.keys()])
                             for param2val in param2val_list],
@@ -190,17 +227,17 @@ class Aggregator:
 
         plt.tight_layout()
         labels2 = self.stages
-        self.add_double_legend(lines, labels1, labels2, leg1_y)  # TODO labels1 are embedders
+        # self.add_double_legend(bars, labels1, labels2, leg1_y)  # TODO labels1 are embedders
         fig.subplots_adjust(bottom=0.1)
         plt.show()
         
     def make_y_label_lims_ticks(self, y_step):
-        if self.ev_name == 'matching':
+        if self.evaluation == 'matching':
             ylabel = 'Balanced Accuracy'
             ylims = [0.5, 1]
             yticks = np.arange(0.5, 1, y_step).round(2)
             y_chance = 0.50
-        elif self.ev_name == 'identification':
+        elif self.evaluation == 'identification':
             ylabel = 'Accuracy'
             ylims = [0, 1]
             yticks = np.arange(0, 1 + y_step, y_step)
@@ -210,13 +247,13 @@ class Aggregator:
         return ylabel, ylims, yticks, y_chance
 
     @staticmethod
-    def add_double_legend(lines_list, labels1, labels2, leg1_y, leg_fs=12, num_leg1_cols=8, num_leg2_cols=4):
-        leg1 = plt.legend([l[0] for l in lines_list], labels1, loc='upper center',
+    def add_double_legend(bars_list, labels1, labels2, leg1_y, leg_fs=12, num_leg1_cols=8, num_leg2_cols=4):
+        leg1 = plt.legend([l[0] for l in bars_list], labels1, loc='upper center',
                           bbox_to_anchor=(0.5, leg1_y), ncol=num_leg1_cols, frameon=False, fontsize=leg_fs)
-        for lines in lines_list:
-            for line in lines:
-                line.set_color('black')
-        plt.legend(lines_list[0], labels2, loc='upper center',
+        for bars in bars_list:
+            for bar in bars:
+                bar.set_color('black')
+        plt.legend(bars_list[0], labels2, loc='upper center',
                    bbox_to_anchor=(0.5, leg1_y - 0.2), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
         plt.gca().add_artist(leg1)  # order of legend creation matters here
 
