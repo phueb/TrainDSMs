@@ -1,6 +1,9 @@
 import pandas as pd
 import yaml
 from itertools import count
+import matplotlib.pyplot as plt
+import copy
+import numpy as np
 
 from src import config
 
@@ -18,9 +21,9 @@ class Aggregator:
                          'task',
                          'replication',
                          'stage',
-                         'shuffled_supervision',
                          'score']
         self.counter = count(0, 1)
+        self.stages = ['novice', 'expert', 'expert+rs']
 
     @staticmethod
     def load_param2val(embedder_p):
@@ -105,36 +108,115 @@ class Aggregator:
     def make_rep_df(self, rep_p, embed_size, time_of_init, embedder, arch, ev, task, rep):
         dfs = []
         scores_df = pd.read_csv(rep_p, index_col=False)
-        for stage in ['exp', 'nov']:
+        for stage in self.stages:
             print('\t\t\t\t\t', stage)
             df = self.make_stage_df(scores_df, embed_size, time_of_init, embedder, arch, ev, task, rep, stage)
             if len(df) > 0:
-                dfs.append(df)
+                dfs.append(df)  # TODO try removing all tehse if statements
         if dfs:
             return pd.concat(dfs, axis=0)
         else:
             return pd.DataFrame()
 
     def make_stage_df(self, scores_df, embed_size, time_of_init, embedder, arch, ev, task, rep, stage):
-        dfs = []
-        for shuffled in [True, False]:
-            print('\t\t\t\t\t\t', shuffled)
-            df = self.make_shuffled_df(scores_df, embed_size, time_of_init, embedder, arch, ev, task, rep, stage, shuffled)
-            if len(df) > 0:
-                print()
-                dfs.append(df)
-        if dfs:
-            return pd.concat(dfs, axis=0)
-        else:
-            return pd.DataFrame()
+        vals = [embed_size, time_of_init, embedder, arch, ev, task, rep, stage]
+        if stage == self.stages[0]:
+            bool_id = scores_df['shuffled'] == False
+            score = scores_df[bool_id]['nov_score'].max()
+            vals.append(score)
+            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
+        elif stage == self.stages[1]:
+            bool_id = scores_df['shuffled'] == False
+            score = scores_df[bool_id]['exp_score'].max()
+            vals.append(score)
+            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
+        elif stage == self.stages[2]:
+            bool_id = scores_df['shuffled'] == True
+            score = scores_df[bool_id]['exp_score'].max()
+            vals.append(score)
+            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
 
-    def make_shuffled_df(self, scores_df, embed_size, time_of_init, embedder, arch, ev, task, rep, stage, shuffled):
-        vals = [embed_size, time_of_init, embedder, arch, ev, task, rep, stage, shuffled]
-        # get score
-        bool_id = scores_df['shuffled'] == shuffled
-        score = scores_df[bool_id]['{}_score'.format(stage)].max()
-        vals.append(score)
+    # ///////////////////////////////////////////////////// plotting
+    
+    def show_task_plot(self,
+                       arch_name,
+                       task_name,  # TODO
+                       embed_size,
+                       include_dict=None,
+                       min_num_reps=2,
+                       y_step=0.1,
+                       ax_fontsize=24,
+                       t_fontsize=24,
+                       dpi=192,
+                       height=10,
+                       width=10,
+                       leg1_y=1.2):
+        df = self.make_df()  # TODO use df
         #
-        res = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
-        return res
+        colors = plt.cm.get_cmap('tab10')
+        fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
+        ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
+        title = 'Scores for {} + {}'.format(arch_name, self.ev_name)
+        plt.title(title, fontsize=t_fontsize, y=leg1_y)
+        # axis
+        ax.yaxis.grid(True)
+        ax.set_ylim(ylims)
+        plt.ylabel(ylabel, fontsize=ax_fontsize)
+        ax.set_xlabel(include_dict or [], fontsize=ax_fontsize)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.set_axisbelow(True)  # grid belw bars
+        # plot
+        ax.axhline(y=y_chance, color='grey', zorder=0)
+        lines = []
+        bw = 1.0  # TODO
+        for embedder_id, (embedder_data, param2val) in enumerate(zip(embedders_data, param2val_list)):
+            lines = []
+            for stage in self.stages:
+                x = 0.0  # TODO
+                l1, = ax.bar(x + 0 * bw, y_e.mean(), width=bw, yerr=y_e.std(), color=colors(task_id))
+                l2, = ax.bar(x + 1 * bw, y_s.mean(), width=bw, yerr=y_s.std(), color=colors(task_id), alpha=0.75)
+                l3, = ax.bar(x + 3 * bw, y_n, width=bw, color=colors(task_id), alpha=0.5)
+                lines.append((copy.copy(l1), copy.copy(l2), copy.copy(l3)))
+        # tick labels
+        ax.set_xticks([])  # TODO
+        ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()
+                                       if k not in include_dict.keys()])
+                            for param2val in param2val_list],
+                           fontsize=ax_fontsize)
+        ax.set_yticks(yticks)
+        ax.set_yticklabels(yticks, fontsize=ax_fontsize)
+        # legend
+
+        plt.tight_layout()
+        labels2 = self.stages
+        self.add_double_legend(lines, labels1, labels2, leg1_y)  # TODO labels1 are embedders
+        fig.subplots_adjust(bottom=0.1)
+        plt.show()
+        
+    def make_y_label_lims_ticks(self, y_step):
+        if self.ev_name == 'matching':
+            ylabel = 'Balanced Accuracy'
+            ylims = [0.5, 1]
+            yticks = np.arange(0.5, 1, y_step).round(2)
+            y_chance = 0.50
+        elif self.ev_name == 'identification':
+            ylabel = 'Accuracy'
+            ylims = [0, 1]
+            yticks = np.arange(0, 1 + y_step, y_step)
+            y_chance = 0.20
+        else:
+            raise AttributeError('Invalid arg to "EVALUATOR_NAME".')
+        return ylabel, ylims, yticks, y_chance
+
+    @staticmethod
+    def add_double_legend(lines_list, labels1, labels2, leg1_y, leg_fs=12, num_leg1_cols=8, num_leg2_cols=4):
+        leg1 = plt.legend([l[0] for l in lines_list], labels1, loc='upper center',
+                          bbox_to_anchor=(0.5, leg1_y), ncol=num_leg1_cols, frameon=False, fontsize=leg_fs)
+        for lines in lines_list:
+            for line in lines:
+                line.set_color('black')
+        plt.legend(lines_list[0], labels2, loc='upper center',
+                   bbox_to_anchor=(0.5, leg1_y - 0.2), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
+        plt.gca().add_artist(leg1)  # order of legend creation matters here
 
