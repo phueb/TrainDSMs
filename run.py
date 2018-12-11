@@ -16,6 +16,11 @@ from src.evaluators.matching import Matching
 
 from src.embedders.base import w2e_to_sims
 
+
+# todo:
+# TODO neighbors: make sure they don't reappear often to bias correct no-answers durign testing
+# TODO neighbors: manually exclude neighbors which are actually synonyms or antonyms but not excluded automatically
+
 embedders = chain(
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),

@@ -25,7 +25,7 @@ class Aggregator:
                          'score']
         self.df = None
         self.counter = count(0, 1)
-        self.stages = ['novice', 'expert', 'expert+rs']
+        self.stages = ['expert', 'expert+rs', 'novice']
 
     @staticmethod
     def load_param2val(embedder_p=None, time_of_init=None):
@@ -137,17 +137,17 @@ class Aggregator:
         vals = [embed_size, time_of_init, embedder, arch, ev, task, rep, stage]
         if stage == self.stages[0]:
             bool_id = scores_df['shuffled'] == False
-            score = scores_df[bool_id]['nov_score'].max()
+            score = scores_df[bool_id]['exp_score'].max()
             vals.append(score)
             return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
         elif stage == self.stages[1]:
-            bool_id = scores_df['shuffled'] == False
+            bool_id = scores_df['shuffled'] == True
             score = scores_df[bool_id]['exp_score'].max()
             vals.append(score)
             return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
         elif stage == self.stages[2]:
-            bool_id = scores_df['shuffled'] == True
-            score = scores_df[bool_id]['exp_score'].max()
+            bool_id = scores_df['shuffled'] == False
+            score = scores_df[bool_id]['nov_score'].max()
             vals.append(score)
             return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
 
@@ -215,6 +215,7 @@ class Aggregator:
                     continue
                 x += bw
                 ys = stage_df['score']
+                print(stage, ys.mean())
                 b, = ax.bar(x + 0 * bw, ys.mean(),
                             width=bw,
                             yerr=ys.std(),
@@ -236,7 +237,7 @@ class Aggregator:
         plt.tight_layout()
         labels1 = embedder_names
         labels2 = self.stages
-        self.add_double_legend(bars_list, labels1, labels2, leg1_y)  # TODO labels1 are embedders
+        self.add_double_legend(bars_list, labels1, labels2, leg1_y)  # TODO show hatching correctly in legend
         fig.subplots_adjust(bottom=0.1)
         plt.show()
         

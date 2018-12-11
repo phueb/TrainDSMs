@@ -6,9 +6,9 @@ INCLUDE_DICT = {'num_vocab': 4096, 'corpus_name': 'childes-20180319'}
 ARCHITECTURE_NAME = 'comparator'
 EVALUATOR_NAME = 'identification'
 TASK_NAME = 'cohyponyms_semantic'  # can be cohyponyms_semantic, cohyponyms_syntactic, hypernyms, nyms_syn, nyms_ant
-EMBED_SIZE = 200
+EMBED_SIZE = 500
 
-DF_FROM_FILE = True
+DF_FROM_FILE = False
 
 
 # get all data
