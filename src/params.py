@@ -107,8 +107,8 @@ class RNNParams:
     num_layers = [1]
     num_steps = [7]
     batch_size = [64]
-    num_epochs = [20]
-    learning_rate = [[0.1, 0.85, 10]]  # initial, decay, num_epochs_without_decay
+    num_epochs = [10]  # with sgd, loss bottoms out at epoch 10
+    learning_rate = [[0.1, 0.9, 1]]  # initial, decay, num_epochs_without_decay
     grad_clip = [None]
 
 
