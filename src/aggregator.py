@@ -1,6 +1,6 @@
 import pandas as pd
 import yaml
-from itertools import count
+from itertools import count, cycle
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
@@ -161,11 +161,12 @@ class Aggregator:
                        include_dict=None,
                        min_num_reps=2,
                        y_step=0.1,
-                       ax_fontsize=20,
+                       xax_fontsize=6,
+                       yax_fontsize=10,
                        t_fontsize=20,
                        dpi=192,
                        height=8,
-                       width=12,
+                       width=14,
                        leg1_y=1.2):
         if include_dict is None:
             include_dict = {}
@@ -178,7 +179,9 @@ class Aggregator:
         filtered_df = df[bool_id]
         #
         bars = None
+        hatches = cycle(['-', '\\', 'x'])
         colors = plt.cm.get_cmap('tab10')
+        #
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
         title = 'Scores for\n{} + {} + {} + embed_size={}'.format(arch, self.evaluation, task, embed_size)
@@ -186,8 +189,8 @@ class Aggregator:
         # axis
         ax.yaxis.grid(True)
         ax.set_ylim(ylims)
-        plt.ylabel(ylabel, fontsize=ax_fontsize)
-        ax.set_xlabel(include_dict, fontsize=ax_fontsize)
+        plt.ylabel(ylabel, fontsize=yax_fontsize)
+        ax.set_xlabel(include_dict or '', fontsize=xax_fontsize)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.set_axisbelow(True)  # grid belw bars
@@ -200,7 +203,7 @@ class Aggregator:
             param2val = self.load_param2val(time_of_init=time_of_init)
             param2val_list.append(param2val)
             bars = []
-            x = embedder_id + 0.5
+            x = embedder_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
                 num_reps = len(stage_df)
                 if num_reps < min_num_reps:
@@ -208,21 +211,22 @@ class Aggregator:
                     continue
                 x += bw
                 ys = stage_df['score']
-                b, = ax.bar(x + 0 * bw, ys.mean(), width=bw, yerr=ys.std(), color=colors(embedder_id))
+                b, = ax.bar(x + 0 * bw, ys.mean(),
+                            width=bw,
+                            yerr=ys.std(),
+                            color=colors(embedder_id),
+                            edgecolor='black',
+                            hatch=next(hatches))
                 bars.append((copy.copy(b)))
-
-        # TODO test
-        ax.set_xticks(np.arange(0, 8, 0.2))
-        plt.show()
-
         # tick labels
-        ax.set_xticks(np.arange(0, 8, 0.2))  # TODO
+        num_embedders = len(param2val_list)
+        ax.set_xticks(np.arange(1, num_embedders + 1, 1))  # TODO
         ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()
                                        if k not in include_dict.keys()])
                             for param2val in param2val_list],
-                           fontsize=ax_fontsize)
+                           fontsize=xax_fontsize)
         ax.set_yticks(yticks)
-        ax.set_yticklabels(yticks, fontsize=ax_fontsize)
+        ax.set_yticklabels(yticks, fontsize=yax_fontsize)
         # legend
 
         plt.tight_layout()
