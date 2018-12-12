@@ -1,4 +1,4 @@
-# Title     : 2-stage NLP ANOVA
+# Title     : 2-stage NLP Statistical Analysis
 # Objective : do significance testing for CogSci 2019 paper
 # Created by: ph
 # Created on: 12/11/18

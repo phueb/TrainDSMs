@@ -188,7 +188,7 @@ class Aggregator:
         if include_dict is None:
             include_dict = {}
         # filter by arch + task + embed_size + evaluation
-        df = self.make_df(load_from_file=load_from_file)  # TODO put corpus_name and num_vocab in df
+        df = self.make_df(load_from_file=load_from_file)
         bool_id = (df['arch'] == arch) &\
                   (df['task'] == task) &\
                   (df['embed_size'] == embed_size) &\
@@ -216,12 +216,14 @@ class Aggregator:
         bars_list = []
         param2val_list = []
         embedder_names = []
-        for embedder_id, (embedder, embedder_df) in enumerate(filtered_df.groupby('embedder')):
-            time_of_init = embedder_df['time_of_init'].iloc[0]
+        for embedder_id, (time_of_init, embedder_df) in enumerate(filtered_df.groupby('time_of_init')):
             param2val = self.load_param2val(time_of_init=time_of_init)
             param2val_list.append(param2val)
             embedder_name = self.to_embedder_name(param2val)
             embedder_names.append(embedder_name)
+            #
+            print(time_of_init)
+            print(embedder_name)
             #
             bars = []
             x = embedder_id + 0.6
