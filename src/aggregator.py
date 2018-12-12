@@ -8,7 +8,8 @@ from pathlib import Path
 
 from src import config
 
-# TODO organize file-system like organization of methods? evaluation directory above arch directory? 
+
+# TODO organize file-system like organization of methods? evaluation directory above arch directory?
 
 
 class Aggregator:
@@ -28,6 +29,10 @@ class Aggregator:
         self.df = None
         self.counter = count(0, 1)
         self.stages = ['expert', 'expert+rs', 'novice']
+        # constants
+        self.bw = 0.2
+        self.hatches = cycle(['--', '\\\\', 'xx'])
+        self.colors = plt.cm.get_cmap('tab10')
 
     @staticmethod
     def load_param2val(embedder_p=None, time_of_init=None):
@@ -39,7 +44,7 @@ class Aggregator:
         else:
             raise RuntimeError('Must specify "embedder_p" or "time_of_init" to retrieve param2val.')
         return res
-    
+
     @staticmethod
     def to_embedder_name(param2val):
         if 'random_type' in param2val:
@@ -169,7 +174,7 @@ class Aggregator:
             return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
 
     # ///////////////////////////////////////////////////// plotting
-    
+
     def show_task_plot(self,
                        arch,
                        task,
@@ -189,15 +194,11 @@ class Aggregator:
             include_dict = {}
         # filter by arch + task + embed_size + evaluation
         df = self.make_df(load_from_file=load_from_file)
-        bool_id = (df['arch'] == arch) &\
-                  (df['task'] == task) &\
-                  (df['embed_size'] == embed_size) &\
+        bool_id = (df['arch'] == arch) & \
+                  (df['task'] == task) & \
+                  (df['embed_size'] == embed_size) & \
                   (df['evaluation'] == self.ev)
         filtered_df = df[bool_id]
-        # constants
-        bw = 0.2
-        hatches = cycle(['-', '\\', 'x'])
-        colors = plt.cm.get_cmap('tab10')
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
@@ -232,15 +233,15 @@ class Aggregator:
                 if num_reps < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(num_reps))
                     continue
-                x += bw
+                x += self.bw
                 ys = stage_df['score']
                 print(stage, ys.mean())
-                b, = ax.bar(x + 0 * bw, ys.mean(),
-                            width=bw,
+                b, = ax.bar(x + 0 * self.bw, ys.mean(),
+                            width=self.bw,
                             yerr=ys.std(),
-                            color=colors(embedder_id),
+                            color=self.colors(embedder_id),
                             edgecolor='black',
-                            hatch=next(hatches))
+                            hatch=next(self.hatches))
                 bars.append(copy.copy(b))
             bars_list.append(bars)
         # tick labels
@@ -256,10 +257,10 @@ class Aggregator:
         plt.tight_layout()
         labels1 = embedder_names
         labels2 = self.stages
-        self.add_double_legend(bars_list, labels1, labels2, leg1_y)  # TODO show hatching correctly in legend
+        self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)
         fig.subplots_adjust(bottom=0.1)
         plt.show()
-        
+
     def make_y_label_lims_ticks(self, y_step):
         if self.ev == 'matching':
             ylabel = 'Balanced Accuracy'
@@ -275,13 +276,16 @@ class Aggregator:
             raise AttributeError('Invalid arg to "EVALUATOR_NAME".')
         return ylabel, ylims, yticks, y_chance
 
-    @staticmethod
-    def add_double_legend(bars_list, labels1, labels2, leg1_y, leg_fs=12, num_leg1_cols=8, num_leg2_cols=4):
+    def add_double_legend(self, bars_list, labels1, labels2, leg1_y, num_leg1_cols, leg_fs=12, num_leg2_cols=4):
+        for bars in bars_list:
+            for bar in bars:
+                bar.set_hatch(None)
         leg1 = plt.legend([bar[0] for bar in bars_list], labels1, loc='upper center',
                           bbox_to_anchor=(0.5, leg1_y), ncol=num_leg1_cols, frameon=False, fontsize=leg_fs)
         for bars in bars_list:
             for bar in bars:
-                bar.set_color('black')
+                bar.set_facecolor('white')  # TODO setting color removes hatching
+                bar.set_hatch(next(self.hatches))
         plt.legend(bars_list[0], labels2, loc='upper center',
                    bbox_to_anchor=(0.5, leg1_y - 0.1), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
         plt.gca().add_artist(leg1)  # order of legend creation matters here
