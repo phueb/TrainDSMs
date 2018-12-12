@@ -8,7 +8,7 @@ EVALUATOR_NAME = 'identification'
 TASK_NAME = 'cohyponyms_semantic'  # can be cohyponyms_semantic, cohyponyms_syntactic, hypernyms, nyms_syn, nyms_ant
 EMBED_SIZE = 500
 
-DF_FROM_FILE = False
+DF_FROM_FILE = True
 
 
 # get all data

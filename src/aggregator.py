@@ -221,7 +221,6 @@ class Aggregator:
             param2val = self.load_param2val(time_of_init=time_of_init)
             param2val_list.append(param2val)
             embedder_name = self.to_embedder_name(param2val)
-            embedder_names.append(embedder_name)
             #
             print(time_of_init)
             print(embedder_name)
@@ -243,7 +242,9 @@ class Aggregator:
                             edgecolor='black',
                             hatch=next(self.hatches))
                 bars.append(copy.copy(b))
-            bars_list.append(bars)
+            if bars:
+                bars_list.append(bars)
+                embedder_names.append(embedder_name)
         # tick labels
         num_embedders = len(param2val_list)
         ax.set_xticks(np.arange(1, num_embedders + 1, 1))
