@@ -52,3 +52,7 @@ class Figs:
     softmax_criterion = 0.5
     num_bins = 10
     num_diagnosticity_steps = 50
+
+
+class Glove:
+    num_threads = 8

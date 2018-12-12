@@ -1,8 +1,9 @@
 from itertools import chain
 
 from src import config
-from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams, GloveParams
 from src.params import gen_all_param_combinations
+from src.embedders.glove import GloveEmbedder
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -28,6 +29,7 @@ embedders = chain(
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
+    (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
 )
 
 # run full experiment
@@ -62,8 +64,8 @@ while True:
         # classifier
     ]:
         for ev in [
-            Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'features', 'is'),
             Matching(architecture, 'features', 'has'),
             Matching(architecture, 'nyms', 'syn'),

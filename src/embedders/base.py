@@ -80,7 +80,7 @@ class EmbedderBase(object):
     def load_corpus_data(cls, num_vocab=config.Corpus.num_vocab):
         docs = []
         w2freq = Counter()
-        # tokenize + count.py words
+        # tokenize + count words
         p = config.Dirs.corpora / '{}.txt'.format(config.Corpus.name)
         with p.open('r') as f:
             texts = f.read().splitlines()  # removes '\n' newline character
