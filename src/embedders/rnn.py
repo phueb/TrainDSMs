@@ -119,7 +119,7 @@ class RNNEmbedder(EmbedderBase):
                 secs = time.time() - start_time
                 print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
 
-    def train(self, verbose=True):
+    def train(self, verbose=False):
         # split data
         train_numeric_docs = []
         valid_numeric_docs = []
@@ -151,7 +151,8 @@ class RNNEmbedder(EmbedderBase):
                     epoch, self.calc_pp(valid_numeric_docs, verbose)))
             else:
                 pbar.update()
-        print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs, verbose)))
+        if verbose:
+            print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs, verbose)))
         wx = self.model.wx.weight.detach().cpu().numpy()
         embed_mat = self.standardize_embed_mat(wx)
         self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)

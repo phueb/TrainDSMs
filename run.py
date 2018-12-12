@@ -20,6 +20,8 @@ from src.embedders.base import w2e_to_sims
 # todo:
 # TODO neighbors: make sure they don't reappear often to bias correct no-answers durign testing
 # TODO neighbors: manually exclude neighbors which are actually synonyms or antonyms but not excluded automatically
+# TODO adagrad: sgd underperforms adagrad - implement adagrad
+# TODO unspecified cuda error
 
 embedders = chain(
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
@@ -29,7 +31,17 @@ embedders = chain(
 )
 
 # run full experiment
-for embedder in embedders:
+while True:
+    # get embedder
+    try:
+        embedder = next(embedders)
+    except RuntimeError as e:
+        print('//////// WARNING: embedder raised RuntimeError:')
+        print(e)
+        continue
+    except StopIteration:
+        print('Finished experiment')
+        break
     # embed
     if config.Embeddings.retrain or not embedder.has_embeddings():
         print('Training runs')
