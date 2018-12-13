@@ -3,7 +3,7 @@ import pandas as pd
 from collections import Counter, OrderedDict
 from itertools import islice
 from sklearn import preprocessing
-import spacy
+from spacy.lang.en import English
 import numpy as np
 import pyprind
 import yaml
@@ -12,12 +12,11 @@ from cached_property import cached_property
 from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
 
-from spacy.tokenizer import Tokenizer
-
 from src import config
 
 
-nlp = spacy.load('en_core_web_sm')
+# nlp = spacy.load('en_core_web_sm')
+nlp = English()  # need this only for tokenization
 
 
 class EmbedderBase(object):
@@ -86,15 +85,12 @@ class EmbedderBase(object):
             texts = f.read().splitlines()  # removes '\n' newline character
         num_texts = len(texts)
         print('\nTokenizing {} docs...'.format(num_texts))
-        tokenizer = Tokenizer(nlp.vocab)
         pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
-        for spacy_doc in tokenizer.pipe(texts, batch_size=config.Corpus.spacy_batch_size):  # creates spacy Docs
+
+        # TODO tokenization could benefit from multiprocessing
+        for text in texts:
+            spacy_doc = nlp(text)
             doc = [w.text for w in spacy_doc]
-
-            # TODO test - punctuation is not stripped off from words
-            print(doc[:100])
-            raise SystemExit
-
             docs.append(doc)
             c = Counter(doc)
             w2freq.update(c)
@@ -129,13 +125,6 @@ class EmbedderBase(object):
             with p.open('w') as f:
                 for v in vocab:
                     f.write('{}\n'.format(v))
-
-        # TODO test TASA
-
-        print(docs[0])
-        print(docs[1])
-        raise SystemExit
-
         return numeric_docs, vocab, deterministic_w2f, docs
 
     @property

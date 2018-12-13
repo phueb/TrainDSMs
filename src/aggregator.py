@@ -55,7 +55,11 @@ class Aggregator:
             return param2val['w2vec_type']
         elif 'count_type' in param2val:
             return param2val['count_type'][0]
+        elif 'count_type' in param2val:
+            return param2val['count_type'][0]
         else:
+            # print("WARNING: RETURNING GLVOE AS EMBEDDER NAME")
+            # return 'glove'
             raise RuntimeError('Unknown embedder name')
 
     def make_df(self, load_from_file=False):
@@ -245,6 +249,7 @@ class Aggregator:
             if bars:
                 bars_list.append(bars)
                 embedder_names.append(embedder_name)
+
         # tick labels
         num_embedders = len(param2val_list)
         ax.set_xticks(np.arange(1, num_embedders + 1, 1))
@@ -285,7 +290,7 @@ class Aggregator:
                           bbox_to_anchor=(0.5, leg1_y), ncol=num_leg1_cols, frameon=False, fontsize=leg_fs)
         for bars in bars_list:
             for bar in bars:
-                bar.set_facecolor('white')  # TODO setting color removes hatching
+                bar.set_facecolor('white')
                 bar.set_hatch(next(self.hatches))
         plt.legend(bars_list[0], labels2, loc='upper center',
                    bbox_to_anchor=(0.5, leg1_y - 0.1), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)

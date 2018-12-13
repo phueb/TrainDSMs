@@ -40,7 +40,7 @@ class Corpus:
     spacy_batch_size = 50  # doesn't seem to affect speed loading childes-20180319
     UNK = 'UNKNOWN'
     # name = 'childes-20180319'  # TODO testing TASA
-    name = 'tasa'
+    name = 'tasa-20181213'
     num_vocab = 4096
 
 

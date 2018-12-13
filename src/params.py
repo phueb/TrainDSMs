@@ -80,6 +80,8 @@ class CountParams:
         # ['ww', 'forward',  7,  'linear'],
         ['ww', 'forward',  7,  'flat'],
         ['ww', 'backward', 7,  'flat'],
+        ['ww', 'forward', 16,  'flat'],
+        ['ww', 'backward', 16,  'flat'],
         # ['ww', 'backward', 7,  'linear'],
         # ['ww', 'forward',  16, 'linear'],
         # ['ww', 'forward',  16, 'flat'],
@@ -105,7 +107,7 @@ class RNNParams:
     embed_init_range = [0.1]
     dropout_prob = [0]
     num_layers = [1]
-    num_steps = [7]
+    num_steps = [16, 7]
     batch_size = [64]
     num_epochs = [10]  # with sgd, loss bottoms out at epoch 10
     learning_rate = [[0.1, 0.9, 1]]  # initial, decay, num_epochs_without_decay
@@ -115,13 +117,13 @@ class RNNParams:
 class Word2VecParams:
     w2vec_type = ['cbow', 'sg']
     embed_size = [500, 200, 30]
-    window_size = [7]
+    window_size = [7, 16]
     num_epochs = [20]
 
 
 class GloveParams:
     embed_size = [500, 200, 30]
-    window_size = [7]
+    window_size = [7, 16]
     num_epochs = [20]  #  semantic novice ba:  10: 0.64, 20: 0.66,  40: 0.66
     lr = [0.05]
 
