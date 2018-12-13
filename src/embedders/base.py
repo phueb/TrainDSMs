@@ -90,6 +90,11 @@ class EmbedderBase(object):
         pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
         for spacy_doc in tokenizer.pipe(texts, batch_size=config.Corpus.spacy_batch_size):  # creates spacy Docs
             doc = [w.text for w in spacy_doc]
+
+            # TODO test - punctuation is not stripped off from words
+            print(doc[:100])
+            raise SystemExit
+
             docs.append(doc)
             c = Counter(doc)
             w2freq.update(c)
@@ -119,11 +124,18 @@ class EmbedderBase(object):
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
         # save vocab
-        p = config.Dirs.corpora / '{}_vocab.txt'.format(config.Corpus.name)
+        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.num_vocab, config.Corpus.name)
         if not p.exists():
             with p.open('w') as f:
                 for v in vocab:
                     f.write('{}\n'.format(v))
+
+        # TODO test TASA
+
+        print(docs[0])
+        print(docs[1])
+        raise SystemExit
+
         return numeric_docs, vocab, deterministic_w2f, docs
 
     @property
@@ -132,7 +144,7 @@ class EmbedderBase(object):
 
     @property
     def vocab(self):
-        p = config.Dirs.corpora / '{}_vocab.txt'.format(config.Corpus.name)
+        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.num_vocab, config.Corpus.name)
         if p.exists():
             vocab = np.loadtxt(p, 'str').tolist()
         else:
