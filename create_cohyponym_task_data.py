@@ -3,7 +3,8 @@ import numpy as np
 from src import config
 from src.embedders.base import EmbedderBase
 
-CORPUS_NAME = 'childes-20180319'
+# CORPUS_NAME = 'childes-20180319'
+CORPUS_NAME = 'tasa-20181213'
 
 
 if __name__ == '__main__':

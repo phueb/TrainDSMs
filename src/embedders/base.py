@@ -120,7 +120,7 @@ class EmbedderBase(object):
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
         # save vocab
-        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.num_vocab, config.Corpus.name)
+        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             with p.open('w') as f:
                 for v in vocab:

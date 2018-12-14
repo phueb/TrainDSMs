@@ -66,11 +66,11 @@ while True:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'nyms', 'syn'),
-            Matching(architecture, 'nyms', 'ant'),
-            Matching(architecture, 'hypernyms'),
+            # Matching(architecture, 'features', 'is'),
+            # Matching(architecture, 'features', 'has'),
+            # Matching(architecture, 'nyms', 'syn'),
+            # Matching(architecture, 'nyms', 'ant'),
+            # Matching(architecture, 'hypernyms'),
 
             # Identification(architecture, 'nyms', 'syn'),  # TODO used to get above chance - what's wrong? -
             # TODO - maybe previously syns were only adjectives with adjectives, nouns with nouns, etc.

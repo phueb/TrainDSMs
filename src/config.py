@@ -18,7 +18,7 @@ class Eval:
     only_negative_examples = False
     num_reps = 2
     num_folds = 4
-    vocab_sizes = [4096, 8192, 16384]
+    vocab_sizes = [4096]  # also: 8192, 16384
     retrain = False
     save_scores = True
     save_figs = False
