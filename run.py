@@ -23,6 +23,10 @@ from src.embedders.base import w2e_to_sims
 # TODO neighbors: manually exclude neighbors which are actually synonyms or antonyms but not excluded automatically
 # TODO adagrad: sgd underperforms adagrad - implement adagrad
 # TODO unspecified cuda error
+# TODO confusion matrix for syntactic cohyponym task - balance syntacitc category sizes?
+# TODO tehre are only 200 semantic cohyponyms for tasa - make more
+# TODO use all vocab items for syntactic cohyponym task
+
 
 embedders = chain(
     (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
