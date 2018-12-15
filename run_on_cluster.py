@@ -1,6 +1,6 @@
 from itertools import chain
+import socket
 
-from src import config
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams, GloveParams
 from src.params import gen_all_param_combinations
 from src.embedders.glove import GloveEmbedder
@@ -11,16 +11,13 @@ from src.embedders.w2vec import W2VecEmbedder
 
 from src.experiment import embed_and_evaluate
 
-
-# todo:
-# TODO nym task doesn't get above chance - make option to filter by POS - otherwise can't get above chance
-# TODO neighbors: make sure they don't reappear often to bias correct no-answers durign testing
-# TODO neighbors: manually exclude neighbors which are actually synonyms or antonyms but not excluded automatically
-# TODO adagrad: sgd underperforms adagrad - implement adagrad
-# TODO unspecified cuda error
-# TODO confusion matrix for syntactic cohyponym task - balance syntactic category sizes?
-# TODO there are only 200 semantic cohyponyms for tasa - make more
-# TODO use all vocab items for syntactic cohyponym task
+# cluster-specific  # TODO
+hostname = socket.gethostname()
+hostname2embedder_name = {'hinton': ['ww', 'wd'],
+                          'hoff': ['sg', 'cbow'],
+                          'hebb': ['srn', 'lstm'],
+                          'norman': ['random_normal', 'random_uniform'],
+                          'pitts': ['glove']}
 
 
 embedders = chain(
@@ -44,4 +41,6 @@ while True:
         print('Finished experiment')
         break
     # embed
-    embed_and_evaluate(embedder)
+    # TODO cluster-specific
+    if embedder.name in hostname2embedder_name[hostname]:
+        embed_and_evaluate(embedder)
