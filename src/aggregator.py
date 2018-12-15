@@ -32,7 +32,8 @@ class Aggregator:
         # constants
         self.bw = 0.2
         self.hatches = cycle(['--', '\\\\', 'xx'])
-        self.colors = plt.cm.get_cmap('tab10')
+        self.embedder2color = {embedder_name: plt.cm.get_cmap('tab10')(n) for n, embedder_name in enumerate(
+            ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'rnd_normal', 'rnd_uniform', 'glove'])}
 
     @staticmethod
     def load_param2val(embedder_p=None, time_of_init=None):
@@ -48,7 +49,7 @@ class Aggregator:
     @staticmethod
     def to_embedder_name(param2val):
         if 'random_type' in param2val:
-            return param2val['random_type']
+            return 'rnd_{}'.format(param2val['random_type'])
         elif 'rnn_type' in param2val:
             return param2val['rnn_type']
         elif 'w2vec_type' in param2val:
@@ -249,7 +250,7 @@ class Aggregator:
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),
-                            color=self.colors(embedder_id),
+                            color=self.embedder2color[embedder_name],
                             edgecolor='black',
                             hatch=next(self.hatches))
                 bars.append(copy.copy(b))
@@ -261,7 +262,11 @@ class Aggregator:
         # tick labels
         num_embedders = len(param2val_list)
         ax.set_xticks(np.arange(1, num_embedders + 1, 1))
-        ax.set_xticklabels(['\n'.join(['{}: {}'.format(k, v) for k, v in param2val.items()])
+        hidden_keys = ['count_type', 'corpus_name']
+        excluded_keys = ['num_vocab', 'corpus_name', 'embed_size']
+        ax.set_xticklabels(['\n'.join(['{}{}'.format(k + ': ' if k not in hidden_keys else '', v)
+                                       for k, v in param2val.items()
+                                       if k not in excluded_keys])
                             for param2val in param2val_list],
                            fontsize=xax_fontsize)
         ax.set_yticks(yticks)
