@@ -26,13 +26,14 @@ from src.embedders.base import w2e_to_sims
 # TODO confusion matrix for syntactic cohyponym task - balance syntacitc category sizes?
 # TODO tehre are only 200 semantic cohyponyms for tasa - make more
 # TODO use all vocab items for syntactic cohyponym task
+# TODO why is svd500 running out of RAM with TASA? - co-occ mat is only 1GB
 
 
 embedders = chain(
+    (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
     (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
-    (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
 )
 

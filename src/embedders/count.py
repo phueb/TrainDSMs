@@ -3,6 +3,8 @@ from cytoolz import itertoolz
 import pyprind
 import sys
 import time
+from scipy.sparse import linalg as slinalg
+from scipy import sparse
 
 from src.embedders.base import EmbedderBase
 from src.params import CountParams
@@ -247,7 +249,10 @@ class CountEmbedder(EmbedderBase):
 
     def reduce_svd(self, input_matrix, dimensions):
         print('\nReducing matrix using SVD to {} singular values'.format(dimensions))
-        u, s, v = np.linalg.svd(input_matrix)
+        # u, s, v = np.linalg.svd(input_matrix)
+        sparse_cooc_mat = sparse.csr_matrix(input_matrix).asfptype()
+        u, s, v = slinalg.svds(sparse_cooc_mat, k=dimensions)
+
         reduced_matrix = u[:, 0:dimensions]
         return reduced_matrix, dimensions
 
