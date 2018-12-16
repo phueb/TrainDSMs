@@ -21,6 +21,7 @@ from src.experiment import embed_and_evaluate
 # TODO confusion matrix for syntactic cohyponym task - balance syntactic category sizes?
 # TODO there are only 200 semantic cohyponyms for tasa - make more
 # TODO use all vocab items for syntactic cohyponym task
+# TODO show that large embed_size leads to overfitting and wrose expert performance
 
 
 embedders = chain(
@@ -32,6 +33,7 @@ embedders = chain(
 )
 
 # run full experiment
+runtime_errors = []
 while True:
     # get embedder
     try:
@@ -39,9 +41,13 @@ while True:
     except RuntimeError as e:
         print('//////// WARNING: embedder raised RuntimeError:')
         print(e)
+        runtime_errors.append(e)
         continue
     except StopIteration:
         print('Finished experiment')
+        for e in runtime_errors:
+            print('with RunTimeError:')
+            print(e)
         break
     # embed
     embed_and_evaluate(embedder)

@@ -1,4 +1,4 @@
-. 582616
+. 582823
 ? 294413
 you 198728
 's 149049
@@ -62,6 +62,7 @@ how 14914
 was 14882
 at 14879
 all 14582
+' 14373
 little 14314
 does 14073
 some 13115
@@ -70,8 +71,8 @@ who 12479
 be 12284
 just 12235
 well 11843
+m 11418
 come 11279
-'m 11175
 wanna 10966
 going 10950
 them 10835
@@ -90,7 +91,7 @@ her 9092
 huh 8817
 over 8700
 his 8465
-would 8433
+would 8456
 why 8286
 back 8243
 then 8189
@@ -180,8 +181,8 @@ looks 2954
 girl 2953
 ready 2950
 please 2881
+ve 2879
 red 2874
-'ve 2874
 things 2864
 three 2810
 ah 2791
@@ -470,6 +471,7 @@ tea 882
 nina 882
 hit 878
 em 876
+may 870
 ethan 869
 left 867
 taking 865
@@ -478,7 +480,6 @@ sometimes 862
 finished 859
 brush 858
 rabbit 857
-may 857
 wrong 855
 chicken 855
 pictures 852
@@ -688,16 +689,16 @@ lost 528
 violet 527
 movie 525
 minutes 524
+mr 523
 twenty 521
 yummy 520
 square 520
 apart 520
 street 517
+miss 517
 dear 517
-mr 515
 happen 515
 forgot 515
-miss 513
 max 512
 someone 510
 crayon 510
@@ -923,10 +924,10 @@ spell 350
 ice+cream 350
 downstairs 350
 building 350
+la 349
 has_to 348
 corn 348
 loves 347
-la 347
 empty 347
 drinking 347
 chi 347
@@ -980,7 +981,6 @@ card 322
 balls 322
 telling 321
 dollars 321
-' 321
 trucks 320
 singing 320
 scary 320
@@ -1077,6 +1077,7 @@ pool 280
 ow 280
 glad 280
 museum 279
+mrs 278
 exactly 278
 himself 277
 eh 276
@@ -1094,7 +1095,6 @@ everyone 271
 corner 270
 most 269
 times 268
-mrs 268
 megan 268
 hook 268
 moving 267
@@ -1154,6 +1154,7 @@ garden 249
 bell 249
 space 248
 apples 248
+y 247
 pipe 247
 clip 247
 wish 246
@@ -1161,7 +1162,6 @@ picked 246
 pat 245
 named 245
 meet 245
-y 244
 whee 244
 rocking 244
 dragon 244
@@ -1170,7 +1170,6 @@ sunday 243
 scissors 243
 patsy 243
 oil 243
-m 243
 halloween 243
 puppet 242
 keys 242
@@ -1684,6 +1683,7 @@ list 137
 hoo 137
 twinkle 136
 stays 136
+j_j 136
 hulk 136
 forest 136
 faster 136
@@ -2488,7 +2488,6 @@ mixing 73
 meal 73
 magnet 73
 less 73
-j_j 73
 fries 73
 coke 73
 captain 73
@@ -2700,7 +2699,6 @@ amount 64
 wrapped 63
 towels 63
 seats 63
-j_j. 63
 goldfish 63
 dime 63
 clunk 63
@@ -3055,6 +3053,7 @@ snuffy 50
 smily 50
 serious 50
 plop 50
+pa 50
 ope 50
 oof 50
 nathan 50
@@ -3092,7 +3091,6 @@ pops 49
 pointed 49
 pittsburgh 49
 peaches 49
-pa 49
 okey_dokey 49
 nibble 49
 needle 49
@@ -3473,6 +3471,7 @@ dreaming 40
 drag 40
 doughnut 40
 diesel 40
+d_w 40
 copy 40
 control 40
 cock_a_doodle_doo 40
@@ -3978,6 +3977,7 @@ blonde 31
 bathrobe 31
 barely 31
 as_well 31
+ark 31
 appointment 31
 alaska 31
 aladar 31
@@ -4128,6 +4128,7 @@ buried 29
 bup 29
 bitter 29
 betcha 29
+baby_o 29
 associated 29
 ale 29
 woohoo 28
@@ -4279,7 +4280,6 @@ care_bears 27
 burger 27
 bong 27
 beth 27
-ark 27
 anemone 27
 amen 27
 address 27
@@ -4406,6 +4406,7 @@ jersey 25
 jenko 25
 jealous 25
 jackets 25
+inc 25
 in_between 25
 imagination 25
 ignore 25
@@ -4550,7 +4551,6 @@ amelia 24
 all_done 24
 adventure 24
 yucko 23
-would've 23
 wiped 23
 winding 23
 webs 23
@@ -4633,7 +4633,6 @@ excused 23
 enjoying 23
 dollhouse 23
 davis 23
-d_w 23
 coach 23
 clips 23
 cigarettes 23
@@ -4656,10 +4655,10 @@ banged 23
 bandors 23
 bahbah 23
 badada 23
-baby_o 23
 appreciate 23
 ape 23
 angels 23
+'ve 23
 wins 22
 windmill 22
 what_about 22
@@ -4964,6 +4963,7 @@ eyeball 20
 entire 20
 elvis 20
 earrings 20
+e_t 20
 duty 20
 drunk 20
 dries 20
@@ -5068,7 +5068,6 @@ lab 19
 junky 19
 ju 19
 jelly+beans 19
-inc 19
 impossible 19
 idaho 19
 hotdogs 19
@@ -5214,6 +5213,7 @@ nephew 18
 necessarily 18
 mwah 18
 munch 18
+ms 18
 mow 18
 moth 18
 mom'll 18
@@ -5380,7 +5380,6 @@ ornaments 17
 original 17
 orchestra 17
 needles 17
-ms 17
 moons 17
 missouri 17
 miracle 17
@@ -5390,6 +5389,7 @@ messes 17
 melts 17
 meatball 17
 massage 17
+mass 17
 lovey 17
 librarian 17
 larger 17
@@ -5432,7 +5432,6 @@ doncha 17
 diego 17
 delma 17
 damp 17
-d_w. 17
 customers 17
 crummy 17
 crowd 17
@@ -5556,7 +5555,6 @@ minnesota 16
 mercury 16
 meaning 16
 mazy 16
-mass 16
 manny 16
 mandy 16
 mackerel 16
@@ -6160,7 +6158,6 @@ munching 13
 mold 13
 molasses 13
 meals 13
-may. 13
 maracas 13
 mango 13
 malna 13
@@ -6189,6 +6186,7 @@ johnnie 13
 jingleheimer 13
 jiggle 13
 jaws 13
+jan 13
 in+law 13
 iguanodon 13
 igloo 13
@@ -6233,7 +6231,6 @@ eugene 13
 emptied 13
 ella 13
 eleventh 13
-e_t 13
 dune 13
 dude 13
 drown 13
@@ -6999,7 +6996,6 @@ naptime 10
 napping 10
 mysterious 10
 mummies 10
-mrs. 10
 mouses 10
 motorbike 10
 modern 10
@@ -7029,6 +7025,7 @@ lava 10
 laundromat 10
 lanterns 10
 lamps 10
+l_a 10
 kukabear 10
 kookaburra 10
 koko 10
@@ -7046,7 +7043,6 @@ jumper 10
 jump+rope 10
 juggle 10
 joanne 10
-jan 10
 jammy 10
 jackson 10
 ivory 10
@@ -7391,6 +7387,7 @@ mulberry+bush 9
 mount 9
 moomoo 9
 monks 9
+mo 9
 mitt 9
 miniature 9
 mile 9
@@ -7420,7 +7417,6 @@ learns 9
 leans 9
 lars 9
 lara 9
-l_a 9
 krusty 9
 knowledge 9
 knitting 9
@@ -7597,6 +7593,7 @@ anakin 9
 aggie 9
 adios 9
 adiadi 9
+a_and_p 9
 zzz 8
 zsupa 8
 zooming 8
@@ -7821,12 +7818,10 @@ musician 8
 munchie 8
 multicolored 8
 muffet 8
-mr. 8
 motorcycle_chicken 8
 mooky 8
 monstees 8
 moma 8
-mo 8
 mmmm 8
 mister_potato 8
 mirrors 8
@@ -7880,6 +7875,7 @@ kicky 8
 keyhole 8
 kawadee 8
 kakas 8
+k_l_m 8
 jumpin 8
 jude 8
 jogging 8
@@ -8068,6 +8064,7 @@ banthas 8
 bait 8
 badge 8
 babysitting 8
+b_j 8
 awawa 8
 avoid 8
 australian 8
@@ -8362,6 +8359,7 @@ matilda 7
 masur 7
 masking 7
 marx 7
+mar 7
 mailing 7
 magoo 7
 mac 7
@@ -8507,7 +8505,6 @@ eensie 7
 edible 7
 eczema 7
 eagles 7
-e_t. 7
 dusty 7
 duh_dah 7
 drowned 7
@@ -8537,6 +8534,7 @@ dashed 7
 dart 7
 da_da_da 7
 d_v_d 7
+d_c 7
 custard 7
 crumble 7
 crosses 7
@@ -8637,7 +8635,6 @@ babysits 7
 baboons 7
 babbling 7
 babble 7
-b_j. 7
 auntie_gertie 7
 audubon 7
 audio 7
@@ -9108,7 +9105,6 @@ indoor 6
 indeedie 6
 incredible_hulk 6
 include 6
-inc. 6
 imitation 6
 imitating 6
 image 6
@@ -9289,7 +9285,6 @@ dancing+school 6
 damage 6
 daddiji 6
 dadadada 6
-d_c 6
 cutie+pie 6
 curry 6
 cure 6
@@ -9420,7 +9415,6 @@ based 6
 barns 6
 banzai 6
 babysitted 6
-baby_o. 6
 baby_first_step 6
 babaa 6
 baa+baa 6
@@ -9531,7 +9525,6 @@ vervop 5
 verse 5
 velvet 5
 vehicles 5
-ve 5
 vans 5
 vagy 5
 vagina 5
@@ -9939,7 +9932,6 @@ martians 5
 marlin 5
 margarine 5
 mara 5
-mar 5
 mantis 5
 maniac 5
 mandrill 5
@@ -10314,6 +10306,7 @@ cancer 5
 cancel 5
 camouflaged 5
 cacy 5
+c_v_s 5
 bweeleelee 5
 buzzes 5
 buttoning 5
@@ -10436,7 +10429,7 @@ abu 5
 aboom 5
 ability 5
 abandoned 5
-a_and_p. 5
+a_m 5
 zzzz 4
 zwieback 4
 zsuzsa 4
@@ -10619,6 +10612,7 @@ tailed 4
 tahoe_a 4
 tack 4
 tabs 4
+t_v_p 4
 t+shirts 4
 szepen 4
 symphony 4
@@ -10980,6 +10974,7 @@ pamper 4
 painters 4
 pah 4
 paddy 4
+p_s 4
 oys 4
 oxygen 4
 owlet 4
@@ -11075,7 +11070,6 @@ mixa 4
 mister_munster 4
 missus_jordan 4
 miss_echo 4
-miss. 4
 miso 4
 minnehaha 4
 mina 4
@@ -11120,6 +11114,7 @@ magnolia 4
 madame 4
 macrame 4
 machairodont 4
+m_i_t 4
 lunch+box 4
 lullabies 4
 lox 4
@@ -11176,8 +11171,6 @@ kara 4
 kanga_a 4
 kaki 4
 kah 4
-k_l_m. 4
-k_l_m 4
 juvenile 4
 justine 4
 junk+man 4
@@ -11204,6 +11197,7 @@ jaques 4
 janitor 4
 janice 4
 ja 4
+j_r 4
 iz 4
 issa 4
 ironwood 4
@@ -11631,7 +11625,6 @@ cackle 4
 cabs 4
 cable 4
 cabbages 4
-c_v_s 4
 bzzz 4
 buyer 4
 butterscotch 4
@@ -11751,7 +11744,7 @@ bakers 4
 baby_boo 4
 baby+sit 4
 baby+cakes 4
-b_m_w. 4
+b_m_w 4
 az 4
 awright 4
 awoke 4
@@ -11776,7 +11769,6 @@ arrangement 4
 arnold 4
 arnica 4
 armoire 4
-ark. 4
 argued 4
 argh 4
 ar_too_dee_too 4
@@ -11813,8 +11805,6 @@ accomplishment 4
 abuse 4
 abuh 4
 abre 4
-a_m 4
-a_and_p 4
 zup 3
 zuh 3
 zooms 3
@@ -11847,7 +11837,6 @@ yeap 3
 yaunk 3
 yaddy 3
 yabody 3
-y' 3
 xyz 3
 xantes_murrelet 3
 wwhada 3
@@ -12118,7 +12107,7 @@ tajumbuddy 3
 tail+gunner 3
 taduhm 3
 tacky 3
-t_v_p 3
+t_j 3
 t_bird 3
 syracuse 3
 symbolizes 3
@@ -12570,7 +12559,7 @@ plateful 3
 plasterer 3
 planter 3
 planing 3
-planet_x. 3
+planet_x 3
 pl 3
 pixie 3
 pith 3
@@ -12634,7 +12623,6 @@ pagadi 3
 padding 3
 pachycephalosaurus 3
 pablo 3
-p_s 3
 p+js 3
 ozzie 3
 overdue 3
@@ -12959,7 +12947,6 @@ jeepers 3
 jaunty 3
 janine 3
 janberry 3
-jan. 3
 jacque 3
 jack_in_the_box 3
 jack_and_jill 3
@@ -13609,6 +13596,7 @@ calcium 3
 cake+walk 3
 cables 3
 c_section 3
+c_j 3
 byebyes 3
 byebaby 3
 bwopa 3
@@ -14197,7 +14185,7 @@ ultra 2
 uh_uh_uh 2
 uguh 2
 udders 2
-u_s_a. 2
+u_s_a 2
 typewriters 2
 tyke 2
 twonk 2
@@ -14423,7 +14411,6 @@ tagged 2
 taddy 2
 taddle 2
 taber 2
-t_j 2
 t+square 2
 szia 2
 synonyms 2
@@ -14455,6 +14442,7 @@ swang 2
 sw 2
 suzanne 2
 sustaining 2
+susie_q 2
 susie_cue 2
 suppress 2
 supposing 2
@@ -15274,7 +15262,8 @@ packaging 2
 pack+back 2
 pac 2
 p_t_o 2
-p_j. 2
+p_j 2
+p_b_s 2
 owpo 2
 overly 2
 overheard 2
@@ -15608,7 +15597,6 @@ margareta 2
 maren 2
 marched 2
 marcela 2
-mar. 2
 manuelas 2
 manta+ray 2
 manner 2
@@ -15646,8 +15634,6 @@ machias 2
 machaias 2
 ma_ma_ma 2
 m_n_ms 2
-m_i_t. 2
-m_i_t 2
 m'kay 2
 lyrics 2
 lynne 2
@@ -15768,7 +15754,6 @@ laboratory 2
 labor_day 2
 labelled 2
 la_dee_da_dee_da_dum 2
-la. 2
 l_c_d 2
 ky 2
 kuz_why 2
@@ -15860,6 +15845,7 @@ journeyed 2
 journal 2
 jou 2
 josina 2
+joseph_p 2
 jorning 2
 jonah 2
 jon_jonsen 2
@@ -15909,8 +15895,6 @@ jagsey 2
 jagged 2
 jack_o_lantern 2
 jack_horner 2
-j_r. 2
-j_r 2
 itsa 2
 isn'e 2
 ishy 2
@@ -15983,7 +15967,7 @@ ide 2
 idde 2
 ice+skate 2
 ibis 2
-ia. 2
+ia 2
 i_was_so_mad 2
 i_d 2
 hysterics 2
@@ -16071,7 +16055,7 @@ hide+and+seeking 2
 hibernation 2
 hibernate 2
 hi_ho 2
-hi_c. 2
+hi_c 2
 hhh 2
 hey_diddle_diddle 2
 hetty 2
@@ -16271,7 +16255,7 @@ gagaa 2
 gaga 2
 gag 2
 ga_ga_ga 2
-g_e. 2
+g_e 2
 g'day 2
 g'bye 2
 futomaki 2
@@ -17070,7 +17054,6 @@ calibrated 2
 cakie 2
 caitlyn 2
 cabooses 2
-c_j. 2
 c_d_rom 2
 c_c 2
 bwu 2
@@ -18268,7 +18251,7 @@ vaca 1
 vabehvahbevahbevahrah 1
 va_va_va 1
 va 1
-v_w. 1
+v_w 1
 v_g 1
 uzzybuzzybuzz 1
 uzzer 1
@@ -19081,10 +19064,8 @@ tabebuia 1
 tabbit 1
 taa 1
 ta_ta_ta 1
-t_v_p. 1
 t_s_b_twenty_two 1
 t_rex 1
-t_j. 1
 t?u?t?u?t?u 1
 t+rexes 1
 t+ball 1
@@ -19156,8 +19137,6 @@ suspicions 1
 suspects 1
 suspecting 1
 susienna 1
-susie_q. 1
-susie_q 1
 susi 1
 susceptible 1
 susan_baxter 1
@@ -21246,15 +21225,11 @@ paced 1
 pace 1
 pa_pa_pa 1
 pa_dominic 1
-pa. 1
 p_t_flea 1
-p_s. 1
 p_r 1
 p_p_a_c 1
 p_m 1
 p_b_s_kids 1
-p_b_s. 1
-p_b_s 1
 oyuh 1
 oyooguh 1
 oyjuh 1
@@ -21812,7 +21787,6 @@ muedap 1
 muddle 1
 much're 1
 mu 1
-ms. 1
 mrs_twww 1
 mrs_swww 1
 mrs_rwww 1
@@ -21953,7 +21927,6 @@ mocha 1
 mobilgas 1
 mobiles 1
 moah 1
-mo. 1
 mnuild 1
 mna 1
 mmyes 1
@@ -22107,7 +22080,7 @@ micra 1
 mickeys 1
 mickey_mouses 1
 mickey_mouse_club 1
-mickey_m. 1
+mickey_m 1
 micka 1
 michelson 1
 micha 1
@@ -22186,7 +22159,7 @@ mcintoshs 1
 mcintosh 1
 mcginty 1
 mcdonnalds 1
-mcd. 1
+mcd 1
 mccullough 1
 mccorthy 1
 mccloskey 1
@@ -22224,7 +22197,6 @@ masta 1
 masses 1
 massachussetts 1
 massa 1
-mass. 1
 masks 1
 masked 1
 mashpee 1
@@ -22668,7 +22640,6 @@ la_de_da_de_da_de_la_de_da_de_da_de 1
 la_de_da_de_da_de_dum 1
 la_de_da_de_da_de_da 1
 la_de_da_de 1
-l_a. 1
 l'see 1
 kyv 1
 kyla 1
@@ -22906,8 +22877,6 @@ joue 1
 josie_joe 1
 josie 1
 josiah 1
-joseph_p. 1
-joseph_p 1
 joseph_joe 1
 joseh 1
 jordons 1
@@ -23010,7 +22979,7 @@ jack+in+the+boxes 1
 jabiru 1
 jabbering 1
 jabba 1
-j_p_g. 1
+j_p_g 1
 j_lo 1
 j_d 1
 j_c_pennys 1
@@ -24779,7 +24748,7 @@ ear+muff 1
 ear+drums 1
 ear+drum 1
 eap 1
-e_p_j. 1
+e_p_j 1
 e_p_g 1
 e'em 1
 dywant 1
@@ -25446,10 +25415,9 @@ da_da_dee_oh 1
 da_da_da_da_da_da_da_da 1
 da_da_da_da_da_da_da 1
 da_da_d_da_da_da_da_da_da_da_da_da_da_da_da_da_da_ha_ha_ha_ha 1
-d_p_i. 1
+d_p_i 1
 d_j 1
 d_do_dee_do_dee_do 1
-d_c. 1
 d'we 1
 d'jou 1
 d'jamme 1
@@ -26184,10 +26152,8 @@ cack 1
 caci 1
 caboozle 1
 ca+ca 1
-c_v_s. 1
-c_p_three_o. 1
+c_p_three_o 1
 c_n 1
-c_j 1
 c'you 1
 bzzzzz 1
 bypassing 1
@@ -26938,10 +26904,9 @@ ba_ba_ba_ba_ba 1
 ba_ba_ba 1
 ba_ba 1
 b_x 1
-b_u. 1
+b_u 1
 b_seventeen 1
 b_l_t 1
-b_j 1
 aztec 1
 azalea 1
 ayou 1
@@ -27437,10 +27402,9 @@ aaaa 1
 a_tisket_a_tasket 1
 a_t_ms 1
 a_t_m 1
-a_m. 1
 a_lots 1
 a_little 1
-a_j. 1
+a_j 1
 a_c 1
 a_boo_bah_do_bah_doo_bah_doo 1
 a_b_c_six_news 1

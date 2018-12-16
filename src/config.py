@@ -38,8 +38,8 @@ class Embeddings:
 
 class Corpus:
     UNK = 'UNKNOWN'
-    # name = 'childes-20180319'
-    name = 'tasa-20181213'
+    name = 'childes-20180319'
+    # name = 'tasa-20181213'
     num_vocab = 4096
 
 
