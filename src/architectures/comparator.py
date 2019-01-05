@@ -120,7 +120,9 @@ def make_graph(evaluator, trial, embed_size):
                 optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                 step = optimizer.minimize(loss)
             # session
-            sess = tf.Session()
+            config_proto = tf.ConfigProto()
+            config_proto.gpu_options.allow_growth = True
+            sess = tf.Session(config=config_proto)
             sess.run(tf.global_variables_initializer())
 
     return Graph()

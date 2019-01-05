@@ -8,9 +8,9 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
+    prop_negative = [None, 0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
-    num_epochs = [10]
+    num_epochs = [20]
 
 
 class Matching(EvalBase):

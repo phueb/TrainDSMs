@@ -116,7 +116,9 @@ def make_graph(evaluator, trial, embed_size):
                 correct = tf.nn.in_top_k(logits, y, 1)
                 num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
             # session
-            sess = tf.Session()
+            config_proto = tf.ConfigProto()
+            config_proto.gpu_options.allow_growth = True
+            sess = tf.Session(config=config_proto)
             sess.run(tf.global_variables_initializer())
 
     return Graph()

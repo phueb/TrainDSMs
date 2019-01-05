@@ -133,7 +133,7 @@ class EmbedderBase(object):
 
     @property
     def vocab(self):
-        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.num_vocab, config.Corpus.name)
+        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if p.exists():
             vocab = np.loadtxt(p, 'str').tolist()
         else:

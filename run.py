@@ -17,7 +17,7 @@ from src.experiment import embed_and_evaluate
 # TODO neighbors: make sure they don't reappear often to bias correct no-answers durign testing
 # TODO neighbors: manually exclude neighbors which are actually synonyms or antonyms but not excluded automatically
 # TODO adagrad: sgd underperforms adagrad - implement adagrad
-# TODO cuda error unspecified launch failure - only occurs after completion of 1 training on GPU - flush memory?
+# TODO cuda error unspecified launch failure - only occurs after completion of 1 training on GPU - flush memory? - tensorflow grabs all gpu memory
 # TODO confusion matrix for syntactic cohyponym task - balance syntactic category sizes?
 # TODO there are only 200 semantic cohyponyms for tasa - make more
 # TODO use all vocab items for syntactic cohyponym task
@@ -25,9 +25,9 @@ from src.experiment import embed_and_evaluate
 
 
 embedders = chain(
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
-    (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
+    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
+    # (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
     (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
 )
