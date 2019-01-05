@@ -8,7 +8,6 @@ from src import config
 
 class Params:
     shuffled = [False, True]
-    margin = [50.0, 100.0]  # must be float, 50 is better than 100 on identification
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
@@ -87,6 +86,17 @@ def make_graph(evaluator, trial, embed_size):
         y = tf.matmul(x, wy)
         return y
 
+    def cosine_sim(left, right, eps=1e-12):
+        norm_left = tf.sqrt(tf.reduce_sum(tf.square(left), 1) + eps)
+        norm_right = tf.sqrt(tf.reduce_sum(tf.square(right), 1) + eps)
+        #
+        res = tf.reduce_sum(left * right, 1) / (norm_left * norm_right + 1e-10)
+        return res
+
+    def siamese_cosine_loss(pred_cos, y, dim0):
+        corr_cos = 2 * tf.cast(y, tf.float32) - 1  # converts range [0, 1] to [-1, 1]
+        return
+
     class Graph:
         with tf.Graph().as_default():
             with tf.device('/{}:0'.format(config.Eval.device)):
@@ -100,17 +110,10 @@ def make_graph(evaluator, trial, embed_size):
                     o1 = siamese_leg(x1, wy)
                     o2 = siamese_leg(x2, wy)
                 # loss
-                labels_t = y
-                labels_f = tf.subtract(1.0, y)
-                eucd2 = tf.pow(tf.subtract(o1, o2), 2)
-                eucd2 = tf.reduce_sum(eucd2, 1)
-                eucd = tf.sqrt(eucd2 + 1e-6)
-                C = tf.constant(trial.params.margin)
-                # yi*||o1-o2||^2 + (1-yi)*max(0, C-||o1-o2||^2)
-                pos = tf.multiply(labels_t, eucd2)
-                neg = tf.multiply(labels_f, tf.pow(tf.maximum(tf.subtract(C, eucd), 0), 2))
-                losses = tf.add(pos, neg)
-                loss_no_reg = tf.reduce_mean(losses)
+                corr_cos = 2 * tf.cast(y, tf.float32) - 1  # converts range [0, 1] to [-1, 1]
+                pred_cos = cosine_sim(o1, o2)
+                mb_size = tf.cast(tf.shape(o1)[0], tf.float32)
+                loss_no_reg = tf.nn.l2_loss(corr_cos - pred_cos) / mb_size
                 regularizer = tf.nn.l2_loss(wy)
                 loss = tf.reduce_mean((1 - trial.params.beta) * loss_no_reg +
                                       trial.params.beta * regularizer)
@@ -159,21 +162,21 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
                                                                graph.x2: x2_train,
                                                                graph.y: y_train})
-            # test acc cannot be computed because only partial eval sims mat is available
-            eucds = []
+            # x1_test and x2_test are 3d, where each 2d slice is a test-set-size batch of embeddings
+            cosines = []
             for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids):
-                eucd = graph.sess.run(graph.eucd, feed_dict={graph.x1: x1_mat,
-                                                             graph.x2: x2_mat})
-                eucds.append(eucd)
-                eval_sims_mat_row = 1.0 - (eucd / trial.params.margin)
+                cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: x1_mat,
+                                                           graph.x2: x2_mat})
+                cosines.append(cos)
+                eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
-            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:.1f} |any nans={} |mean-eucd={:.1f}'.format(
+            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
                 step,
                 num_train_steps - 1,
                 train_loss,
                 time.time() - start,
                 np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
-                np.mean(eucds)))
+                np.mean(cosines)))
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
@@ -183,6 +186,7 @@ def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):
     raise NotImplementedError
 
 # ////////////////////////////////////////////////////////////////////// figs
+
 
 def make_trial_figs(self, trial):
     raise NotImplementedError

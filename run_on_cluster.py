@@ -11,7 +11,11 @@ from src.embedders.w2vec import W2VecEmbedder
 
 from src.experiment import embed_and_evaluate
 
-# cluster-specific  # TODO
+
+# TODO ludwigcluster saves a configs.csv file that is loaded -
+# TODO the configs file (which wil be unique to each node) can simply have the name of the embedder to train
+
+# cluster-specific
 hostname = socket.gethostname()
 hostname2embedder_name = {'hinton': ['ww', 'wd'],
                           'hoff': ['sg', 'cbow'],

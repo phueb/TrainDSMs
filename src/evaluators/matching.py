@@ -10,7 +10,7 @@ from src.evaluators.base import EvalBase
 class MatchingParams:
     prop_negative = [0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
-    num_epochs = [100]  # 100 is better than 10 or 20 or 50 (when mb_size=64)
+    num_epochs = [10]
 
 
 class Matching(EvalBase):
