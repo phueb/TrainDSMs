@@ -12,14 +12,6 @@ VERBOSE = False
 LEMMATIZE = True
 
 
-def to_relation(col):
-    return col.split('_')[0]
-
-
-def to_object(col):
-    return col.split('_')[-1]
-
-
 def strip_pos(col):
     return col.split('-')[0]
 
@@ -36,24 +28,13 @@ def rename_relation(col):
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Eval.vocab_sizes:
-        # process mcrae data
-        in_path = config.Dirs.tasks / 'features' / 'mcrae_features.csv'
-        mcrae_df = pd.read_csv(in_path, index_col=False)
-        mcrae_df.rename(inplace=True, columns={'Feature': 'relatum'})
-        mcrae_df['concept'] = [w.split('_')[0] for w in mcrae_df['Concept']]
-        print('Number of unique concept words={}'.format(len(mcrae_df['concept'].unique())))
-        mcrae_df['relation'] = mcrae_df['relatum'].apply(to_relation)
-        num_relations = mcrae_df['relation'].groupby(mcrae_df['relation']).count().sort_values()
-        num_relations = num_relations.to_frame('frequency')
-        print(num_relations)
         # process BLESS data
         bless_df = pd.read_csv(config.Dirs.tasks / 'BLESS.txt', sep="\t", header=None)
-        bless_df.columns = ['concept', 'class', 'relation', 'relatum']
-        bless_df['concept'] = bless_df['concept'].apply(strip_pos)
+        bless_df.columns = ['Concept', 'class', 'relation', 'relatum']
+        bless_df['concept'] = bless_df['Concept'].apply(strip_pos)
         bless_df['relatum'] = bless_df['relatum'].apply(strip_pos)
         bless_df['relation'] = bless_df['relation'].apply(rename_relation)
         # make probes
-        concepts = mcrae_df['concept'].values.tolist() + bless_df['concept'].values.tolist()
         vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         assert len(vocab) == vocab_size
         probes = []

@@ -1,221 +1,247 @@
-pin end head
-tiger claws fur stripes teeth whiskers
-rooster beak comb feathers feet wings
-grapefruit inside peel seeds
-ant legs
-pineapple inside leaves outside skin
-card message pictures
-crocodile legs scales tail teeth
-bed blankets mattress pillows sheets spring
-table chairs legs
-dandelion seeds
-closet bars doors
-moose fur hair legs
-jet engine engines wheels wings
-peacock beak feathers tail
-cabbage leaves
-flamingo beak feathers legs neck
-cart wheels
-fox fur legs tail teeth
-cat claws eyes fur legs paws tail whiskers
-bucket handle
-bull horns nose
-cranberry skin
-bike bars bell chain seat wheels
-apple seeds skin
-radio antenna control
-jeep drive roof wheels
-comb teeth
-squirrel fur legs tail
-bottle lid neck
-goat beard fur horns legs tail
-sweater sleeves
-helmet strap
-clam shell
-screwdriver handle head heads
-tricycle bars seat wheels
-horse legs mane tail
-giraffe legs neck spots
-belt holes
-snail shell
-pillow case
-tripod legs
-donkey ears legs tail
-orange peel seeds
-broccoli flowers leaves
-eagle beak claws feathers wings
-scooter bars engine wheels
-beaver tail teeth
-duck beak bill feathers feet wings
-elevator buttons doors
-beetle eyes legs shell wings
-door handle knob lock
-gorilla arms hair
-train caboose cars engine wheels
-pot handle lid
-sheep legs wool
-blouse buttons collar sleeves
-oven control door
-banjo neck strings
+pear skin juice leaf peel seed skin
 dog fur hair legs nose tail
-pig legs tail
-goldfish scales
-avocado seeds
-shirt buttons collar pockets sleeves
-salmon tail
-leopard legs spots
-whistle inside
-van doors engine wheels
-camel legs
-car doors engine wheel wheels windows
-drill bits
-couch legs pillows
-seal whiskers
-turtle head legs shell
-hammer handle head
-doll clothes hair
-tortoise head legs shell
-brush handle
-pan handle lid
-truck engine wheels
-rake handle teeth
-piano bench keys strings
-ostrich beak feathers legs neck wings
-cupboard doors
-violin bow case rest strings
-building doors roof rooms walls windows
-umbrella handle
-lobster claws eyes shell tail
-basement walls windows
-knife handle
-tent door
-guitar hole strings
+sweater sleeves arm back button collar cotton fold front neck pocket sleeve wool
+castle bathroom bedroom brick bridge ceiling door fireplace floor furniture garden gate hall inside king kitchen outside prince princess queen roof room stairs stone tower wall window
 caterpillar legs
-coconut hair inside milk outside shell
-toad legs tongue
-skunk fur legs tail
-sailboat motor
-fan guard propeller
-crow beak feathers wings
-strawberry leaves seeds
-trolley wheels
-wrench handle
-peach skin stone
-box lid sides
-cage bars door lock
-apron strings
-mushroom cap
-celery leaves
-basket handle
-kite string
-hamster fur tail
-raspberry seeds
-sword end handle
-drum skin
-tomato seeds
-fridge doors drawers freezer inside
-lettuce inside leaves water
-spider eyes legs
-tie knot
-carrot end top
-house doors roof rooms windows
-plum inside skin
-pear skin
-bench back legs
-deer eyes fur legs tail
-rat eyes fur legs tail teeth whiskers
-banana peel skin
-penguin beak feet wings
-vest buttons sleeves zipper
-shovel end handle
-grape seeds skin
-spinach leaves
-ruler inches numbers
-hose runs
-tank guns tracks wheels
-cow eyes legs
-church cross seats windows
-mouse ball buttons cord fur tail whiskers
-broom handle
-plug cord wires
-garlic skin
 book cover it numbers pages pictures
-flute holes keys
-trailer kitchen wheels
-pen cap end ink point
-grasshopper legs wings
-desk drawers legs surface
-cup handle
-raccoon eyes mask stripes tail
-pickle seeds
-coat buttons hood pockets sleeves zipper
-pony hair legs mane tail
-chicken beak feathers legs wings
-buffalo hair horns legs
-elephant ears legs tail trunk
-apartment bathroom bedroom kitchen windows
-barrel lid
-goose beak feathers feet wings
-dress sleeves
-stove oven
-zebra legs mane stripes tail
-jacket buttons hood pockets sleeves zipper
-magazine cover it pages pictures
-boat motor
-chair back legs seat
-lion fur mane tail teeth
-bedroom bed closet dresser walls window
-envelope seal
-sofa bed legs pillows
-alligator mouth scales tail teeth
-stool legs rest seat
-cottage fireplace roof windows
+mushroom cap
+tractor seat wheels
+toaster plug bread engine inside metal plug rack top
+ant legs antenna body head leg
+house doors roof rooms windows
+church cross seats windows
+cart wheels
+cage bars door lock
+bowl bottom cereal clay color edge food glass inside milk outside plastic rice soup top water wood
+gate lock
+sailboat motor
+coconut hair inside milk outside shell hair meat milk shell
+salmon tail bone eye head mouth scale skin tail
+owl beak eyes feathers wings beak eye feather foot head wing
+frog eyes legs tongue blood bone eye foot head leg skin tongue
+belt holes
+sofa bed legs pillows arm back foot leg pillow seat wood
+basket handle
+giraffe legs neck spots ear eye foot head leg mouth neck nose skin spot tail tongue tooth
+freezer doors inside door drawer engine food front inside metal motor plug shelf
+spider eyes legs
+oven control door control door food gas inside metal microwave plug rack timer
+wagon handle wheels
+moose fur hair legs
+hose runs
+bottle lid neck beer bottom cap glass inside lid milk mouth neck outside plastic soda water wine
+corn ears ear head
+broccoli flowers leaves flower leaf
+gorilla arms hair arm ear eye foot fur hair hand head leg mouth neck nose tooth
+elephant ears legs tail trunk ear eye head leg mouth nose skin tail tooth trunk
+lion fur mane tail teeth ear eye fur head leg mane mouth nose paw tail tooth
+pineapple inside leaves outside skin juice leaf peel shell skin vitamin
+seal whiskers
+closet bars doors
+lizard blood eye head leg mouth scale skin tail tongue
+donkey ears legs tail bit ear eye foot hair head leg mane mouth neck nose saddle shoe stomach tail
+tomato seeds
+cupboard doors
+scooter bars engine wheels back color driver engine front gas horn light metal mirror motor oil plate seat tank tire wheel
+goose beak feathers feet wings beak eye feather foot head neck wing
+drum skin
+jar lid bottom cap coffee color cookie edge food glass inside jam lid outside pickle pickles plastic top
+basement walls windows
+knife handle edge end handle head iron metal plastic point silver tip tooth
+crow beak feathers wings beak eye feather foot head wing
+bathtub drain plug
+lantern candle
+toad legs tongue
+ruler inches numbers
+library book brick ceiling computer door elevator floor inside ladder office outside person roof room shelf stairs window
+penguin beak feet wings beak eye feather foot head neck wing
+goldfish scales bone eye head mouth scale skin tail
 wheelbarrow bin wheel wheels
-cabinet doors drawers
-bear claws feet fur legs paws teeth
-butterfly wings
-porcupine legs
-buggy handle seats wheels
-cod scales
-rabbit ears feet tail teeth whiskers
-stick bark
-barn doors
-mixer bowls
-garage doors
+zebra legs mane stripes tail
+stool legs rest seat
+beetle eyes legs shell wings antenna body head leg shell wing
+flute holes keys hole key metal nickel silver wood
+pig legs tail ear eye foot head leg mouth nose skin
+kite string
+apple seeds skin juice leaf peel seed skin vitamin
+lettuce inside leaves water leaf
+rat eyes fur legs tail teeth whiskers ear eye fur head leg mouth nose tail tooth
+jacket buttons hood pockets sleeves zipper arm back button collar cotton fold front fur hood neck pocket shoulder sleeve tail wool zipper
+train caboose cars engine wheels back caboose carriage coal diesel door driver electricity engine front iron motor passenger seat steam top track wheel window
+turkey feathers wings
+screwdriver handle head heads end handle head iron metal plastic point
+door handle knob lock
+crocodile legs scales tail teeth
+rabbit ears feet tail teeth whiskers ear eye fur head leg mouth nose tail tooth
+pumpkin seeds
+clock alarm batteries face hands numbers
+bucket handle
+chair back legs seat arm back cover foot leg metal plastic seat wheel wood
+banana peel skin peel skin
+robin beak feathers beak eye feather foot head neck wing
+umbrella handle
+violin bow case rest strings back body bottom bout bow bridge front hole neck rest string top wood
+tank guns tracks wheels
+trailer kitchen wheels
+trolley wheels
+pen cap end ink point
+buffalo hair horns legs
+helmet strap
+building doors roof rooms walls windows
 football ends
 hyena legs
-dresser drawers
-bathtub drain plug
-lamb fur legs wool
-clock alarm batteries face hands numbers
-robin beak feathers
-turkey feathers wings
-wagon handle wheels
-airplane engines propeller wings
-frog eyes legs tongue
+leopard legs spots
 bat fur wings
-microwave doors
-pencil end eraser
-lantern candle
-fork handle
-freezer doors inside
-corn ears
-gate lock
-pumpkin seeds
-lemon peel seeds skin
-spoon end handle
-potato eyes inside skin
+clam shell
+doll clothes hair
 toilet seat
-jar lid
-motorcycle engine wheels
-lamp cord shade switch
-ambulance lights siren wheels
-bow string
-toaster plug
-tractor seat wheels
-owl beak eyes feathers wings
-sink drain plug
+dress sleeves arm back button cotton fold front neck pocket ribbon skirt sleeve strap wool zipper
+bike bars bell chain seat wheels
+sheep legs wool ear eye foot head horn leg meat mouth nose wool
+box lid sides bottom cardboard color edge inside key lid lock outside paper plastic side tin top wood
+apron strings
+alligator mouth scales tail teeth eye foot leg mouth scale skin tail tooth
+horse legs mane tail bit ear eye foot hair head leg mane meat mouth neck nose saddle shoe stomach tail
+stick bark
+cat claws eyes fur legs paws tail whiskers collar ear eye fur head leg mouth nose paw tail tooth
+tent door
+pickle seeds
+turtle head legs shell eye foot head leg neck scale shell skin tail
+whistle inside
+tricycle bars seat wheels
+raspberry seeds
+buggy handle seats wheels
+strawberry leaves seeds leaf seed
+wrench handle handle head iron metal
+mixer bowls
+avocado seeds
+television antenna control metal plastic plug screen show tube video wire
+cabbage leaves head leaf
+duck beak bill feathers feet wings
+grape seeds skin juice seed skin
+whale bone eye fat head mouth oil skin tail tooth
+radio antenna control antenna battery control dial metal music plastic plug wire
+raccoon eyes mask stripes tail
+fan guard propeller
+cottage fireplace roof windows bathroom bedroom brick ceiling door fireplace floor furniture garage garden inside kitchen outside roof room stairs stone window wood
+hospital bed brick ceiling center computer doctor door elevator floor inside machine nurse office outside patient person roof room stairs table window
+hammer handle head handle head iron metal wood
+fork handle end handle head iron metal plastic silver tooth
+pillow case
+pony hair legs mane tail
+boat motor
+chicken beak feathers legs wings
+pan handle lid
+apartment bathroom bedroom kitchen windows
+blouse buttons collar sleeves arm back button collar cotton fold front neck pocket sleeve tail
+plug cord wires
+tortoise head legs shell
+phone antenna button cord dial number plastic wire
+carrot end top end leaf top vitamin
+plum inside skin juice peel skin stone
+jeep drive roof wheels
+tie knot
+pot handle lid
+eagle beak claws feathers wings beak eye feather foot head wing
+beaver tail teeth ear eye foot fur head leg mouth nose tail tooth
+garlic skin bulb skin
+rake handle teeth handle iron metal pole tooth wood
+cow eyes legs beef ear eye foot head horn leg meat mouth nose skin spot stomach
+table chairs legs cloth cover drawer drawers foot leg metal surface top wood
 calf legs tail
-crab claws legs shell
-rattle handle inside
+helicopter back door engine front gas light metal motor pilot propeller seat tail top wheel window
+tuna bone eye head mouth scale skin tail
+spoon end handle handle head iron metal plastic silver wood
+scarf wool
+ambulance lights siren wheels back belt bumper door driver engine floor front gas hood horn inside light metal mirror motor oil passenger plate radio roof seat seatbelt siren tank tire top trunk wheel window
+snake bone eye head mouth scale skin tail tongue tooth
+cabinet doors drawers
+bed blankets mattress pillows sheets spring blanket mattress pillow sheet spring straw wood
+pine bark branch cone crown needle root trunk wood
+mouse ball buttons cord fur tail whiskers
+sink drain plug
+lamb fur legs wool
+magazine cover it pages pictures
+cherry stone
+skunk fur legs tail
+cranberry skin juice skin
+spinach leaves iron leaf
+dandelion seeds
+bomber back captain door engine flap front gas gun light metal motor pilot propeller seat tail top wheel window wing
+grapefruit inside peel seeds juice peel seed skin vitamin
+desk drawers legs surface drawer iron leg metal surface top wood
+pin end head
+vest buttons sleeves zipper back button cotton front wool
+fighter back captain door engine flap front gas gun light metal motor pilot propeller seat tail top wheel window wing
+airplane engines propeller wings
+bench back legs
+broom handle
+bedroom bed closet dresser walls window
+pencil end eraser
+coat buttons hood pockets sleeves zipper arm back button collar fold front fur hood neck pocket sleeve tail wool zipper
+orange peel seeds
+goat beard fur horns legs tail beard ear eye foot head horn leg meat mouth nose tail
+deer eyes fur legs tail ear eye foot fur head leg meat mouth nose tail
+cod scales bone eye head mouth scale skin tail
+ostrich beak feathers legs neck wings
+rooster beak comb feathers feet wings
+bull horns nose beef ear eye foot head horn leg meat mouth nose skin spot stomach tail
+bag bottom color handle inside key outside paper plastic pouch wallet
+truck engine wheels back belt bumper color diesel door driver engine floor front gas hood horn inside light metal mirror motor oil plate radio roof seat seatbelt tank tire top trailer trunk wheel window
+van doors engine wheels back belt bumper color diesel door driver engine floor front gas hood horn inside light metal mirror motor oil passenger plate radio roof seat seatbelt tank tire top trailer trunk wheel window
+tanker bow bridge caboose captain engine iron metal oil poop propeller skeleton tank
+lemon peel seeds skin juice peel seed skin vitamin
+lobster claws eyes shell tail
+fridge doors drawers freezer inside door drawer drink engine food inside metal motor plug shelf top
+bow string
+potato eyes inside skin eye peel skin
+elevator buttons doors
+saw edge handle iron metal tooth wood
 telephone buttons cord dial numbers
+porcupine legs
+dresser drawers clothes drawer dress foot handle leg mirror plate shelf silverware top wood
+butterfly wings antenna body color head leg wing
+shirt buttons collar pockets sleeves arm back button collar cotton fold front neck pocket sleeve tail
+fox fur legs tail teeth ear eye fur head leg mouth nose tail tooth
+drill bits
+card message pictures
+microwave doors
+banjo neck strings
+flamingo beak feathers legs neck
+hat back crown felt front inside outside top wool
+piano bench keys strings back bottom front key string top wood
+shovel end handle edge end handle iron metal wood
+rattle handle inside
+snail shell
+restaurant bar bottle brick ceiling chair cook counter dish door drink floor food garden glass inside kitchen light meal outside parking person roof seat stone table window wood
+squirrel fur legs tail ear eye foot fur head leg mouth nose tail tooth
+grasshopper legs wings antenna body head leg shell wing
+peacock beak feathers tail
+dolphin bone eye head mouth skin tail tooth
+car doors engine wheel wheels windows back belt bumper color diesel door driver engine floor front gas hood horn inside light metal mirror motor oil passenger plate radio roof seat seatbelt tank tire top trunk wheel window
+gun barrel bolt charge handle lock magazine metal
+jet engine engines wheels wings back door engine front gas light metal motor passenger pilot propeller seat tail top wheel window wing
+camel legs
+cup handle
+comb teeth
+sword end handle edge end guard handle metal point tip
+peach skin stone juice peel skin stone
+couch legs pillows arm back foot leg pillow seat wood
+lamp cord shade switch
+tiger claws fur stripes teeth whiskers ear eye fur head leg mane mouth nose paw tail tooth
+tripod legs
+motorcycle engine wheels back color driver engine front gas horn light metal mirror motor oil plate seat tank tire wheel
+envelope seal
+guitar hole strings back body bottom bridge front hole neck plastic strap string top wood
+celery leaves leaf
+glove finger thumb wool
+barrel lid
+crab claws legs shell
+hotel bar bed bedroom brick ceiling desk door elevator floor garage garden inside outside parking person pool roof room stairs stone window wood
+bookcase book inside metal shelf side top wood
+bear claws feet fur legs paws teeth ear eye fur head leg mouth nose paw tooth
+barn doors
+hamster fur tail
+brush handle
+stove oven electricity food gas metal plug top wood
+garage doors

@@ -126,6 +126,7 @@ def make_graph(evaluator, trial, embed_size):
                 regularizer = tf.nn.l2_loss(wy)
                 loss = tf.reduce_mean((1 - trial.params.beta) * loss_no_reg +
                                       trial.params.beta * regularizer)
+                # optimizer - sgd is not worse or better
                 optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                 step = optimizer.minimize(loss)
             # session

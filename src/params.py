@@ -93,14 +93,14 @@ class CountParams:
     reduce_type = [
         ['svd', 30],
         ['svd', 200],
-        ['svd', 500],
+        # ['svd', 500],
         # [None, None]
     ]
 
 
 class RNNParams:
     rnn_type = ['lstm', 'srn']
-    embed_size = [30, 200, 500]
+    embed_size = [30, 200]
     train_percent = [0.9]
     num_eval_steps = [1000]
     shuffle_per_epoch = [True]
@@ -116,19 +116,19 @@ class RNNParams:
 
 class Word2VecParams:
     w2vec_type = ['sg', 'cbow']
-    embed_size = [30, 200, 500]
+    embed_size = [30, 200]
     window_size = [7, 16]
     num_epochs = [20]
 
 
 class GloveParams:
     glove_type = 'python'
-    embed_size = [30, 200, 500]
+    embed_size = [30, 200]
     window_size = [7, 16]
     num_epochs = [20]  # semantic novice ba:  10: 0.64, 20: 0.66,  40: 0.66
     lr = [0.05]
 
 
 class RandomControlParams:
-    embed_size = [30, 200, 500]
+    embed_size = [30, 200]
     random_type = ['normal']

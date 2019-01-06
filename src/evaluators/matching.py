@@ -10,7 +10,7 @@ from src.evaluators.base import EvalBase
 class MatchingParams:
     prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
-    num_epochs = [100]  # 20 for cohyponyms
+    num_epochs = [50]  # 20 for cohyponyms but 50 for nyms
 
 
 class Matching(EvalBase):
