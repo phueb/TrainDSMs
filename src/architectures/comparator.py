@@ -11,7 +11,7 @@ class Params:
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
-    num_output = [100]  # 100 is better than 30
+    num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
     # arch-evaluator interaction
     num_epochs = None  # larger for matching vs identification task
 
@@ -106,7 +106,16 @@ def make_graph(evaluator, trial, embed_size):
                 y = tf.placeholder(tf.float32, [None])
                 # siamese
                 with tf.variable_scope('trial_{}'.format(trial.params_id), reuse=tf.AUTO_REUSE) as scope:
-                    wy = tf.get_variable('wy', shape=[embed_size, trial.params.num_output], dtype=tf.float32)
+                    if trial.params.num_output is None:
+                        print('Initializing expert weight matrix with identity matrix.')
+                        num_output = embed_size
+                        init = tf.constant_initializer(np.eye(num_output))
+                    else:
+                        print('Initializing expert weight matrix with random values.')
+                        num_output = trial.params.num_output
+                        init = None
+                    wy = tf.get_variable('wy', shape=[embed_size, num_output], dtype=tf.float32,
+                                         initializer=init)
                     o1 = siamese_leg(x1, wy)
                     o2 = siamese_leg(x2, wy)
                 # loss

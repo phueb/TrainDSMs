@@ -56,11 +56,9 @@ class Aggregator:
             return param2val['w2vec_type']
         elif 'count_type' in param2val:
             return param2val['count_type'][0]
-        elif 'count_type' in param2val:
-            return param2val['count_type'][0]
+        elif 'glove_type' in param2val:
+            return param2val['glove_type']
         else:
-            print("WARNING: RETURNING GLVOE AS EMBEDDER NAME")  # TODO
-            return 'glove'
             raise RuntimeError('Unknown embedder name')
 
     def make_df(self, load_from_file=False):
@@ -87,12 +85,12 @@ class Aggregator:
             df = self.make_embedder_df(embedder_p, corpus, num_vocab, embed_size, time_of_init, embedder)
             if len(df) > 0:
                 dfs.append(df)
-        res = pd.concat(dfs, axis=0)
         if dfs:
+            res = pd.concat(dfs, axis=0)
             self.df = res
             return res
         else:
-            return pd.DataFrame()
+            raise RuntimeError('Did not find any scores.')
 
     def make_embedder_df(self, embedder_p, corpus, num_vocab, embed_size, time_of_init, embedder):
         dfs = []

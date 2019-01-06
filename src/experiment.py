@@ -1,13 +1,10 @@
 
 
 from src import config
-
 from src.architectures import comparator
 from src.architectures import classifier
-
 from src.evaluators.identification import Identification
 from src.evaluators.matching import Matching
-
 from src.embedders.base import w2e_to_sims
 
 
@@ -31,7 +28,7 @@ def embed_and_evaluate(embedder):
         # classifier
     ]:
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
             # Matching(architecture, 'cohyponyms', 'syntactic'),
             # Matching(architecture, 'features', 'is'),
             # Matching(architecture, 'features', 'has'),
@@ -39,7 +36,7 @@ def embed_and_evaluate(embedder):
             # Matching(architecture, 'nyms', 'ant'),
             # Matching(architecture, 'hypernyms'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_unfiltered'),
+            # Identification(architecture, 'nyms', 'syn', suffix='_unfiltered'),
             # Identification(architecture, 'nyms', 'ant', suffix='_unfiltered'),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
         ]:

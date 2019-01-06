@@ -19,7 +19,7 @@ class Eval:
     num_reps = 2
     num_folds = 4
     vocab_sizes = [4096]  # also: 8192, 16384
-    retrain = True
+    retrain = False
     save_scores = True
     save_figs = False
     num_opt_steps = 5

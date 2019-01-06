@@ -8,7 +8,7 @@ from src.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [None, 0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
+    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
     num_epochs = [100]  # 20 for cohyponyms
 
@@ -113,9 +113,10 @@ class Matching(EvalBase):
                 probes1.append(probe)
                 probe_relata1.append(relata)
                 num_relata_list.append(len(relata))
-        # keep number of relata constant  # TODO doing this is not ideal due to small size of data (relata)
+        # keep number of relata constant  - this is not ideal due to small size of data (relata)
         min_num_relata = min(num_relata_list)
         if config.Eval.standardize_num_relata:
+            print('WARNING: Standardizing number of relata.')
             probes2 = []
             probe_relata2 = []
             for probe, relata in zip(probes1, probe_relata1):

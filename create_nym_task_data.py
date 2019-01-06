@@ -112,7 +112,7 @@ if __name__ == '__main__':
             probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
         #
         for nym_type in ['syn', 'ant']:
-            out_path = config.Dirs.tasks / 'nyms' / nym_type / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+            out_path = config.Dirs.tasks / 'nyms' / nym_type / '{}_{}_unfiltered.txt'.format(CORPUS_NAME, vocab_size)
             if not out_path.parent.exists():
                 out_path.parent.mkdir()
             with out_path.open('w') as f:
