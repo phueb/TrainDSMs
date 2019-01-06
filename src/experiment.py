@@ -36,8 +36,8 @@ def embed_and_evaluate(embedder):
             # Matching(architecture, 'nyms', 'ant'),
             # Matching(architecture, 'hypernyms'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix=''),
-            Identification(architecture, 'nyms', 'ant', suffix=''),
+            Identification(architecture, 'nyms', 'syn', suffix=''),
+            # Identification(architecture, 'nyms', 'ant', suffix=''),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
         ]:
             for rep_id in range(config.Eval.num_reps):
@@ -67,6 +67,3 @@ def embed_and_evaluate(embedder):
                 else:
                     print('Embedder completed "{}" replication {}'.format(ev.full_name, rep_id))
                     print('---------------------------------------------')
-
-
-

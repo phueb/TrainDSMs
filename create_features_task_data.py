@@ -37,8 +37,7 @@ if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Eval.vocab_sizes:
         # process mcrae data
-        in_path = config.Dirs.tasks / 'features' / 'mcrae_features.csv'
-        mcrae_df = pd.read_csv(in_path, index_col=False)
+        mcrae_df = pd.read_csv(config.Dirs.tasks / 'features' / 'mcrae_features.csv', index_col=False)
         mcrae_df.rename(inplace=True, columns={'Feature': 'relatum'})
         mcrae_df['concept'] = [w.split('_')[0] for w in mcrae_df['Concept']]
         print('Number of unique concept words={}'.format(len(mcrae_df['concept'].unique())))
@@ -70,7 +69,7 @@ if __name__ == '__main__':
                         if w in concepts:
                             probes.append(w)
         if LEMMATIZE:
-            probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
+            probes = set([probe for probe in probes if probe in vocab])  # lemmas may not be in vocab
         # write to file
         for relation in ['has', 'is']:
             out_path = config.Dirs.tasks / 'features' / relation / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
