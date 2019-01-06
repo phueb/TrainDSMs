@@ -14,7 +14,7 @@ from src.experiment import embed_and_evaluate
 # TODO BUGS:
 # TODO neighbors reappear  to bias correct no-answers during testing
 # TODO neighbors: neighbors which are actually synonyms or antonyms are not excluded automatically
-# TODO adagrad: sgd underperforms adagrad - implement adagrad
+# TODO adagrad: sgd underperforms adagrad for rnn - implement adagrad
 # TODO unittests: don't work + need more
 
 

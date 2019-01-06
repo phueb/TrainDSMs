@@ -196,6 +196,10 @@ class Aggregator:
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
         df = self.make_df(load_from_file=load_from_file)
+
+        # TODO
+        print(df)
+
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
@@ -273,6 +277,8 @@ class Aggregator:
         plt.tight_layout()
         labels1 = embedder_names
         labels2 = self.stages
+        if not bars_list:
+            raise RuntimeError('No scores found for given factors.')
         self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)
         fig.subplots_adjust(bottom=0.1)
         plt.show()

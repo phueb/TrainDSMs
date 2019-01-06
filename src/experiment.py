@@ -28,16 +28,16 @@ def embed_and_evaluate(embedder):
         # classifier
     ]:
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'semantic'),
-            # Matching(architecture, 'cohyponyms', 'syntactic'),
-            # Matching(architecture, 'features', 'is'),
-            # Matching(architecture, 'features', 'has'),
-            # Matching(architecture, 'nyms', 'syn'),
-            # Matching(architecture, 'nyms', 'ant'),
-            # Matching(architecture, 'hypernyms'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'syntactic'),
+            Matching(architecture, 'features', 'is'),
+            Matching(architecture, 'features', 'has'),
+            Matching(architecture, 'nyms', 'syn'),
+            Matching(architecture, 'nyms', 'ant'),
+            Matching(architecture, 'hypernyms'),
             Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix=''),
+            # Identification(architecture, 'nyms', 'syn', suffix=''),
             # Identification(architecture, 'nyms', 'ant', suffix=''),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
         ]:
