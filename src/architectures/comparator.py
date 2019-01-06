@@ -172,7 +172,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
-            print('step {:>6,}/{:>6,} |Train Loss={:>7.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
+            print('step {:>9,}/{:>9,} |Train Loss={:>2.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
                 step,
                 num_train_steps - 1,
                 train_loss,

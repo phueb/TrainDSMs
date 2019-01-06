@@ -15,12 +15,13 @@ from src import config
 
 DEBUG = False  # reduces computation time
 
-NYM_TYPE = 'syn'
+NYM_TYPE = 'ant'
 
 CORPUS_NAME = config.Corpus.name
 VOCAB_SIZE = config.Corpus.num_vocab
 DISTANCE_THR = 7 * 2  # distance in number of words
 NUM_PROCESSES = 8
+ADD_MORE_ANTS = True
 
 config.Eval.max_num_eval_rows = 10000
 config.Eval.max_num_eval_cols = 10000
@@ -51,10 +52,10 @@ embedders = (RandomControlEmbedder(param2id, param2val)
 embedder = next(embedders)
 embedder.train()  # populates w2e
 # evaluator
-ev = Matching(comparator, 'nyms', NYM_TYPE)
+ev = Matching(comparator, 'nyms', NYM_TYPE, suffix='_unfiltered')
 vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
 all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(
-    vocab_sims_mat, embedder.vocab, suffix='_unfiltered')  # populates probe2relata
+    vocab_sims_mat, embedder.vocab)  # populates probe2relata
 ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
                         all_eval_probes, all_eval_candidates_mat, rep_id=0)
 row_and_col_words = set(ev.row_words + ev.col_words)
@@ -85,6 +86,81 @@ else:
 for k, v in new_probe2relata.items():
     print(k, v)
 print('Num kept pairs={}'.format(num_kept))
+
+# add nyms from https://www.researchgate.net/publication/249745008_Antonyms_in_children%27s_and_child-directed_speech
+if ADD_MORE_ANTS and NYM_TYPE == 'ant':
+    more_nyms = [('after', 'before'),
+                 ('bring', 'take'),
+                 ('empty', 'full'),
+                 ('long', 'short'),
+                 ('ahead', 'behind'),
+                 ('ceiling', 'floor'),
+                 ('lose', 'win'),
+                 ('alive', 'dead'),
+                 ('clean', 'dirty'),
+                 ('fast', 'slow'),
+                 ('loud', 'quiet'),
+                 ('alone', 'together'),
+                 ('close', 'far'),
+                 ('find', 'lose'),
+                 ('man', 'woman'),
+                 ('always', 'never'),
+                 ('close', 'open'),
+                 ('finish', 'start'),
+                 ('new', 'old'),
+                 ('answer', 'question'),
+                 ('cold', 'hot'),
+                 ('first', 'last'),
+                 ('off', 'on'),
+                 ('apart', 'together'),
+                 ('cool', 'warm'),
+                 ('forget', 'remember'),
+                 ('open', 'shut'),
+                 ('bad', 'good'),
+                 ('dark', 'light'),
+                 ('give', 'take'),
+                 ('over', 'under'),
+                 ('begin', 'end'),
+                 ('day', 'night'),
+                 ('glad', 'sad'),
+                 ('pretend', 'real'),
+                 ('behind', 'front'),
+                 ('dead', 'living'),
+                 ('happy', 'sad'),
+                 ('pull', 'push'),
+                 ('big', 'little'),
+                 ('die', 'live'),
+                 ('hard', 'soft'),
+                 ('right', 'wrong'),
+                 ('big', 'small'),
+                 ('different', 'same'),
+                 ('hate', 'like'),
+                 ('run', 'walk'),
+                 ('black', 'white'),
+                 ('down', 'up'),
+                 ('hate', 'love'),
+                 ('short', 'tall'),
+                 ('bottom', 'top'),
+                 ('dry', 'wet'),
+                 ('heavy', 'light'),
+                 ('sit', 'stand'),
+                 ('boy', 'girl'),
+                 ('early', 'late'),
+                 ('in', 'out'),
+                 ('smart', 'stupid'),
+                 ('break', 'fix'),
+                 ('easy', 'hard'),
+                 ('leave', 'stay'),
+                 ('with', 'without'),
+                 ('bright', 'dark'),
+                 ('left', 'right'),
+                 ('far', 'near')]
+    for p1, p2 in more_nyms:
+        if p1 in embedder.vocab and p2 in embedder.vocab:
+            try:
+                new_probe2relata[p1].add(p2)
+            except KeyError:
+                new_probe2relata[p1] = {p2}
 
 # write to file
 out_path = config.Dirs.tasks / 'nyms' / NYM_TYPE / '{}_{}.txt'.format(CORPUS_NAME, VOCAB_SIZE)

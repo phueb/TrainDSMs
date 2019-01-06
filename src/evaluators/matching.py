@@ -10,11 +10,11 @@ from src.evaluators.base import EvalBase
 class MatchingParams:
     prop_negative = [None, 0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
-    num_epochs = [20]
+    num_epochs = [100]  # 20 for cohyponyms
 
 
 class Matching(EvalBase):
-    def __init__(self, arch, data_name1, data_name2=None, matching_params=None):
+    def __init__(self, arch, data_name1, data_name2=None, matching_params=None, suffix=''):
         super().__init__(arch.name,
                          arch.Params,
                          arch.init_results_data,
@@ -26,12 +26,15 @@ class Matching(EvalBase):
         #
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
+        self.suffix = suffix
+        if self.suffix is not '':
+            print('WARNING: Using task file suffix "{}".'.format(suffix))
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def make_all_eval_data(self, vocab_sims_mat, vocab, suffix=None):
+    def make_all_eval_data(self, vocab_sims_mat, vocab):
         # load
-        probes, probe_relata = self.load_probes(suffix)  # relata can be synonyms, hypernyms, etc.
+        probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
         relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         #
@@ -94,10 +97,10 @@ class Matching(EvalBase):
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 
-    def load_probes(self, suffix=None):
+    def load_probes(self):
         data_dir = '{}/{}'.format(self.data_name1, self.data_name2) if self.data_name2 is not None else self.data_name1
         p = config.Dirs.tasks / data_dir / '{}_{}{}.txt'.format(
-            config.Corpus.name, config.Corpus.num_vocab, suffix)
+            config.Corpus.name, config.Corpus.num_vocab, self.suffix)
         probes1 = []
         probe_relata1 = []
         num_relata_list = []

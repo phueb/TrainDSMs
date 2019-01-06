@@ -12,18 +12,17 @@ from src.experiment import embed_and_evaluate
 
 
 # TODO BUGS:
-# TODO nym task doesn't get above chance - make option to filter by POS - otherwise can't get above chance
 # TODO neighbors reappear  to bias correct no-answers during testing
 # TODO neighbors: neighbors which are actually synonyms or antonyms are not excluded automatically
 # TODO adagrad: sgd underperforms adagrad - implement adagrad
 
 
 embedders = chain(
+    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
     (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
     (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
     # (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
     (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
 )
 
 # run full experiment

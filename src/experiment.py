@@ -31,17 +31,17 @@ def embed_and_evaluate(embedder):
         # classifier
     ]:
         for ev in [
-            Matching(architecture, 'cohyponyms', 'semantic'),
-            Matching(architecture, 'cohyponyms', 'syntactic'),
+            # Matching(architecture, 'cohyponyms', 'semantic'),
+            # Matching(architecture, 'cohyponyms', 'syntactic'),
             # Matching(architecture, 'features', 'is'),
             # Matching(architecture, 'features', 'has'),
             # Matching(architecture, 'nyms', 'syn'),
             # Matching(architecture, 'nyms', 'ant'),
             # Matching(architecture, 'hypernyms'),
 
-            # Identification(architecture, 'nyms', 'syn'),
+            Identification(architecture, 'nyms', 'syn'),
             # Identification(architecture, 'nyms', 'ant'),
-            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold
+            # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
         ]:
             for rep_id in range(config.Eval.num_reps):
                 if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):

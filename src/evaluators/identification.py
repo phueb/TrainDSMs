@@ -8,10 +8,10 @@ from src.scores import calc_accuracy
 
 
 class IdentificationParams:
-    only_positive_examples = [True, False]  # performance can be much better without negative examples
+    only_positive_examples = [False, True]  # performance can be much better without negative examples
     train_on_second_neighbors = [True]  # performance can be much better with additional training
     # arch-evaluator interaction
-    num_epochs = [500]  # 500 is better than 100 or 200, 300 (when mb_size=500)
+    num_epochs = [1000]  # 500 is better than 100 or 200, 300 (when mb_size=500)
 
 
 class Identification(EvalBase):
@@ -70,7 +70,7 @@ class Identification(EvalBase):
         # make candidates_mat
         all_eval_candidates_mat = []
         for n, probe in enumerate(all_eval_probes):
-            if first_neighbors[n] == eval_relata[n]:  # TODO doesn't exclude laternative spellings or morphologies (or alternative synonyms)
+            if first_neighbors[n] == eval_relata[n]:  # TODO doesn't exclude alternative spellings or morphologies (or alternative synonyms)
                 first_neighbors[n] = neutrals[n]
             if second_neighbors[n] == eval_relata[n]:
                 second_neighbors[n] = neutrals[n]
