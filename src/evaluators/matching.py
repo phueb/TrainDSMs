@@ -29,9 +29,9 @@ class Matching(EvalBase):
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def make_all_eval_data(self, vocab_sims_mat, vocab):
+    def make_all_eval_data(self, vocab_sims_mat, vocab, suffix=None):
         # load
-        probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
+        probes, probe_relata = self.load_probes(suffix)  # relata can be synonyms, hypernyms, etc.
         relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         #
@@ -94,10 +94,10 @@ class Matching(EvalBase):
 
     # //////////////////////////////////////////////////// Overwritten Methods END
 
-    def load_probes(self):
+    def load_probes(self, suffix=None):
         data_dir = '{}/{}'.format(self.data_name1, self.data_name2) if self.data_name2 is not None else self.data_name1
-        p = config.Dirs.tasks / data_dir / '{}_{}.txt'.format(
-            config.Corpus.name, config.Corpus.num_vocab)
+        p = config.Dirs.tasks / data_dir / '{}_{}{}.txt'.format(
+            config.Corpus.name, config.Corpus.num_vocab, suffix)
         probes1 = []
         probe_relata1 = []
         num_relata_list = []

@@ -15,7 +15,6 @@ from sortedcontainers import SortedDict
 from src import config
 
 
-# nlp = spacy.load('en_core_web_sm')
 nlp = English()  # need this only for tokenization
 
 
@@ -119,7 +118,7 @@ class EmbedderBase(object):
                     doc[n] = config.Corpus.UNK
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
-        # save vocab
+        # save vocab - vocab needs to be overwritten when code in this function has been changed
         p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             with p.open('w') as f:
@@ -136,7 +135,10 @@ class EmbedderBase(object):
         p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if p.exists():
             vocab = np.loadtxt(p, 'str').tolist()
+            print('Loaded vocab from file. Found {} words.'.format(len(vocab)))
+            assert '.' in vocab
         else:
+            print('Building vocab from corpus.')
             vocab = self.corpus_data[1]
         return vocab
 
