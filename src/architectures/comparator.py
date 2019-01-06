@@ -1,9 +1,12 @@
 import numpy as np
+import os
 import tensorflow as tf
 from itertools import product
 import time
 
 from src import config
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
@@ -92,10 +95,6 @@ def make_graph(evaluator, trial, embed_size):
         #
         res = tf.reduce_sum(left * right, 1) / (norm_left * norm_right + 1e-10)
         return res
-
-    def siamese_cosine_loss(pred_cos, y, dim0):
-        corr_cos = 2 * tf.cast(y, tf.float32) - 1  # converts range [0, 1] to [-1, 1]
-        return
 
     class Graph:
         with tf.Graph().as_default():

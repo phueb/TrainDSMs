@@ -1,10 +1,13 @@
 import numpy as np
+import os
 import tensorflow as tf
 
 from src import config
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-class ClassifierParams:
+
+class Params:
     shuffled = [False, True]
     beta = [0.0, 0.3]
     num_epochs = [500]
@@ -14,7 +17,6 @@ class ClassifierParams:
 
 
 name = 'classifier'
-params = ClassifierParams
 
 
 def init_results_data(evaluator, eval_data_class):
@@ -37,43 +39,60 @@ def init_results_data(evaluator, eval_data_class):
     eval_data_class.trained_test_softmax_probs = np.zeros((num_inputs,
                                                config.Eval.num_evals,
                                                config.Eval.num_folds))
-    eval_data_class.x_mat = np.zeros((num_outputs,
-                          config.Eval.num_evals,
-                          config.Eval.num_folds))
     eval_data_class.cms = []  # confusion matrix (1 per fold)
     return eval_data_class
 
 
-def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):  # TODO don't .index() into row_words
+def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):  # don't .index() into row_words  # TODO implement
     # split
-    x_train = []
+    x1_train = []
+    x2_train = []
     y_train = []
-    x_test = []
-    y_test = []
-    train_probes = []
-    test_probes = []
-    for probe, relata in evaluator.probe2relata.items():
-        for n, relata_chunk in enumerate(np.array_split(relata, config.Eval.num_folds)):
-            probes = [probe] * len(relata_chunk)
-            xs = [w2e[p] for p in probes]
-            ys = [evaluator.relata.index(relatum) for relatum in relata_chunk]
-            if n != fold_id:
-                x_train += xs
-                y_train += ys
-                train_probes += probes
-            else:
-                x_test += xs
-                y_test += ys
-                test_probes += probes
-    x_train = np.vstack(x_train)
-    y_train = np.vstack(y_train)
-    x_test = np.vstack(x_test)
-    y_test = np.vstack(y_test)
+    x1_test = []
+    x2_test = []
+    eval_sims_mat_row_ids_test = []
+    test_pairs = set()  # prevent train/test leak
+    num_row_words = len(evaluator.row_words)
+    row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
+    # test - always make test data first to populate test_pairs before making training data
+    row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
+    candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
+    row_word_ids_chunk = np.array_split(row_word_ids, config.Eval.num_folds)[fold_id]
+    for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
+        for p, c in product([probe], candidates):
+            test_pairs.add((p, c))
+            test_pairs.add((c, p))  # crucial to collect both orderings
+        #
+        x1_test += [[w2e[probe]] * len(candidates)]
+        x2_test += [[w2e[c] for c in candidates]]
+        eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
+    # train
+    for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
+            np.array_split(evaluator.row_words, config.Eval.num_folds),
+            np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
+            np.array_split(row_word_ids, config.Eval.num_folds))):
+        if n != fold_id:
+            for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
+                for p, c in product([probe], candidates):
+                    if config.Eval.only_negative_examples:
+                        if c in evaluator.probe2relata[p]:  # splitting if statement into two is faster # TODO test
+                            continue
+                    if (p, c) in test_pairs:
+                        continue
+                    if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
+                        x1_train.append(w2e[p])
+                        x2_train.append(w2e[c])
+                        y_train.append(1 if c in evaluator.probe2relata[p] else 0)
+    x1_train = np.vstack(x1_train)
+    x2_train = np.vstack(x2_train)
+    y_train = np.array(y_train)
+    x1_test = np.array(x1_test)
+    x2_test = np.array(x2_test)
     # shuffle x-y mapping
     if trial.params.shuffled:
-        print('Shuffling in-out mapping')
+        print('Shuffling supervisory signal')
         np.random.shuffle(y_train)
-    return x_train, np.squeeze(y_train), x_test, np.squeeze(y_test), train_probes, test_probes
+    return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test
 
 
 def make_graph(evaluator, trial, embed_size):
@@ -155,14 +174,6 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                                                                 trial.params.mb_size):
         if step in eval_steps:
             eval_id = eval_steps.index(step)
-            # train softmax probs
-            softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_train, graph.y: y_train})
-            for p, correct_label_prob in zip(train_probes, softmax[np.arange(num_train_probes), y_train]):
-                trial.results.train_softmax_probs[evaluator.row_words.index(p), eval_id, fold_id] = correct_label_prob
-            # test softmax probs
-            softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
-            for p, correct_label_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
-                trial.results.test_softmax_probs[evaluator.row_words.index(p), eval_id, fold_id] = correct_label_prob
             # train accuracy
             num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_train, graph.y: y_train})
             train_acc = num_correct / float(num_train_probes)
@@ -171,10 +182,6 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
             test_acc = num_correct / float(num_test_probes)
             trial.results.test_acc_trajs[eval_id, fold_id] = test_acc
-            # keep track of number of samples in each labelegory
-            num_outputs = len(evaluator.col_words)
-            trial.results.x_mat[:, eval_id, fold_id] = [ys.count(label_id) for label_id in range(num_outputs)]
-            ys = []
             print('step {:>6,}/{:>6,} |Train Acc={:.2f} |Test Acc={:.2f}'.format(
                 step,
                 num_train_steps - 1,
@@ -182,118 +189,13 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 test_acc))
         # train
         graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
-        ys += y_batch.tolist()  # collect ys for each eval
 
 
 def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):
-    def generate_random_train_batches(x, y, num_probes, num_steps, mb_size):
-        random_choices = np.random.choice(num_probes, mb_size * num_steps)
-        row_ids_list = np.split(random_choices, num_steps)
-        for n, row_ids in enumerate(row_ids_list):
-            assert len(row_ids) == mb_size
-            x_batch = x[row_ids]
-            y_batch = y[row_ids]
-            yield n, x_batch, y_batch
-
-    x_train, y_train, x_test, y_test, train_probes, test_probes = data
-    num_test_probes = len(x_test)
-    num_train_steps = num_test_probes // trial.params.mb_size * trial.params.num_epochs
-    eval_interval = num_train_steps // config.Eval.num_evals
-    eval_steps = np.arange(0, num_train_steps + eval_interval,
-                           eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
-    print('Training on test data to collect number of eval steps to criterion for each probe')
-    print('Test data size: {:,}'.format(num_test_probes))
-    # training and eval
-    for step, x_batch, y_batch in generate_random_train_batches(x_test,
-                                                                     y_test,
-                                                                     num_test_probes,
-                                                                     num_train_steps,
-                                                                     trial.params.mb_size):
-        if step in eval_steps:
-            eval_id = eval_steps.index(step)
-            # test softmax probs
-            softmax = graph.sess.run(graph.softmax, feed_dict={graph.x: x_test, graph.y: y_test})
-            for p, correct_label_prob in zip(test_probes, softmax[np.arange(num_test_probes), y_test]):
-                trial.results.trained_test_softmax_probs[evaluator.row_words.index(p), eval_id, fold_id] = correct_label_prob
-            # accuracy
-            num_correct = graph.sess.run(graph.num_correct, feed_dict={graph.x: x_test, graph.y: y_test})
-            test_acc = num_correct / float(num_test_probes)
-            # keep track of number of samples in each category
-            print('step {:>6,}/{:>6,} |Acc={:.2f}'.format(
-                step,
-                num_train_steps - 1,
-                test_acc))
-        # train
-        graph.sess.run([graph.step], feed_dict={graph.x: x_batch, graph.y: y_batch})
+    raise NotImplementedError
 
 # ////////////////////////////////////////////////////////////////////// figs
 
 
 def make_trial_figs(evaluator, trial):
-    # aggregate over folds
-    average_x_mat = np.sum(trial.results.x_mat, axis=2)
-    average_cm = np.sum(trial.results.cms, axis=0)
-    # make average accuracy trajectories - careful not to take mean over arrays with zeros
-    train_no_zeros = np.where(trial.results.train_softmax_probs != 0, trial.results.train_softmax_probs, np.nan)  # zero to nan
-    test_no_zeros = np.where(trial.results.test_softmax_probs != 0, trial.results.test_softmax_probs, np.nan)
-    trained_test_no_zeros = np.where(trial.results.trained_test_softmax_probs != 0, trial.results.trained_test_softmax_probs, np.nan)
-    train_softmax_traj = np.nanmean(train_no_zeros, axis=(0, 2))
-    test_softmax_traj = np.nanmean(test_no_zeros, axis=(0, 2))
-    train_acc_traj = trial.results.train_acc_trajs.mean(axis=1)
-    test_acc_traj = trial.results.test_acc_trajs.mean(axis=1)
-    # make data for criterion fig
-    train_tmp = np.nanmean(train_no_zeros, axis=2)  # [num _probes, num_evals]
-    test_tmp = np.nanmean(test_no_zeros, axis=2)  # [num _probes, num_evals]
-    trained_test_tmp = np.nanmean(trained_test_no_zeros, axis=2)  # [num _probes, num_evals]
-    label2train_evals_to_criterion = {w: [] for w in evaluator.col_words}
-    label2test_evals_to_criterion = {w: [] for w in evaluator.col_words}
-    label2trained_test_evals_to_criterion = {label: [] for label in evaluator.col_words}
-    for probe, label, train_row, test_row, trained_test_row in zip(evaluator.row_words, self.probe_relata,
-                                                                   train_tmp, test_tmp, trained_test_tmp):
-        # train
-        for n, softmax_prob in enumerate(train_row):
-            if softmax_prob > config.Figs.softmax_criterion:
-                label2train_evals_to_criterion[label].append(n)
-                break
-        else:
-            label2train_evals_to_criterion[label].append(config.Eval.num_evals)
-        # test
-        for n, softmax_prob in enumerate(test_row):
-            if softmax_prob > config.Figs.softmax_criterion:
-                label2test_evals_to_criterion[label].append(n)
-                break
-        else:
-            label2test_evals_to_criterion[label].append(config.Eval.num_evals)
-        # trained test (test probes which have been trained after training on train probes completed)
-        for n, softmax_prob in enumerate(trained_test_row):
-            if softmax_prob > config.Figs.softmax_criterion:
-                label2trained_test_evals_to_criterion[label].append(n)
-                break
-        else:
-            label2trained_test_evals_to_criterion[label].append(config.Eval.num_evals)
-    # novice vs expert by probe
-    novice_results_by_probe = self.novice_probe_results
-    expert_results_by_probe = trial.results.expert_probe_results
-    # novice vs expert by label
-    label2novice_result = {w: [] for w in evaluator.col_words}
-    label2expert_result = {w: [] for w in evaluator.col_words}
-    for label, nov_acc, exp_acc in zip(self.probe_relata, novice_results_by_probe, expert_results_by_probe):
-        label2novice_result[label].append(nov_acc)
-        label2expert_result[label].append(exp_acc)
-    novice_results_by_label = [np.mean(label2novice_result[w]) for w in evaluator.col_words]
-    expert_results_by_label = [np.mean(label2expert_result[w]) for w in evaluator.col_words]
-
-    return make_cat_label_detection_figs(train_acc_traj,
-                                         test_acc_traj,
-                                         train_softmax_traj,
-                                         test_softmax_traj,
-                                         average_cm,
-                                         np.cumsum(average_x_mat, axis=1),
-                                         novice_results_by_label,
-                                         expert_results_by_label,
-                                         novice_results_by_probe,
-                                         expert_results_by_probe,
-                                         label2train_evals_to_criterion,
-                                         label2test_evals_to_criterion,
-                                         label2trained_test_evals_to_criterion,
-                                         evaluator.col_words)
+    raise NotImplementedError

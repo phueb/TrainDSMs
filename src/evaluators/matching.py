@@ -14,7 +14,7 @@ class MatchingParams:
 
 
 class Matching(EvalBase):
-    def __init__(self, arch, data_name1, data_name2=None, matching_params=None, suffix=''):
+    def __init__(self, arch, data_name1, data_name2='', matching_params=None, suffix=''):
         super().__init__(arch.name,
                          arch.Params,
                          arch.init_results_data,

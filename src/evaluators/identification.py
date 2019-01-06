@@ -11,7 +11,7 @@ class IdentificationParams:
     only_positive_examples = [False, True]  # performance can be much better without negative examples
     train_on_second_neighbors = [True]  # performance can be much better with additional training
     # arch-evaluator interaction
-    num_epochs = [5000]  # 2000 is better than 100 or 200, 300, 500, 1000  # TODO more epochs needed?
+    num_epochs = [2000]  # 2000 is better than 100 or 200, 300, 500, 1000  but not 5000
 
 
 class Identification(EvalBase):

@@ -27,6 +27,9 @@ config.Eval.max_num_eval_rows = 10000
 config.Eval.max_num_eval_cols = 10000
 
 
+# TODO make this script into a general purpose filter (for all tasks) - get rid of nym specific logic
+
+
 def filter_nyms(doc, pid):
     if DEBUG:
         doc = doc[:1000]

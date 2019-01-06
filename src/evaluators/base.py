@@ -42,7 +42,8 @@ class EvalBase(object):
         self.name = name
         self.data_name1 = data_name1
         self.data_name2 = data_name2
-        self.full_name = '{}_{}_{}_{}'.format(arch_name, self.name, data_name1, data_name2)
+        self.full_name = '{}_{}_{}{}'.format(
+            arch_name, self.name, data_name1, data_name2 if data_name2 is '' else '_' + data_name2)
         #
         self.param2val_list = make_param2val_list(arch_params, ev_params_class)
         self.trials = [Trial(n, ObjectView(param2val))
