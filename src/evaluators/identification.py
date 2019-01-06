@@ -15,7 +15,7 @@ class IdentificationParams:
 
 
 class Identification(EvalBase):
-    def __init__(self, arch, data_name1, data_name2):
+    def __init__(self, arch, data_name1, data_name2, suffix=''):
         super().__init__(arch.name,
                          arch.Params,
                          arch.init_results_data,
@@ -29,6 +29,9 @@ class Identification(EvalBase):
         self.probe2lures = None
         self.probe2sns = None
         self.metric = 'acc'
+        self.suffix = suffix
+        if suffix is not '':
+            print('WARNING: Using task file suffix "{}".'.format(suffix))
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
@@ -130,10 +133,10 @@ class Identification(EvalBase):
 
     def load_probes(self):
         # get paths to relata and lures
-        p1 = config.Dirs.tasks / self.data_name1 / self.data_name2 / '{}_{}.txt'.format(
-            config.Corpus.name, config.Corpus.num_vocab)
-        p2s = [p for p in (config.Dirs.tasks / self.data_name1).rglob('{}_{}.txt'.format(
-            config.Corpus.name, config.Corpus.num_vocab)) if p != p1]
+        p1 = config.Dirs.tasks / self.data_name1 / self.data_name2 / '{}_{}{}.txt'.format(
+            config.Corpus.name, config.Corpus.num_vocab, self.suffix)
+        p2s = [p for p in (config.Dirs.tasks / self.data_name1).rglob('{}_{}{}.txt'.format(
+            config.Corpus.name, config.Corpus.num_vocab, self.suffix)) if p != p1]
         if len(p2s) != 1:
             raise ValueError('Found more or less than 1 item text files which is supposed to contain lures.')
         else:

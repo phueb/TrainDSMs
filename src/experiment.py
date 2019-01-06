@@ -39,8 +39,8 @@ def embed_and_evaluate(embedder):
             # Matching(architecture, 'nyms', 'ant'),
             # Matching(architecture, 'hypernyms'),
 
-            Identification(architecture, 'nyms', 'syn'),
-            # Identification(architecture, 'nyms', 'ant'),
+            Identification(architecture, 'nyms', 'syn', suffix='_unfiltered'),
+            # Identification(architecture, 'nyms', 'ant', suffix='_unfiltered'),
             # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
         ]:
             for rep_id in range(config.Eval.num_reps):
