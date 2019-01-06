@@ -15,7 +15,7 @@ from src import config
 
 DEBUG = False  # reduces computation time
 
-NYM_TYPE = 'ant'
+NYM_TYPE = 'syn'
 
 CORPUS_NAME = config.Corpus.name
 VOCAB_SIZE = config.Corpus.num_vocab
