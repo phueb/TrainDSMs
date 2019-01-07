@@ -259,8 +259,7 @@ class Aggregator:
             if bars:
                 bars_list.append(bars)
                 embedder_names.append(embedder_name)
-                if len(bars_list) > 10:
-                    print(RuntimeWarning('Found more than 10 embedders but only 10 colors are available.'))
+        print('Found {} embedders.'.format(len(bars_list)))
         # tick labels
         num_embedders = len(param2val_list)
         ax.set_xticks(np.arange(1, num_embedders + 1, 1))

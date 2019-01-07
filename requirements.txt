@@ -11,7 +11,7 @@ seaborn
 pandas
 sortedcontainers
 scikit-learn
-tensorflow-gpu==1.11
+tensorflow
 numpy
 python-dotenv
 matplotlib

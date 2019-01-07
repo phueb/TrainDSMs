@@ -8,43 +8,15 @@ from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
+from src.jobs import embed_and_evaluate
 
-from src.experiment import embed_and_evaluate
+from ludwigcluster.client import Client
 
 
 # TODO ludwigcluster saves a configs.csv file that is loaded -
 # TODO the configs file (which wil be unique to each node) can simply have the name of the embedder to train
 
 # cluster-specific
-hostname = socket.gethostname()
-hostname2embedder_name = {'hinton': ['ww', 'wd'],
-                          'hoff': ['sg', 'cbow'],
-                          'hebb': ['srn', 'lstm'],
-                          'norman': ['random_normal', 'random_uniform'],
-                          'pitts': ['glove']}
 
 
-embedders = chain(
-    (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
-    (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
-    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RandomControlParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
-)
 
-# run full experiment
-while True:
-    # get embedder
-    try:
-        embedder = next(embedders)
-    except RuntimeError as e:
-        print('//////// WARNING: embedder raised RuntimeError:')
-        print(e)
-        continue
-    except StopIteration:
-        print('Finished experiment')
-        break
-    # embed
-    # TODO cluster-specific
-    if embedder.name in hostname2embedder_name[hostname]:
-        embed_and_evaluate(embedder)

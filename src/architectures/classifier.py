@@ -103,7 +103,7 @@ def make_graph(evaluator, trial, embed_size):
 
     class Graph:
         with tf.Graph().as_default():
-            with tf.device('/{}:0'.format(config.Eval.device)):
+            with tf.device('/cpu:0'):  # experts are always faster on CPU
                 # placeholders
                 x = tf.placeholder(tf.float32, shape=(None, embed_size))
                 y = tf.placeholder(tf.int32, shape=None)
@@ -135,9 +135,7 @@ def make_graph(evaluator, trial, embed_size):
                 correct = tf.nn.in_top_k(logits, y, 1)
                 num_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
             # session
-            config_proto = tf.ConfigProto()
-            config_proto.gpu_options.allow_growth = True
-            sess = tf.Session(config=config_proto)
+            sess = tf.Session()
             sess.run(tf.global_variables_initializer())
 
     return Graph()

@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 class Dirs:
+    src = Path(__file__).parent
     tasks = Path(os.getenv('TASKS_DIR', Path(__file__).parent.parent / 'tasks'))
     corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
     runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))
@@ -23,7 +24,6 @@ class Eval:
     save_scores = True
     save_figs = False
     num_opt_steps = 5
-    device = 'cpu'  # gpu is faster only above mini batch sizes of 1024 (embed_size=200) - no performance gain
     num_evals = 10
     matching_metric = 'BalAcc'
     remove_duplicates_for_identification = False  # needs to be False to get above chance
@@ -52,6 +52,14 @@ class Figs:
     softmax_criterion = 0.5
     num_bins = 10
     num_diagnosticity_steps = 50
+
+
+class Ludwig:
+    hostname2embedder_names = {'hinton': ['ww', 'wd'],
+                               'hoff': ['sg', 'cbow'],
+                               'hebb': ['srn', 'lstm'],
+                               'norman': ['random_normal', 'random_uniform'],
+                               'pitts': ['py-glove']}
 
 
 class Glove:

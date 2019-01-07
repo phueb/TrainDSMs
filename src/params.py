@@ -122,7 +122,7 @@ class Word2VecParams:
 
 
 class GloveParams:
-    glove_type = 'python'
+    glove_type = ['py-glove']
     embed_size = [30, 200]
     window_size = [7, 16]
     num_epochs = [20]  # semantic novice ba:  10: 0.64, 20: 0.66,  40: 0.66

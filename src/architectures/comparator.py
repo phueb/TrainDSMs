@@ -6,7 +6,7 @@ import time
 
 from src import config
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
