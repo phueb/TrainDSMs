@@ -1,14 +1,13 @@
-import os
 from pathlib import Path
 
 
 class Dirs:
-    src = Path(__file__).parent
-    root = src.parent
-    tasks = Path(os.getenv('TASKS_DIR', Path(__file__).parent.parent / 'tasks'))
-    corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
-    runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))
-    categories = Path(os.getenv('CATEGORIES_DIR', Path(__file__).parent.parent / 'categories'))
+    root = Path(__file__).parent.parent
+    src = root / 'src'
+    tasks = root / 'tasks'
+    corpora = root / 'corpora'
+    runs = root / 'runs'
+    categories = root / 'categories'
 
 
 class Eval:
@@ -56,11 +55,8 @@ class Figs:
 
 
 class Ludwig:
-    hostname2embedder_names = {'hinton': ['ww', 'wd'],
-                               'hoff': ['sg', 'cbow'],
-                               'hebb': ['srn', 'lstm'],
-                               'norman': ['random_normal', 'random_uniform'],
-                               'pitts': ['py-glove']}
+    project_name = '2StageNLP'
+    lab_path = '/media/lab/'
 
 
 class Glove:

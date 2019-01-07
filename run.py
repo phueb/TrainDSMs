@@ -10,12 +10,14 @@ def run_on_cluster():
     """
     run multiple jobs on multiple LudwigCluster nodes.
     """
-
     for n, params_df_row in params_df.iterrows():
         embedder_name = params_df_row['embedder_name']
         print('Found embedder_name={} in params_df.'.format(embedder_name))
+        # overwrite directories where data is stored and saved
         config.Dirs.runs = Path(params_df_row['runs_dir'])
-        print('Set config.Dirs.runs to {}'.format( params_df_row['runs_dir']))
+        config.Dirs.corpora = Path(params_df_row['runs_dir'].replace('runs', 'corpora'))
+        config.Dirs.tasks = Path(params_df_row['runs_dir'].replace('runs', 'tasks'))
+        config.Dirs.categories = Path(params_df_row['runs_dir'].replace('runs', 'categories'))
         embedder_job(embedder_name)
 
 
