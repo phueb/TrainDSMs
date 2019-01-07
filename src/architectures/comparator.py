@@ -98,7 +98,7 @@ def make_graph(evaluator, trial, embed_size):
 
     class Graph:
         with tf.Graph().as_default():
-            with tf.device('/{}:0'.format(config.Eval.device)):
+            with tf.device('/cpu:0'):
                 # placeholders
                 x1 = tf.placeholder(tf.float32, shape=(None, embed_size))
                 x2 = tf.placeholder(tf.float32, shape=(None, embed_size))
@@ -129,9 +129,7 @@ def make_graph(evaluator, trial, embed_size):
                 optimizer = tf.train.AdadeltaOptimizer(learning_rate=trial.params.learning_rate)
                 step = optimizer.minimize(loss)
             # session
-            config_proto = tf.ConfigProto()
-            config_proto.gpu_options.allow_growth = True
-            sess = tf.Session(config=config_proto)
+            sess = tf.Session()
             sess.run(tf.global_variables_initializer())
 
     return Graph()

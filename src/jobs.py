@@ -10,7 +10,7 @@ from src.embedders.base import w2e_to_sims
 
 def embed_and_evaluate(embedder):
     if config.Embeddings.retrain or not embedder.has_embeddings():
-        print('Training runs')
+        print('Training...')
         print('==========================================================================')
         embedder.train()
         if config.Embeddings.save:

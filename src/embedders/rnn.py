@@ -134,7 +134,7 @@ class RNNEmbedder(EmbedderBase):
                     test_numeric_docs.append(doc)
         print('Num docs in train {} valid {} test {}'.format(
             len(train_numeric_docs), len(valid_numeric_docs), len(test_numeric_docs)))
-        print('Training...')
+        print('Training rnn...')
         # train loop
         lr = self.learning_rate[0]  # initial
         decay = self.learning_rate[1]
