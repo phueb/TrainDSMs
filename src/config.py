@@ -4,6 +4,7 @@ from pathlib import Path
 
 class Dirs:
     src = Path(__file__).parent
+    root = src.parent
     tasks = Path(os.getenv('TASKS_DIR', Path(__file__).parent.parent / 'tasks'))
     corpora = Path(os.getenv('CORPORA_DIR', Path(__file__).parent.parent / 'corpora'))
     runs = Path(os.getenv('RUNS_DIR', Path(__file__).parent.parent / 'runs'))

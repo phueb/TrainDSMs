@@ -10,6 +10,10 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     namespace = parser.parse_args()
     client = Client(project_name='2StageNLP')
-    client.submit(config.Dirs.src, params_df, reps=namespace.reps, test=namespace.test)
-
-    # TODO upload venv along with code? (childeshub, for example is not uploaded)
+    upload_dirs = ['src', 'corpora', 'categories', 'tasks']
+    client.submit(upload_ps=[config.Dirs.root / d for d in upload_dirs],
+                  params_df=params_df,
+                  reps=namespace.reps,
+                  test=namespace.test,
+                  check_reps=False,
+                  worker='norman')

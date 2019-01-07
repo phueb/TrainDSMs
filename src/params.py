@@ -1,7 +1,11 @@
 import numpy as np
 from itertools import cycle, chain
+import pandas as pd
 
 from src import config
+
+p = config.Dirs.root / 'params.csv'
+params_df = pd.read_csv(p, index_col=False)
 
 
 class ObjectView(object):

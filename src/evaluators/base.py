@@ -1,6 +1,7 @@
 import pandas as pd
 import multiprocessing as mp
 import numpy as np
+import sys
 
 from src import config
 from src.params import make_param2val_list, ObjectView
@@ -149,6 +150,7 @@ class EvalBase(object):
                     df.to_csv(f, mode='a', header=f.tell() == 0,
                               index=False)
         pool.close()
+        sys.stdout.flush()
 
     def get_best_trial_score(self, trial):
         best_expert_score = 0
