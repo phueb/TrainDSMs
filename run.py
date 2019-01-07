@@ -1,5 +1,7 @@
 import argparse
+from pathlib import Path
 
+from src import config
 from src.jobs import embedder_job
 from src.params import params_df
 
@@ -8,9 +10,12 @@ def run_on_cluster():
     """
     run multiple jobs on multiple LudwigCluster nodes.
     """
-    embedder_names = params_df['embedder_name'].values
-    for embedder_name in embedder_names:
+
+    for n, params_df_row in params_df.iterrows():
+        embedder_name = params_df_row['embedder_name']
         print('Found embedder_name={} in params_df.'.format(embedder_name))
+        config.Dirs.runs = Path(params_df_row['runs_dir'])
+        print('Set config.Dirs.runs to {}'.format( params_df_row['runs_dir']))
         embedder_job(embedder_name)
 
 
