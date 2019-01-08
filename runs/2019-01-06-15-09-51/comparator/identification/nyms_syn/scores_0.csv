@@ -1,0 +1,5 @@
+exp_score,nov_score,beta,learning_rate,mb_size,num_epochs,num_output,only_positive_examples,shuffled,train_on_second_neighbors
+0.15397631133671744,0.02707275803722504,0.0,0.1,64,2000,,False,False,True
+0.15313028764805414,0.02707275803722504,0.0,0.1,64,2000,,True,False,True
+0.11336717428087986,0.02707275803722504,0.0,0.1,64,2000,,False,True,True
+0.15397631133671744,0.02707275803722504,0.0,0.1,64,2000,,True,True,True

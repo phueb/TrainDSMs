@@ -6,10 +6,10 @@ CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
 NUM_VOCAB = 4096
 ARCHITECTURE_NAME = 'comparator'
 EVALUATOR_NAME = 'matching'
-TASK_NAME = 'nyms_ant'
+TASK_NAME = 'events'
 EMBED_SIZE = 30
 
-DF_FROM_FILE = False
+DF_FROM_FILE = True
 
 
 # get all data

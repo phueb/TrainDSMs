@@ -1,0 +1,11 @@
+corpus_name: childes-20180319
+count_type:
+- ww
+- backward
+- 16
+- flat
+norm_type: null
+num_vocab: 4096
+reduce_type:
+- svd
+- 30
