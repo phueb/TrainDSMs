@@ -32,7 +32,10 @@ def run_on_host(embedder_name):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', default=None, action='store', dest='embedder_name', type=str, required=False)
+    parser.add_argument('-d', default=False, action='store_true', dest='debug', required=False)
     namespace = parser.parse_args()
+    if namespace.debug:
+        config.Eval.debug = True
     if namespace.embedder_name is not None:
         run_on_host(namespace.embedder_name)
     else:

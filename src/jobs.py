@@ -64,18 +64,19 @@ def embedder_job(embedder_name):
             # classifier
         ]:
             for ev in [
-                Matching(architecture, 'cohyponyms', 'semantic'),
-                Matching(architecture, 'cohyponyms', 'syntactic'),
-                Matching(architecture, 'features', 'is'),
-                Matching(architecture, 'features', 'has'),
-                Matching(architecture, 'nyms', 'syn'),
-                Matching(architecture, 'nyms', 'ant'),
-                Matching(architecture, 'hypernyms'),
-                Matching(architecture, 'events'),
+                # Matching(architecture, 'cohyponyms', 'semantic'),
+                # Matching(architecture, 'cohyponyms', 'syntactic'),
+                # Matching(architecture, 'features', 'is'),
+                # Matching(architecture, 'features', 'has'),
+                # Matching(architecture, 'nyms', 'syn'),
+                # Matching(architecture, 'nyms', 'syn_jw'),
+                # Matching(architecture, 'nyms', 'ant'),
+                # Matching(architecture, 'nyms', 'ant_jw'),
+                # Matching(architecture, 'hypernyms'),
+                # Matching(architecture, 'events'),
 
-                # Identification(architecture, 'nyms', 'syn', suffix=''),
-                # Identification(architecture, 'nyms', 'ant', suffix=''),
-                # Identification(architecture, 'cohyponyms', 'semantic'),  # TODO not enough lures - default to random lures below some threshold?
+                # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+                Identification(architecture, 'nyms', 'ant', suffix=''),
             ]:
                 for rep_id in range(config.Eval.num_reps):
                     if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):

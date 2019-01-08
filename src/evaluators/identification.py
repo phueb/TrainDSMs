@@ -138,6 +138,7 @@ class Identification(EvalBase):
         p2s = [p for p in (config.Dirs.tasks / self.data_name1).rglob('{}_{}{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab, self.suffix)) if p != p1]
         if len(p2s) != 1:
+            print(p2s)
             raise ValueError('Found more or less than 1 item text files which is supposed to contain lures.')
         else:
             p2 = p2s[0]
