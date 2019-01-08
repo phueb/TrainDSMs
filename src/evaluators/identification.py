@@ -118,9 +118,9 @@ class Identification(EvalBase):
         pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)
         # console
         print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
-            'Expert' if eval_id is None else 'Novice',
+            'Expert' if eval_id is not None else 'Novice',
             self.metric, score, chance, pval_binom,
-            'at eval={}'.format(eval_id + 1) if eval_id else ''))
+            'at eval={}'.format(eval_id + 1) if eval_id is not None else ''))
 
     def to_eval_sims_mat(self, sims_mat):
         res = np.full_like(self.eval_candidates_mat, np.nan, dtype=float)

@@ -91,9 +91,9 @@ class Matching(EvalBase):
         pval_binom = 'notImplemented'  # TODO implement
         chance = 0.5
         print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
-            'Expert' if eval_id else 'Novice',
+            'Expert' if eval_id is not None else 'Novice',
             self.metric, score, chance, pval_binom,
-            'at eval={}'.format(eval_id + 1) if eval_id else ''))
+            'at eval={}'.format(eval_id + 1) if eval_id is not None else ''))
 
     def to_eval_sims_mat(self, sims_mat):
         return sims_mat
