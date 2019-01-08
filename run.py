@@ -21,22 +21,26 @@ def run_on_cluster():
         embedder_job(embedder_name)
 
 
-def run_on_host(embedder_name):
+def run_on_host(embedder_names):
     """
     run jobs on the local host for testing/development
     """
-    print('Running {} job locally'.format(embedder_name))
-    embedder_job(embedder_name)
+    for embedder_name in embedder_names:
+        embedder_job(embedder_name)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', default=None, action='store', dest='embedder_name', type=str, required=False)
+    parser.add_argument('-a', default=None, action='store_true', dest='run_all', required=False)
     parser.add_argument('-d', default=False, action='store_true', dest='debug', required=False)
     namespace = parser.parse_args()
     if namespace.debug:
         config.Eval.debug = True
     if namespace.embedder_name is not None:
-        run_on_host(namespace.embedder_name)
+        run_on_host([namespace.embedder_name])
+    elif namespace.run_all:
+        print('Running full experiment on local machine.')
+        run_on_host(['srn', 'lstm', 'sg', 'cbow', 'ww', 'wd'])
     else:
         run_on_cluster()

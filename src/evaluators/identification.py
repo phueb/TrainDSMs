@@ -108,7 +108,7 @@ class Identification(EvalBase):
         res = calc_accuracy(eval_sims_mat, self.row_words, self.eval_candidates_mat)
         return res
 
-    def print_score(self, score, is_expert):
+    def print_score(self, score, eval_id=None):
         # significance test
         # 1-tailed: is observed proportion higher than chance?
         # pval=1.0 when prop=0 because it is almost always true that a prop > 0.0 is observed
@@ -117,8 +117,10 @@ class Identification(EvalBase):
         n = len(self.row_words)
         pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)
         # console
-        print('{} {}={:.2f} (chance={:.2f}, p={})'.format(
-            'Expert' if is_expert else 'Novice', self.metric, score, chance, pval_binom))
+        print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
+            'Expert' if eval_id is None else 'Novice',
+            self.metric, score, chance, pval_binom,
+            'at eval={}'.format(eval_id + 1) if eval_id else ''))
 
     def to_eval_sims_mat(self, sims_mat):
         res = np.full_like(self.eval_candidates_mat, np.nan, dtype=float)

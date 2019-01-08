@@ -72,7 +72,7 @@ class EvalBase(object):
     def score(self, eval_sims_mat):
         raise NotImplementedError('Must be implemented in child-class.')
 
-    def print_score(self, expert_score, is_expert):
+    def print_score(self, expert_score, eval_id=None):
         raise NotImplementedError('Must be implemented in child-class.')
 
     def to_eval_sims_mat(self, sims_mat):
@@ -126,7 +126,7 @@ class EvalBase(object):
     def score_novice(self, sims_mat):
         eval_sims_mat = self.to_eval_sims_mat(sims_mat)
         self.novice_score = self.score(eval_sims_mat)
-        self.print_score(self.novice_score, is_expert=False)
+        self.print_score(self.novice_score)
 
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
@@ -138,6 +138,7 @@ class EvalBase(object):
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
             self.do_trial(self.trials[0], embedder.w2e, embedder.dim1)  # cannot pickle tensorflow errors
+            print('If not debugging, score would be saved to {}'.format(p))
             raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all evaluators.')
         results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
                    for trial in self.trials]
@@ -151,7 +152,7 @@ class EvalBase(object):
             raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
         # save score obtained in each trial
         for df_row in df_rows:
-            if config.Eval.save_scores and not config.Eval.debug:
+            if config.Eval.save_scores:
                 print('Saving score to {}'.format(p))
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
@@ -168,9 +169,8 @@ class EvalBase(object):
         best_expert_score = 0
         best_eval_id = 0
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
-            print('Eval {}'.format(eval_id + 1))
             expert_score = self.score(eval_sims_mat)
-            self.print_score(expert_score, is_expert=True)
+            self.print_score(expert_score, eval_id)
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id

@@ -86,12 +86,14 @@ class Matching(EvalBase):
         res = calc_balanced_accuracy(calc_signals, sims_mean, verbose=False)
         return res
 
-    def print_score(self, score, is_expert):
+    def print_score(self, score, eval_id=None):
         # significance test
         pval_binom = 'notImplemented'  # TODO implement
         chance = 0.5
-        print('{} {}={:.2f} (chance={:.2f}, p={})'.format(
-            'Expert' if is_expert else 'Novice', self.metric, score, chance, pval_binom))
+        print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
+            'Expert' if eval_id else 'Novice',
+            self.metric, score, chance, pval_binom,
+            'at eval={}'.format(eval_id + 1) if eval_id else ''))
 
     def to_eval_sims_mat(self, sims_mat):
         return sims_mat
