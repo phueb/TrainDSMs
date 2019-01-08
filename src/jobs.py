@@ -35,13 +35,15 @@ def embedder_job(embedder_name):
             runtime_errors.append(e)
             continue
         except StopIteration:
-            print('Finished experiment')
+            print('Finished embedding and evaluating {}'.format(embedder_name))
             for e in runtime_errors:
                 print('with RunTimeError:')
                 print(e)
+            print()
             break
         else:
             if embedder.name != embedder_name:
+                print('Skipping.')
                 continue
         #
         if config.Embeddings.retrain or not embedder.has_embeddings():
