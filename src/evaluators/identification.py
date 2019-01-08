@@ -23,7 +23,8 @@ class Identification(EvalBase):
                          arch.make_graph,
                          arch.train_expert_on_train_fold,
                          arch.train_expert_on_test_fold,
-                         'identification', data_name1, data_name2, IdentificationParams)
+                         'identification', data_name1, data_name2, suffix,
+                         IdentificationParams)
         #
         self.probe2relata = None
         self.probe2lures = None

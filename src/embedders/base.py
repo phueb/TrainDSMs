@@ -11,6 +11,7 @@ import datetime
 from cached_property import cached_property
 from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
+from itertools import chain
 
 from src import config
 
@@ -58,11 +59,17 @@ class EmbedderBase(object):
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
     def completed_eval(self, ev, rep_id):
-        p = ev.make_scores_p(self.time_of_init, rep_id)
         num_total = len(ev.param2val_list)
         num_trained = 0
-        if p.exists():
-            df = pd.read_csv(p, index_col=False)
+        local_p = ev.make_scores_p(self.time_of_init, rep_id)
+        remote_p = ev.make_scores_p(self.time_of_init, rep_id)
+        # check local
+        if local_p.exists():
+            df = pd.read_csv(local_p, index_col=False)
+            num_trained = len(df)
+        # check remote
+        elif remote_p.exists():
+            df = pd.read_csv(remote_p, index_col=False)
             num_trained = len(df)
         print('---------------------------------------------')
         print('Replication {}: Training for {}/{} param configurations completed'.format(
@@ -165,7 +172,8 @@ class EmbedderBase(object):
     # ///////////////////////////////////////////////////////////// embeddings
 
     def has_embeddings(self):
-        for p in config.Dirs.runs.rglob('params.yaml'):
+        for p in chain(config.Dirs.runs.rglob('params.yaml'),
+                       config.Ludwig.runs_dir.rglob('params.yaml')):
             with p.open('r') as f:
                 param2val = yaml.load(f)
                 if param2val == self.param2val:

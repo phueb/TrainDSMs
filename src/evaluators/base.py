@@ -31,7 +31,8 @@ class EvalBase(object):
                  make_graph,
                  train_expert_on_train_fold,
                  train_expert_on_test_fold,
-                 name, data_name1, data_name2, ev_params_class):
+                 name, data_name1, data_name2, suffix,
+                 ev_params_class):
         # pass functions separately because module cannot be pickled (which multiprocessing requires)
         self.init_results_data = init_results_data
         self.split_and_vectorize_eval_data = split_and_vectorize_eval_data
@@ -43,6 +44,7 @@ class EvalBase(object):
         self.name = name
         self.data_name1 = data_name1
         self.data_name2 = data_name2
+        self.suffix = suffix
         self.full_name = '{}_{}_{}{}'.format(
             arch_name, self.name, data_name1, data_name2 if data_name2 is '' else '_' + data_name2)
         #
@@ -92,10 +94,20 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
-    def make_scores_p(self, time_of_init, rep_id):
-        data_name = '{}{}'.format(self.data_name1, self.data_name2 if self.data_name2 is '' else '_' + self.data_name2)
+    def make_scores_p(self, time_of_init, rep_id, local=True):
+        data_name = '{}{}{}'.format(self.data_name1,
+                                    self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
+                                    self.suffix)
         fname = 'scores_{}.csv'.format(rep_id)
-        res = config.Dirs.runs / time_of_init / self.arch_name / self.name / data_name / fname
+        if local:
+            res = config.Dirs.runs / time_of_init / self.arch_name / self.name / data_name / fname
+        else:
+            res = config.Ludwig.runs_dir / time_of_init / self.arch_name / self.name / data_name / fname
+
+            # TODO test
+            print()
+            print(res)
+            print()
         return res
 
     def calc_pos_prob(self):
@@ -119,7 +131,7 @@ class EvalBase(object):
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
         p = self.make_scores_p(embedder.time_of_init, rep_id)
-        if p.exists():
+        if p.exists() and not config.Eval.debug:
             print('Removing {}'.format(p))
             p.unlink()
         # run each trial in separate process
@@ -139,8 +151,8 @@ class EvalBase(object):
             raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
         # save score obtained in each trial
         for df_row in df_rows:
-            if config.Eval.save_scores:
-                print('Saving trial score')
+            if config.Eval.save_scores and not config.Eval.debug:
+                print('Saving score to {}'.format(p))
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
                 print(df)
@@ -182,7 +194,7 @@ class EvalBase(object):
         # score trial
         assert self.novice_score is not None
         df_row = [self.get_best_trial_score(trial), self.novice_score] + \
-                       [trial.params.__dict__[p] for p in self.df_header]
+                 [trial.params.__dict__[p] for p in self.df_header]
         return df_row
 
     # ////////////////////////////////////////////////////// figs

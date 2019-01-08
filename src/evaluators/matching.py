@@ -22,7 +22,8 @@ class Matching(EvalBase):
                          arch.make_graph,
                          arch.train_expert_on_train_fold,
                          arch.train_expert_on_test_fold,
-                         'matching', data_name1, data_name2, matching_params or MatchingParams)
+                         'matching', data_name1, data_name2, suffix,
+                         matching_params or MatchingParams)
         #
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
