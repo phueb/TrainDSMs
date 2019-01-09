@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 from pathlib import Path
+from itertools import chain
 
 from src import config
+
+VERBOSE = True
 
 
 # TODO organize file-system like organization of methods? evaluation directory above arch directory?
@@ -71,9 +74,10 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for embedder_p in config.Dirs.runs.glob('*'):
-            print('\n\n////////////////////////////////////////////////')
-            print(embedder_p)
+        for embedder_p in chain(config.Dirs.runs.glob('*'), config.Ludwig.runs_dir.glob('*')):
+            if VERBOSE:
+                print('\n\n////////////////////////////////////////////////')
+                print(embedder_p)
             param2val = self.load_param2val(embedder_p)
             #
             corpus = param2val['corpus_name']
@@ -88,6 +92,7 @@ class Aggregator:
         if dfs:
             res = pd.concat(dfs, axis=0)
             self.df = res
+            print('Num rows in df={}'.format(len(res)))
             return res
         else:
             raise RuntimeError('Did not find any scores.')
@@ -96,8 +101,9 @@ class Aggregator:
         dfs = []
         for arch_p in embedder_p.glob('*/{}'.format(self.ev)):
             arch = arch_p.parent.name
-            print('\t', arch)
-            print('\t\t', self.ev)
+            if VERBOSE:
+                print('\t', arch)
+                print('\t\t', self.ev)
             df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, self.ev)
             if len(df) > 0:
                 dfs.append(df)
@@ -110,7 +116,8 @@ class Aggregator:
         dfs = []
         for task_p in arch_p.glob('*/**'):
             task = task_p.name
-            print('\t\t\t', task)
+            if VERBOSE:
+                print('\t\t\t', task)
             df = self.make_task_df(task_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task)
             if len(df) > 0:
                 dfs.append(df)
@@ -123,7 +130,8 @@ class Aggregator:
         dfs = []
         for rep_p in task_p.glob('scores_*.csv'):
             rep = rep_p.name.split('.')[0][-1]  # TODO no more than 9 reps because of 1 digit
-            print('\t\t\t\t', rep)
+            if VERBOSE:
+                print('\t\t\t\t', rep)
             df = self.make_rep_df(
                 rep_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep)
             if len(df) > 0:
@@ -137,7 +145,8 @@ class Aggregator:
         dfs = []
         scores_df = pd.read_csv(rep_p, index_col=False)
         for stage in self.stages:
-            print('\t\t\t\t\t', stage)
+            if VERBOSE:
+                print('\t\t\t\t\t', stage)
             df = self.make_stage_df(
                 scores_df, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep, stage)
             if len(df) > 0:
@@ -196,10 +205,6 @@ class Aggregator:
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
         df = self.make_df(load_from_file=load_from_file)
-
-        # TODO
-        print(df)
-
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \

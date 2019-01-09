@@ -57,8 +57,9 @@ class Figs:
 
 class Ludwig:
     project_name = '2StageNLP'
-    runs_dir = ludwig_config.Dirs.lab / project_name / 'runs'  # TODO test
-
+    runs_dir = ludwig_config.Dirs.lab / project_name / 'runs'
+    exit_on_error = True
+    default_to_local = False
 
 class Glove:
     num_threads = 8

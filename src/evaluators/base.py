@@ -94,20 +94,12 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
-    def make_scores_p(self, time_of_init, rep_id, local=True):
+    def make_scores_p(self, embedder_location, rep_id):
         data_name = '{}{}{}'.format(self.data_name1,
                                     self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
                                     self.suffix)
         fname = 'scores_{}.csv'.format(rep_id)
-        if local:
-            res = config.Dirs.runs / time_of_init / self.arch_name / self.name / data_name / fname
-        else:
-            res = config.Ludwig.runs_dir / time_of_init / self.arch_name / self.name / data_name / fname
-
-            # TODO test
-            print()
-            print(res)
-            print()
+        res = embedder_location / self.arch_name / self.name / data_name / fname  # TODO test embedder_location
         return res
 
     def calc_pos_prob(self):
@@ -130,7 +122,7 @@ class EvalBase(object):
 
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
-        p = self.make_scores_p(embedder.time_of_init, rep_id)
+        p = self.make_scores_p(embedder.location, rep_id)
         if p.exists() and not config.Eval.debug:
             print('Removing {}'.format(p))
             p.unlink()
@@ -207,7 +199,7 @@ class EvalBase(object):
             for fig, fig_name in self.make_trial_figs(trial):
                 trial_dname = 'trial_{}'.format(trial.params_id)
                 fname = '{}_{}.png'.format(fig_name, trial.params_id)
-                p = config.Dirs.runs / embedder.time_of_init / self.arch_name / self.name / trial_dname / fname
+                p = embedder.location / self.arch_name / self.name / trial_dname / fname
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 fig.savefig(str(p))

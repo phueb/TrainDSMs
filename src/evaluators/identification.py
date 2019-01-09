@@ -31,7 +31,7 @@ class Identification(EvalBase):
         self.probe2sns = None
         self.metric = 'acc'
         self.suffix = suffix
-        if suffix is not '':
+        if suffix != '':
             print('WARNING: Using task file suffix "{}".'.format(suffix))
 
     # ///////////////////////////////////////////// Overwritten Methods START

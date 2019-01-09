@@ -1,2 +1,2 @@
-embedder_name
-lstm
+embedder_class
+rnn

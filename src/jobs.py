@@ -8,7 +8,7 @@ from src.evaluators.identification import Identification
 from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
 from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams, GloveParams
-from src.params import gen_all_param_combinations
+from src.params import gen_combinations
 from src.embedders.glove import GloveEmbedder
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
@@ -16,14 +16,16 @@ from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
 
-def embedder_job(embedder_name):
+def embedder_job(embedder_class):
     embedders = chain(
-        (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
-        (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
-        (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
-        # (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
-        (RandomControlEmbedder(param2id, param2val) for param2id, param2val in
-         gen_all_param_combinations(RandomControlParams)),
+        (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams))
+        if embedder_class == 'w2vec' else (),
+        (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams))
+        if embedder_class == 'rnn' else (),
+        (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams))
+        if embedder_class == 'count' else (),
+        (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams))
+        if embedder_class == 'random_control' else (),
     )
     runtime_errors = []
     while True:
@@ -35,16 +37,12 @@ def embedder_job(embedder_name):
             runtime_errors.append(e)
             continue
         except StopIteration:
-            print('Finished embedding and evaluating {}'.format(embedder_name))
+            print('Finished embedding and evaluating {}'.format(embedder_class))
             for e in runtime_errors:
                 print('with RunTimeError:')
                 print(e)
             print()
             break
-        else:
-            if embedder.name != embedder_name:
-                print('Skipping.')
-                continue
         #
         if config.Embeddings.retrain or not embedder.has_embeddings():
             print('Training...')
@@ -55,7 +53,7 @@ def embedder_job(embedder_name):
                 embedder.save_w2freq()
                 embedder.save_w2e()
         else:
-            print('Found embeddings at {}'.format(config.Dirs.runs / embedder.time_of_init))
+            print('Found embeddings at {}'.format(embedder.location))
             print('==========================================================================')
             embedder.load_w2e()
         print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
@@ -83,6 +81,8 @@ def embedder_job(embedder_name):
                 for rep_id in range(config.Eval.num_reps):
                     if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):
                         print('Starting evaluation "{}" replication {}'.format(ev.full_name, rep_id))
+                        if ev.suffix != '':
+                            print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
                         print('---------------------------------------------')
                         # make eval data - row_words can contain duplicates
                         vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)

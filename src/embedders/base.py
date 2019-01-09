@@ -23,8 +23,35 @@ class EmbedderBase(object):
     def __init__(self, param2val):
         self.param2val = param2val
         self.w2e = dict()  # is created by child class
-        self.time_of_init = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') \
-            if not self.has_embeddings() else self.has_embeddings()
+
+    @cached_property  # TODO test - does this affect params.yaml + embeddings + scores?
+    def location(self):
+        ps = chain(config.Dirs.runs.rglob('params.yaml'),
+                   config.Ludwig.runs_dir.rglob('params.yaml'))
+        while True:
+            try:
+                p = next(ps)
+            except OSError:  # host is down
+                if config.Ludwig.exit_on_error:
+                    raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
+                else:
+                    print('WARNING: Cannot access remote runs_dir. Check VPN and/or mount drive.')
+                    break
+            except StopIteration:
+                break
+            else:
+                with p.open('r') as f:
+                    param2val = yaml.load(f)
+                    if param2val == self.param2val:
+                        location = p.parent
+                        return location
+        # if location not found, create it
+        time_of_init = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        if config.Ludwig.default_to_local:
+            res = config.Dirs.runs / time_of_init
+        else:
+            res = config.Ludwig.runs_dir / time_of_init
+        return res
 
     # ///////////////////////////////////////////////////////////// I/O
 
@@ -33,7 +60,7 @@ class EmbedderBase(object):
         return '{}_w2freq.txt'.format(config.Corpus.name)
 
     def save_params(self):
-        p = config.Dirs.runs / self.time_of_init / 'params.yaml'
+        p = self.location / 'params.yaml'
         if not p.parent.exists():
             p.parent.mkdir()
         with p.open('w', encoding='utf8') as outfile:
@@ -46,14 +73,14 @@ class EmbedderBase(object):
                 f.write('{} {}\n'.format(probe, freq))
 
     def save_w2e(self):
-        p = config.Dirs.runs / self.time_of_init / 'embeddings.txt'
+        p = self.location / 'embeddings.txt'
         with p.open('w') as f:
             for probe, embedding in sorted(self.w2e.items()):
                 embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
     def load_w2e(self):
-        mat = np.loadtxt(config.Dirs.runs / self.time_of_init / 'embeddings.txt', dtype='str', comments=None)
+        mat = np.loadtxt(self.location / 'embeddings.txt', dtype='str', comments=None)
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
@@ -61,8 +88,8 @@ class EmbedderBase(object):
     def completed_eval(self, ev, rep_id):
         num_total = len(ev.param2val_list)
         num_trained = 0
-        local_p = ev.make_scores_p(self.time_of_init, rep_id)
-        remote_p = ev.make_scores_p(self.time_of_init, rep_id)
+        local_p = ev.make_scores_p(self.location, rep_id)
+        remote_p = ev.make_scores_p(self.location, rep_id)
         # check local
         if local_p.exists():
             df = pd.read_csv(local_p, index_col=False)
@@ -172,16 +199,10 @@ class EmbedderBase(object):
     # ///////////////////////////////////////////////////////////// embeddings
 
     def has_embeddings(self):
-        for p in chain(config.Dirs.runs.rglob('params.yaml'),
-                       config.Ludwig.runs_dir.rglob('params.yaml')):
-            with p.open('r') as f:
-                param2val = yaml.load(f)
-                if param2val == self.param2val:
-                    embed_p = p.parent / 'embeddings.txt'
-                    if embed_p.exists():
-                        time_of_init = p.parent
-                        return time_of_init
-        return False
+        if (self.location / 'embeddings.txt').exists():  # TODO test
+            return True
+        else:
+            return False
 
     @staticmethod
     def standardize_embed_mat(mat):

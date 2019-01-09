@@ -56,7 +56,6 @@ class RandomControlEmbedderDummy():
         self.w2e = self.make_w2e()
         #
         self.name = 'random_control'
-        self.time_of_init = 'test'
 
     def make_w2e(self):
         return {w: np.random.normal(-1.0, 1.0, self.embed_size) for w in self.vocab}

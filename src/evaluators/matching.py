@@ -28,8 +28,6 @@ class Matching(EvalBase):
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
         self.suffix = suffix
-        if self.suffix is not '':
-            print('WARNING: Using task file suffix "{}".'.format(suffix))
 
     # ///////////////////////////////////////////// Overwritten Methods START
 

@@ -58,7 +58,7 @@ def make_param2val_list(params_class1, params_class2):
     return res
 
 
-def gen_all_param_combinations(params_class):
+def gen_combinations(params_class):
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned

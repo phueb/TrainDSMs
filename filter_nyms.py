@@ -9,7 +9,7 @@ from src.params import RandomControlParams
 from src.architectures import comparator
 from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
-from src.params import gen_all_param_combinations
+from src.params import gen_combinations
 from src.embedders.base import EmbedderBase
 from src import config
 
@@ -51,7 +51,7 @@ def filter_nyms(doc, pid):
 
 # embedder
 embedders = (RandomControlEmbedder(param2id, param2val)
-             for param2id, param2val in gen_all_param_combinations(RandomControlParams))
+             for param2id, param2val in gen_combinations(RandomControlParams))
 embedder = next(embedders)
 embedder.train()  # populates w2e
 # evaluator
