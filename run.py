@@ -41,6 +41,6 @@ if __name__ == '__main__':
         run_on_host([namespace.embedder_name])
     elif namespace.run_all:
         print('Running full experiment on local machine.')
-        run_on_host(['srn', 'lstm', 'sg', 'cbow', 'ww', 'wd'])
+        run_on_host(['sg', 'cbow', 'srn', 'lstm', 'ww', 'wd', 'random_normal'])
     else:
         run_on_cluster()

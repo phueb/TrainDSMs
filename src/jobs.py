@@ -21,7 +21,7 @@ def embedder_job(embedder_name):
         (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(Word2VecParams)),
         (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(RNNParams)),
         (CountEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(CountParams)),
-        (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
+        # (GloveEmbedder(param2id, param2val) for param2id, param2val in gen_all_param_combinations(GloveParams)),
         (RandomControlEmbedder(param2id, param2val) for param2id, param2val in
          gen_all_param_combinations(RandomControlParams)),
     )

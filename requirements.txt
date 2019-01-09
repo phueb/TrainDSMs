@@ -1,4 +1,3 @@
-glove_python
 scipy
 gensim
 PyYAML

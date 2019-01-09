@@ -1,5 +1,3 @@
-from glove import Glove
-from glove import Corpus
 
 from src import config
 from src.embedders.base import EmbedderBase
@@ -7,7 +5,7 @@ from src.params import GloveParams
 
 
 class GloveEmbedder(EmbedderBase):
-    def __init__(self, param2ids, param2val):  # TODO put glove into count class?
+    def __init__(self, param2ids, param2val):
         super().__init__(param2val)
         self.glove_type = GloveParams.glove_type[param2ids.glove_type]
         self.embed_size = GloveParams.embed_size[param2ids.embed_size]
@@ -18,16 +16,4 @@ class GloveEmbedder(EmbedderBase):
         self.name = self.glove_type
 
     def train(self):
-        # get co-occurences
-        corp = Corpus()
-        corp.fit(self.docs, window=self.window_size)
-        print('Dict size: %s' % len(corp.dictionary))
-        print('Collocations: %s' % corp.matrix.nnz)
-        # train
-        print('Training the GloVe model')
-        glove = Glove(no_components=self.embed_size, learning_rate=self.lr)
-        glove.fit(corp.matrix, epochs=self.num_epochs,
-                  no_threads=config.Glove.num_threads, verbose=True)
-        glove.add_dictionary(corp.dictionary)
-        #
-        self.w2e = {w: glove.word_vectors[i] for w, i in corp.dictionary.items()}
+        return NotImplementedError('Use original implementation')
