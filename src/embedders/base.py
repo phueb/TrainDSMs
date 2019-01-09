@@ -24,7 +24,7 @@ class EmbedderBase(object):
         self.param2val = param2val
         self.w2e = dict()  # is created by child class
 
-    @cached_property  # TODO test - does this affect params.yaml + embeddings + scores?
+    @cached_property
     def location(self):
         ps = chain(config.Dirs.runs.rglob('params.yaml'),
                    config.Ludwig.runs_dir.rglob('params.yaml'))
@@ -88,15 +88,9 @@ class EmbedderBase(object):
     def completed_eval(self, ev, rep_id):
         num_total = len(ev.param2val_list)
         num_trained = 0
-        local_p = ev.make_scores_p(self.location, rep_id)
-        remote_p = ev.make_scores_p(self.location, rep_id)
-        # check local
-        if local_p.exists():
-            df = pd.read_csv(local_p, index_col=False)
-            num_trained = len(df)
-        # check remote
-        elif remote_p.exists():
-            df = pd.read_csv(remote_p, index_col=False)
+        p = ev.make_scores_p(self.location, rep_id)
+        if p.exists():
+            df = pd.read_csv(p, index_col=False)
             num_trained = len(df)
         print('---------------------------------------------')
         print('Replication {}: Training for {}/{} param configurations completed'.format(

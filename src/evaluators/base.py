@@ -99,7 +99,7 @@ class EvalBase(object):
                                     self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
                                     self.suffix)
         fname = 'scores_{}.csv'.format(rep_id)
-        res = embedder_location / self.arch_name / self.name / data_name / fname  # TODO test embedder_location
+        res = embedder_location / self.arch_name / self.name / data_name / fname
         return res
 
     def calc_pos_prob(self):
@@ -123,6 +123,12 @@ class EvalBase(object):
     def train_and_score_expert(self, embedder, rep_id):
         # need to remove scores - this function is called only if replication is incomplete or config.retrain
         p = self.make_scores_p(embedder.location, rep_id)
+        # check if host is down (possibly  due to VPN connection)
+        try:
+            p.parent.exists()
+        except OSError:
+            print('WARNING: Remote runs_dir is no reachable. Check VPN or mount drive. Skipping.')  # TODO test
+            return None
         if p.exists() and not config.Eval.debug:
             print('Removing {}'.format(p))
             p.unlink()
