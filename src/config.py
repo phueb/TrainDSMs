@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from ludwigcluster import config as ludwig_config
 
 class Dirs:
     root = Path(__file__).parent.parent
@@ -57,7 +56,7 @@ class Figs:
 
 class Ludwig:
     project_name = '2StageNLP'
-    runs_dir = ludwig_config.Dirs.lab / project_name / 'runs'
+    runs_dir = Path('/media/lab') / project_name / 'runs'
     exit_on_error = False
     default_to_local = True
 

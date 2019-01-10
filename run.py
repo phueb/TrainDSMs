@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from src import config
-from src.jobs import embedder_job
+from src.jobs import embedder_job, aggregation_job
 from src.params import params_df
 
 
@@ -19,7 +19,8 @@ def run_on_cluster():
         config.Dirs.tasks = Path(params_df_row['runs_dir'].replace('runs', 'tasks'))
         config.Dirs.categories = Path(params_df_row['runs_dir'].replace('runs', 'categories'))
         embedder_job(embedder_class)
-
+    #
+    aggregation_job('matching')  # TODO specify this
 
 def run_on_host(embedder_classes):
     """
@@ -27,6 +28,8 @@ def run_on_host(embedder_classes):
     """
     for embedder_class in embedder_classes:
         embedder_job(embedder_class)
+    #
+    aggregation_job('matching')  # TODO specify this
 
 
 if __name__ == '__main__':

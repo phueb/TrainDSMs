@@ -2,6 +2,7 @@ from itertools import chain
 import sys
 
 from src import config
+from src.aggregator import Aggregator
 from src.architectures import comparator
 from src.architectures import classifier
 from src.evaluators.identification import Identification
@@ -14,6 +15,13 @@ from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
+
+
+def aggregation_job(ev_name):
+    ag_matching = Aggregator(ev_name)
+    matching_df = ag_matching.make_df()
+    matching_df.to_csv('{}.csv'.format(ag_matching.ev))
+    print('Aggregated df for {} eval'.format(ev_name))
 
 
 def embedder_job(embedder_class):
