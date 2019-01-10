@@ -22,4 +22,4 @@ filtered_df = matching_df[(matching_df['embedder'] == EMBEDDER) &
                           (matching_df['stage'] == STAGE) &
                           (matching_df['embed_size'] == EMBED_SIZE)]
 
-print(filtered_df['score'])
+print(filtered_df[['location', 'score']])

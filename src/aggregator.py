@@ -21,7 +21,7 @@ class Aggregator:
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
-                         'time_of_init',
+                         'location',
                          'embedder',
                          'arch',
                          'evaluation',
@@ -39,14 +39,9 @@ class Aggregator:
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'rnd_normal', 'rnd_uniform', 'glove'])}
 
     @staticmethod
-    def load_param2val(embedder_p=None, time_of_init=None):
-        if time_of_init is not None:
-            embedder_p = config.Dirs.runs / time_of_init
-        if embedder_p is not None:
-            with (embedder_p / 'params.yaml').open('r') as f:
-                res = yaml.load(f)
-        else:
-            raise RuntimeError('Must specify "embedder_p" or "time_of_init" to retrieve param2val.')
+    def load_param2val(loc):
+        with (loc / 'params.yaml').open('r') as f:
+            res = yaml.load(f)
         return res
 
     @staticmethod
@@ -74,19 +69,18 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for embedder_p in chain(config.Dirs.runs.glob('*'), config.Ludwig.runs_dir.glob('*')):
+        for location in chain(config.Dirs.runs.glob('*'), config.Ludwig.runs_dir.glob('*')):
             if VERBOSE:
                 print('\n\n////////////////////////////////////////////////')
-                print(embedder_p)
-            param2val = self.load_param2val(embedder_p)
+                print(location)
+            param2val = self.load_param2val(location)
             #
             corpus = param2val['corpus_name']
             num_vocab = param2val['num_vocab']
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
-            time_of_init = embedder_p.name
             embedder = self.to_embedder_name(param2val)
             #
-            df = self.make_embedder_df(embedder_p, corpus, num_vocab, embed_size, time_of_init, embedder)
+            df = self.make_embedder_df(location, corpus, num_vocab, embed_size, location, embedder)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -97,14 +91,14 @@ class Aggregator:
         else:
             raise RuntimeError('Did not find any scores.')
 
-    def make_embedder_df(self, embedder_p, corpus, num_vocab, embed_size, time_of_init, embedder):
+    def make_embedder_df(self, embedder_p, corpus, num_vocab, embed_size, location, embedder):
         dfs = []
         for arch_p in embedder_p.glob('*/{}'.format(self.ev)):
             arch = arch_p.parent.name
             if VERBOSE:
                 print('\t', arch)
                 print('\t\t', self.ev)
-            df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, self.ev)
+            df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, location, embedder, arch, self.ev)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -112,13 +106,13 @@ class Aggregator:
         else:
             return pd.DataFrame()
 
-    def make_arch_df(self, arch_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev):
+    def make_arch_df(self, arch_p, corpus, num_vocab, embed_size, location, embedder, arch, ev):
         dfs = []
         for task_p in arch_p.glob('*/**'):
             task = task_p.name
             if VERBOSE:
                 print('\t\t\t', task)
-            df = self.make_task_df(task_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task)
+            df = self.make_task_df(task_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -126,14 +120,14 @@ class Aggregator:
         else:
             return pd.DataFrame()
 
-    def make_task_df(self, task_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task):
+    def make_task_df(self, task_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task):
         dfs = []
         for rep_p in task_p.glob('scores_*.csv'):
             rep = rep_p.name.split('.')[0][-1]  # TODO no more than 9 reps because of 1 digit
             if VERBOSE:
                 print('\t\t\t\t', rep)
             df = self.make_rep_df(
-                rep_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep)
+                rep_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -141,14 +135,14 @@ class Aggregator:
         else:
             return pd.DataFrame()
 
-    def make_rep_df(self, rep_p, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep):
+    def make_rep_df(self, rep_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep):
         dfs = []
         scores_df = pd.read_csv(rep_p, index_col=False)
         for stage in self.stages:
             if VERBOSE:
                 print('\t\t\t\t\t', stage)
             df = self.make_stage_df(
-                scores_df, corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep, stage)
+                scores_df, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep, stage)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -161,14 +155,14 @@ class Aggregator:
                       corpus,
                       num_vocab,
                       embed_size,
-                      time_of_init,
+                      location,
                       embedder,
                       arch,
                       ev,
                       task,
                       rep,
                       stage):
-        vals = [corpus, num_vocab, embed_size, time_of_init, embedder, arch, ev, task, rep, stage]
+        vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep, stage]
         if stage == self.stages[0]:
             bool_id = scores_df['shuffled'] == False
             score = scores_df[bool_id]['exp_score'].max()
@@ -231,17 +225,17 @@ class Aggregator:
         bars_list = []
         param2val_list = []
         embedder_names = []
-        sorted_time_of_inits = filtered_df.groupby('time_of_init').mean().sort_values(
+        sorted_locations = filtered_df.groupby('location').mean().sort_values(
             'score', ascending=False).index.values
-        for embedder_id, time_of_init in enumerate(sorted_time_of_inits):
-            bool_id = df['time_of_init'] == time_of_init
+        for embedder_id, location in enumerate(sorted_locations):
+            bool_id = df['location'] == location
             embedder_df = filtered_df[bool_id]
             #
-            param2val = self.load_param2val(time_of_init=time_of_init)
+            param2val = self.load_param2val(location)
             param2val_list.append(param2val)
             embedder_name = self.to_embedder_name(param2val)
             #
-            print(time_of_init)
+            print(location)
             print(embedder_name)
             #
             bars = []
@@ -253,7 +247,7 @@ class Aggregator:
                     continue
                 x += self.bw
                 ys = stage_df['score']
-                print(stage, ys.mean())
+                print('{} score mean={:.2f} std={:.2f}'.format(stage, ys.mean(), ys.std()))
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),

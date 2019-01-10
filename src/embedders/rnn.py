@@ -30,9 +30,9 @@ class RNNEmbedder(EmbedderBase):
         #
         self.name = self.rnn_type
         self.model = TorchRNN(self.rnn_type, self.num_layers, self.embed_size, self.batch_size, self.embed_init_range)
+        self.model.cuda()  # call this before constructing optimizer
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.learning_rate[0])  # TODO Adagrad
-        self.model.cuda()
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.learning_rate[0])
 
     def gen_windows(self, token_ids):
         # yield num_steps matrices where each matrix contains windows of size num_steps

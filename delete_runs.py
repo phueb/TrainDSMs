@@ -6,12 +6,11 @@ from src import config
 
 
 KEY = 'count_type'
-VALUE = None
+VALUE = 'ww'
 
 
 ps = chain(config.Dirs.runs.rglob('params.yaml'),
-     config.Ludwig.runs_dir.rglob('params.yaml')
-    )
+           config.Ludwig.runs_dir.rglob('params.yaml'))
 
 locations_to_del = []
 while True:
@@ -37,7 +36,7 @@ while True:
                 continue
             else:
                 print(val[0])
-                if val == VALUE:
+                if val[0] == VALUE:
                     location = p.parent
                     locations_to_del.append(location)
 
