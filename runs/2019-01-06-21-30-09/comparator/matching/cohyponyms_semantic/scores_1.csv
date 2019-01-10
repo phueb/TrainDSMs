@@ -1,3 +1,0 @@
-exp_score,nov_score,beta,learning_rate,mb_size,num_epochs,num_output,prop_negative,shuffled
-0.6751827336487211,0.5386756848721211,0.0,0.1,64,50,,,False
-0.6084698874736476,0.5386756848721211,0.0,0.1,64,50,,,True

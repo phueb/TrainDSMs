@@ -82,18 +82,11 @@ class CountParams:
     count_type = [
         ['wd', None, None, None],
         # ['ww', 'forward',  7,  'linear'],
-        ['ww', 'forward',  7,  'flat'],
-        ['ww', 'backward', 7,  'flat'],
-        ['ww', 'forward', 16,  'flat'],
-        ['ww', 'backward', 16,  'flat'],
-        # ['ww', 'backward', 7,  'linear'],
-        # ['ww', 'forward',  16, 'linear'],
-        # ['ww', 'forward',  16, 'flat'],
-        # ['ww', 'backward', 16, 'linear'],
-        # ['ww', 'backward', 16, 'flat']
+        ['ww', 'summed',  7,  'flat'],
+        ['ww', 'summed', 16,  'flat'],
     ]
     # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = [None, 'ppmi']
+    norm_type = ['ppmi']
     reduce_type = [
         ['svd', 30],
         ['svd', 200],
