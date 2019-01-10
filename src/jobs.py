@@ -88,7 +88,8 @@ def embedder_job(embedder_class):
             ]:
                 for rep_id in range(config.Eval.num_reps):
                     if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):
-                        print('Starting evaluation "{}" replication {}'.format(ev.full_name, rep_id))
+                        print('Starting evaluation "{}" replication {}/{}'.format(
+                            ev.full_name, rep_id + 1, config.Eval.num_reps))
                         if ev.suffix != '':
                             print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
                         print('---------------------------------------------')

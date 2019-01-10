@@ -12,11 +12,14 @@ if __name__ == '__main__':
                         choices=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], required=False)
     parser.add_argument('-w', '--worker', default=None, action='store', dest='worker',
                         choices=SFTP.worker_names, required=False)
-    parser.add_argument('-a', '--upload_data', default=False, action='store_true', dest='upload_data', required=False)
+    parser.add_argument('-s', '--skip_data', default=False, action='store_true', dest='skip_data', required=False)
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     namespace = parser.parse_args()
-    config.Eval.num_reps = namespace.reps
-    data_dirs = ['corpora', 'categories', 'tasks'] if namespace.upload_data else []
+
+    # TODO test
+    params_df['num_reps'] = namespace.reps
+
+    data_dirs = ['corpora', 'task_data', 'tasks'] if not namespace.skip_data else []
     client = Client(config.Ludwig.project_name)
     client.submit(src_ps=[config.Dirs.src],
                   data_ps=[config.Dirs.root / d for d in data_dirs],
