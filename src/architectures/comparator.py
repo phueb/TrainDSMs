@@ -179,13 +179,14 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
-            print('step {:>9,}/{:>9,} |Train Loss={:>2.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
-                step,
-                num_train_steps - 1,
-                train_loss,
-                time.time() - start,
-                np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
-                np.mean(cosines)))
+            if config.Eval.verbose:
+                print('step {:>9,}/{:>9,} |Train Loss={:>2.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
+                    step,
+                    num_train_steps - 1,
+                    train_loss,
+                    time.time() - start,
+                    np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
+                    np.mean(cosines)))
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})

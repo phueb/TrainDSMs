@@ -1,16 +1,12 @@
 import yaml
-from itertools import chain
 import shutil
 
 from src import config
 
 
-KEY = 'rnn_type'
-VALUE = 'lstm'
+ps = config.Dirs.runs.rglob('params.yaml')
 
-
-ps = chain(config.Dirs.runs.rglob('params.yaml'))
-
+param2vals = []
 locations_to_del = []
 while True:
     try:
@@ -21,18 +17,15 @@ while True:
         print('Done')
         break
     else:
+        print(p)
         with p.open('r') as f:
             param2val = yaml.load(f)
-            try:
-                val = param2val[KEY]
-            except KeyError:
-                continue
-            else:
-                print(val)
-                if val == VALUE:
-                    location = p.parent
-                    locations_to_del.append(location)
-
+        if param2val not in param2vals:
+            param2vals.append(param2val)
+        else:
+            print('Is a duplicate')
+            location = p.parent
+            locations_to_del.append(location)
 # delete
 for loc in locations_to_del:
     print('Removing {}'.format(loc))

@@ -5,14 +5,10 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 from pathlib import Path
-from itertools import chain
 
 from src import config
 
-VERBOSE = True
-
-
-# TODO organize file-system like organization of methods? evaluation directory above arch directory?
+VERBOSE = False
 
 
 class Aggregator:
@@ -61,7 +57,7 @@ class Aggregator:
 
     def make_df(self, load_from_file=False):
         # load from file
-        p = Path('{}.csv'.format(self.ev))
+        p = config.Dirs.root / 'analyze' / '{}.csv'.format(self.ev)
         if p.exists() and load_from_file:
             print('Loading data frame from file. Re-export data to file if data has changed')
             res = pd.read_csv(p)
@@ -69,10 +65,10 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for location in chain(config.Dirs.runs.glob('*')):
-            if VERBOSE:
-                print('\n\n////////////////////////////////////////////////')
-                print(location)
+        for location in config.Dirs.runs.glob('*'):
+            print()
+            print('////////////////////////////////////////////////')
+            print(location)
             param2val = self.load_param2val(location)
             #
             corpus = param2val['corpus_name']
@@ -239,7 +235,6 @@ class Aggregator:
             print()
             print(location)
             print(embedder_name)
-
             #
             bars = []
             x = embedder_id + 0.6

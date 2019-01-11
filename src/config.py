@@ -6,15 +6,14 @@ class Dirs:
     src = root / 'src'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
-    # runs = root / 'runs'
-    runs = Path('/media/lab') / '2StageNLP' / 'runs'
-    task_data = root / 'task_data'
+    runs = Path('/') / 'media' / 'lab' / '2StageNLP' / 'runs'
 
 
 class Eval:
     debug = False   # catches tensorflow errors properly
     only_stage1 = False
     resample = True
+    verbose = False
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     max_num_eval_rows = 600  # 1200x1200 uses over 32GB RAM
     max_num_eval_cols = 600  # 600  # should be as large as num_rows for full matching evaluation
@@ -22,7 +21,6 @@ class Eval:
     only_negative_examples = False
     num_reps = 2
     num_folds = 4
-    vocab_sizes = [4096]  # also: 8192, 16384
     retrain = False
     save_scores = True
     save_figs = False
@@ -44,6 +42,7 @@ class Corpus:
     name = 'childes-20180319'
     # name = 'tasa-20181213'
     num_vocab = 4096
+    vocab_sizes = [4096]  # also: 8192, 16384
 
 
 class Figs:

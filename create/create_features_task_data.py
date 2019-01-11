@@ -35,7 +35,7 @@ def rename_relation(col):
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
-    for vocab_size in config.Eval.vocab_sizes:
+    for vocab_size in config.Corpus.vocab_sizes:
         # process mcrae data
         mcrae_df = pd.read_csv(config.Dirs.tasks / 'features' / 'mcrae_features.csv', index_col=False)
         mcrae_df.rename(inplace=True, columns={'Feature': 'relatum'})

@@ -17,7 +17,7 @@ def strip_pos(col):
 
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
-    for vocab_size in config.Eval.vocab_sizes:
+    for vocab_size in config.Corpus.vocab_sizes:
         # process BLESS data
         bless_df = pd.read_csv(config.Dirs.tasks / 'BLESS.txt', sep="\t", header=None)
         bless_df.columns = ['concept', 'class', 'relation', 'relatum']

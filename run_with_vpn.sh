@@ -7,12 +7,11 @@ credentials=$(cat ../.vpn_credentials)
 cd /home/ph/LudwigCluster/scripts
 bash upload_watchers.sh
 
-# TODO how to kill run.py?
 
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit_to_ludwig.py -r5 -s
+python submit_to_ludwig.py -r2 -s
 deactivate
 echo "Submission completed"
 

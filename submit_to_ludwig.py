@@ -16,7 +16,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     namespace = parser.parse_args()
     params_df['num_reps'] = namespace.reps
-    data_dirs = ['corpora', 'task_data', 'tasks'] if not namespace.skip_data else []
+    data_dirs = ['corpora', 'tasks'] if not namespace.skip_data else []
     client = Client(config.Dirs.runs.parent.name)
     client.submit(src_ps=[config.Dirs.src],
                   data_ps=[config.Dirs.root / d for d in data_dirs],

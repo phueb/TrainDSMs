@@ -92,11 +92,6 @@ class EvalBase(object):
             eval_candidates_mat.append(all_eval_candidates_mat[rnd_id, :config.Eval.max_num_eval_cols])
         eval_candidates_mat = np.vstack(eval_candidates_mat)
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
-
-        # TODO debug
-        print(row_words[:10])
-
-
         return row_words, col_words, eval_candidates_mat
 
     def make_scores_p(self, embedder_location, rep_id):
