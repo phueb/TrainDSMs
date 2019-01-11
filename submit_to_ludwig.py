@@ -15,10 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--skip_data', default=False, action='store_true', dest='skip_data', required=False)
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     namespace = parser.parse_args()
-
-    # TODO test
     params_df['num_reps'] = namespace.reps
-
     data_dirs = ['corpora', 'task_data', 'tasks'] if not namespace.skip_data else []
     client = Client(config.Ludwig.project_name)
     client.submit(src_ps=[config.Dirs.src],

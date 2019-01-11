@@ -69,7 +69,7 @@ class RNNEmbedder(EmbedderBase):
         if verbose:
             print('Calculating perplexity...')
         self.model.eval()
-        self.model.batch_size = 1  # TODO probably better to do on CPU - or find batch size that excludes least samples
+        self.model.batch_size = 1  # TODO find batch size that excludes least samples
         errors = 0
         batch_id = 0
         token_ids = np.hstack(numeric_docs)

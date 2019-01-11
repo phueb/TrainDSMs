@@ -22,6 +22,7 @@ def run_on_cluster():
         embedder_job(embedder_class)
     #
     aggregation_job('matching')  # TODO specify this
+    print('Done')
 
 
 def run_on_host(embedder_classes):
@@ -32,6 +33,7 @@ def run_on_host(embedder_classes):
         embedder_job(embedder_class)
     #
     aggregation_job('matching')  # TODO specify this
+    print('Done')
 
 
 if __name__ == '__main__':
