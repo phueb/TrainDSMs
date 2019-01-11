@@ -17,7 +17,7 @@ if __name__ == '__main__':
     namespace = parser.parse_args()
     params_df['num_reps'] = namespace.reps
     data_dirs = ['corpora', 'task_data', 'tasks'] if not namespace.skip_data else []
-    client = Client(config.Ludwig.project_name)
+    client = Client(config.Dirs.runs.parent.name)
     client.submit(src_ps=[config.Dirs.src],
                   data_ps=[config.Dirs.root / d for d in data_dirs],
                   params_df=params_df,

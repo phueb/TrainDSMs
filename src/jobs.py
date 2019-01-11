@@ -92,12 +92,15 @@ def embedder_job(embedder_class):
                             ev.full_name, rep_id + 1, config.Eval.num_reps))
                         if ev.suffix != '':
                             print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
+                        if not config.Eval.resample:
+                            print('WARNING: Not re-sampling data across replications.')
                         print('---------------------------------------------')
                         # make eval data - row_words can contain duplicates
                         vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
                         all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
                         ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
-                            all_eval_probes, all_eval_candidates_mat, rep_id)
+                            all_eval_probes, all_eval_candidates_mat,
+                            seed=rep_id if config.Eval.resample else 42)
                         print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
                         print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
                         #

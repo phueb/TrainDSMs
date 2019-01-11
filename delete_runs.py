@@ -16,13 +16,7 @@ while True:
     try:
         p = next(ps)
     except OSError as e:  # host is down
-        if config.Ludwig.exit_on_error:
-            print(e)
-            raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
-        else:
-            print(e)
-            print('WARNING: Cannot access remote runs_dir. Check VPN and/or mount drive.')
-            pass
+        raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
     except StopIteration:
         print('Done')
         break

@@ -21,7 +21,8 @@ def run_on_cluster():
         config.Dirs.task_data = Path(params_df_row['runs_dir'].replace('runs', 'categories'))
         embedder_job(embedder_class)
     #
-    aggregation_job('matching')  # TODO specify this
+    aggregation_job('matching')
+    aggregation_job('identification')
     print('Done')
 
 
@@ -32,7 +33,8 @@ def run_on_host(embedder_classes):
     for embedder_class in embedder_classes:
         embedder_job(embedder_class)
     #
-    aggregation_job('matching')  # TODO specify this
+    aggregation_job('matching')
+    aggregation_job('identification')
     print('Done')
 
 

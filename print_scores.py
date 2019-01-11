@@ -4,8 +4,8 @@ DF_FROM_FILE = True
 
 CORPUS = 'childes-20180319'
 NUM_VOCAB = 4096
-EMBEDDER = 'sg'
-EMBED_SIZE = 500
+EMBEDDER = 'sg'  # rnd_normal
+EMBED_SIZE = 30
 TASK = 'cohyponyms_semantic'
 STAGE = 'novice'
 

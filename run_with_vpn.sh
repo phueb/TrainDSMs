@@ -4,9 +4,10 @@
 credentials=$(cat ../.vpn_credentials)
 /opt/cisco/anyconnect/bin/vpn -s connect vpn.cites.illinois.edu <<< "$credentials"
 
-
 cd /home/ph/LudwigCluster/scripts
 bash upload_watchers.sh
+
+# TODO how to kill run.py?
 
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP

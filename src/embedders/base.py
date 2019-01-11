@@ -31,11 +31,7 @@ class EmbedderBase(object):
             try:
                 p = next(ps)
             except OSError:  # host is down
-                if config.Ludwig.exit_on_error:
-                    raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
-                else:
-                    print('WARNING: Cannot access remote runs_dir. Check VPN and/or mount drive.')
-                    break
+                raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
             except StopIteration:
                 break
             else:

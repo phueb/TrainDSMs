@@ -60,7 +60,7 @@ vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
 all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(
     vocab_sims_mat, embedder.vocab)  # populates probe2relata
 ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
-                        all_eval_probes, all_eval_candidates_mat, rep_id=0)
+                        all_eval_probes, all_eval_candidates_mat, seed=0)
 row_and_col_words = set(ev.row_words + ev.col_words)
 print('Num probes: {}'.format(len(ev.probe2relata)))
 print('Num unique row + col words : {}'.format(len(row_and_col_words)))

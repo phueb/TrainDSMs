@@ -7,12 +7,14 @@ class Dirs:
     tasks = root / 'tasks'
     corpora = root / 'corpora'
     # runs = root / 'runs'
-    runs = Path('/media/lab') / 'runs'  # TODO otherwise cluster will create duplicate runs
+    runs = Path('/media/lab') / '2StageNLP' / 'runs'
     task_data = root / 'task_data'
 
 
 class Eval:
     debug = False   # catches tensorflow errors properly
+    only_stage1 = False
+    resample = True
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     max_num_eval_rows = 600  # 1200x1200 uses over 32GB RAM
     max_num_eval_cols = 600  # 600  # should be as large as num_rows for full matching evaluation
@@ -53,11 +55,6 @@ class Figs:
     softmax_criterion = 0.5
     num_bins = 10
     num_diagnosticity_steps = 50
-
-
-class Ludwig:
-    project_name = '2StageNLP'
-    exit_on_error = False
 
 
 class Glove:

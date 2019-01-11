@@ -14,6 +14,6 @@ tensorflow
 numpy
 python-dotenv
 matplotlib
-bayesian-optimization
+bayesian-optimization==0.6
 cached_property
 pyprind

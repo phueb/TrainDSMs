@@ -80,9 +80,9 @@ class EvalBase(object):
 
     # //////////////////////////////////////////////////////
 
-    def downsample(self, all_eval_probes, all_eval_candidates_mat, rep_id):
+    def downsample(self, all_eval_probes, all_eval_candidates_mat, seed):
         # shuffle + down sample rows & cols
-        np.random.seed(rep_id)
+        np.random.seed(seed)
         num_all_rows = len(all_eval_candidates_mat)
         min_num_all_rows = min(num_all_rows, config.Eval.max_num_eval_rows) if self.name == 'matching' else num_all_rows
         row_words = []
@@ -92,6 +92,11 @@ class EvalBase(object):
             eval_candidates_mat.append(all_eval_candidates_mat[rnd_id, :config.Eval.max_num_eval_cols])
         eval_candidates_mat = np.vstack(eval_candidates_mat)
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
+
+        # TODO debug
+        print(row_words[:10])
+
+
         return row_words, col_words, eval_candidates_mat
 
     def make_scores_p(self, embedder_location, rep_id):
@@ -127,8 +132,7 @@ class EvalBase(object):
         try:
             p.parent.exists()
         except OSError:
-            print('WARNING: Remote runs_dir is no reachable. Check VPN or mount drive. Skipping.')  # TODO test
-            return None
+            raise OSError('{} is no reachable. Check VPN or mount drive.'.format(p))
         if p.exists() and not config.Eval.debug:
             print('Removing {}'.format(p))
             p.unlink()
@@ -138,16 +142,19 @@ class EvalBase(object):
             self.do_trial(self.trials[0], embedder.w2e, embedder.dim1)  # cannot pickle tensorflow errors
             print('If not debugging, score would be saved to {}'.format(p))
             raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all evaluators.')
-        results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
-                   for trial in self.trials]
-        df_rows = []
-        try:
-            for res in results:
-                df_row = res.get()
-                df_rows.append(df_row)
-        except KeyboardInterrupt:
-            pool.close()
-            raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
+        elif config.Eval.only_stage1:
+            df_rows = [[None, self.novice_score] + [self.trials[0].params.__dict__[p] for p in self.df_header]]
+        else:
+            results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
+                       for trial in self.trials]
+            df_rows = []
+            try:
+                for res in results:
+                    df_row = res.get()
+                    df_rows.append(df_row)
+            except KeyboardInterrupt:
+                pool.close()
+                raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
         # save score obtained in each trial
         for df_row in df_rows:
             if config.Eval.save_scores:

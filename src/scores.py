@@ -62,9 +62,10 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
     else:
         raise AttributeError('rnnlab: Invalid arg to "metric".')
     bo = BayesianOptimization(fun, {'thr': (-1.0, 1.0)}, verbose=verbose)
+    bo.explore({'thr': [sims_mean]})  # keep bayes-opt at version 0.6 because 1.0 occasionally returns 0.50 wrongly
     bo.maximize(init_points=2, n_iter=config.Eval.num_opt_steps,
                 acq="poi", xi=0.01, **gp_params)  # smaller xi: exploitation
-    best_thr = bo.max['params']['thr']
+    best_thr = bo.res['max']['max_params']['thr']
     # use best_thr
     results = fun(best_thr)
     res = np.mean(results)
