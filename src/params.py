@@ -96,7 +96,7 @@ class CountParams:
 
 
 class RNNParams:
-    rnn_type = ['lstm', 'srn']
+    rnn_type = ['srn', 'lstm']
     embed_size = [30, 200, 500]
     train_percent = [0.9]
     num_eval_steps = [1000]
@@ -104,10 +104,10 @@ class RNNParams:
     embed_init_range = [0.1]
     dropout_prob = [0]
     num_layers = [1]
-    num_steps = [16, 7]
+    num_steps = [7, 16]
     batch_size = [64]
-    num_epochs = [10]  # with sgd, loss bottoms out at epoch 10
-    learning_rate = [[0.1, 0.9, 1]]  # initial, decay, num_epochs_without_decay
+    num_epochs = [20]  # with sgd, loss bottoms out at epoch 10  # TODO test 20 with adagrad
+    learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay  # TODO was 0.1 with sg, testing 0.01 with adagrad
     grad_clip = [None]
 
 

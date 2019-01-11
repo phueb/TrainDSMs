@@ -1,6 +1,0 @@
-corpus_name: childes-20180319
-embed_size: 30
-num_epochs: 20
-num_vocab: 4096
-w2vec_type: cbow
-window_size: 7

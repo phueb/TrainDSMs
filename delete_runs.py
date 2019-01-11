@@ -5,12 +5,11 @@ import shutil
 from src import config
 
 
-KEY = 'count_type'
-VALUE = 'ww'
+KEY = 'rnn_type'
+VALUE = 'lstm'
 
 
-ps = chain(config.Dirs.runs.rglob('params.yaml'),
-           config.Ludwig.runs_dir.rglob('params.yaml'))
+ps = chain(config.Dirs.runs.rglob('params.yaml'))
 
 locations_to_del = []
 while True:
@@ -35,8 +34,8 @@ while True:
             except KeyError:
                 continue
             else:
-                print(val[0])
-                if val[0] == VALUE:
+                print(val)
+                if val == VALUE:
                     location = p.parent
                     locations_to_del.append(location)
 

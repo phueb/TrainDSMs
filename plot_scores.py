@@ -9,7 +9,7 @@ EVALUATOR_NAME = 'matching'
 TASK_NAME = 'cohyponyms_semantic'
 EMBED_SIZE = 500
 
-DF_FROM_FILE = False
+DF_FROM_FILE = True
 
 
 # get all data

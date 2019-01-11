@@ -26,8 +26,7 @@ class EmbedderBase(object):
 
     @cached_property
     def location(self):
-        ps = chain(config.Dirs.runs.rglob('params.yaml'),
-                   config.Ludwig.runs_dir.rglob('params.yaml'))
+        ps = chain(config.Dirs.runs.rglob('params.yaml'))
         while True:
             try:
                 p = next(ps)
@@ -47,10 +46,7 @@ class EmbedderBase(object):
                         return location
         # if location not found, create it
         time_of_init = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        if config.Ludwig.default_to_local:
-            res = config.Dirs.runs / time_of_init
-        else:
-            res = config.Ludwig.runs_dir / time_of_init
+        res = config.Dirs.runs / time_of_init
         return res
 
     # ///////////////////////////////////////////////////////////// I/O

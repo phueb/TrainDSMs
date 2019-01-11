@@ -12,7 +12,7 @@ if __name__ == '__main__':
         vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         for data_name1 in ['semantic', 'syntactic']:
             # load all probes
-            in_path = config.Dirs.categories / data_name1 / '{}_complete.txt'.format(CORPUS_NAME)
+            in_path = config.Dirs.task_data / data_name1 / '{}_complete.txt'.format(CORPUS_NAME)
             probes, probe_cats = np.loadtxt(in_path, dtype='str').T
             cat2probes = {cat: probes[probe_cats == cat].tolist() for cat in probe_cats}
             # write probes if in vocab

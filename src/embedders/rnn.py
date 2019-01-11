@@ -119,7 +119,7 @@ class RNNEmbedder(EmbedderBase):
                 secs = time.time() - start_time
                 print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
 
-    def train(self, verbose=False):
+    def train(self, verbose=True):
         # split data
         train_numeric_docs = []
         valid_numeric_docs = []

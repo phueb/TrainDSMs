@@ -40,7 +40,7 @@ class Aggregator:
 
     @staticmethod
     def load_param2val(loc):
-        with (loc / 'params.yaml').open('r') as f:
+        with (Path(loc) / 'params.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
@@ -69,7 +69,7 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for location in chain(config.Dirs.runs.glob('*'), config.Ludwig.runs_dir.glob('*')):
+        for location in chain(config.Dirs.runs.glob('*')):
             if VERBOSE:
                 print('\n\n////////////////////////////////////////////////')
                 print(location)
@@ -228,15 +228,18 @@ class Aggregator:
         sorted_locations = filtered_df.groupby('location').mean().sort_values(
             'score', ascending=False).index.values
         for embedder_id, location in enumerate(sorted_locations):
-            bool_id = df['location'] == location
+            #
+            bool_id = df['location'] == str(location)
             embedder_df = filtered_df[bool_id]
             #
             param2val = self.load_param2val(location)
             param2val_list.append(param2val)
             embedder_name = self.to_embedder_name(param2val)
             #
+            print()
             print(location)
             print(embedder_name)
+
             #
             bars = []
             x = embedder_id + 0.6

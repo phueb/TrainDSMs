@@ -6,8 +6,9 @@ class Dirs:
     src = root / 'src'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
-    runs = root / 'runs'
-    categories = root / 'categories'
+    # runs = root / 'runs'
+    runs = Path('/media/lab') / 'runs'  # TODO otherwise cluster will create duplicate runs
+    task_data = root / 'task_data'
 
 
 class Eval:
@@ -56,9 +57,7 @@ class Figs:
 
 class Ludwig:
     project_name = '2StageNLP'
-    runs_dir = Path('/media/lab') / project_name / 'runs'
     exit_on_error = False
-    default_to_local = True
 
 
 class Glove:
