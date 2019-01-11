@@ -1,5 +1,9 @@
-embedder_class
-rnn
-count
-w2vec
-random_control
+embedder_name
+srn
+lstm
+ww
+wd
+sg
+cbow
+normal
+uniform

@@ -156,7 +156,6 @@ class EvalBase(object):
                 print('Saving score to {}'.format(p))
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
-                print(df)
                 if not p.parent.exists():
                     p.parent.mkdir(parents=True)
                 with p.open('a') as f:
@@ -170,7 +169,8 @@ class EvalBase(object):
         best_eval_id = 0
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
             expert_score = self.score(eval_sims_mat)
-            self.print_score(expert_score, eval_id)
+            if config.Eval.verbose:
+                self.print_score(expert_score, eval_id)
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id

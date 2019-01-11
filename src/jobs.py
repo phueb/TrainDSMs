@@ -20,20 +20,23 @@ from src.embedders.w2vec import W2VecEmbedder
 def aggregation_job(ev_name):
     ag_matching = Aggregator(ev_name)
     matching_df = ag_matching.make_df()
-    matching_df.to_csv('{}.csv'.format(ag_matching.ev))
+    matching_df.to_csv('{}.csv'.format(ag_matching.ev_name))
     print('Aggregated df for {} eval'.format(ev_name))
 
 
-def embedder_job(embedder_class):
+def embedder_job(embedder_name):
     embedders = chain(
-        (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams))
-        if embedder_class == 'w2vec' else (),
-        (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams))
-        if embedder_class == 'rnn' else (),
-        (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams))
-        if embedder_class == 'count' else (),
-        (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams))
-        if embedder_class == 'random_control' else (),
+        (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams)
+         if embedder_name in param2val.values()),
+
+        (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams)
+        if embedder_name in param2val.values()),
+
+        (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams)
+        if embedder_name in param2val.values()),
+
+        (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams)
+        if embedder_name in param2val.values())
     )
     runtime_errors = []
     while True:
@@ -45,7 +48,7 @@ def embedder_job(embedder_class):
             runtime_errors.append(e)
             continue
         except StopIteration:
-            print('Finished embedding and evaluating {}'.format(embedder_class))
+            print('Finished embedding and evaluating {}'.format(embedder_name))
             for e in runtime_errors:
                 print('with RunTimeError:')
                 print(e)
@@ -88,8 +91,8 @@ def embedder_job(embedder_class):
             ]:
                 for rep_id in range(config.Eval.num_reps):
                     if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):
-                        print('Starting evaluation "{}" replication {}/{}'.format(
-                            ev.full_name, rep_id + 1, config.Eval.num_reps))
+                        print('Starting "{}" replication {}/{} with embedder={}'.format(
+                            ev.full_name, rep_id + 1, config.Eval.num_reps, embedder.name))
                         if ev.suffix != '':
                             print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
                         if not config.Eval.resample:

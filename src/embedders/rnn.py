@@ -29,10 +29,9 @@ class RNNEmbedder(EmbedderBase):
         self.grad_clip = RNNParams.grad_clip[param2ids.grad_clip]
         #
         self.name = self.rnn_type
-        self.model = TorchRNN(self.rnn_type, self.num_layers, self.embed_size, self.batch_size, self.embed_init_range)
-        self.model.cuda()  # call this before constructing optimizer
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.learning_rate[0])
+        self.model = None
+        self.criterion = None
+        self.optimizer = None
 
     def gen_windows(self, token_ids):
         # yield num_steps matrices where each matrix contains windows of size num_steps
@@ -120,6 +119,11 @@ class RNNEmbedder(EmbedderBase):
                 print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
 
     def train(self, verbose=True):
+        # init
+        self.model = TorchRNN(self.rnn_type, self.num_layers, self.embed_size, self.batch_size, self.embed_init_range)
+        self.model.cuda()  # call this before constructing optimizer
+        self.criterion = torch.nn.CrossEntropyLoss()
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.learning_rate[0])
         # split data
         train_numeric_docs = []
         valid_numeric_docs = []

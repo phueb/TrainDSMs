@@ -13,7 +13,7 @@ VERBOSE = False
 
 class Aggregator:
     def __init__(self, ev_name):
-        self.ev = ev_name
+        self.ev_name = ev_name
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -57,7 +57,7 @@ class Aggregator:
 
     def make_df(self, load_from_file=False):
         # load from file
-        p = config.Dirs.root / 'analyze' / '{}.csv'.format(self.ev)
+        p = config.Dirs.root / 'analyze' / '{}.csv'.format(self.ev_name)
         if p.exists() and load_from_file:
             print('Loading data frame from file. Re-export data to file if data has changed')
             res = pd.read_csv(p)
@@ -85,16 +85,16 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores.')
+            raise RuntimeError('Did not find any scores for evaluation={}.'.format(self.ev_name))
 
     def make_embedder_df(self, embedder_p, corpus, num_vocab, embed_size, location, embedder):
         dfs = []
-        for arch_p in embedder_p.glob('*/{}'.format(self.ev)):
+        for arch_p in embedder_p.glob('*/{}'.format(self.ev_name)):
             arch = arch_p.parent.name
             if VERBOSE:
                 print('\t', arch)
-                print('\t\t', self.ev)
-            df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, location, embedder, arch, self.ev)
+                print('\t\t', self.ev_name)
+            df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, location, embedder, arch, self.ev_name)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -198,7 +198,7 @@ class Aggregator:
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
-                  (df['evaluation'] == self.ev) & \
+                  (df['evaluation'] == self.ev_name) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
         filtered_df = df[bool_id]
@@ -206,7 +206,7 @@ class Aggregator:
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
         title = 'Scores for\n{} + {} + {} + embed_size={}\n{} num_vocab={}'.format(
-            arch, self.ev, task, embed_size, corpus, num_vocab)
+            arch, self.ev_name, task, embed_size, corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
@@ -280,12 +280,12 @@ class Aggregator:
         plt.show()
 
     def make_y_label_lims_ticks(self, y_step):
-        if self.ev == 'matching':
+        if self.ev_name == 'matching':
             ylabel = 'Balanced Accuracy'
             ylims = [0.5, 1]
             yticks = np.arange(0.5, 1, y_step).round(2)
             y_chance = 0.50
-        elif self.ev == 'identification':
+        elif self.ev_name == 'identification':
             ylabel = 'Accuracy'
             ylims = [0, 1]
             yticks = np.arange(0, 1 + y_step, y_step)
