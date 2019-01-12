@@ -1,7 +1,4 @@
-embedder_name,embed_size,num_epochs
-lstm,30,10
-lstm,200,10
-lstm,500,10
-lstm,30,20
-lstm,200,20
-lstm,500,20
+embedder_name,embed_size
+srn,30
+srn,200
+srn,500

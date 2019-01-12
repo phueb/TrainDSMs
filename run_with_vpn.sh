@@ -4,12 +4,12 @@
 credentials=$(cat ../.vpn_credentials)
 /opt/cisco/anyconnect/bin/vpn -s connect vpn.cites.illinois.edu <<< "$credentials"
 
-# sudo mount /media/lab  # TODO no tty present and no askpass program specified
+pwd=$(cat ../.sudo_pwd)
+echo ${pwd} | sudo -S mount /media/lab
 
-#
 cd /home/ph/LudwigCluster/scripts
 bash upload_watchers.sh
-#
+
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate

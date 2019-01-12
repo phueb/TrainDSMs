@@ -4,8 +4,8 @@ import shutil
 from src import config
 
 
-KEY = 'rnn_type'
-VALUE = 'lstm'
+KEY = 'num_epochs'
+VALUE = 10
 
 
 ps = config.Dirs.runs.rglob('params.yaml')

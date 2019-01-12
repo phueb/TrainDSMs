@@ -106,8 +106,8 @@ class RNNParams:
     num_layers = [1]
     num_steps = [7, 16]
     batch_size = [64]
-    num_epochs = [10, 20]  # with sgd, loss bottoms out at epoch 10  # TODO test 20 with adagrad
-    learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay  # TODO was 0.1 with sg, testing 0.01 with adagrad
+    num_epochs = [20]  # 20 is only slightly better than 10
+    learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay
     grad_clip = [None]
 
 

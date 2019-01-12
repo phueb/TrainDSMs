@@ -7,7 +7,7 @@ NUM_VOCAB = 4096
 ARCHITECTURE_NAME = 'comparator'
 EVALUATOR_NAME = 'matching'
 TASK_NAME = 'cohyponyms_syntactic'
-EMBED_SIZE = 500
+EMBED_SIZE = 200
 
 DF_FROM_FILE = True
 
