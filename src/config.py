@@ -6,7 +6,8 @@ class Dirs:
     src = root / 'src'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
-    runs = Path('/') / 'media' / 'lab' / '2StageNLP' / 'runs'
+    remote_root = Path('/') / 'media' / 'lab' / '2StageNLP'
+    runs = remote_root / 'runs'
 
 
 class Eval:

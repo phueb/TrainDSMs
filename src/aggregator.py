@@ -57,7 +57,7 @@ class Aggregator:
 
     def make_df(self, load_from_file=False):
         # load from file
-        p = config.Dirs.root / 'analyze' / '{}.csv'.format(self.ev_name)
+        p = config.Dirs.remote_root / '{}.csv'.format(self.ev_name)
         if p.exists() and load_from_file:
             print('Loading data frame from file. Re-export data to file if data has changed')
             res = pd.read_csv(p)

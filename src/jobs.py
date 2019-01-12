@@ -18,8 +18,9 @@ from src.embedders.w2vec import W2VecEmbedder
 def aggregation_job(ev_name):
     ag_matching = Aggregator(ev_name)
     matching_df = ag_matching.make_df()
-    matching_df.to_csv('{}.csv'.format(ag_matching.ev_name))
-    print('Aggregated df for {} eval'.format(ev_name))
+    p = config.Dirs.remote_root / '{}.csv'.format(ag_matching.ev_name)
+    matching_df.to_csv(p)
+    print('Aggregated data for {} eval and saved to {}'.format(ev_name, p))
 
 
 def embedder_job(embedder_name, params_df_row=None):
