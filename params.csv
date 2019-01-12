@@ -1,9 +1,7 @@
-embedder_name
-srn
-lstm
-ww
-wd
-sg
-cbow
-normal
-uniform
+embedder_name,embed_size,num_epochs
+lstm,30,10
+lstm,200,10
+lstm,500,10
+lstm,30,20
+lstm,200,20
+lstm,500,20

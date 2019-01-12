@@ -4,13 +4,11 @@ import sys
 from src import config
 from src.aggregator import Aggregator
 from src.architectures import comparator
-from src.architectures import classifier
-from src.evaluators.identification import Identification
 from src.evaluators.matching import Matching
 from src.embedders.base import w2e_to_sims
-from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams, GloveParams
+from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from src.params import is_selected
 from src.params import gen_combinations
-from src.embedders.glove import GloveEmbedder
 from src.embedders.rnn import RNNEmbedder
 from src.embedders.count import CountEmbedder
 from src.embedders.random_control import RandomControlEmbedder
@@ -24,19 +22,19 @@ def aggregation_job(ev_name):
     print('Aggregated df for {} eval'.format(ev_name))
 
 
-def embedder_job(embedder_name):
+def embedder_job(embedder_name, params_df_row=None):
     embedders = chain(
         (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams)
-         if embedder_name in param2val.values()),
+         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
 
         (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams)
-        if embedder_name in param2val.values()),
+         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
 
         (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams)
-        if embedder_name in param2val.values()),
+         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
 
         (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams)
-        if embedder_name in param2val.values())
+         if embedder_name in param2val.values() and is_selected(params_df_row, param2val))
     )
     runtime_errors = []
     while True:

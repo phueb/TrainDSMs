@@ -106,7 +106,7 @@ class RNNParams:
     num_layers = [1]
     num_steps = [7, 16]
     batch_size = [64]
-    num_epochs = [20]  # with sgd, loss bottoms out at epoch 10  # TODO test 20 with adagrad
+    num_epochs = [10, 20]  # with sgd, loss bottoms out at epoch 10  # TODO test 20 with adagrad
     learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay  # TODO was 0.1 with sg, testing 0.01 with adagrad
     grad_clip = [None]
 
@@ -129,3 +129,13 @@ class GloveParams:
 class RandomControlParams:
     embed_size = [30, 200, 500]
     random_type = ['normal']
+
+
+def is_selected(params_df_row, param2val):
+    for param, val in param2val.items():
+        if param in params_df_row:
+            if params_df_row[param] != val:
+                return False
+    else:
+        print('Selected.')
+        return True
