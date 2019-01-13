@@ -31,6 +31,9 @@ def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
         return fs
 
     def calc_probes_ck(thr):
+        """
+        cohen's kappa
+        """
         tp, tn, fp, fn = calc_signals(thr)
         totA = np.divide(tp + tn, (tp + tn + fp + fn))
         #

@@ -13,7 +13,7 @@ def run_on_cluster():
     for n, params_df_row in params_df.iterrows():
         config.Eval.num_reps = params_df_row['num_reps']
         embedder_name = params_df_row['embedder_name']
-        print('Training and evaluating "{}" with num_reps={}.'.format(embedder_name, config.Eval.num_reps))
+        print('Training and evaluating "{}" with num_reps={}...'.format(embedder_name, config.Eval.num_reps))
         # overwrite directories where data is stored and saved
         config.Dirs.runs = Path(params_df_row['runs_dir'])
         config.Dirs.corpora = Path(params_df_row['runs_dir'].replace('runs', 'corpora'))
@@ -25,7 +25,8 @@ def run_on_cluster():
         aggregation_job('identification')
     except RuntimeError:  # did not find any scores for identification
         pass
-    print('Done')
+        print('Finished embedding + evaluation + aggregation.')
+        print()
 
 
 def run_on_host(params_df):
@@ -34,7 +35,7 @@ def run_on_host(params_df):
     """
     for n, params_df_row in params_df.iterrows():
         embedder_name = params_df_row['embedder_name']
-        print('Training and evaluating "{}" with num_reps={}.'.format(embedder_name, config.Eval.num_reps))
+        print('Training and evaluating "{}" with num_reps={}...'.format(embedder_name, config.Eval.num_reps))
         embedder_job(embedder_name, params_df_row=params_df_row)
     #
     try:
@@ -42,7 +43,8 @@ def run_on_host(params_df):
         aggregation_job('identification')
     except RuntimeError:  # did not find any scores for identification
         pass
-    print('Done')
+    print('Finished embedding + evaluation + aggregation.')
+    print()
 
 
 if __name__ == '__main__':

@@ -66,9 +66,10 @@ class Aggregator:
         # make from runs data
         dfs = []
         for location in config.Dirs.runs.glob('*'):
-            print()
-            print('////////////////////////////////////////////////')
-            print(location)
+            if VERBOSE:
+                print()
+                print('////////////////////////////////////////////////')
+                print(location)
             param2val = self.load_param2val(location)
             #
             corpus = param2val['corpus_name']

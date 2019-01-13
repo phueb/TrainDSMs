@@ -72,9 +72,10 @@ def gen_combinations(params_class):
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        print('==========================================================================')
-        for (k, v), i in zip(param2opts, ids):
-            print(k, v[i])
+        if config.Embeddings.verbose:
+            print('==========================================================================')
+            for (k, v), i in zip(param2opts, ids):
+                print(k, v[i])
         yield param2ids, param2val
 
 
@@ -137,5 +138,6 @@ def is_selected(params_df_row, param2val):
             if params_df_row[param] != val:
                 return False
     else:
-        print('Selected.')
+        if config.Embeddings.verbose:
+            print('Selected.')
         return True

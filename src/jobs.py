@@ -16,11 +16,12 @@ from src.embedders.w2vec import W2VecEmbedder
 
 
 def aggregation_job(ev_name):
+    print('Aggregating runs data for eval={}..'.format(ev_name))
     ag_matching = Aggregator(ev_name)
     df = ag_matching.make_df()
     p = config.Dirs.remote_root / '{}.csv'.format(ag_matching.ev_name)
     df.to_csv(p)
-    print('Aggregated data for {} eval and saved to {}'.format(ev_name, p))
+    print('Done. Saved aggregated data to {}'.format(ev_name, p))
     return df
 
 
@@ -52,22 +53,22 @@ def embedder_job(embedder_name, params_df_row=None):
             for e in runtime_errors:
                 print('with RunTimeError:')
                 print(e)
-            print()
             break
         #
         if config.Embeddings.retrain or not embedder.has_embeddings():
-            print('Training...')
-            print('==========================================================================')
+            if config.Embeddings.verbose:
+                print('Training...')
+                print('==========================================================================')
             embedder.train()
             if config.Embeddings.save:
                 embedder.save_params()
                 embedder.save_w2freq()
                 embedder.save_w2e()
         else:
-            print('Found embeddings at {}'.format(embedder.location))
-            print('==========================================================================')
+            if config.Embeddings.verbose:
+                print('Found embeddings at {}'.format(embedder.location))
+                print('==========================================================================')
             embedder.load_w2e()
-        print('Embedding size={}'.format(embedder.w2e_to_embeds(embedder.w2e).shape[1]))
         sys.stdout.flush()
         # evaluate
         for architecture in [
@@ -120,5 +121,6 @@ def embedder_job(embedder_name, params_df_row=None):
                         if config.Eval.save_figs:
                             ev.save_figs(embedder)
                     else:
-                        print('Embedder completed "{}" replication {}'.format(ev.full_name, rep_id))
-                        print('---------------------------------------------')
+                        if config.Embeddings.verbose:
+                            print('Embedder completed "{}" replication {}'.format(ev.full_name, rep_id))
+                            print('---------------------------------------------')
