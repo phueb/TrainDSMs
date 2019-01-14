@@ -13,6 +13,21 @@ class ObjectView(object):
         self.__dict__ = d
 
 
+def to_embedder_name(param2val):
+    if 'random_type' in param2val:
+        return 'random_{}'.format(param2val['random_type'])
+    elif 'rnn_type' in param2val:
+        return param2val['rnn_type']
+    elif 'w2vec_type' in param2val:
+        return param2val['w2vec_type']
+    elif 'count_type' in param2val:
+        return param2val['count_type'][0]
+    elif 'glove_type' in param2val:
+        return param2val['glove_type']
+    else:
+        raise RuntimeError('Unknown embedder name')
+
+
 def iter_over_cycles(d):
     # lengths
     param2opts = sorted([(k, v) for k, v in d.items()
@@ -72,10 +87,6 @@ def gen_combinations(params_class):
         param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        if config.Embeddings.verbose:
-            print('==========================================================================')
-            for (k, v), i in zip(param2opts, ids):
-                print(k, v[i])
         yield param2ids, param2val
 
 
@@ -138,6 +149,7 @@ def is_selected(params_df_row, param2val):
             if params_df_row[param] != val:
                 return False
     else:
-        if config.Embeddings.verbose:
-            print('Selected.')
+        if 'embedder_name' in params_df_row:
+            if params_df_row['embedder_name'] != to_embedder_name(param2val):
+                return False
         return True

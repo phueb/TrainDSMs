@@ -25,19 +25,22 @@ def aggregation_job(ev_name):
     return df
 
 
-def embedder_job(embedder_name, params_df_row=None):
+def embedder_job(params_df_row):
+    if 'embed_size' in params_df_row:
+        raise KeyError('Do not use "embed_size" because count models do not conform to this notion.')
+
     embedders = chain(
         (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams)
-         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
+         if is_selected(params_df_row, param2val)),
 
         (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams)
-         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
+         if is_selected(params_df_row, param2val)),
 
         (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams)
-         if embedder_name in param2val.values() and is_selected(params_df_row, param2val)),
+         if is_selected(params_df_row, param2val)),
 
         (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams)
-         if embedder_name in param2val.values() and is_selected(params_df_row, param2val))
+         if is_selected(params_df_row, param2val))
     )
     runtime_errors = []
     while True:
@@ -49,25 +52,25 @@ def embedder_job(embedder_name, params_df_row=None):
             runtime_errors.append(e)
             continue
         except StopIteration:
-            print('Finished embedding and evaluating {}'.format(embedder_name))
+            print('Finished embedding and evaluating job')
             for e in runtime_errors:
                 print('with RunTimeError:')
                 print(e)
             break
+        # print params
+        print('===================================================')
+        for k, v in embedder.param2val.items():
+            print(k, v)
         #
         if config.Embeddings.retrain or not embedder.has_embeddings():
-            if config.Embeddings.verbose:
-                print('Training...')
-                print('==========================================================================')
+            print('Training...')
             embedder.train()
             if config.Embeddings.save:
                 embedder.save_params()
                 embedder.save_w2freq()
                 embedder.save_w2e()
         else:
-            if config.Embeddings.verbose:
-                print('Found embeddings at {}'.format(embedder.location))
-                print('==========================================================================')
+            print('Found embeddings at {}'.format(embedder.location))
             embedder.load_w2e()
         sys.stdout.flush()
         # evaluate
@@ -98,7 +101,6 @@ def embedder_job(embedder_name, params_df_row=None):
                             print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
                         if not config.Eval.resample:
                             print('WARNING: Not re-sampling data across replications.')
-                        print('---------------------------------------------')
                         # make eval data - row_words can contain duplicates
                         vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
                         all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
@@ -120,7 +122,3 @@ def embedder_job(embedder_name, params_df_row=None):
                         # figs
                         if config.Eval.save_figs:
                             ev.save_figs(embedder)
-                    else:
-                        if config.Embeddings.verbose:
-                            print('Embedder completed "{}" replication {}'.format(ev.full_name, rep_id))
-                            print('---------------------------------------------')

@@ -7,6 +7,7 @@ import numpy as np
 from pathlib import Path
 
 from src import config
+from src.params import to_embedder_name
 
 VERBOSE = False
 
@@ -32,28 +33,13 @@ class Aggregator:
         self.bw = 0.2
         self.hatches = cycle(['--', '\\\\', 'xx'])
         self.embedder2color = {embedder_name: plt.cm.get_cmap('tab10')(n) for n, embedder_name in enumerate(
-            ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'rnd_normal', 'rnd_uniform', 'glove'])}
+            ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
     @staticmethod
     def load_param2val(loc):
         with (Path(loc) / 'params.yaml').open('r') as f:
             res = yaml.load(f)
         return res
-
-    @staticmethod
-    def to_embedder_name(param2val):
-        if 'random_type' in param2val:
-            return 'rnd_{}'.format(param2val['random_type'])
-        elif 'rnn_type' in param2val:
-            return param2val['rnn_type']
-        elif 'w2vec_type' in param2val:
-            return param2val['w2vec_type']
-        elif 'count_type' in param2val:
-            return param2val['count_type'][0]
-        elif 'glove_type' in param2val:
-            return param2val['glove_type']
-        else:
-            raise RuntimeError('Unknown embedder name')
 
     def make_df(self, load_from_file=False):
         # load from file
@@ -75,7 +61,7 @@ class Aggregator:
             corpus = param2val['corpus_name']
             num_vocab = param2val['num_vocab']
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
-            embedder = self.to_embedder_name(param2val)
+            embedder = to_embedder_name(param2val)
             #
             df = self.make_embedder_df(location, corpus, num_vocab, embed_size, location, embedder)
             if len(df) > 0:
@@ -185,10 +171,11 @@ class Aggregator:
                        task,
                        embed_size,
                        load_from_file=False,
+                       show=True,
                        min_num_reps=2,
                        y_step=0.1,
                        xax_fontsize=6,
-                       yax_fontsize=10,
+                       yax_fontsize=20,
                        t_fontsize=20,
                        dpi=192,
                        height=8,
@@ -222,7 +209,8 @@ class Aggregator:
         bars_list = []
         param2val_list = []
         embedder_names = []
-        sorted_locations = filtered_df.groupby('location').mean().sort_values(
+        novice_df = filtered_df[filtered_df['stage'] == 'novice']
+        sorted_locations = novice_df.groupby('location').mean().sort_values(
             'score', ascending=False).index.values
         for embedder_id, location in enumerate(sorted_locations):
             #
@@ -231,7 +219,7 @@ class Aggregator:
             #
             param2val = self.load_param2val(location)
             param2val_list.append(param2val)
-            embedder_name = self.to_embedder_name(param2val)
+            embedder_name = to_embedder_name(param2val)
             #
             print()
             print(location)
@@ -278,7 +266,8 @@ class Aggregator:
             raise RuntimeError('No scores found for given factors.')
         self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)
         fig.subplots_adjust(bottom=0.1)
-        plt.show()
+        if show:
+            plt.show()
 
     def make_y_label_lims_ticks(self, y_step):
         if self.ev_name == 'matching':

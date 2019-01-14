@@ -1,4 +1,2 @@
-embedder_name,embed_size
-srn,30
-srn,200
-srn,500
+embedder_name
+ww

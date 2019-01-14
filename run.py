@@ -18,7 +18,7 @@ def run_on_cluster():
         config.Dirs.runs = Path(params_df_row['runs_dir'])
         config.Dirs.corpora = Path(params_df_row['runs_dir'].replace('runs', 'corpora'))
         config.Dirs.tasks = Path(params_df_row['runs_dir'].replace('runs', 'tasks'))
-        embedder_job(embedder_name, params_df_row=params_df_row)
+        embedder_job(params_df_row=params_df_row)
     #
     try:
         aggregation_job('matching')
@@ -36,7 +36,7 @@ def run_on_host(params_df):
     for n, params_df_row in params_df.iterrows():
         embedder_name = params_df_row['embedder_name']
         print('Training and evaluating "{}" with num_reps={}...'.format(embedder_name, config.Eval.num_reps))
-        embedder_job(embedder_name, params_df_row=params_df_row)
+        embedder_job(params_df_row)
     #
     try:
         aggregation_job('matching')

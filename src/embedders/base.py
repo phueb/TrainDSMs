@@ -84,10 +84,8 @@ class EmbedderBase(object):
         if p.exists():
             df = pd.read_csv(p, index_col=False)
             num_trained = len(df)
-        if config.Embeddings.verbose:
-            print('---------------------------------------------')
-            print('Replication {}: Training for {}/{} param configurations completed'.format(
-            rep_id, num_trained, num_total))
+        print('{} rep {}: {}/{} param configurations completed'.format(
+        ev.full_name, rep_id, num_trained, num_total))
         if num_trained == num_total:
             return True
         else:

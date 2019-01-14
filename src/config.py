@@ -32,7 +32,7 @@ class Eval:
 
 
 class Embeddings:
-    verbose = False
+    verbose = True
     precision = 5
     retrain = False
     save = True
