@@ -114,12 +114,16 @@ class EmbedderBase(object):
             w2freq.update(c)
             pbar.update()
         # vocab
-        if num_vocab is None:  # if no vocab specified, use the whole corpus
-            num_vocab = len(w2freq) + 1
-        print('Creating vocab of size {}...'.format(num_vocab))
         deterministic_w2f = OrderedDict(sorted(w2freq.items(), key=lambda item: (item[1], item[0]), reverse=True))
-        vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab - 1))
-        vocab.append(config.Corpus.UNK)
+        if num_vocab is None:
+            vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab))
+        else:
+            vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab - 1))
+            vocab.append(config.Corpus.UNK)
+        vocab = list(sorted(vocab))
+        if num_vocab is None:  # if no vocab specified, use the whole corpus
+            num_vocab = len(w2freq)
+        print('Creating vocab of size {}...'.format(num_vocab))
         print('Least frequent word occurs {} times'.format(deterministic_w2f[vocab[-2]]))
         assert '\n' not in vocab
         assert len(vocab) == num_vocab
@@ -155,7 +159,7 @@ class EmbedderBase(object):
         if p.exists():
             vocab = np.loadtxt(p, 'str').tolist()
             print('Loaded vocab from file. Found {} words.'.format(len(vocab)))
-            assert '.' in vocab
+            # assert '.' in vocab
         else:
             print('Building vocab from corpus.')
             vocab = self.corpus_data[1]

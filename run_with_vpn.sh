@@ -4,7 +4,7 @@
 #credentials=$(cat ../.vpn_credentials)
 #/opt/cisco/anyconnect/bin/vpn -s connect vpn.cites.illinois.edu <<< "$credentials"
 #
-#pwd=$(cat ../.sudo_pwd)
+#pwd=$(cat /home/ph/.sudo_pwd)
 #echo ${pwd} | sudo -S mount /media/lab
 #
 #cd /home/ph/LudwigCluster/scripts

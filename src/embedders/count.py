@@ -31,18 +31,19 @@ class CountEmbedder(EmbedderBase):
         window_weight = self.count_type[3]
         # count
         num_docs = len(self.numeric_docs)
+        num_vocab = len(self.vocab)
         pbar = pyprind.ProgBar(num_docs)
-        count_matrix = np.zeros([config.Corpus.num_vocab, config.Corpus.num_vocab], int)
+        count_matrix = np.zeros([num_vocab, num_vocab], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
         for token_ids in self.numeric_docs:
             token_ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
             if VERBOSE:
                 print(token_ids)
-            windows = itertoolz.sliding_window(window_size, token_ids)
+            windows = itertoolz.sliding_window(window_size + 1, token_ids)  # + 1 because window consists of t2s only
             for w in windows:
-                for t1_id, t2_id, dist in zip([w[0]] * (window_size - 1),
+                for t1_id, t2_id, dist in zip([w[0]] * window_size,
                                               w[1:],
-                                              range(1, window_size)):
+                                              range(window_size)):
                     # increment
                     if t1_id == PAD or t2_id == PAD:
                         continue
@@ -51,11 +52,10 @@ class CountEmbedder(EmbedderBase):
                     elif window_weight == "flat":
                         count_matrix[t1_id, t2_id] += 1
                     if VERBOSE:
-                        print('Incrementing @ row {:>3} col {:>3}'.format(t1_id, t2_id))
+                        print('row {:>3} col {:>3} set to {}'.format(t1_id, t2_id, count_matrix[t1_id, t2_id]))
             if VERBOSE:
                 print()
             pbar.update()
-
         # window_type
         if window_type == 'forward':
             final_matrix = count_matrix
@@ -101,6 +101,7 @@ class CountEmbedder(EmbedderBase):
         # to w2e
         embed_mat = self.standardize_embed_mat(reduced_matrix)
         self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
+        return reduced_matrix
 
     # ////////////////////////////////////////////////// normalizations
 
@@ -108,13 +109,13 @@ class CountEmbedder(EmbedderBase):
         if norm_type == 'row_sum':
             norm_matrix, dimensions = self.norm_rowsum(input_matrix)
         elif norm_type == 'col_sum':
-            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+            norm_matrix, dimensions = self.norm_colsum(input_matrix)
         elif norm_type == 'tf_idf':
-            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+            norm_matrix, dimensions = self.norm_tfidf(input_matrix)
         elif norm_type == 'row_logentropy':
-            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+            norm_matrix, dimensions = self.row_logentropy(input_matrix)
         elif norm_type == 'ppmi':
-            norm_matrix, dimensions = self.norm_rowsum(input_matrix)
+            norm_matrix, dimensions = self.norm_ppmi(input_matrix)
         elif norm_type is None:
             norm_matrix = input_matrix
             dimensions = input_matrix.shape[1]
@@ -239,7 +240,7 @@ class CountEmbedder(EmbedderBase):
             reduced_matrix, dimensions = self.reduce_svd(input_matrix, reduce_size)
         elif reduce_type == 'rva':
             reduced_matrix, dimensions = self.reduce_rva(input_matrix, reduce_size)
-        elif reduce_type == 'none':
+        elif reduce_type is None:
             reduced_matrix = input_matrix
             dimensions = input_matrix.shape[1]
         else:

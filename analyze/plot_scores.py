@@ -6,11 +6,11 @@ CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
 NUM_VOCAB = 4096
 ARCHITECTURE_NAME = 'comparator'
 EVALUATOR_NAME = 'matching'
-TASK_NAME = 'cohyponyms_syntactic'
+TASK_NAME = 'nyms_ant_jw'
 EMBED_SIZE = 500
 
 DF_FROM_FILE = True
-SHOW = False  # TODO just for making tables
+SHOW = True  # TODO just for making tables
 
 
 # get all data
