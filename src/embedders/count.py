@@ -63,10 +63,11 @@ class CountEmbedder(EmbedderBase):
             final_matrix = count_matrix.transpose()
         elif window_type == 'summed':
             final_matrix = count_matrix + count_matrix.transpose()
-        elif window_type == 'concatenate':
-            final_matrix = np.concatenate((count_matrix, count_matrix.transpose()))
+        elif window_type == 'concatenated':
+            final_matrix = np.concatenate((count_matrix, count_matrix.transpose()), axis=1)
         else:
             raise AttributeError('Invalid arg to "window_type".')
+        print('Shape of normalized matrix={}'.format(final_matrix.shape))
         return final_matrix
 
     # ////////////////////////////////////////////////// word-by-document
@@ -101,7 +102,7 @@ class CountEmbedder(EmbedderBase):
         # to w2e
         embed_mat = self.standardize_embed_mat(reduced_matrix)
         self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
-        return reduced_matrix
+        return reduced_matrix  # for unittest
 
     # ////////////////////////////////////////////////// normalizations
 

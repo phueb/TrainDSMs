@@ -93,12 +93,11 @@ def gen_combinations(params_class):
 class CountParams:
     count_type = [
         ['wd', None, None, None],
-        # ['ww', 'forward',  7,  'linear'],
-        ['ww', 'summed',  7,  'flat'],
-        ['ww', 'summed', 16,  'flat'],
+        ['ww', 'concatenated',  7,  'linear'],
+        ['ww', 'concatenated', 16,  'linear'],
     ]
     # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = ['ppmi']
+    norm_type = ['row_sum']
     reduce_type = [
         ['svd', 30],
         ['svd', 200],

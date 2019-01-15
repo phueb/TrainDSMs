@@ -210,11 +210,11 @@ class EmbedderBase(object):
         return res
 
     @staticmethod
-    def embeds_to_w2e(embeds, vocab):
+    def embeds_to_w2e(embed_mat, vocab):
         res = SortedDict()
         for n, w in enumerate(vocab):
-            res[w] = embeds[n]
-        assert len(vocab) == len(res) == len(embeds)
+            res[w] = embed_mat[n]
+        assert len(vocab) == len(res) == len(embed_mat)
         return res
 
     @property
