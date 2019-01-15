@@ -84,7 +84,7 @@ class EmbedderBase(object):
         if p.exists():
             df = pd.read_csv(p, index_col=False)
             num_trained = len(df)
-        print('{} rep {}: {}/{} param configurations completed'.format(
+        print('{} rep {} has {}/{} param configurations'.format(
         ev.full_name, rep_id, num_trained, num_total))
         if num_trained == num_total:
             return True
@@ -158,10 +158,12 @@ class EmbedderBase(object):
         p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if p.exists():
             vocab = np.loadtxt(p, 'str').tolist()
-            print('Loaded vocab from file. Found {} words.'.format(len(vocab)))
+            if config.Eval.verbose:
+                print('Loaded vocab from file. Found {} words.'.format(len(vocab)))
             # assert '.' in vocab
         else:
-            print('Building vocab from corpus.')
+            if config.Eval.verbose:
+                print('Building vocab from corpus.')
             vocab = self.corpus_data[1]
         return vocab
 
@@ -188,7 +190,7 @@ class EmbedderBase(object):
     # ///////////////////////////////////////////////////////////// embeddings
 
     def has_embeddings(self):
-        if (self.location / 'embeddings.txt').exists():  # TODO test
+        if (self.location / 'embeddings.txt').exists():
             return True
         else:
             return False
@@ -206,7 +208,8 @@ class EmbedderBase(object):
         for w in w2e.keys():
             embeds.append(w2e[w])
         res = np.vstack(embeds)
-        print('Converted w2e to matrix with shape {}'.format(res.shape))
+        if config.Eval.verbose:
+            print('Converted w2e to matrix with shape {}'.format(res.shape))
         return res
 
     @staticmethod
@@ -228,5 +231,6 @@ def w2e_to_sims(w2e, row_words, col_words):
     y = np.vstack([w2e[w] for w in col_words])
     # sim
     res = cosine_similarity(x, y)
-    print('Shape of similarity matrix: {}'.format(res.shape))
+    if config.Eval.verbose:
+        print('Shape of similarity matrix: {}'.format(res.shape))
     return np.around(res, config.Embeddings.precision)

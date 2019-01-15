@@ -7,13 +7,13 @@
 #pwd=$(cat /home/ph/.sudo_pwd)
 #echo ${pwd} | sudo -S mount /media/lab
 #
-#cd /home/ph/LudwigCluster/scripts
-#bash upload_watchers.sh
+cd /home/ph/LudwigCluster/scripts
+bash upload_watchers.sh
 
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit_to_ludwig.py -r2 -s -w hinton
+python submit_to_ludwig.py -r2 -w hawkins -s
 deactivate
 echo "Submission completed"
 

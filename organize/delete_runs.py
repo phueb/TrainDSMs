@@ -4,8 +4,8 @@ import shutil
 from src import config
 
 
-KEY = 'num_epochs'
-VALUE = 10
+KEY = 'count_type'
+PARTIAL_VALUE = 'ww'
 
 
 ps = config.Dirs.runs.rglob('params.yaml')
@@ -28,7 +28,7 @@ while True:
                 continue
             else:
                 print(val)
-                if val == VALUE:
+                if PARTIAL_VALUE in val:
                     location = p.parent
                     locations_to_del.append(location)
 

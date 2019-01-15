@@ -95,8 +95,7 @@ def embedder_job(params_df_row):
             ]:
                 for rep_id in range(config.Eval.num_reps):
                     if config.Eval.retrain or config.Eval.debug or not embedder.completed_eval(ev, rep_id):
-                        print('Starting "{}" replication {}/{} with embedder={}'.format(
-                            ev.full_name, rep_id + 1, config.Eval.num_reps, embedder.name))
+                        print('Starting replication {}/{}'.format(rep_id + 1, config.Eval.num_reps))
                         if ev.suffix != '':
                             print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
                         if not config.Eval.resample:
@@ -107,8 +106,9 @@ def embedder_job(params_df_row):
                         ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
                             all_eval_probes, all_eval_candidates_mat,
                             seed=rep_id if config.Eval.resample else 42)
-                        print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
-                        print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
+                        if config.Eval.verbose:
+                            print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
+                            print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
                         #
                         ev.pos_prob = ev.calc_pos_prob()
                         # check embeddings for words
@@ -122,3 +122,4 @@ def embedder_job(params_df_row):
                         # figs
                         if config.Eval.save_figs:
                             ev.save_figs(embedder)
+                print('-')

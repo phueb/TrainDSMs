@@ -110,7 +110,8 @@ class EvalBase(object):
                 if c in self.probe2relata[row_word]:
                     num_positive += 1
         prob = num_positive / num_total
-        print('Probability of positive examples={}'.format(prob))
+        if config.Eval.verbose:
+            print('Probability of positive examples={}'.format(prob))
         return prob
 
     # ////////////////////////////////////////////////////// train + score
@@ -129,7 +130,8 @@ class EvalBase(object):
         except OSError:
             raise OSError('{} is no reachable. Check VPN or mount drive.'.format(p))
         if p.exists() and not config.Eval.debug:
-            print('Removing {}'.format(p))
+            if config.Eval.verbose:
+                print('Removing {}'.format(p))
             p.unlink()
         # run each trial in separate process
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
@@ -148,12 +150,14 @@ class EvalBase(object):
                     df_row = res.get()
                     df_rows.append(df_row)
             except KeyboardInterrupt:
+                sys.stdout.flush()
                 pool.close()
                 raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
+        sys.stdout.flush()
         # save score obtained in each trial
         for df_row in df_rows:
             if config.Eval.save_scores:
-                print('Saving score to {}'.format(p))
+                print('Saving score to {}'.format(p.relative_to(config.Dirs.remote_root)))
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
                 if not p.parent.exists():
@@ -183,7 +187,8 @@ class EvalBase(object):
         print('Training expert on "{}"'.format(self.full_name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
-            print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
+            if config.Eval.verbose:
+                print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id)
             graph = self.make_graph(self, trial, embed_size)
             self.train_expert_on_train_fold(self, trial, graph, data, fold_id)

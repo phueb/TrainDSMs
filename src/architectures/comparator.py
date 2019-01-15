@@ -2,10 +2,11 @@ import numpy as np
 import tensorflow as tf
 from itertools import product
 import time
+import os
 
 from src import config
 
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
@@ -76,7 +77,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x2_test = np.array(x2_test)
     # shuffle x-y mapping
     if trial.params.shuffled:
-        print('Shuffling supervisory signal')
+        if config.Eval.verbose:
+            print('Shuffling supervisory signal')
         np.random.shuffle(y_train)
     return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test
 
@@ -105,11 +107,13 @@ def make_graph(evaluator, trial, embed_size):
                 # siamese
                 with tf.variable_scope('trial_{}'.format(trial.params_id), reuse=tf.AUTO_REUSE) as scope:
                     if trial.params.num_output is None:
-                        print('Initializing expert weight matrix with identity matrix.')
+                        if config.Eval.verbose:
+                            print('Initializing expert weight matrix with identity matrix.')
                         num_output = embed_size
                         init = tf.constant_initializer(np.eye(num_output))
                     else:
-                        print('Initializing expert weight matrix with random values.')
+                        if config.Eval.verbose:
+                            print('Initializing expert weight matrix with random values.')
                         num_output = trial.params.num_output
                         init = None
                     wy = tf.get_variable('wy', shape=[embed_size, num_output], dtype=tf.float32,
@@ -139,7 +143,8 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         assert len(x1) == len(x2) == len(y)
         num_rows = len(x1)
         num_adj = num_rows - (num_rows % trial.params.mb_size)
-        print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
+        if config.Eval.verbose:
+            print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
         for epoch_id in range(trial.params.num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
@@ -160,7 +165,8 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
-    print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
+    if config.Eval.verbose:
+        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # training and eval
     start = time.time()
     for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):
