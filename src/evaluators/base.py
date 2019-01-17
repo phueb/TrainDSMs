@@ -17,7 +17,7 @@ class ResultsData:
 class Trial(object):
     def __init__(self, params_id, param2val):
         self.params_id = params_id
-        self.param2val = param2val
+        self.params = ObjectView(param2val)  # TODO test
         self.df_row = None
         self.results = None
 
@@ -126,10 +126,9 @@ class EvalBase(object):
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
             self.do_trial(self.trials[0], embedder.w2e, embedder.dim1)  # cannot pickle tensorflow errors
-            print('If not debugging, score would be saved to {}'.format(p))
             raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all evaluators.')
         elif config.Eval.only_stage1:
-            df_rows = [[None, self.novice_score] + [self.trials[0].param2val.__dict__[p] for p in self.df_header]]
+            df_rows = [[None, self.novice_score] + [self.trials[0].params.__dict__[p] for p in self.df_header]]
         else:
             results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
                        for trial in self.trials]
@@ -177,7 +176,7 @@ class EvalBase(object):
         # score trial
         assert self.novice_score is not None
         df_row = [self.get_best_trial_score(trial), self.novice_score] + \
-                 [trial.param2val[p] for p in self.df_header]
+                       [trial.params.__dict__[p] for p in self.df_header]
         return df_row
 
     # ////////////////////////////////////////////////////// figs

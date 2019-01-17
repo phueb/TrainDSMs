@@ -28,7 +28,8 @@ def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwi
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
     # params
-    time_of_init = params2val_p.name  # TODO test
+    job_name = params2val_p.stem
+    print('Starting job {}'.format(job_name))
     with params2val_p.open('r') as f:
         param2val = yaml.load(f)
     print('===================================================')
@@ -36,13 +37,13 @@ def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwi
         print(k, v)
     # load embedder
     if 'random_type' in param2val:
-        embedder = RandomControlEmbedder(param2val, time_of_init)
+        embedder = RandomControlEmbedder(param2val, job_name)
     elif 'rnn_type' in param2val:
-        embedder = RNNEmbedder(param2val, time_of_init)
+        embedder = RNNEmbedder(param2val, job_name)
     elif 'w2vec_type' in param2val:
-        embedder = W2VecEmbedder(param2val, time_of_init)
+        embedder = W2VecEmbedder(param2val, job_name)
     elif 'count_type' in param2val:
-        embedder = CountEmbedder(param2val,  time_of_init)
+        embedder = CountEmbedder(param2val,  job_name)
     elif 'glove_type' in param2val:
         raise NotImplementedError
     else:
@@ -51,7 +52,7 @@ def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwi
     if not embedder.has_embeddings():  # in case previous job was interrupted after embedding completed
         print('Training...')
         embedder.train()
-        embedder.save_w2freq()
+        embedder.save_w2freq()  # TODO can't all corpus preprocessing happen locally and results copied to server?
         embedder.save_w2e()
     else:
         print('Found embeddings at {}'.format(embedder.location))
@@ -76,8 +77,6 @@ def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwi
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
-            if not config.Eval.resample:
-                print('WARNING: Not re-sampling data across replications.')
             # check scores_p
             scores_p = ev.make_scores_p(embedder.location)
             try:
@@ -98,8 +97,8 @@ def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwi
             #
             ev.pos_prob = ev.calc_pos_prob()
             # check that required embeddings exist for eval
-            for scores_p in set(ev.row_words + ev.col_words):
-                if scores_p not in embedder.w2e:
+            for w in set(ev.row_words + ev.col_words):
+                if w not in embedder.w2e:
                     raise KeyError('"{}" required for evaluation "{}" is not in w2e.'.format(scores_p, ev.name))
             # score
             sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows

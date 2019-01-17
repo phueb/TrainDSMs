@@ -13,6 +13,7 @@ def run_on_cluster():
     #
     for params2val_p in config.Dirs.param2vals.glob('*.yaml'):
         embedder_job(params2val_p)
+        # TODO backup job dir rom runs to backup to enable ludwigcluster logging
     #
     try:
         aggregation_job('matching')
@@ -23,7 +24,7 @@ def run_on_cluster():
         print()
 
 
-def run_on_host():  # TODO how to do reps locally?
+def run_on_host():  # TODO how to do reps locally? - just overwrite a local runs dir each time
     """
     run jobs on the local host for testing/development
     """

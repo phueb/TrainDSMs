@@ -7,7 +7,6 @@ from scipy.sparse import linalg as slinalg
 from scipy import sparse
 
 from src.embedders.base import EmbedderBase
-from src.params import CountParams
 from src import config
 
 PAD = '*PAD*'
@@ -15,8 +14,8 @@ VERBOSE = False
 
 
 class CountEmbedder(EmbedderBase):
-    def __init__(self, param2val, time_of_init):
-        super().__init__(param2val, time_of_init)
+    def __init__(self, param2val, job_name):
+        super().__init__(param2val, job_name)
         self.count_type = param2val['count_type']
         self.norm_type = param2val['norm_type']
         self.reduce_type = param2val['reduce_type']

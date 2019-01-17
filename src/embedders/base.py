@@ -16,14 +16,14 @@ nlp = English()  # need this only for tokenization
 
 
 class EmbedderBase(object):
-    def __init__(self, param2val, time_of_init):
+    def __init__(self, param2val, job_name):
         self.param2val = param2val
-        self.time_of_init = time_of_init
+        self.job_name = job_name
         self.w2e = dict()  # is created by child class
 
     @property
     def location(self):
-        res = config.Dirs.runs / self.time_of_init
+        res = config.Dirs.runs / self.job_name
         return res
 
     # ///////////////////////////////////////////////////////////// I/O

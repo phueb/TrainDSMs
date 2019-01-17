@@ -12,8 +12,8 @@ from src import config
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, param2val, time_of_init):
-        super().__init__(param2val, time_of_init)
+    def __init__(self, param2val, job_name):
+        super().__init__(param2val, job_name)
         self.rnn_type = param2val['rnn_type']
         self.embed_size = param2val['embed_size']
         self.train_percent = param2val['train_percent']
