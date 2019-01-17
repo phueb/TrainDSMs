@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 from pathlib import Path
+import datetime
+import time
 
 from src import config
 from src.params import to_embedder_name
@@ -164,14 +166,14 @@ class Aggregator:
 
     # ///////////////////////////////////////////////////// plotting
 
-    def show_task_plot(self,
+    def make_task_plot(self,
                        corpus,
                        num_vocab,
                        arch,
                        task,
                        embed_size,
                        load_from_file=False,
-                       show=True,
+                       save=False,
                        min_num_reps=2,
                        y_step=0.1,
                        xax_fontsize=6,
@@ -266,8 +268,14 @@ class Aggregator:
             raise RuntimeError('No scores found for given factors.')
         self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)
         fig.subplots_adjust(bottom=0.1)
-        if show:
+        if not save:
             plt.show()
+        else:
+            time_of_fig = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            p = config.Dirs.root / 'figs' / '{}.png'.format(time_of_fig)
+            print('Saving fig to {}'.format(p))
+            plt.savefig(p.open('wb'), bbox_inches="tight")
+            time.sleep(1)
 
     def make_y_label_lims_ticks(self, y_step):
         if self.ev_name == 'matching':

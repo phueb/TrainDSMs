@@ -157,7 +157,8 @@ class EvalBase(object):
         # save score obtained in each trial
         for df_row in df_rows:
             if config.Eval.save_scores:
-                print('Saving score to {}'.format(p.relative_to(config.Dirs.remote_root)))
+                if config.Eval.verbose:
+                    print('Saving score to {}'.format(p.relative_to(config.Dirs.remote_root)))
                 df = pd.DataFrame(data=[df_row],
                                   columns=['exp_score', 'nov_score'] + self.df_header)
                 if not p.parent.exists():
@@ -187,6 +188,7 @@ class EvalBase(object):
         print('Training expert on "{}"'.format(self.full_name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
+            print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))  # TODO remove
             if config.Eval.verbose:
                 print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id)

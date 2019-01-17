@@ -13,9 +13,9 @@ bash upload_watchers.sh
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit_to_ludwig.py -r2 -w hawkins -s
+python submit_to_ludwig.py -r5 -w lecun -s
 deactivate
 echo "Submission completed"
 
 sleep 5
-head -n 6 /media/lab/stdout/*.out
+tail -n 6 /media/lab/stdout/*.out
