@@ -1,17 +1,13 @@
 import sys
-import pandas as pd
 from collections import Counter, OrderedDict
 from itertools import islice
 from sklearn import preprocessing
 from spacy.lang.en import English
 import numpy as np
 import pyprind
-import yaml
-import datetime
 from cached_property import cached_property
 from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
-from itertools import chain
 
 from src import config
 
@@ -20,29 +16,14 @@ nlp = English()  # need this only for tokenization
 
 
 class EmbedderBase(object):
-    def __init__(self, param2val):
+    def __init__(self, param2val, time_of_init):
         self.param2val = param2val
+        self.time_of_init = time_of_init
         self.w2e = dict()  # is created by child class
 
-    @cached_property
+    @property
     def location(self):
-        ps = chain(config.Dirs.runs.rglob('params.yaml'))
-        while True:
-            try:
-                p = next(ps)
-            except OSError:  # host is down
-                raise OSError('Cannot access remote runs_dir. Check VPN and/or mount drive.')
-            except StopIteration:
-                break
-            else:
-                with p.open('r') as f:
-                    param2val = yaml.load(f)
-                    if param2val == self.param2val:
-                        location = p.parent
-                        return location
-        # if location not found, create it
-        time_of_init = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        res = config.Dirs.runs / time_of_init
+        res = config.Dirs.runs / self.time_of_init
         return res
 
     # ///////////////////////////////////////////////////////////// I/O
@@ -50,13 +31,6 @@ class EmbedderBase(object):
     @property
     def w2freq_fname(self):
         return '{}_w2freq.txt'.format(config.Corpus.name)
-
-    def claim_params(self):  # TODO change this from saving params to moving params from /var/sftp/ludwig to /media/lab/2stagenlp/runs/model_name - need to get model_name
-        p = self.location / 'params.yaml'
-        if not p.parent.exists():
-            p.parent.mkdir()
-        with p.open('w', encoding='utf8') as outfile:
-            yaml.dump(self.param2val, outfile, default_flow_style=False, allow_unicode=True)
 
     def save_w2freq(self):
         p = config.Dirs.corpora / self.w2freq_fname
@@ -76,20 +50,6 @@ class EmbedderBase(object):
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
-
-    def completed_eval(self, ev, rep_id):
-        num_total = len(ev.param2val_list)
-        num_trained = 0
-        p = ev.make_scores_p(self.location, rep_id)
-        if p.exists():
-            df = pd.read_csv(p, index_col=False)
-            num_trained = len(df)
-        print('{} rep {} has {}/{} param configurations'.format(
-        ev.full_name, rep_id, num_trained, num_total))
-        if num_trained == num_total:
-            return True
-        else:
-            return False
 
     # ///////////////////////////////////////////////////////////// corpus data
 
@@ -142,6 +102,11 @@ class EmbedderBase(object):
                     numeric_doc.append(t2id[config.Corpus.UNK])
             numeric_docs.append(numeric_doc)
         # save vocab - vocab needs to be overwritten when code in this function has been changed
+
+        # TODO why is vocab not saved by default? - wouldn't this be safer in case this function is changed?
+
+        # TODO isn't it best to just create vocab and w2freq once every time before jobs are submitted?
+
         p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             with p.open('w') as f:

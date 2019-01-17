@@ -22,20 +22,17 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--skip_data', default=False, action='store_true', dest='skip_data', required=False)
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     namespace = parser.parse_args()
-    # param2val
-    param2val_list = list(gen_combinations(CountParams, namespace.reps)) + \
-                     list(gen_combinations(RNNParams, namespace.reps)) + \
-                     list(gen_combinations(Word2VecParams, namespace.reps)) + \
-                     list(gen_combinations(RandomControlParams, namespace.reps))
+    # param2val - reps are added by ludwigcluster
+    param2val_list = list(gen_combinations(CountParams)) + \
+                     list(gen_combinations(RNNParams)) + \
+                     list(gen_combinations(Word2VecParams)) + \
+                     list(gen_combinations(RandomControlParams))
     # submit
     data_dirs = ['corpora', 'tasks'] if not namespace.skip_data else []
     client = Client(config.Dirs.runs.parent.name)
     client.submit(src_ps=[config.Dirs.src],
                   data_ps=[config.Dirs.root / d for d in data_dirs],
-
-                  param2val_list=param2val_list,  # TODO test
-
+                  param2val_list=param2val_list,
                   reps=namespace.reps,
                   test=namespace.test,
-                  use_log=True,
                   worker=namespace.worker)

@@ -69,7 +69,7 @@ def make_param2val_list(params_class1, params_class2):
     return res
 
 
-def gen_combinations(params_class, num_reps=1):
+def gen_combinations(params_class):
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned
@@ -81,8 +81,7 @@ def gen_combinations(params_class, num_reps=1):
     for ids in param_ids:
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        for _ in range(num_reps):
-            yield param2val
+        yield param2val
 
 
 class CountParams:

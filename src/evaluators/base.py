@@ -122,17 +122,6 @@ class EvalBase(object):
         self.print_score(self.novice_score)
 
     def train_and_score_expert(self, embedder):
-        # need to remove scores - this function is called only if replication is incomplete or config.retrain
-        p = self.make_scores_p(embedder.location)
-        # check if host is down (possibly  due to VPN connection)
-        try:
-            p.parent.exists()
-        except OSError:
-            raise OSError('{} is no reachable. Check VPN or mount drive.'.format(p))
-        if p.exists() and not config.Eval.debug:
-            if config.Eval.verbose:
-                print('Removing {}'.format(p))
-            p.unlink()
         # run each trial in separate process
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
@@ -149,25 +138,13 @@ class EvalBase(object):
                 for res in results:
                     df_row = res.get()
                     df_rows.append(df_row)
-            except KeyboardInterrupt:
-                sys.stdout.flush()
                 pool.close()
+                sys.stdout.flush()
+            except KeyboardInterrupt:
+                pool.close()
+                sys.stdout.flush()
                 raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
-        sys.stdout.flush()
-        # save score obtained in each trial
-        for df_row in df_rows:
-            if config.Eval.save_scores:
-                if config.Eval.verbose:
-                    print('Saving score to {}'.format(p.relative_to(config.Dirs.remote_root)))
-                df = pd.DataFrame(data=[df_row],
-                                  columns=['exp_score', 'nov_score'] + self.df_header)
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                with p.open('a') as f:
-                    df.to_csv(f, mode='a', header=f.tell() == 0,
-                              index=False)
-        pool.close()
-        sys.stdout.flush()
+        return df_rows
 
     def get_best_trial_score(self, trial):
         best_expert_score = 0

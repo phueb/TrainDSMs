@@ -1,5 +1,4 @@
 import argparse
-import yaml
 
 from src import config
 from src.jobs import embedder_job, aggregation_job
@@ -12,10 +11,8 @@ def run_on_cluster():
     config.Dirs.corpora = config.Dirs.remote_root / 'corpora'
     config.Dirs.tasks = config.Dirs.remote_root / 'tasks'
     #
-    for p in config.Dirs.param2val:
-        with p.open('r') as f:
-            param2val = yaml.load(f)
-        embedder_job(param2val)
+    for params2val_p in config.Dirs.param2vals.glob('*.yaml'):
+        embedder_job(params2val_p)
     #
     try:
         aggregation_job('matching')

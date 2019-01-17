@@ -6,7 +6,7 @@ class Dirs:
     src = root / 'src'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
-    param2val = root / 'param2val'
+    param2vals = root / 'param2vals'
     #
     remote_root = Path('/') / 'media' / 'lab' / '2StageNLP'
     runs = remote_root / 'runs'
@@ -24,8 +24,6 @@ class Eval:
     standardize_num_relata = False  # don't do this - it reduces performance dramatically
     only_negative_examples = False
     num_folds = 4
-    retrain = False
-    save_scores = True
     save_figs = False
     num_opt_steps = 5
     num_evals = 10
