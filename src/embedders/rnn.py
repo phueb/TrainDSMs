@@ -12,21 +12,21 @@ from src import config
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, param2ids, param2val):
-        super().__init__(param2val)
-        self.rnn_type = RNNParams.rnn_type[param2ids.rnn_type]
-        self.embed_size = RNNParams.embed_size[param2ids.embed_size]
-        self.train_percent = RNNParams.train_percent[param2ids.train_percent]
-        self.num_eval_steps = RNNParams.num_eval_steps[param2ids.num_eval_steps]
-        self.shuffle_per_epoch = RNNParams.shuffle_per_epoch[param2ids.shuffle_per_epoch]
-        self.embed_init_range = RNNParams.embed_init_range[param2ids.embed_init_range]
-        self.dropout_prob = RNNParams.dropout_prob[param2ids.dropout_prob]
-        self.num_layers = RNNParams.num_layers[param2ids.num_layers]
-        self.num_steps = RNNParams.num_steps[param2ids.num_steps]
-        self.batch_size = RNNParams.batch_size[param2ids.batch_size]
-        self.num_epochs = RNNParams.num_epochs[param2ids.num_epochs]
-        self.learning_rate = RNNParams.learning_rate[param2ids.learning_rate]
-        self.grad_clip = RNNParams.grad_clip[param2ids.grad_clip]
+    def __init__(self, param2val):
+        super().__init__( param2val)
+        self.rnn_type = param2val['rnn_type']
+        self.embed_size = param2val['embed_size']
+        self.train_percent = param2val['train_percent']
+        self.num_eval_steps = param2val['num_eval_steps']
+        self.shuffle_per_epoch = param2val['shuffle_per_epoch']
+        self.embed_init_range = param2val['embed_init_range']
+        self.dropout_prob = param2val['dropout_prob']
+        self.num_layers = param2val['num_layers']
+        self.num_steps = param2val['num_steps']
+        self.batch_size = param2val['batch_size']
+        self.num_epochs = param2val['num_epochs']
+        self.learning_rate = param2val['learning_rate']
+        self.grad_clip = param2val['grad_clip']
         #
         self.name = self.rnn_type
         self.model = None

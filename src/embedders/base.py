@@ -51,7 +51,7 @@ class EmbedderBase(object):
     def w2freq_fname(self):
         return '{}_w2freq.txt'.format(config.Corpus.name)
 
-    def save_params(self):
+    def claim_params(self):  # TODO change this from saving params to moving params from /var/sftp/ludwig to /media/lab/2stagenlp/runs/model_name - need to get model_name
         p = self.location / 'params.yaml'
         if not p.parent.exists():
             p.parent.mkdir()

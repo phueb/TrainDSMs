@@ -7,12 +7,12 @@ from src.params import Word2VecParams
 
 
 class W2VecEmbedder(EmbedderBase):
-    def __init__(self, param2ids, param2val):
+    def __init__(self, param2val):
         super().__init__(param2val)
-        self.w2vec_type = Word2VecParams.w2vec_type[param2ids.w2vec_type]
-        self.embed_size = Word2VecParams.embed_size[param2ids.w2vec_type]
-        self.window_size = Word2VecParams.window_size[param2ids.window_size]
-        self.num_epochs = Word2VecParams.num_epochs[param2ids.num_epochs]
+        self.w2vec_type = param2val['w2vec_type']
+        self.embed_size = param2val['embed_size']
+        self.window_size = param2val['window_size']
+        self.num_epochs = param2val['num_epochs']
         #
         self.name = self.w2vec_type
 

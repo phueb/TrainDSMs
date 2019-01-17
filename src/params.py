@@ -1,11 +1,7 @@
 import numpy as np
 from itertools import cycle, chain
-import pandas as pd
 
 from src import config
-
-p = config.Dirs.root / 'params.csv'
-params_df = pd.read_csv(p, index_col=False)
 
 
 class ObjectView(object):
@@ -73,7 +69,7 @@ def make_param2val_list(params_class1, params_class2):
     return res
 
 
-def gen_combinations(params_class):
+def gen_combinations(params_class, num_reps=1):
     """
     return list of mappings from param name to integer which is index to possible param values
     all possible combinations are returned
@@ -83,11 +79,10 @@ def gen_combinations(params_class):
     param2opts, param_ids = iter_over_cycles(d)
     # map param names to integers corresponding to which param value to use
     for ids in param_ids:
-        d = {k: i for (k, v), i in zip(param2opts, ids)}
-        param2ids = ObjectView(d)
         param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
         param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        yield param2ids, param2val
+        for _ in range(num_reps):
+            yield param2val
 
 
 class CountParams:
@@ -140,15 +135,3 @@ class GloveParams:
 class RandomControlParams:
     embed_size = [30, 200, 500]
     random_type = ['normal']
-
-
-def is_selected(params_df_row, param2val):
-    for param, val in param2val.items():
-        if param in params_df_row:
-            if params_df_row[param] != val:
-                return False
-    else:
-        if 'embedder_name' in params_df_row:
-            if params_df_row['embedder_name'] != to_embedder_name(param2val):
-                return False
-        return True

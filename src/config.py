@@ -6,21 +6,23 @@ class Dirs:
     src = root / 'src'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
+    param2val = root / 'param2val'
+    #
     remote_root = Path('/') / 'media' / 'lab' / '2StageNLP'
     runs = remote_root / 'runs'
+
 
 
 class Eval:
     debug = False   # catches tensorflow errors properly
     only_stage1 = True
-    resample = True
+    resample = False
     verbose = False
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     max_num_eval_rows = 600  # 1200x1200 uses over 32GB RAM
     max_num_eval_cols = 600  # 600  # should be as large as num_rows for full matching evaluation
     standardize_num_relata = False  # don't do this - it reduces performance dramatically
     only_negative_examples = False
-    num_reps = 2
     num_folds = 4
     retrain = False
     save_scores = True
@@ -34,8 +36,6 @@ class Eval:
 class Embeddings:
     verbose = True
     precision = 5
-    retrain = False
-    save = True
     sim_method = 'cosine'
 
 
