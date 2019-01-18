@@ -1,12 +1,11 @@
 import numpy as np
 
 from src.embedders.base import EmbedderBase
-from src.params import RandomControlParams
 
 
 class RandomControlEmbedder(EmbedderBase):
-    def __init__(self, param2val, job_name):
-        super().__init__(param2val, job_name)
+    def __init__(self, param2val):
+        super().__init__(param2val, param2val['job_name'])
         self.embed_size = param2val['embed_size']
         self.random_type = param2val['random_type']
         #

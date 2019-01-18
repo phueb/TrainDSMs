@@ -1,7 +1,11 @@
 import argparse
+import pickle
+import socket
 
 from src import config
 from src.jobs import embedder_job, aggregation_job
+
+hostname = socket.gethostname()
 
 
 def run_on_cluster():
@@ -11,8 +15,11 @@ def run_on_cluster():
     config.Dirs.corpora = config.Dirs.remote_root / 'corpora'
     config.Dirs.tasks = config.Dirs.remote_root / 'tasks'
     #
-    for params2val_p in config.Dirs.param2vals.glob('*.yaml'):
-        embedder_job(params2val_p)
+    p = config.Dirs.remote_root / '{}_param2val_chunk.pkl'.format(hostname)
+    with p.open('rb') as f:
+        param2val_chunk = pickle.load(f)
+    for param2val in param2val_chunk:
+        embedder_job(param2val)
         # TODO backup job dir rom runs to backup to enable ludwigcluster logging
     #
     try:

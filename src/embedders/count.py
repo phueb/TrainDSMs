@@ -14,8 +14,8 @@ VERBOSE = False
 
 
 class CountEmbedder(EmbedderBase):
-    def __init__(self, param2val, job_name):
-        super().__init__(param2val, job_name)
+    def __init__(self, param2val):
+        super().__init__(param2val, param2val['job_name'])
         self.count_type = param2val['count_type']
         self.norm_type = param2val['norm_type']
         self.reduce_type = param2val['reduce_type']

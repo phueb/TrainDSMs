@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-import yaml
 
 from src import config
 from src.aggregator import Aggregator
@@ -23,27 +22,26 @@ def aggregation_job(ev_name):
     return df
 
 
-def embedder_job(params2val_p):  # TODO put backup function from rnnlab to ludwigcluster, import it, and put it at end of job
+def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcluster, import it, and put it at end of job
     """
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
     # params
-    job_name = params2val_p.stem
-    print('Starting job {}'.format(job_name))
-    with params2val_p.open('r') as f:
-        param2val = yaml.load(f)
+    job_name = param2val['job_name']
     print('===================================================')
+    print('Starting job {}'.format(job_name))
+    print('Param2val:')
     for k, v in param2val.items():
         print(k, v)
     # load embedder
     if 'random_type' in param2val:
-        embedder = RandomControlEmbedder(param2val, job_name)
+        embedder = RandomControlEmbedder(param2val)
     elif 'rnn_type' in param2val:
-        embedder = RNNEmbedder(param2val, job_name)
+        embedder = RNNEmbedder(param2val)
     elif 'w2vec_type' in param2val:
-        embedder = W2VecEmbedder(param2val, job_name)
+        embedder = W2VecEmbedder(param2val)
     elif 'count_type' in param2val:
-        embedder = CountEmbedder(param2val,  job_name)
+        embedder = CountEmbedder(param2val)
     elif 'glove_type' in param2val:
         raise NotImplementedError
     else:

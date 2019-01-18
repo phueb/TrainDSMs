@@ -5,15 +5,14 @@ import numpy as np
 import sys
 
 from src.embedders.base import EmbedderBase
-from src.params import RNNParams
 from src import config
 
 
 # TODO  is torch.utils.data useful here?
 
 class RNNEmbedder(EmbedderBase):
-    def __init__(self, param2val, job_name):
-        super().__init__(param2val, job_name)
+    def __init__(self, param2val):
+        super().__init__(param2val, param2val['job_name'])
         self.rnn_type = param2val['rnn_type']
         self.embed_size = param2val['embed_size']
         self.train_percent = param2val['train_percent']
