@@ -1,5 +1,7 @@
 import argparse
+import pickle
 
+from src.jobs import preprocessing_job
 from ludwigcluster.client import Client
 from ludwigcluster.config import SFTP
 from src import config
@@ -21,7 +23,31 @@ if __name__ == '__main__':
                         choices=SFTP.worker_names, required=False)
     parser.add_argument('-s', '--skip_data', default=False, action='store_true', dest='skip_data', required=False)
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
+    parser.add_argument('-p', '--preprocess', action='store_true', default=False, dest='preprocess', required=False)
     namespace = parser.parse_args()
+    # preprocess
+    if namespace.preprocess:
+        print('Preprocessing corpus...')
+        deterministic_w2f, vocab, docs, numeric_docs = preprocessing_job()
+        # save w2freq
+        p = config.Dirs.remote_root / '{}_w2freq.txt'.format(config.Corpus.name)
+        with p.open('w') as f:
+            for probe, freq in deterministic_w2f.items():
+                f.write('{} {}\n'.format(probe, freq))
+        # save vocab
+        p = config.Dirs.remote_root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        with p.open('w') as f:
+            for v in vocab:
+                f.write('{}\n'.format(v))
+        # save numeric_docs
+        p = config.Dirs.remote_root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+        with p.open('wb') as f:
+            pickle.dump(numeric_docs, f)
+        # save docs
+        p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+        with p.open('wb') as f:
+            pickle.dump(docs, f)
+        print()
     # param2val - reps are added by ludwigcluster
     param2val_list = list(gen_combinations(CountParams)) + \
                      list(gen_combinations(RNNParams)) + \

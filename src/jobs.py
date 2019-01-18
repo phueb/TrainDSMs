@@ -1,5 +1,9 @@
-import sys
 import pandas as pd
+import sys
+from collections import Counter, OrderedDict
+from itertools import islice
+import pyprind
+from spacy.lang.en import English
 
 from src import config
 from src.aggregator import Aggregator
@@ -12,14 +16,56 @@ from src.embedders.random_control import RandomControlEmbedder
 from src.embedders.w2vec import W2VecEmbedder
 
 
-def aggregation_job(ev_name):
-    print('Aggregating runs data for eval={}..'.format(ev_name))
-    ag_matching = Aggregator(ev_name)
-    df = ag_matching.make_df()
-    p = config.Dirs.remote_root / '{}.csv'.format(ag_matching.ev_name)
-    df.to_csv(p)
-    print('Done. Saved aggregated data to {}'.format(ev_name, p))
-    return df
+nlp = English()
+
+
+def preprocessing_job(num_vocab=config.Corpus.num_vocab):  # TODO test do this once before embedder jobs
+    docs = []
+    w2freq = Counter()
+    # tokenize + count words
+    p = config.Dirs.corpora / '{}.txt'.format(config.Corpus.name)
+    with p.open('r') as f:
+        texts = f.read().splitlines()  # removes '\n' newline character
+    num_texts = len(texts)
+    print('\nTokenizing {} docs...'.format(num_texts))
+    pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
+    # TODO tokenization could benefit from multiprocessing
+    for text in texts:
+        spacy_doc = nlp(text)
+        doc = [w.text for w in spacy_doc]
+        docs.append(doc)
+        c = Counter(doc)
+        w2freq.update(c)
+        pbar.update()
+    # vocab
+    deterministic_w2f = OrderedDict(sorted(w2freq.items(), key=lambda item: (item[1], item[0]), reverse=True))
+    if num_vocab is None:
+        vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab))
+    else:
+        vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab - 1))
+        vocab.append(config.Corpus.UNK)
+    vocab = list(sorted(vocab))
+    if num_vocab is None:  # if no vocab specified, use the whole corpus
+        num_vocab = len(w2freq)
+    print('Creating vocab of size {}...'.format(num_vocab))
+    print('Least frequent word occurs {} times'.format(deterministic_w2f[vocab[-2]]))
+    assert '\n' not in vocab
+    assert len(vocab) == num_vocab
+    # insert UNK + make numeric
+    print('Mapping words to ids...')
+    t2id = {t: i for i, t in enumerate(vocab)}
+    numeric_docs = []
+    for doc in docs:
+        numeric_doc = []
+
+        for n, token in enumerate(doc):
+            if token in t2id:
+                numeric_doc.append(t2id[token])
+            else:
+                doc[n] = config.Corpus.UNK
+                numeric_doc.append(t2id[config.Corpus.UNK])
+        numeric_docs.append(numeric_doc)
+    return deterministic_w2f, vocab, docs, numeric_docs
 
 
 def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcluster, import it, and put it at end of job
@@ -47,15 +93,10 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
     else:
         raise RuntimeError('Could not infer embedder name from param2val')
     # stage 1
-    if not embedder.has_embeddings():  # in case previous job was interrupted after embedding completed
-        print('Training...')
-        embedder.train()
-        embedder.save_w2freq()  # TODO can't all corpus preprocessing happen locally and results copied to server?
-        embedder.save_w2e()
-    else:
-        print('Found embeddings at {}'.format(embedder.location))
-        embedder.load_w2e()  # in case previous job was interrupted during eval, and embeddings exist
+    print('Training stage 1...')
     sys.stdout.flush()
+    embedder.train()
+    embedder.save_w2e()
     # stage 2
     for architecture in [comparator]:
         for ev in [
@@ -82,8 +123,8 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
             except OSError:
                 raise OSError('{} is not reachable. Check VPN or mount drive.'.format(scores_p))
             if scores_p.exists() and not config.Eval.debug:
-                raise RuntimeError(
-                    '{} should not exist. This is likely a failure of ludwigcluster to distribute tasks.')
+                print('WARNING: {} should not exist. This is likely a failure of ludwigcluster to distribute tasks.')
+                scores_p.unlink()
             # make eval data - row_words can contain duplicates
             vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
             all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
@@ -115,3 +156,13 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
             if config.Eval.save_figs:
                 ev.save_figs(embedder)
             print('-')
+
+
+def aggregation_job(ev_name):
+    print('Aggregating runs data for eval={}..'.format(ev_name))
+    ag_matching = Aggregator(ev_name)
+    df = ag_matching.make_df()
+    p = config.Dirs.remote_root / '{}.csv'.format(ag_matching.ev_name)
+    df.to_csv(p)
+    print('Done. Saved aggregated data to {}'.format(ev_name, p))
+    return df

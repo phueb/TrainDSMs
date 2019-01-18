@@ -1,42 +1,25 @@
-import sys
-from collections import Counter, OrderedDict
-from itertools import islice
 from sklearn import preprocessing
-from spacy.lang.en import English
 import numpy as np
-import pyprind
 from cached_property import cached_property
+import pickle
+
 from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
 
 from src import config
 
 
-nlp = English()  # need this only for tokenization
-
-
 class EmbedderBase(object):
-    def __init__(self, param2val, job_name):
-        self.param2val = param2val
+    def __init__(self, job_name):
         self.job_name = job_name
-        self.w2e = dict()  # is created by child class
+        self.w2e = dict()  # is populated by child class
 
     @property
     def location(self):
         res = config.Dirs.runs / self.job_name
         return res
 
-    # ///////////////////////////////////////////////////////////// I/O
-
-    @property
-    def w2freq_fname(self):
-        return '{}_w2freq.txt'.format(config.Corpus.name)
-
-    def save_w2freq(self):
-        p = config.Dirs.corpora / self.w2freq_fname
-        with p.open('w') as f:
-            for probe, freq in self.w2freq.items():
-                f.write('{} {}\n'.format(probe, freq))
+    # ///////////////////////////////////////////////////////////// w2e
 
     def save_w2e(self):
         p = self.location / 'embeddings.txt'
@@ -45,7 +28,7 @@ class EmbedderBase(object):
                 embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
-    def load_w2e(self):
+    def load_w2e(self):  # TODO unused - keep in case it is needed
         mat = np.loadtxt(self.location / 'embeddings.txt', dtype='str', comments=None)
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
@@ -53,112 +36,48 @@ class EmbedderBase(object):
 
     # ///////////////////////////////////////////////////////////// corpus data
 
-    @classmethod
-    def load_corpus_data(cls, num_vocab=config.Corpus.num_vocab):
-        docs = []
-        w2freq = Counter()
-        # tokenize + count words
-        p = config.Dirs.corpora / '{}.txt'.format(config.Corpus.name)
-        with p.open('r') as f:
-            texts = f.read().splitlines()  # removes '\n' newline character
-        num_texts = len(texts)
-        print('\nTokenizing {} docs...'.format(num_texts))
-        pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
-
-        # TODO tokenization could benefit from multiprocessing
-        for text in texts:
-            spacy_doc = nlp(text)
-            doc = [w.text for w in spacy_doc]
-            docs.append(doc)
-            c = Counter(doc)
-            w2freq.update(c)
-            pbar.update()
-        # vocab
-        deterministic_w2f = OrderedDict(sorted(w2freq.items(), key=lambda item: (item[1], item[0]), reverse=True))
-        if num_vocab is None:
-            vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab))
-        else:
-            vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab - 1))
-            vocab.append(config.Corpus.UNK)
-        vocab = list(sorted(vocab))
-        if num_vocab is None:  # if no vocab specified, use the whole corpus
-            num_vocab = len(w2freq)
-        print('Creating vocab of size {}...'.format(num_vocab))
-        print('Least frequent word occurs {} times'.format(deterministic_w2f[vocab[-2]]))
-        assert '\n' not in vocab
-        assert len(vocab) == num_vocab
-        # insert UNK + make numeric
-        print('Mapping words to ids...')
-        t2id = {t: i for i, t in enumerate(vocab)}
-        numeric_docs = []
-        for doc in docs:
-            numeric_doc = []
-
-            for n, token in enumerate(doc):
-                if token in t2id:
-                    numeric_doc.append(t2id[token])
-                else:
-                    doc[n] = config.Corpus.UNK
-                    numeric_doc.append(t2id[config.Corpus.UNK])
-            numeric_docs.append(numeric_doc)
-        # save vocab - vocab needs to be overwritten when code in this function has been changed
-
-        # TODO why is vocab not saved by default? - wouldn't this be safer in case this function is changed?
-
-        # TODO isn't it best to just create vocab and w2freq once every time before jobs are submitted?
-
-        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        if not p.exists():
-            with p.open('w') as f:
-                for v in vocab:
-                    f.write('{}\n'.format(v))
-        return numeric_docs, vocab, deterministic_w2f, docs
-
-    @property
-    def numeric_docs(self):
-        return self.corpus_data[0]
-
-    @property
+    @cached_property
     def vocab(self):
-        p = config.Dirs.corpora / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
-        if p.exists():
-            vocab = np.loadtxt(p, 'str').tolist()
-            if config.Eval.verbose:
-                print('Loaded vocab from file. Found {} words.'.format(len(vocab)))
-            # assert '.' in vocab
-        else:
-            if config.Eval.verbose:
-                print('Building vocab from corpus.')
-            vocab = self.corpus_data[1]
-        return vocab
-
-    @property
-    def w2freq(self):
-        if self.has_embeddings():
-            p = config.Dirs.corpora / self.w2freq_fname
-            mat = np.loadtxt(p, dtype='str', comments=None)
-            words = mat[:, 0]
-            freqs = mat[:, 1].astype('int')
-            res = {w: np.asscalar(f) for w, f in zip(words, freqs)}
-        else:
-            res = self.corpus_data[2]
+        p = config.Dirs.remote_root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        #
+        res = np.loadtxt(p, 'str').tolist()
         return res
 
-    @property
-    def docs(self):
-        return self.corpus_data[3]  # w2vec needs this
+    @cached_property
+    def w2freq(self):
+        p = config.Dirs.remote_root / '{}_w2freq.txt'.format(config.Corpus.name)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        #
+        mat = np.loadtxt(p, dtype='str', comments=None)
+        words = mat[:, 0]
+        freqs = mat[:, 1].astype('int')
+        res = {w: np.asscalar(f) for w, f in zip(words, freqs)}
+        return res
 
     @cached_property
-    def corpus_data(self):
-        return self.load_corpus_data()
+    def docs(self):
+        p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        #
+        with p.open('rb') as f:
+            res = pickle.load(f)
+        return res
+
+    @cached_property
+    def numeric_docs(self):
+        p = config.Dirs.remote_root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        #
+        with p.open('rb') as f:
+            res = pickle.load(f)
+        return res
 
     # ///////////////////////////////////////////////////////////// embeddings
-
-    def has_embeddings(self):
-        if (self.location / 'embeddings.txt').exists():
-            return True
-        else:
-            return False
 
     @staticmethod
     def standardize_embed_mat(mat):

@@ -18,9 +18,6 @@ class MyTest(unittest.TestCase):
         embedder.count_type = ['ww', 'backward', 5, 'flat']
         embedder.norm_type = None
         embedder.reduce_type = [None, None]
-        embedder.param2val = {'count_type': embedder.count_type,
-                              'norm_type': embedder.norm_type,
-                              'reduce_type': embedder.reduce_type}
         #
         reduced_mat = embedder.train()
         correct = np.array([[0, 0, 2, 4, 3, 6],
