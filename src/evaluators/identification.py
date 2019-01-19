@@ -2,7 +2,6 @@ import numpy as np
 from scipy.stats import binom
 
 from src import config
-from src.figs import make_identification_figs
 from src.evaluators.base import EvalBase
 from src.scores import calc_accuracy
 
@@ -172,8 +171,3 @@ class Identification(EvalBase):
         # no need for shuffling because shuffling is done when eval data is created
         print('{}: After finding lures, number of probes left={}'.format(self.name, len(probes)))  # TODO not many probes leftover
         return probes, probe_relata, probe_lures
-
-    # ////////////////////////////////////////////////////////////// figs
-
-    def make_trial_figs(self, trial):
-        return make_identification_figs()

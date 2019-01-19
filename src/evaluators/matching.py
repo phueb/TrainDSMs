@@ -3,7 +3,6 @@ from functools import partial
 
 from src import config
 from src.scores import calc_balanced_accuracy
-from src.figs import make_matching_figs
 from src.evaluators.base import EvalBase
 
 
@@ -127,8 +126,3 @@ class Matching(EvalBase):
             probes2 = probes1
             probe_relata2 = probe_relata1
         return probes2, probe_relata2
-
-    # ///////////////////////////////////////////////////// figs
-
-    def make_trial_figs(self, trial):
-        return make_matching_figs()

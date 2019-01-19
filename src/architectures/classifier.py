@@ -190,9 +190,3 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
 
 def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):
     raise NotImplementedError
-
-# ////////////////////////////////////////////////////////////////////// figs
-
-
-def make_trial_figs(evaluator, trial):
-    raise NotImplementedError

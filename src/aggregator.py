@@ -17,13 +17,13 @@ class Aggregator:
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
-                         'location',
+                         'param_name',
+                         'job_name',
                          'embedder',
                          'arch',
                          'evaluation',
                          'task',
                          'stage',
-                         'hash',
                          'score']
         self.df_name = '2stage_data.csv'
         self.df = None
@@ -36,8 +36,8 @@ class Aggregator:
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
     @staticmethod
-    def load_param2val(loc):
-        with (Path(loc) / 'param2val.yaml').open('r') as f:
+    def load_param2val(param_name):
+        with (config.Dirs.backup / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
@@ -49,20 +49,21 @@ class Aggregator:
             res = pd.read_csv(p)
             self.df = res
             return res
-        # make from runs data
+        # make from backup data
         dfs = []
-        for location in config.Dirs.runs.glob('**/*num*'):
+        for job_p in config.Dirs.backup.glob('**/*num*'):
             if verbose:
                 print()
-                print(location)
-            param2val = self.load_param2val(location)
+                print(job_p)
+            param_name, job_name = job_p.parts[-2:]
+            param2val = self.load_param2val(param_name)
             #
             corpus = param2val['corpus_name']
             num_vocab = param2val['num_vocab']
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
             embedder = to_embedder_name(param2val)
             #
-            df = self.make_embedder_df(corpus, num_vocab, embed_size, location, embedder, verbose)
+            df = self.make_embedder_df(corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -71,24 +72,17 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.runs))
+            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.backup))
 
-    @classmethod
-    def to_hash(cls, param2val):  # delete any unique items like job_name
-        param2val_with_tuples = {k: tuple(v) if isinstance(v, list) else v for k, v in param2val.items()
-                                 if k != 'job_name'}
-        res = hash(frozenset(param2val_with_tuples.items()))
-        return res
-
-    def make_embedder_df(self, corpus, num_vocab, embed_size, location, embedder, verbose):
+    def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
         dfs = []
-        for scores_p in location.rglob('scores.csv'):
+        loc = config.Dirs.backup / param_name / job_name
+        for scores_p in loc.rglob('scores.csv'):
             scores_df = pd.read_csv(scores_p, index_col=False)
             score = scores_df['score'].max()
             #
-            arch, ev, task, stage = scores_p.relative_to(location).parts[:-1]
-            hash = self.to_hash(self.load_param2val(location))
-            vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, stage, hash, score]
+            arch, ev, task, stage = scores_p.relative_to(loc).parts[:-1]
+            vals = [corpus, num_vocab, embed_size, param_name, job_name, embedder, arch, ev, task, stage, score]
             if verbose:
                 for n, v in enumerate(vals[5:]):
                     print('\t' * (n + 1), v)
@@ -149,32 +143,30 @@ class Aggregator:
         param2val_list = []
         embedder_names = []
         novice_df = filtered_df[filtered_df['stage'] == 'novice']
-        hashes_sorted_by_score = novice_df.groupby('hash').mean().sort_values(
+        param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
-        for hash_id, param_hash in enumerate(hashes_sorted_by_score):
+        for param_id, param_name in enumerate(param_names_sorted_by_score):
             #
-            bool_id = df['hash'] == param_hash
+            bool_id = df['param_name'] == param_name
             embedder_df = filtered_df[bool_id]
             #
-            locations = filtered_df[filtered_df['hash'] == param_hash]['location'].unique()
-            param2val = self.load_param2val(locations[0])
+            param2val = self.load_param2val(param_name)
             param2val_list.append(param2val)
             embedder_name = to_embedder_name(param2val)
             #
             print()
-            print(param_hash)
-            print(locations)
+            print(param_name)
             print(embedder_name)
             print('num_scores={}'.format(len(embedder_df)))
             #
             bars = []
-            x = hash_id + 0.6
+            x = param_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
 
                 ys = stage_df['score'].values
                 print(ys)
 
-                # TODO implement yerr
+                # TODO test ys
 
                 if len(ys) < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
@@ -197,7 +189,7 @@ class Aggregator:
         num_embedders = len(param2val_list)
         ax.set_xticks(np.arange(1, num_embedders + 1, 1))
         hidden_keys = ['count_type', 'corpus_name']
-        excluded_keys = ['num_vocab', 'corpus_name', 'embed_size']
+        excluded_keys = ['num_vocab', 'corpus_name', 'embed_size', 'job_name', 'param_name']
         ax.set_xticklabels(['\n'.join(['{}{}'.format(k + ': ' if k not in hidden_keys else '', v)
                                        for k, v in param2val.items()
                                        if k not in excluded_keys])

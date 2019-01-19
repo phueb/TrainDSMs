@@ -123,6 +123,7 @@ class EvalBase(object):
 
     def train_and_score_expert(self, embedder, shuffled):
         # run each trial in separate process
+        print('Training expert on "{}"'.format(self.full_name))
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
             self.do_trial(self.trials[0], embedder.w2e, embedder.dim1, shuffled)  # cannot pickle tensorflow errors
@@ -160,7 +161,6 @@ class EvalBase(object):
     def do_trial(self, trial, w2e, embed_size, shuffled):
         trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
-        print('Training expert on "{}"'.format(self.full_name))
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
             if config.Eval.verbose:
@@ -175,19 +175,3 @@ class EvalBase(object):
         trial_score = self.get_best_trial_score(trial)
         res = [trial_score] + [trial.params.__dict__[p] for p in self.df_header]
         return res
-
-    # ////////////////////////////////////////////////////// figs
-
-    def make_trial_figs(self, trial):
-        raise NotImplementedError('Must be implemented in child-class.')
-
-    def save_figs(self, embedder):  # TODO test
-        for trial in self.trials:
-            for fig, fig_name in self.make_trial_figs(trial):
-                trial_dname = 'trial_{}'.format(trial.params_id)
-                fname = '{}_{}.png'.format(fig_name, trial.params_id)
-                p = embedder.location / self.arch_name / self.name / trial_dname / fname
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                fig.savefig(str(p))
-                print('Saved {} to {}'.format(fig_name, p))

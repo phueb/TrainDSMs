@@ -23,7 +23,6 @@ class Eval:
     standardize_num_relata = False  # don't do this - it reduces performance dramatically
     only_negative_examples = False
     num_folds = 4
-    save_figs = False
     num_opt_steps = 5
     num_evals = 10
     matching_metric = 'BalAcc'

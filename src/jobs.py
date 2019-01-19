@@ -194,9 +194,6 @@ def embedder_job(param2val):
                     p.parent.mkdir(parents=True)
                 with p.open('w') as f:
                     df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
-            # figs
-            if config.Eval.save_figs:
-                ev.save_figs(embedder)
             print('-')
 
 

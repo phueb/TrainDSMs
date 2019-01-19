@@ -54,10 +54,10 @@ if __name__ == '__main__':
                      list(gen_combinations(Word2VecParams)) + \
                      list(gen_combinations(RandomControlParams))
     # submit
-    data_dirs = ['corpora', 'tasks'] if not namespace.skip_data else []  # TODO upload tasks to server above, and don't let ludwigcluster upload any data to workers, only code
+    data_dirs = ['corpora', 'tasks'] if not namespace.skip_data else []
     client = Client(config.Dirs.remote_root.name, delete_delta=24)
     client.submit(src_ps=[config.Dirs.src],
-                  data_ps=[config.Dirs.root / d for d in data_dirs],  # TODO don't need this? (all data is saved to server not worker)
+                  data_ps=[config.Dirs.root / d for d in data_dirs],
                   param2val_list=param2val_list,
                   reps=namespace.reps,
                   test=namespace.test,
