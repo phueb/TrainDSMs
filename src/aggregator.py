@@ -23,11 +23,12 @@ class Aggregator:
                          'evaluation',
                          'task',
                          'stage',
+                         'hash',
                          'score']
         self.df_name = '2stage_data.csv'
         self.df = None
         self.counter = count(0, 1)
-        self.stages = ['expert', 'expert+rs', 'novice']
+        self.stages = ['control', 'expert', 'novice']
         # constants
         self.bw = 0.2
         self.hatches = cycle(['--', '\\\\', 'xx'])
@@ -40,7 +41,7 @@ class Aggregator:
             res = yaml.load(f)
         return res
 
-    def make_df(self, load_from_file=False, verbose=True):
+    def make_df(self, load_from_file, verbose):
         # load from file
         p = config.Dirs.remote_root / self.df_name
         if p.exists() and load_from_file:
@@ -72,6 +73,13 @@ class Aggregator:
         else:
             raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.runs))
 
+    @classmethod
+    def to_hash(cls, param2val):  # delete any unique items like job_name
+        param2val_with_tuples = {k: tuple(v) if isinstance(v, list) else v for k, v in param2val.items()
+                                 if k != 'job_name'}
+        res = hash(frozenset(param2val_with_tuples.items()))
+        return res
+
     def make_embedder_df(self, corpus, num_vocab, embed_size, location, embedder, verbose):
         dfs = []
         for scores_p in location.rglob('scores.csv'):
@@ -79,7 +87,8 @@ class Aggregator:
             score = scores_df['score'].max()
             #
             arch, ev, task, stage = scores_p.relative_to(location).parts[:-1]
-            vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, stage, score]
+            hash = self.to_hash(self.load_param2val(location))
+            vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, stage, hash, score]
             if verbose:
                 for n, v in enumerate(vals[5:]):
                     print('\t' * (n + 1), v)
@@ -100,8 +109,9 @@ class Aggregator:
                        task,
                        embed_size,
                        load_from_file=False,
+                       verbose=True,
                        save=False,
-                       min_num_reps=1,
+                       min_num_reps=2,
                        y_step=0.1,
                        xax_fontsize=6,
                        yax_fontsize=20,
@@ -111,7 +121,7 @@ class Aggregator:
                        width=14,
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
-        df = self.make_df(load_from_file=load_from_file)
+        df = self.make_df(load_from_file, verbose)
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
@@ -132,34 +142,42 @@ class Aggregator:
         ax.set_xlabel(None)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
-        ax.set_axisbelow(True)  # grid belw bars
+        ax.set_axisbelow(True)  # set grid below bars
         # plot
         ax.axhline(y=y_chance, color='grey', zorder=0)
         bars_list = []
         param2val_list = []
         embedder_names = []
         novice_df = filtered_df[filtered_df['stage'] == 'novice']
-        sorted_locations = novice_df.groupby('location').mean().sort_values(
+        hashes_sorted_by_score = novice_df.groupby('hash').mean().sort_values(
             'score', ascending=False).index.values
-        for embedder_id, location in enumerate(sorted_locations):
+        for hash_id, param_hash in enumerate(hashes_sorted_by_score):
             #
-            bool_id = df['location'] == str(location)
+            bool_id = df['hash'] == param_hash
             embedder_df = filtered_df[bool_id]
             #
-            param2val = self.load_param2val(location)
+            locations = filtered_df[filtered_df['hash'] == param_hash]['location'].unique()
+            param2val = self.load_param2val(locations[0])
             param2val_list.append(param2val)
             embedder_name = to_embedder_name(param2val)
             #
             print()
-            print(location)
+            print(param_hash)
+            print(locations)
             print(embedder_name)
+            print('num_scores={}'.format(len(embedder_df)))
             #
             bars = []
-            x = embedder_id + 0.6
+            x = hash_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
-                num_reps = len(stage_df)
-                if num_reps < min_num_reps:
-                    print('Skipping due to num_reps={}<min_num_reps'.format(num_reps))
+
+                ys = stage_df['score'].values
+                print(ys)
+
+                # TODO implement yerr
+
+                if len(ys) < min_num_reps:
+                    print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
                     continue
                 x += self.bw
                 ys = stage_df['score']

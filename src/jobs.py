@@ -5,6 +5,8 @@ from itertools import islice
 import pyprind
 from spacy.lang.en import English
 
+from ludwigcluster.logger import Logger
+
 from src import config
 from src.aggregator import Aggregator
 from src.architectures import comparator
@@ -68,7 +70,12 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):  # TODO test do this o
     return deterministic_w2f, vocab, docs, numeric_docs
 
 
-def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcluster, import it, and put it at end of job
+def backup_job(param2val):
+    job_name = param2val['job_name']
+    logger = Logger('2StageNLP')
+    logger.backup(job_name)
+
+def embedder_job(param2val):
     """
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
@@ -164,10 +171,10 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
             print('-')
 
 
-def aggregation_job():
+def aggregation_job(verbose=True):
     print('Aggregating runs data...')
     ag = Aggregator()
-    df = ag.make_df()
+    df = ag.make_df(load_from_file=False, verbose=verbose)
     p = config.Dirs.remote_root / ag.df_name
     df.to_csv(p)
     print('Done. Saved aggregated data to {}'.format(p))
