@@ -4,7 +4,7 @@ from src.embedders.base import EmbedderBase
 
 class GloveEmbedder(EmbedderBase):
     def __init__(self, param2val):
-        super().__init__(param2val['job_name'])
+        super().__init__(param2val['param_name'], param2val['job_name'])
         self.glove_type = param2val['glove_type']
         self.embed_size = param2val['embed_size']
         self.lr = param2val['lr']

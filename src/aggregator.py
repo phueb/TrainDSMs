@@ -51,7 +51,7 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for location in config.Dirs.runs.glob('*'):
+        for location in config.Dirs.runs.glob('**/*num*'):
             if verbose:
                 print()
                 print(location)

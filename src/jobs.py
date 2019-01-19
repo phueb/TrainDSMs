@@ -4,8 +4,7 @@ from collections import Counter, OrderedDict
 from itertools import islice
 import pyprind
 from spacy.lang.en import English
-
-from ludwigcluster.logger import Logger
+from shutil import copyfile
 
 from src import config
 from src.aggregator import Aggregator
@@ -70,10 +69,39 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):  # TODO test do this o
     return deterministic_w2f, vocab, docs, numeric_docs
 
 
-def backup_job(param2val):
+def backup_job(param2val):  # cannot be imported from ludwigcluster becaue this would require dependency on worker
+    """
+    this informs LudwigCluster that training has completed (backup is only called after training completion)
+    copies all data created during training to backup_dir.
+    Uses custom copytree fxn to avoid permission errors when updating permissions with shutil.copytree.
+    Copying permissions can be problematic on smb/cifs type backup drive.
+    """
+    param_name = param2val['param_name']
     job_name = param2val['job_name']
-    logger = Logger('2StageNLP')
-    logger.backup(job_name)
+    src = config.Dirs.runs / param_name / job_name
+    dst = config.Dirs.backup / param_name / job_name
+
+    def copytree(s, d):
+        d.mkdir()
+        for i in s.iterdir():
+            s_i = s / i.name
+            d_i = d / i.name
+            if s_i.is_dir():
+                copytree(s_i, d_i)
+
+            else:
+                copyfile(str(s_i), str(d_i))  # copyfile works because it doesn't update any permissions
+    # copy
+    print('Backing up data...  DO NOT INTERRUPT!')
+    try:
+        copytree(src, dst)
+    except PermissionError:
+        print('LudwigCluster: Backup failed. Permission denied.')
+    except FileExistsError:
+        print('LudwigCluster: Already backed up')
+    else:
+        print('Backed up data to {}'.format(dst))
+
 
 def embedder_job(param2val):
     """
@@ -157,7 +185,8 @@ def embedder_job(param2val):
                     raise OSError('{} is not reachable. Check VPN or mount drive.'.format(p))
                 if p.exists():
                     print(
-                        'WARNING: {} should not exist. This is likely a failure of ludwigcluster to distribute tasks.')
+                        'WARNING: {} should not exist.'
+                        ' This is likely a failure of ludwigcluster to distribute tasks.'.format(p))
                     p.unlink()
                 # save
                 df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists

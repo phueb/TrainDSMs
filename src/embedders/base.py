@@ -10,13 +10,14 @@ from src import config
 
 
 class EmbedderBase(object):
-    def __init__(self, job_name):
+    def __init__(self, param_name, job_name):
+        self.param_name = param_name
         self.job_name = job_name
         self.w2e = dict()  # is populated by child class
 
     @property
     def location(self):
-        res = config.Dirs.runs / self.job_name
+        res = config.Dirs.runs / self.param_name / self.job_name
         return res
 
     # ///////////////////////////////////////////////////////////// w2e
