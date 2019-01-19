@@ -10,7 +10,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
-    shuffled = [False, True]
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
@@ -30,7 +29,7 @@ def init_results_data(evaluator, eval_data_class):
     return eval_data_class
 
 
-def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
+def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     # split
     x1_train = []
     x2_train = []
@@ -76,7 +75,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):
     x1_test = np.array(x1_test)
     x2_test = np.array(x2_test)
     # shuffle x-y mapping
-    if trial.params.shuffled:
+    if shuffled:
         if config.Eval.verbose:
             print('Shuffling supervisory signal')
         np.random.shuffle(y_train)

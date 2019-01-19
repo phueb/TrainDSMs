@@ -8,7 +8,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
-    shuffled = [False, True]
     beta = [0.0, 0.3]
     num_epochs = [500]
     mb_size = [8]
@@ -43,7 +42,7 @@ def init_results_data(evaluator, eval_data_class):
     return eval_data_class
 
 
-def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):  # don't .index() into row_words  # TODO implement
+def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):  # don't .index() into row_words  # TODO implement
     # split
     x1_train = []
     x2_train = []
@@ -89,7 +88,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id):  # don't .ind
     x1_test = np.array(x1_test)
     x2_test = np.array(x2_test)
     # shuffle x-y mapping
-    if trial.params.shuffled:
+    if shuffled:
         print('Shuffling supervisory signal')
         np.random.shuffle(y_train)
     return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test

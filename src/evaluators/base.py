@@ -1,4 +1,3 @@
-import pandas as pd
 import multiprocessing as mp
 import numpy as np
 import sys
@@ -55,7 +54,6 @@ class EvalBase(object):
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
         self.probe2relata = None
-        self.novice_score = None
         self.row_words = None
         self.col_words = None
         self.eval_candidates_mat = None
@@ -95,11 +93,11 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
-    def make_scores_p(self, embedder_location):
+    def make_scores_p(self, embedder_location, stage):
         data_name = '{}{}{}'.format(self.data_name1,
                                     self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
                                     self.suffix)
-        res = embedder_location / self.arch_name / self.name / data_name / 'scores.csv'
+        res = embedder_location / self.arch_name / self.name / data_name / stage / 'scores.csv'
         return res
 
     def calc_pos_prob(self):
@@ -118,32 +116,32 @@ class EvalBase(object):
 
     def score_novice(self, sims_mat):
         eval_sims_mat = self.to_eval_sims_mat(sims_mat)
-        self.novice_score = self.score(eval_sims_mat)
-        self.print_score(self.novice_score)
+        novice_score = self.score(eval_sims_mat)
+        if config.Eval.verbose:
+            self.print_score(novice_score)
+        return [[novice_score] + [None for _ in self.df_header]]
 
-    def train_and_score_expert(self, embedder):
+    def train_and_score_expert(self, embedder, shuffled):
         # run each trial in separate process
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
-            self.do_trial(self.trials[0], embedder.w2e, embedder.dim1)  # cannot pickle tensorflow errors
+            self.do_trial(self.trials[0], embedder.w2e, embedder.dim1, shuffled)  # cannot pickle tensorflow errors
             raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all evaluators.')
-        elif config.Eval.only_stage1:
-            df_rows = [[None, self.novice_score] + [self.trials[0].params.__dict__[p] for p in self.df_header]]
         else:
-            results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1))
+            results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1, shuffled))
                        for trial in self.trials]
-            df_rows = []
+            scores = []
             try:
                 for res in results:
-                    df_row = res.get()
-                    df_rows.append(df_row)
+                    score = res.get()  # returns a list [score, param1, param2, ...]
+                    scores.append(score)
                 pool.close()
                 sys.stdout.flush()
             except KeyboardInterrupt:
                 pool.close()
                 sys.stdout.flush()
                 raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
-        return df_rows
+        return scores
 
     def get_best_trial_score(self, trial):
         best_expert_score = 0
@@ -155,10 +153,11 @@ class EvalBase(object):
             if expert_score > best_expert_score:
                 best_expert_score = expert_score
                 best_eval_id = eval_id
-        print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
+        if config.Eval.verbose:
+            print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
         return best_expert_score
 
-    def do_trial(self, trial, w2e, embed_size):
+    def do_trial(self, trial, w2e, embed_size, shuffled):
         trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
         print('Training expert on "{}"'.format(self.full_name))
@@ -166,18 +165,16 @@ class EvalBase(object):
         for fold_id in range(config.Eval.num_folds):
             if config.Eval.verbose:
                 print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
-            data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id)
+            data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id, shuffled)
             graph = self.make_graph(self, trial, embed_size)
             self.train_expert_on_train_fold(self, trial, graph, data, fold_id)
             try:
                 self.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
             except NotImplementedError:
                 pass
-        # score trial
-        assert self.novice_score is not None
-        df_row = [self.get_best_trial_score(trial), self.novice_score] + \
-                       [trial.params.__dict__[p] for p in self.df_header]
-        return df_row
+        trial_score = self.get_best_trial_score(trial)
+        res = [trial_score] + [trial.params.__dict__[p] for p in self.df_header]
+        return res
 
     # ////////////////////////////////////////////////////// figs
 

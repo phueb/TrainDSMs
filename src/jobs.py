@@ -116,15 +116,6 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
-            # check scores_p
-            scores_p = ev.make_scores_p(embedder.location)
-            try:
-                scores_p.parent.exists()
-            except OSError:
-                raise OSError('{} is not reachable. Check VPN or mount drive.'.format(scores_p))
-            if scores_p.exists() and not config.Eval.debug:
-                print('WARNING: {} should not exist. This is likely a failure of ludwigcluster to distribute tasks.')
-                scores_p.unlink()
             # make eval data - row_words can contain duplicates
             vocab_sims_mat = w2e_to_sims(embedder.w2e, embedder.vocab, embedder.vocab)
             all_eval_probes, all_eval_candidates_mat = ev.make_all_eval_data(vocab_sims_mat, embedder.vocab)
@@ -138,31 +129,46 @@ def embedder_job(param2val):  # TODO put backup function from rnnlab to ludwigcl
             # check that required embeddings exist for eval
             for w in set(ev.row_words + ev.col_words):
                 if w not in embedder.w2e:
-                    raise KeyError('"{}" required for evaluation "{}" is not in w2e.'.format(scores_p, ev.name))
+                    raise KeyError('"{}" required for evaluation "{}" is not in w2e.'.format(w, ev.name))
             # score
             sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows
-            ev.score_novice(sims_mat)
-            df_rows = ev.train_and_score_expert(embedder)
+            novice_scores = ev.score_novice(sims_mat)
+            if config.Eval.only_stage1:
+                expert_scores = None
+                control_scores = None
+            else:
+                expert_scores = ev.train_and_score_expert(embedder, shuffled=False)
+                control_scores = ev.train_and_score_expert(embedder, shuffled=True)
             # save
-            for df_row in df_rows:
-                if config.Eval.verbose:
-                    print('Saving score to {}'.format(scores_p.relative_to(config.Dirs.remote_root)))
-                df = pd.DataFrame(data=[df_row], columns=['exp_score', 'nov_score'] + ev.df_header)
-                if not scores_p.parent.exists():
-                    scores_p.parent.mkdir(parents=True)
-                with scores_p.open('a') as f:
-                    df.to_csv(f, mode='a', header=f.tell() == 0, index=False)
+            for scores, stage in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
+                print('stage "{}" best score={:2.2f}'.format(stage, max([s[0] for s in scores])))
+                # check
+                p = ev.make_scores_p(embedder.location, stage)
+                try:
+                    p.parent.exists()
+                except OSError:
+                    raise OSError('{} is not reachable. Check VPN or mount drive.'.format(p))
+                if p.exists():
+                    print(
+                        'WARNING: {} should not exist. This is likely a failure of ludwigcluster to distribute tasks.')
+                    p.unlink()
+                # save
+                df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists
+                if not p.parent.exists():
+                    p.parent.mkdir(parents=True)
+                with p.open('w') as f:
+                    df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
             # figs
             if config.Eval.save_figs:
                 ev.save_figs(embedder)
             print('-')
 
 
-def aggregation_job(ev_name):
-    print('Aggregating runs data for eval={}..'.format(ev_name))
-    ag_matching = Aggregator(ev_name)
-    df = ag_matching.make_df()
-    p = config.Dirs.remote_root / '{}.csv'.format(ag_matching.ev_name)
+def aggregation_job():
+    print('Aggregating runs data...')
+    ag = Aggregator()
+    df = ag.make_df()
+    p = config.Dirs.remote_root / ag.df_name
     df.to_csv(p)
-    print('Done. Saved aggregated data to {}'.format(ev_name, p))
+    print('Done. Saved aggregated data to {}'.format(p))
     return df

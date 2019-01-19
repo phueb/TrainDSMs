@@ -11,12 +11,9 @@ import time
 from src import config
 from src.params import to_embedder_name
 
-VERBOSE = False
-
 
 class Aggregator:
-    def __init__(self, ev_name):
-        self.ev_name = ev_name
+    def __init__(self):
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -25,9 +22,9 @@ class Aggregator:
                          'arch',
                          'evaluation',
                          'task',
-                         'replication',
                          'stage',
                          'score']
+        self.df_name = '2stage_data.csv'
         self.df = None
         self.counter = count(0, 1)
         self.stages = ['expert', 'expert+rs', 'novice']
@@ -39,13 +36,13 @@ class Aggregator:
 
     @staticmethod
     def load_param2val(loc):
-        with (Path(loc) / 'params.yaml').open('r') as f:
+        with (Path(loc) / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
-    def make_df(self, load_from_file=False):
+    def make_df(self, load_from_file=False, verbose=True):
         # load from file
-        p = config.Dirs.remote_root / '{}.csv'.format(self.ev_name)
+        p = config.Dirs.remote_root / self.df_name
         if p.exists() and load_from_file:
             print('Loading data frame from file. Re-export data to file if data has changed')
             res = pd.read_csv(p)
@@ -54,9 +51,8 @@ class Aggregator:
         # make from runs data
         dfs = []
         for location in config.Dirs.runs.glob('*'):
-            if VERBOSE:
+            if verbose:
                 print()
-                print('////////////////////////////////////////////////')
                 print(location)
             param2val = self.load_param2val(location)
             #
@@ -65,7 +61,7 @@ class Aggregator:
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
             embedder = to_embedder_name(param2val)
             #
-            df = self.make_embedder_df(location, corpus, num_vocab, embed_size, location, embedder)
+            df = self.make_embedder_df(corpus, num_vocab, embed_size, location, embedder, verbose)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -74,95 +70,25 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores for evaluation={}.'.format(self.ev_name))
+            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.runs))
 
-    def make_embedder_df(self, embedder_p, corpus, num_vocab, embed_size, location, embedder):
+    def make_embedder_df(self, corpus, num_vocab, embed_size, location, embedder, verbose):
         dfs = []
-        for arch_p in embedder_p.glob('*/{}'.format(self.ev_name)):
-            arch = arch_p.parent.name
-            if VERBOSE:
-                print('\t', arch)
-                print('\t\t', self.ev_name)
-            df = self.make_arch_df(arch_p, corpus, num_vocab, embed_size, location, embedder, arch, self.ev_name)
-            if len(df) > 0:
-                dfs.append(df)
+        for scores_p in location.rglob('scores.csv'):
+            scores_df = pd.read_csv(scores_p, index_col=False)
+            score = scores_df['score'].max()
+            #
+            arch, ev, task, stage = scores_p.relative_to(location).parts[:-1]
+            vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, stage, score]
+            if verbose:
+                for n, v in enumerate(vals[5:]):
+                    print('\t' * (n + 1), v)
+            df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
+            dfs.append(df)
         if dfs:
             return pd.concat(dfs, axis=0)
         else:
             return pd.DataFrame()
-
-    def make_arch_df(self, arch_p, corpus, num_vocab, embed_size, location, embedder, arch, ev):
-        dfs = []
-        for task_p in arch_p.glob('*/**'):
-            task = task_p.name
-            if VERBOSE:
-                print('\t\t\t', task)
-            df = self.make_task_df(task_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task)
-            if len(df) > 0:
-                dfs.append(df)
-        if dfs:
-            return pd.concat(dfs, axis=0)
-        else:
-            return pd.DataFrame()
-
-    def make_task_df(self, task_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task):
-        dfs = []
-        for rep_p in task_p.glob('scores_*.csv'):
-            rep = rep_p.name.split('.')[0][-1]  # TODO no more than 9 reps because of 1 digit
-            if VERBOSE:
-                print('\t\t\t\t', rep)
-            df = self.make_rep_df(
-                rep_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep)
-            if len(df) > 0:
-                dfs.append(df)
-        if dfs:
-            return pd.concat(dfs, axis=0)
-        else:
-            return pd.DataFrame()
-
-    def make_rep_df(self, rep_p, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep):
-        dfs = []
-        scores_df = pd.read_csv(rep_p, index_col=False)
-        for stage in self.stages:
-            if VERBOSE:
-                print('\t\t\t\t\t', stage)
-            df = self.make_stage_df(
-                scores_df, corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep, stage)
-            if len(df) > 0:
-                dfs.append(df)
-        if dfs:
-            return pd.concat(dfs, axis=0)
-        else:
-            return pd.DataFrame()
-
-    def make_stage_df(self,
-                      scores_df,
-                      corpus,
-                      num_vocab,
-                      embed_size,
-                      location,
-                      embedder,
-                      arch,
-                      ev,
-                      task,
-                      rep,
-                      stage):
-        vals = [corpus, num_vocab, embed_size, location, embedder, arch, ev, task, rep, stage]
-        if stage == self.stages[0]:
-            bool_id = scores_df['shuffled'] == False
-            score = scores_df[bool_id]['exp_score'].max()
-            vals.append(score)
-            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
-        elif stage == self.stages[1]:
-            bool_id = scores_df['shuffled'] == True
-            score = scores_df[bool_id]['exp_score'].max()
-            vals.append(score)
-            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
-        elif stage == self.stages[2]:
-            bool_id = scores_df['shuffled'] == False
-            score = scores_df[bool_id]['nov_score'].max()
-            vals.append(score)
-            return pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
 
     # ///////////////////////////////////////////////////// plotting
 
@@ -170,11 +96,12 @@ class Aggregator:
                        corpus,
                        num_vocab,
                        arch,
+                       eval,
                        task,
                        embed_size,
                        load_from_file=False,
                        save=False,
-                       min_num_reps=2,
+                       min_num_reps=1,
                        y_step=0.1,
                        xax_fontsize=6,
                        yax_fontsize=20,
@@ -188,15 +115,15 @@ class Aggregator:
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
-                  (df['evaluation'] == self.ev_name) & \
+                  (df['evaluation'] == eval) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
         filtered_df = df[bool_id]
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
-        ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step)
+        ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, eval)
         title = 'Scores for\n{} + {} + {} + embed_size={}\n{} num_vocab={}'.format(
-            arch, self.ev_name, task, embed_size, corpus, num_vocab)
+            arch, eval, task, embed_size, corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
@@ -277,13 +204,14 @@ class Aggregator:
             plt.savefig(p.open('wb'), bbox_inches="tight")
             time.sleep(1)
 
-    def make_y_label_lims_ticks(self, y_step):
-        if self.ev_name == 'matching':
+    @staticmethod
+    def make_y_label_lims_ticks(y_step, eval):
+        if eval == 'matching':
             ylabel = 'Balanced Accuracy'
             ylims = [0.5, 1]
             yticks = np.arange(0.5, 1, y_step).round(2)
             y_chance = 0.50
-        elif self.ev_name == 'identification':
+        elif eval == 'identification':
             ylabel = 'Accuracy'
             ylims = [0, 1]
             yticks = np.arange(0, 1 + y_step, y_step)

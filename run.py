@@ -22,13 +22,9 @@ def run_on_cluster():
         embedder_job(param2val)
         # TODO backup job dir rom runs to backup to enable ludwigcluster logging
     #
-    try:
-        aggregation_job('matching')
-        aggregation_job('identification')
-    except RuntimeError:  # did not find any scores for identification
-        pass
-        print('Finished embedding + evaluation + aggregation.')
-        print()
+    aggregation_job()
+    print('Finished embedding + evaluation + aggregation.')
+    print()
 
 
 def run_on_host():  # TODO how to do reps locally? - just overwrite a local runs dir each time

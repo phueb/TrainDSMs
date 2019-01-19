@@ -139,7 +139,7 @@ ev.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
 
 # prepare data
 ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
-    all_eval_probes, all_eval_candidates_mat, seed=0)
+    all_eval_probes, all_eval_candidates_mat)
 print('Shape of all eval data={}'.format(all_eval_candidates_mat.shape))
 print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
 ev.pos_prob = ev.calc_pos_prob()
@@ -147,4 +147,4 @@ ev.pos_prob = ev.calc_pos_prob()
 # score
 sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows
 ev.score_novice(sims_mat)
-ev.train_and_score_expert(embedder, rep_id=0)
+ev.train_and_score_expert(embedder, shuffled=False)

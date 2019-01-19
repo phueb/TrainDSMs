@@ -9,7 +9,7 @@ EMBED_SIZE = 500
 TASK = 'cohyponyms_semantic'
 STAGE = 'novice'
 
-ag_matching = Aggregator('matching')
+ag_matching = Aggregator()
 matching_df = ag_matching.make_df(load_from_file=True)
 for col in matching_df.columns:
     print(col)
