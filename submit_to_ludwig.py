@@ -55,7 +55,7 @@ if __name__ == '__main__':
                      list(gen_combinations(RandomControlParams))
     # submit
     data_dirs = ['corpora', 'tasks'] if not namespace.skip_data else []
-    client = Client(config.Dirs.remote_root.name, delete_delta=24)
+    client = Client(config.Dirs.remote_root.name)  # no good reason not to empty runs_dir beforehand
     client.submit(src_ps=[config.Dirs.src],
                   data_ps=[config.Dirs.root / d for d in data_dirs],
                   param2val_list=param2val_list,

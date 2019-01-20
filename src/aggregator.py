@@ -4,7 +4,6 @@ from itertools import count, cycle
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
-from pathlib import Path
 import datetime
 import time
 
@@ -35,9 +34,10 @@ class Aggregator:
         self.embedder2color = {embedder_name: plt.cm.get_cmap('tab10')(n) for n, embedder_name in enumerate(
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
-    @staticmethod
-    def load_param2val(param_name):
-        with (config.Dirs.backup / param_name / 'param2val.yaml').open('r') as f:
+    @classmethod
+    def load_param2val(cls, param_name, is_backup):
+        p = config.Dirs.backup if is_backup else config.Dirs.runs
+        with (p / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
@@ -51,12 +51,12 @@ class Aggregator:
             return res
         # make from backup data
         dfs = []
-        for job_p in config.Dirs.backup.glob('**/*num*'):
+        for location in config.Dirs.backup.glob('**/*num*'):
             if verbose:
                 print()
-                print(job_p)
-            param_name, job_name = job_p.parts[-2:]
-            param2val = self.load_param2val(param_name)
+                print(location)
+            param_name, job_name = location.parts[-2:]
+            param2val = self.load_param2val(param_name, is_backup=True)
             #
             corpus = param2val['corpus_name']
             num_vocab = param2val['num_vocab']
@@ -150,7 +150,7 @@ class Aggregator:
             bool_id = df['param_name'] == param_name
             embedder_df = filtered_df[bool_id]
             #
-            param2val = self.load_param2val(param_name)
+            param2val = self.load_param2val(param_name, is_backup=True)
             param2val_list.append(param2val)
             embedder_name = to_embedder_name(param2val)
             #

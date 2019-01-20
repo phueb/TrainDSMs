@@ -69,26 +69,28 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):  # TODO test do this o
     return deterministic_w2f, vocab, docs, numeric_docs
 
 
-def backup_job(param2val):  # cannot be imported from ludwigcluster becaue this would require dependency on worker
+def backup_job(param_name, job_name, allow_rewrite):
     """
+    function is not imported from ludwigcluster because this would require dependency on worker.
     this informs LudwigCluster that training has completed (backup is only called after training completion)
     copies all data created during training to backup_dir.
     Uses custom copytree fxn to avoid permission errors when updating permissions with shutil.copytree.
     Copying permissions can be problematic on smb/cifs type backup drive.
     """
-    param_name = param2val['param_name']
-    job_name = param2val['job_name']
     src = config.Dirs.runs / param_name / job_name
     dst = config.Dirs.backup / param_name / job_name
+    if not dst.parent.exists():
+        dst.parent.mkdir(parents=True)
+        copyfile(str(config.Dirs.runs / param_name / 'param2val.yaml'),
+                 str(config.Dirs.backup / param_name / 'param2val.yaml'))  # need to copy param2val.yaml
 
     def copytree(s, d):
-        d.mkdir()
+        d.mkdir(exist_ok=allow_rewrite)  # set exist_ok=True if dst is partially missing files whcih exist in src
         for i in s.iterdir():
             s_i = s / i.name
             d_i = d / i.name
             if s_i.is_dir():
                 copytree(s_i, d_i)
-
             else:
                 copyfile(str(s_i), str(d_i))  # copyfile works because it doesn't update any permissions
     # copy
@@ -96,9 +98,9 @@ def backup_job(param2val):  # cannot be imported from ludwigcluster becaue this 
     try:
         copytree(src, dst)
     except PermissionError:
-        print('LudwigCluster: Backup failed. Permission denied.')
+        print('Backup failed. Permission denied.')
     except FileExistsError:
-        print('LudwigCluster: Already backed up')
+        print('Already backed up {}'.format(dst))
     else:
         print('Backed up data to {}'.format(dst))
 
