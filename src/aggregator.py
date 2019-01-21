@@ -162,18 +162,13 @@ class Aggregator:
             bars = []
             x = param_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
-
                 ys = stage_df['score'].values
-                print(ys)
-
-                # TODO test ys
-
                 if len(ys) < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
                     continue
                 x += self.bw
                 ys = stage_df['score']
-                print('{} score mean={:.2f} std={:.2f}'.format(stage, ys.mean(), ys.std()))
+                print('{:<10} score mean={:.2f} std={:.4f} n={:>2}'.format(stage, ys.mean(), ys.std(), len(ys)))
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),

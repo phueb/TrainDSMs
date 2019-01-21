@@ -20,7 +20,7 @@ from src.embedders.w2vec import W2VecEmbedder
 nlp = English()
 
 
-def preprocessing_job(num_vocab=config.Corpus.num_vocab):  # TODO test do this once before embedder jobs
+def preprocessing_job(num_vocab=config.Corpus.num_vocab):
     docs = []
     w2freq = Counter()
     # tokenize + count words
@@ -81,8 +81,8 @@ def backup_job(param_name, job_name, allow_rewrite):
     dst = config.Dirs.backup / param_name / job_name
     if not dst.parent.exists():
         dst.parent.mkdir(parents=True)
-        copyfile(str(config.Dirs.runs / param_name / 'param2val.yaml'),
-                 str(config.Dirs.backup / param_name / 'param2val.yaml'))  # need to copy param2val.yaml
+    copyfile(str(config.Dirs.runs / param_name / 'param2val.yaml'),
+             str(config.Dirs.backup / param_name / 'param2val.yaml'))  # need to copy param2val.yaml
 
     def copytree(s, d):
         d.mkdir(exist_ok=allow_rewrite)  # set exist_ok=True if dst is partially missing files whcih exist in src

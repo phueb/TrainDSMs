@@ -7,8 +7,8 @@ CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
 NUM_VOCAB = 4096
 ARCHITECTURE_NAME = 'comparator'
 EVAL_NAME = 'matching'
-TASK_NAME = 'cohyponyms_semantic'  # TODO use _jw for paper
-EMBED_SIZE = 200
+TASK_NAME = 'hypernyms'  # TODO use _jw for paper
+EMBED_SIZE = 500
 
 DF_FROM_FILE = True
 SAVE = False
