@@ -168,7 +168,7 @@ class Aggregator:
                     continue
                 x += self.bw
                 ys = stage_df['score']
-                print('{:<10} score mean={:.2f} std={:.4f} n={:>2}'.format(stage, ys.mean(), ys.std(), len(ys)))
+                print('{:<10} score mean={:.2f} std={:.3f} n={:>2}'.format(stage, ys.mean(), ys.std(), len(ys)))
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),

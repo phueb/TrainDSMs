@@ -6,7 +6,6 @@
 # use CTL + Numpad2 to pushc code to R console (open R Console from Tools
 
 dat = read.csv(file='/media/lab/2StageNLP/2stage_data.csv', header=TRUE, sep=",", row.names=1)
-boxplot(score~stage * task,data=dat)
 
 # repeated measures ANOVA
 # Convert variables to factor
@@ -24,36 +23,17 @@ levels(dat$stage)
 levels(dat$task)
 levels(dat$embedder)
 
-par(cex = 1.5)  # magnify text on plot
-with(dat, interaction.plot(stage, embedder, score,
-  ylim = c(0.5, 1), lwd = 5,
-  ylab = "mean of score", xlab = "stage", trace.label = "embedder"))
-
-# without random_normal, no significant embedder:stage interaction
-dat.aov <- aov(score ~ embedder * stage + Error(job_name), data = dat)
-summary(dat.aov)
-
-
-################################################ use only single task
-task_dat = dat[which(dat$task == 'nyms_ant_jw'),
+# use only single task
+TASK = 'nyms_ant_jw'
+task_dat = dat[which(dat$task == TASK),
     names(dat) %in% c('task','stage', 'score', 'embedder', 'embed_size', 'job_name')]
 
+# plot
 par(cex = 1.5)  # magnify text on plot
 with(dat, interaction.plot(stage, embedder, score,
   ylim = c(0.5, 1), lwd = 5,
-  ylab = "mean of score (nyms_ant_jw)", xlab = "stage", trace.label = "embedder"))
+  ylab = "mean of score for" + TASK, xlab = "stage", trace.label = "embedder"))
 
+# anova
 task_dat.aov <- aov(score ~ embedder * stage + Error(job_name), data = task_dat)
-summary(task_dat.aov)
-
-# embed_size
-task_dat = dat[which(dat$task == 'nyms_syn_jw'),
-    names(dat) %in% c('task','stage', 'score', 'embedder', 'embed_size', 'job_name')]
-
-par(cex = 1.5)  # magnify text on plot
-with(dat, interaction.plot(stage, embed_size, score,
-  ylim = c(0.5, 1), lwd = 5,
-  ylab = "mean of score (nyms_syn_jw)", xlab = "stage", trace.label = "embed_size"))
-
-task_dat.aov <- aov(score ~ embed_size * stage + Error(job_name), data = task_dat)
 summary(task_dat.aov)
