@@ -24,6 +24,22 @@ def to_embedder_name(param2val):
         raise RuntimeError('Unknown embedder name')
 
 
+def make_param2val_list(params_class1, params_class2):
+    # merge
+    meta_d = {'corpus_name': [config.Corpus.name], 'num_vocab': [config.Corpus.num_vocab]}
+    merged_d = {k: v for k, v in chain(params_class1.__dict__.items(),
+                                       params_class2.__dict__.items(),
+                                       meta_d.items())}
+    #
+    param2opts, param_ids = iter_over_cycles(merged_d)
+    #
+    res = []
+    for ids in param_ids:
+        param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
+        res.append(param2val)
+    return res
+
+
 def iter_over_cycles(d):
     # lengths
     param2opts = sorted([(k, v) for k, v in d.items()
@@ -51,37 +67,6 @@ def iter_over_cycles(d):
     assert sorted(list(set(param_ids))) == sorted(param_ids)
     assert len(param_ids) == total
     return param2opts, param_ids
-
-
-def make_param2val_list(params_class1, params_class2):
-    # merge
-    meta_d = {'corpus_name': [config.Corpus.name], 'num_vocab': [config.Corpus.num_vocab]}
-    merged_d = {k: v for k, v in chain(params_class1.__dict__.items(),
-                                       params_class2.__dict__.items(),
-                                       meta_d.items())}
-    #
-    param2opts, param_ids = iter_over_cycles(merged_d)
-    #
-    res = []
-    for ids in param_ids:
-        param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
-        res.append(param2val)
-    return res
-
-
-def gen_combinations(params_class):
-    """
-    return list of mappings from param name to integer which is index to possible param values
-    all possible combinations are returned
-    """
-    d = params_class.__dict__
-    #
-    param2opts, param_ids = iter_over_cycles(d)
-    # map param names to integers corresponding to which param value to use
-    for ids in param_ids:
-        param2val = {k: v[i] for (k, v), i in zip(param2opts, ids)}
-        param2val.update({'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab})
-        yield param2val
 
 
 class CountParams:

@@ -1,8 +1,5 @@
-import pyprind
 import json
-import operator
 import spacy
-import sys
 import time
 
 

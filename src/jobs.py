@@ -5,6 +5,7 @@ from itertools import islice
 import pyprind
 from spacy.lang.en import English
 from shutil import copyfile
+import pickle
 
 from src import config
 from src.aggregator import Aggregator
@@ -20,7 +21,9 @@ from src.embedders.w2vec import W2VecEmbedder
 nlp = English()
 
 
-def preprocessing_job(num_vocab=config.Corpus.num_vocab):
+def preprocessing_job():
+    num_vocab = config.Corpus.num_vocab
+    #
     docs = []
     w2freq = Counter()
     # tokenize + count words
@@ -41,13 +44,13 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):
     # vocab
     deterministic_w2f = OrderedDict(sorted(w2freq.items(), key=lambda item: (item[1], item[0]), reverse=True))
     if num_vocab is None:
-        vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab))
+        vocab = list(deterministic_w2f.keys())
     else:
         vocab = list(islice(deterministic_w2f.keys(), 0, num_vocab - 1))
         vocab.append(config.Corpus.UNK)
     vocab = list(sorted(vocab))
     if num_vocab is None:  # if no vocab specified, use the whole corpus
-        num_vocab = len(w2freq)
+        num_vocab = len(vocab)
     print('Creating vocab of size {}...'.format(num_vocab))
     print('Least frequent word occurs {} times'.format(deterministic_w2f[vocab[-2]]))
     assert '\n' not in vocab
@@ -58,7 +61,6 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):
     numeric_docs = []
     for doc in docs:
         numeric_doc = []
-
         for n, token in enumerate(doc):
             if token in t2id:
                 numeric_doc.append(t2id[token])
@@ -66,7 +68,29 @@ def preprocessing_job(num_vocab=config.Corpus.num_vocab):
                 doc[n] = config.Corpus.UNK
                 numeric_doc.append(t2id[config.Corpus.UNK])
         numeric_docs.append(numeric_doc)
-    return deterministic_w2f, vocab, docs, numeric_docs
+    # save to file server
+    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs)
+
+
+def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
+    # save w2freq
+    p = config.Dirs.remote_root / '{}_w2freq.txt'.format(config.Corpus.name)
+    with p.open('w') as f:
+        for probe, freq in deterministic_w2f.items():
+            f.write('{} {}\n'.format(probe, freq))
+    # save vocab
+    p = config.Dirs.remote_root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+    with p.open('w') as f:
+        for v in vocab:
+            f.write('{}\n'.format(v))
+    # save numeric_docs
+    p = config.Dirs.remote_root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    with p.open('wb') as f:
+        pickle.dump(numeric_docs, f)
+    # save docs
+    p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    with p.open('wb') as f:
+        pickle.dump(docs, f)
 
 
 def backup_job(param_name, job_name, allow_rewrite):

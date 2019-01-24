@@ -2,20 +2,24 @@ import unittest
 import numpy as np
 
 from src import config
-# this must be above CountEmbedder because it initializes load_corpus_data with config.Corpus.num_vocab
-config.Corpus.name = 'ww_test'
-config.Corpus.num_vocab = None
-
-from src.params import gen_combinations, CountParams
+from src.jobs import preprocessing_job
+from src.params import CountParams
 from src.embedders.count import CountEmbedder
+
+from ludwigcluster.utils import list_all_param2vals
 
 
 class MyTest(unittest.TestCase):
     def test_update_matrix(self):
-        embedder = list(CountEmbedder(param2ids, param2val)
-                        for param2ids, param2val in gen_combinations(CountParams))[0]
+        #
+        config.Corpus.name = 'ww_test'
+        config.Corpus.num_vocab = None
+        preprocessing_job()
+        # embedder
+        embedder = list(CountEmbedder(param2val)
+                        for param2val in list_all_param2vals(CountParams))[0]
         embedder.name = 'ww'
-        embedder.count_type = ['ww', 'backward', 5, 'flat']
+        embedder.count_type = ['ww', 'backward', 5, 'linear']
         embedder.norm_type = None
         embedder.reduce_type = [None, None]
         #
@@ -26,7 +30,6 @@ class MyTest(unittest.TestCase):
                             [0, 0, 4, 0, 5, 3],
                             [0, 0, 5, 0, 0, 4],
                             [0, 0, 3, 5, 4, 2]])
-        assert all(reduced_mat == correct)
         for i, j in zip(reduced_mat.flatten(), correct.flatten()):
             self.assertEqual(i, j)
 
