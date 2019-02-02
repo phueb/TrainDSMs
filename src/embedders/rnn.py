@@ -107,7 +107,7 @@ class RNNEmbedder(EmbedderBase):
             if self.grad_clip is not None:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
                 for p in self.model.parameters():
-                    p.data.add_(-lr, p.grad.data)
+                    p.data.add_(-lr, p.grad.data)  # TODO lr decay only happens with grad clipping
             else:
                 self.optimizer.step()
             # console

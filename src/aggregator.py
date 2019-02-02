@@ -35,9 +35,8 @@ class Aggregator:
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
     @classmethod
-    def load_param2val(cls, param_name, is_backup):
-        p = config.Dirs.backup if is_backup else config.Dirs.runs
-        with (p / param_name / 'param2val.yaml').open('r') as f:
+    def load_param2val(cls, param_name):
+        with (config.Dirs.runs / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
@@ -49,14 +48,14 @@ class Aggregator:
             res = pd.read_csv(p)
             self.df = res
             return res
-        # make from backup data
+        # make from runs data
         dfs = []
-        for location in config.Dirs.backup.glob('**/*num*'):
+        for location in config.Dirs.runs.glob('**/*num*'):
             if verbose:
                 print()
                 print(location)
             param_name, job_name = location.parts[-2:]
-            param2val = self.load_param2val(param_name, is_backup=True)
+            param2val = self.load_param2val(param_name)
             #
             corpus = param2val['corpus_name']
             num_vocab = param2val['num_vocab']
@@ -72,11 +71,11 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.backup))
+            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.runs))
 
     def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
         dfs = []
-        loc = config.Dirs.backup / param_name / job_name
+        loc = config.Dirs.runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
             scores_df = pd.read_csv(scores_p, index_col=False)
             score = scores_df['score'].max()
@@ -150,7 +149,7 @@ class Aggregator:
             bool_id = df['param_name'] == param_name
             embedder_df = filtered_df[bool_id]
             #
-            param2val = self.load_param2val(param_name, is_backup=True)
+            param2val = self.load_param2val(param_name)
             param2val_list.append(param2val)
             embedder_name = to_embedder_name(param2val)
             #
@@ -163,6 +162,7 @@ class Aggregator:
             x = param_id + 0.6
             for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
                 ys = stage_df['score'].values
+                print(ys)
                 if len(ys) < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
                     continue

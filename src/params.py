@@ -76,7 +76,7 @@ class CountParams:
         ['ww', 'concatenated', 16,  'linear'],
     ]
     # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = ['row_sum']
+    norm_type = ['row_sum', 'ppmi']
     reduce_type = [
         ['svd', 30],
         ['svd', 200],

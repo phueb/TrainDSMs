@@ -17,7 +17,7 @@ def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):
     return res
 
 
-def calc_balanced_accuracy(calc_signals, sims_mean, verbose=True):
+def calc_cluster_score(calc_signals, sims_mean, verbose=True):
 
     def calc_probes_fs(thr):
         tp, tn, fp, fn = calc_signals(thr)

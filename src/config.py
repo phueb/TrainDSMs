@@ -9,7 +9,6 @@ class Dirs:
     #
     remote_root = Path('/') / 'media' / 'lab' / '2StageNLP'
     runs = remote_root / 'runs'
-    backup = remote_root / 'backup'
 
 
 class Eval:
