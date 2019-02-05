@@ -1,6 +1,6 @@
 from itertools import product
 
-from src import config
+from two_stage_nlp import config
 
 
 CORPUS_NAME = config.Corpus.name

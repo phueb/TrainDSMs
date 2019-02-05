@@ -1,6 +1,6 @@
 from itertools import product
 
-from src.aggregator import Aggregator
+from two_stage_nlp.aggregator import Aggregator
 
 # factors to include or exclude
 CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213

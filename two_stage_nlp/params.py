@@ -1,7 +1,7 @@
 import numpy as np
 from itertools import cycle, chain
 
-from src import config
+from two_stage_nlp import config
 
 
 class ObjectView(object):
@@ -71,16 +71,16 @@ def iter_over_cycles(d):
 
 class CountParams:
     count_type = [
-        ['wd', None, None, None],
         ['ww', 'concatenated',  7,  'linear'],
         ['ww', 'concatenated', 16,  'linear'],
+        ['wd', None, None, None],
     ]
-    # norm_type = [None, 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = ['row_sum', 'ppmi']
+    # norm_type = [None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi']
+    norm_type = ['ppmi']
     reduce_type = [
         ['svd', 30],
-        ['svd', 200],
-        ['svd', 500],
+        # ['svd', 200],
+        # ['svd', 500],
         # [None, None]  # TODO this makes expert training last too long
     ]
 

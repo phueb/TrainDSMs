@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src import config
+from two_stage_nlp import config
 
 DATA_NAME1 = 'cohyponyms'
 DATA_NAME2 = 'syntactic'

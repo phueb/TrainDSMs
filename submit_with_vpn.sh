@@ -13,7 +13,7 @@
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit.py -r3 -s -t
+python submit.py -r3 -s
 deactivate
 echo "Submission completed"
 

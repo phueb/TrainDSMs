@@ -1,7 +1,7 @@
 import numpy as np
 
-from src import config
-from src.embedders.base import EmbedderBase
+from two_stage_nlp import config
+from two_stage_nlp.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 # CORPUS_NAME = 'tasa-20181213'

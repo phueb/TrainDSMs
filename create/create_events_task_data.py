@@ -4,8 +4,8 @@ from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 import pandas as pd
 
-from src import config
-from src.embedders.base import EmbedderBase
+from two_stage_nlp import config
+from two_stage_nlp.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 LEMMATIZE = True

@@ -1,9 +1,9 @@
 import numpy as np
 
-from src import config
-from src.architectures import comparator
-from src.evaluators.matching import Matching
-from src.embedders.base import w2e_to_sims
+from two_stage_nlp import config
+from two_stage_nlp.architectures import comparator
+from two_stage_nlp.evaluators.matching import Matching
+from two_stage_nlp.embedders.base import w2e_to_sims
 
 config.Eval.save_scores = False
 config.Eval.only_negative_examples = False

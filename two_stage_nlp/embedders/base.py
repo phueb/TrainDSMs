@@ -6,7 +6,7 @@ import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
 
-from src import config
+from two_stage_nlp import config
 
 
 class EmbedderBase(object):
@@ -17,7 +17,9 @@ class EmbedderBase(object):
 
     @property
     def location(self):
-        res = config.Dirs.runs / self.param_name / self.job_name
+        res = config.Dirs.local_runs / self.param_name / self.job_name
+        if not res.exists():
+            res.mkdir(parents=True)
         return res
 
     # ///////////////////////////////////////////////////////////// w2e

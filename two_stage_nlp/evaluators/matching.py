@@ -1,15 +1,22 @@
 import numpy as np
 from functools import partial
 
-from src import config
-from src.scores import calc_cluster_score
-from src.evaluators.base import EvalBase
+from two_stage_nlp import config
+from two_stage_nlp.scores import calc_cluster_score
+from two_stage_nlp.evaluators.base import EvalBase
 
 
 class MatchingParams:
     prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
-    num_epochs = [50]  # 20 for cohyponyms but 50 for nyms
+    num_epochs = [10000]  # 20 for cohyponyms but 50 for nyms  # TODO testing classifier (was 50)
+
+    # TODO
+    # num epochs for cohyponyms semantic classifier
+    # novice - 0.80
+    # 2000 - 0.72
+    # 5000 - 0.82
+    # 10,000 - 0.86 - this is ba achieved by comparator
 
 
 class Matching(EvalBase):

@@ -1,9 +1,9 @@
 import shutil
 
-from src import config
+from two_stage_nlp import config
 
 
-param_ps = config.Dirs.runs.glob('**/*num*')
+param_ps = config.Dirs.remote_runs.glob('**/*num*')
 
 locations_to_del = []
 while True:

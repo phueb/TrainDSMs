@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.stats import binom
 
-from src import config
-from src.evaluators.base import EvalBase
-from src.scores import calc_accuracy
+from two_stage_nlp import config
+from two_stage_nlp.evaluators.base import EvalBase
+from two_stage_nlp.scores import calc_accuracy
 
 
 class IdentificationParams:

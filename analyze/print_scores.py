@@ -1,4 +1,4 @@
-from src.aggregator import Aggregator
+from two_stage_nlp.aggregator import Aggregator
 
 DF_FROM_FILE = True
 

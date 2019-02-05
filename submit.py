@@ -5,15 +5,14 @@ from ludwigcluster.client import Client
 from ludwigcluster.config import SFTP
 from ludwigcluster.utils import list_all_param2vals
 
-from src import config
-from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from src.jobs import preprocessing_job
+from two_stage_nlp import config
+from two_stage_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from two_stage_nlp.jobs import preprocessing_job
 
 
 """
 Do not --skip-data if any code related to corpus has been modified. 
 This ensures that no old corpus data is used by workers.
-This also requires deleting of any old w2freq or vocab txt files in the corpora folder.
 """
 
 if __name__ == '__main__':
@@ -34,10 +33,10 @@ if __name__ == '__main__':
         print()
     # create all possible hyperparameter configurations
     update_d = {'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab}
-    param2val_list = list_all_param2vals(CountParams, update_d) + \
+    param2val_list = list_all_param2vals(RandomControlParams, update_d) + \
+                     list_all_param2vals(CountParams, update_d) + \
                      list_all_param2vals(RNNParams, update_d) + \
-                     list_all_param2vals(Word2VecParams, update_d) + \
-                     list_all_param2vals(RandomControlParams, update_d)
+                     list_all_param2vals(Word2VecParams, update_d)
     # submit
     data_dirs = ['tasks'] if not namespace.skip_data else []
     client = Client(config.Dirs.remote_root.name)

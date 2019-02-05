@@ -7,8 +7,8 @@ import numpy as np
 import datetime
 import time
 
-from src import config
-from src.params import to_embedder_name
+from two_stage_nlp import config
+from two_stage_nlp.params import to_embedder_name
 
 
 class Aggregator:
@@ -36,7 +36,7 @@ class Aggregator:
 
     @classmethod
     def load_param2val(cls, param_name):
-        with (config.Dirs.runs / param_name / 'param2val.yaml').open('r') as f:
+        with (config.Dirs.remote_runs / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
@@ -50,7 +50,7 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for location in config.Dirs.runs.glob('**/*num*'):
+        for location in config.Dirs.remote_runs.glob('**/*num*'):
             if verbose:
                 print()
                 print(location)
@@ -71,11 +71,11 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.runs))
+            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.remote_runs))
 
     def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
         dfs = []
-        loc = config.Dirs.runs / param_name / job_name
+        loc = config.Dirs.remote_runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
             scores_df = pd.read_csv(scores_p, index_col=False)
             score = scores_df['score'].max()

@@ -2,8 +2,9 @@ import argparse
 import pickle
 import socket
 
-from src import config
-from src.jobs import embedder_job, aggregation_job
+from two_stage_nlp import config
+from two_stage_nlp.jobs import two_stage_job, aggregation_job
+from two_stage_nlp.params import CountParams
 
 hostname = socket.gethostname()
 
@@ -19,24 +20,27 @@ def run_on_cluster():
     with p.open('rb') as f:
         param2val_chunk = pickle.load(f)
     for param2val in param2val_chunk:
-        embedder_job(param2val)
+        two_stage_job(param2val)
     #
     aggregation_job(verbose=False)
-    print('Finished embedding + evaluation + aggregation.')
-    print()
+    print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
 
 
-def run_on_host():  # TODO how to do reps locally? - just overwrite a local runs dir each time
+def run_on_host():
     """
     run jobs on the local host for testing/development
     """
-    raise NotImplementedError
+    from ludwigcluster.utils import list_all_param2vals
+    #
+    for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
+        two_stage_job(param2val)
+        print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', default=False, action='store_true', dest='debug', required=False)
     parser.add_argument('-l', default=False, action='store_true', dest='local', required=False)
+    parser.add_argument('-d', default=False, action='store_true', dest='debug', required=False)
     namespace = parser.parse_args()
     if namespace.debug:
         config.Eval.debug = True

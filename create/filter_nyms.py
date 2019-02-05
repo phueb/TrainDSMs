@@ -4,14 +4,14 @@ import pyprind
 import sys
 import multiprocessing as mp
 
-from src.embedders.random_control import RandomControlEmbedder
-from src.params import RandomControlParams
-from src.architectures import comparator
-from src.evaluators.matching import Matching
-from src.embedders.base import w2e_to_sims
-from src.params import gen_combinations
-from src.embedders.base import EmbedderBase
-from src import config
+from two_stage_nlp.embedders.random_control import RandomControlEmbedder
+from two_stage_nlp.params import RandomControlParams
+from two_stage_nlp.architectures import comparator
+from two_stage_nlp.evaluators.matching import Matching
+from two_stage_nlp.embedders.base import w2e_to_sims
+from two_stage_nlp.params import gen_combinations
+from two_stage_nlp.embedders.base import EmbedderBase
+from two_stage_nlp import config
 
 DEBUG = False  # reduces computation time
 

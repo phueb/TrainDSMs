@@ -4,8 +4,8 @@ import pyprind
 import numpy as np
 import sys
 
-from src.embedders.base import EmbedderBase
-from src import config
+from two_stage_nlp.embedders.base import EmbedderBase
+from two_stage_nlp import config
 
 
 # TODO  is torch.utils.data useful here?

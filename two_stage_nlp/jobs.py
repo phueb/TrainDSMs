@@ -5,16 +5,18 @@ from itertools import islice
 import pyprind
 from spacy.lang.en import English
 import pickle
+import yaml
+import shutil
 
-from src import config
-from src.aggregator import Aggregator
-from src.architectures import comparator
-from src.evaluators.matching import Matching
-from src.embedders.base import w2e_to_sims
-from src.embedders.rnn import RNNEmbedder
-from src.embedders.count import CountEmbedder
-from src.embedders.random_control import RandomControlEmbedder
-from src.embedders.w2vec import W2VecEmbedder
+from two_stage_nlp import config
+from two_stage_nlp.aggregator import Aggregator
+from two_stage_nlp.architectures import comparator, classifier
+from two_stage_nlp.evaluators.matching import Matching
+from two_stage_nlp.embedders.base import w2e_to_sims
+from two_stage_nlp.embedders.rnn import RNNEmbedder
+from two_stage_nlp.embedders.count import CountEmbedder
+from two_stage_nlp.embedders.random_control import RandomControlEmbedder
+from two_stage_nlp.embedders.w2vec import W2VecEmbedder
 
 
 nlp = English()
@@ -32,7 +34,6 @@ def preprocessing_job():
     num_texts = len(texts)
     print('\nTokenizing {} docs...'.format(num_texts))
     pbar = pyprind.ProgBar(num_texts, stream=sys.stdout)
-    # TODO tokenization could benefit from multiprocessing
     for text in texts:
         spacy_doc = nlp(text)
         doc = [w.text for w in spacy_doc]
@@ -92,10 +93,24 @@ def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
         pickle.dump(docs, f)
 
 
-def embedder_job(param2val):
+def two_stage_job(param2val):
     """
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
+
+    def move_scores_to_server(location):
+        dst = config.Dirs.remote_runs / param2val['param_name'] / param2val['job_name']
+        if not dst.exists():
+            dst.mkdir(parents=True)
+        shutil.move(str(location), str(dst))
+
+        # write param2val to shared drive
+        param2val_p = config.Dirs.remote_runs / param2val['param_name'] / 'param2val.yaml'
+        if not param2val_p.exists():
+            param2val['job_name'] = None
+            with param2val_p.open('w', encoding='utf8') as f:
+                yaml.dump(param2val, f, default_flow_style=False, allow_unicode=True)
+
     # params
     job_name = param2val['job_name']
     print('===================================================')
@@ -120,9 +135,9 @@ def embedder_job(param2val):
     print('Training stage 1...')
     sys.stdout.flush()
     embedder.train()
-    embedder.save_w2e()
+    embedder.save_w2e() if config.Embeddings.save_w2e else None  # just keep w2e in memory - it is never loaded
     # stage 2
-    for architecture in [comparator]:
+    for architecture in [classifier, comparator]:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),
@@ -166,24 +181,15 @@ def embedder_job(param2val):
             # save
             for scores, stage in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
                 print('stage "{}" best score={:2.2f}'.format(stage, max([s[0] for s in scores])))
-                # check
-                p = ev.make_scores_p(embedder.location, stage)
-                try:
-                    p.parent.exists()
-                except OSError:
-                    raise OSError('{} is not reachable. Check VPN or mount drive.'.format(p))
-                if p.exists():
-                    print(
-                        'WARNING: {} should not exist.'
-                        ' This is likely a failure of ludwigcluster to distribute tasks.'.format(p))
-                    p.unlink()
-                # save
+                scores_p = ev.make_scores_p(embedder.location, stage)
                 df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists
-                if not p.parent.exists():
-                    p.parent.mkdir(parents=True)
-                with p.open('w') as f:
+                if not scores_p.parent.exists():
+                    scores_p.parent.mkdir(parents=True)
+                with scores_p.open('w') as f:
                     df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
             print('-')
+    # move scores to file server
+    move_scores_to_server(embedder.location)
 
 
 def aggregation_job(verbose=True):

@@ -2,8 +2,8 @@ import multiprocessing as mp
 import numpy as np
 import sys
 
-from src import config
-from src.params import make_param2val_list, ObjectView
+from two_stage_nlp import config
+from two_stage_nlp.params import make_param2val_list, ObjectView
 
 
 class ResultsData:

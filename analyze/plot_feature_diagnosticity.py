@@ -5,13 +5,13 @@ import pyprind
 from cytoolz import itertoolz
 from itertools import chain
 
-from src import config
-from src.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from src.params import gen_combinations
-from src.embedders.rnn import RNNEmbedder
-from src.embedders.count import CountEmbedder
-from src.embedders.random_control import RandomControlEmbedder
-from src.embedders.w2vec import W2VecEmbedder
+from two_stage_nlp import config
+from two_stage_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from two_stage_nlp.params import gen_combinations
+from two_stage_nlp.embedders.rnn import RNNEmbedder
+from two_stage_nlp.embedders.count import CountEmbedder
+from two_stage_nlp.embedders.random_control import RandomControlEmbedder
+from two_stage_nlp.embedders.w2vec import W2VecEmbedder
 
 CAT_TYPE = 'sem'
 

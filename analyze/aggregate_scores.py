@@ -1,5 +1,5 @@
 
-from src.jobs import aggregation_job
+from two_stage_nlp.jobs import aggregation_job
 
 
 df = aggregation_job()
