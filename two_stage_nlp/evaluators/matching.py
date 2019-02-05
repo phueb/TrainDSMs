@@ -7,7 +7,6 @@ from two_stage_nlp.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     # arch-evaluator interaction
     num_epochs = [10000]  # 20 for cohyponyms but 50 for nyms  # TODO testing classifier (was 50)
 

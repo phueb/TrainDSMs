@@ -8,7 +8,7 @@ NUM_VOCAB = 4096
 ARCHITECTURE_NAME = 'comparator'
 EVAL_NAME = 'matching'
 TASK_NAME = 'cohyponyms_semantic'  # TODO use _jw for paper
-EMBED_SIZE = 30
+EMBED_SIZE = 200
 
 DF_FROM_FILE = True
 SAVE = False
