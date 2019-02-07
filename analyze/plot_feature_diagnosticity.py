@@ -4,6 +4,7 @@ import seaborn as sns
 import pyprind
 from cytoolz import itertoolz
 from itertools import chain
+import sys
 
 from two_stage_nlp import config
 from two_stage_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
@@ -90,7 +91,7 @@ for embedder in embedders:
     true_col = [True for p in probes]
     false_col = [False for p in probes]
     feature_diagnosticity_mat = np.zeros((num_cats, embedder.dim1))
-    pbar = pyprind.ProgBar(embedder.dim1)
+    pbar = pyprind.ProgBar(embedder.dim1, stream=sys.stdout)
     print('Making feature_diagnosticity_mat...')
     for col_id, col in enumerate(probe_embed_mat.T):
         pbar.update()

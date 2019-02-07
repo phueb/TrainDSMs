@@ -20,7 +20,10 @@ def run_on_cluster():
     with p.open('rb') as f:
         param2val_chunk = pickle.load(f)
     for param2val in param2val_chunk:
-        two_stage_job(param2val)
+        try:
+            two_stage_job(param2val)
+        except NotImplementedError as e:
+            print(e)
     #
     aggregation_job(verbose=False)
     print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))

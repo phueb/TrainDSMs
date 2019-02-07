@@ -31,7 +31,7 @@ class CountEmbedder(EmbedderBase):
         # count
         num_docs = len(self.numeric_docs)
         num_vocab = len(self.vocab)
-        pbar = pyprind.ProgBar(num_docs)
+        pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
         count_matrix = np.zeros([num_vocab, num_vocab], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
         for token_ids in self.numeric_docs:
@@ -74,7 +74,7 @@ class CountEmbedder(EmbedderBase):
     def create_wd_matrix(self):
         # count
         num_docs = len(self.numeric_docs)
-        pbar = pyprind.ProgBar(num_docs)
+        pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
         count_matrix = np.zeros([config.Corpus.num_vocab, num_docs], int)
         print('\nCounting word occurrences in {} documents'.format(num_docs))
         for i in range(num_docs):
