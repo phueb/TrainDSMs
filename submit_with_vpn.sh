@@ -7,8 +7,8 @@
 #pwd=$(cat /home/ph/.sudo_pwd)
 #echo ${pwd} | sudo -S mount /media/lab
 #
-#cd /home/ph/LudwigCluster/scripts
-#bash upload_watchers.sh
+cd /home/ph/LudwigCluster/scripts
+bash kill_job.sh 2StageNLP
 
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
