@@ -17,8 +17,8 @@ class Params:
     prop_negative = [None, 0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
 
 
-    # TODO clac num epochs based on num entries in eval mat
-    num_epochs_per_pair = [50]
+    # TODO test
+    num_epochs_per_row_word = [0.1]
 
 
 name = 'comparator'
@@ -156,6 +156,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 yield step, x1[row_ids],  x2[row_ids], y[row_ids]
                 step += 1
 
+    # train size
     assert evaluator is not None  # arbitrary usage of evaluator
     assert isinstance(fold_id, int)  # arbitrary usage of fold_id
     x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids = data
@@ -163,20 +164,16 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if num_train_probes < trial.params.mb_size:
         raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
             num_train_probes, trial.params.mb_size))
-
-    # TODO test
-    print(x1_train.shape)
-    num_pairs = None  # TODO
-    num_epochs = trial.params.num_epochs_per_pair * num_pairs
+    if config.Eval.verbose:
+        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
+    # epochs
+    num_epochs = max(1, int(trial.params.num_epochs_per_row_word * len(evaluator.row_words)))
     print('num_epochs={}'.format(num_epochs))
-
-    #
+    # eval steps
     num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
-    if config.Eval.verbose:
-        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # training and eval
     start = time.time()
     for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):

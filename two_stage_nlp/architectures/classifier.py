@@ -13,7 +13,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_probe = [20]
+    num_epochs_per_row_word = [20]
 
 
 name = 'classifier'
@@ -128,25 +128,25 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
 
     assert evaluator is not None  # arbitrary usage of evaluator
     assert isinstance(fold_id, int)  # arbitrary usage of fold_id
+    # train size
     x1_train, y_train, x1_test, eval_sims_mat_row_ids = data
     num_train_probes, num_test_probes = len(x1_train), len(x1_test)
     if num_train_probes < trial.params.mb_size:
         raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
             num_train_probes, trial.params.mb_size))
+    if config.Eval.verbose:
+        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
+
 
     # TODO test
-    num_probes = len(evaluator.row_words)
-    print(num_probes)
-    num_epochs = trial.params.num_epochs_per_probe * num_probes
+    num_epochs = trial.params.num_epochs_per_row_word * len(evaluator.row_words)
     print('num_epochs={:,}'.format(num_epochs))
 
-    #
+    # eval steps
     num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
-    if config.Eval.verbose:
-        print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # training and eval
     start = time.time()
     for step, x1_batch, y_batch in gen_batches_in_order(x1_train, y_train):

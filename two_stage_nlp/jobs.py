@@ -125,7 +125,7 @@ def two_stage_job(param2val):
     elif 'rnn_type' in param2val:
 
         # TODO fix cuda error
-        return
+        raise NotImplementedError('Need to fix CUDA error before running RNNs')
 
         embedder = RNNEmbedder(param2val)
     elif 'w2vec_type' in param2val:
@@ -142,19 +142,19 @@ def two_stage_job(param2val):
     embedder.train()
     embedder.save_w2e() if config.Embeddings.save_w2e else None  # just keep w2e in memory - it is never loaded
     # stage 2
-    for architecture in [classifier, comparator]:
+    for architecture in [comparator, classifier]:
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
             # Matching(architecture, 'cohyponyms', 'syntactic'),
             # Matching(architecture, 'features', 'is'),
             # Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            Matching(architecture, 'nyms', 'ant', suffix='_jw'),
+            # Matching(architecture, 'nyms', 'syn', suffix='_jw'),
+            # Matching(architecture, 'nyms', 'ant', suffix='_jw'),
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
-            Identification(architecture, 'nyms', 'ant', suffix='_jw'),
+            # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            # Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
