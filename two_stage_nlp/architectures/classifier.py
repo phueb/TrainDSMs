@@ -13,9 +13,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-
-    # TODO do not let eval overwrite params - hwo to deal with interactions?
-    num_epochs = [10000]  # 10k is better than any lower number for classifier
+    num_epochs_per_probe = [20]
 
 
 name = 'classifier'
@@ -120,7 +118,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         if config.Eval.verbose:
             print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
-        for epoch_id in range(trial.params.num_epochs):
+        for epoch_id in range(num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
             # split into batches
             num_splits = num_adj // trial.params.mb_size
@@ -135,7 +133,15 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if num_train_probes < trial.params.mb_size:
         raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
             num_train_probes, trial.params.mb_size))
-    num_train_steps = (num_train_probes // trial.params.mb_size) * trial.params.num_epochs
+
+    # TODO test
+    num_probes = len(evaluator.row_words)
+    print(num_probes)
+    num_epochs = trial.params.num_epochs_per_probe * num_probes
+    print('num_epochs={:,}'.format(num_epochs))
+
+    #
+    num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals
@@ -152,13 +158,8 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             # test
             cosines = []
             for x1, eval_sims_mat_row_id in zip(x1_test, eval_sims_mat_row_ids):
-                cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: np.expand_dims(x1, axis=0)})  # TODO test
+                cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: np.expand_dims(x1, axis=0)})
                 cosines.append(cos)
-
-                # TODO cosines are becoming all negative (due to class imbalance)
-
-                # TODO what about the ordering of the output indices - does it match sim mat?
-
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
             if config.Eval.verbose:

@@ -5,40 +5,35 @@ from two_stage_nlp.aggregator import Aggregator
 # factors to include or exclude
 CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
 NUM_VOCAB = 4096
-ARCHITECTURE_NAME = 'classifier'
 EVAL_NAME = 'matching'
-TASK_NAME = 'cohyponyms_semantic'  # TODO use _jw for paper
 EMBED_SIZE = 200
 
 DF_FROM_FILE = True
-SAVE = False
+SAVE = True
 MIN_NUM_REPS = 1
+
+
+# TODO get expert scores for specific prop_negative
 
 
 # get all data
 ag = Aggregator()
 
-if not SAVE:
-    ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, ARCHITECTURE_NAME, EVAL_NAME, TASK_NAME, EMBED_SIZE,
+for arch, task_name in product(
+        ['classifier', 'comparator'],
+        [
+            # 'hypernyms',
+            # 'cohyponyms_semantic',
+            'cohyponyms_syntactic',
+            # 'events',
+            # 'features_has',
+            # 'features_is',
+            # 'nyms_syn_jw',
+            # 'nyms_ant_jw'
+        ]):
+    ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, arch, EVAL_NAME, task_name, EMBED_SIZE,
                       load_from_file=DF_FROM_FILE,
-                      verbose=True,
                       width=20,
-                      dpi=196,
-                      save=SAVE,
+                      dpi=300,
+                      save=False,
                       min_num_reps=MIN_NUM_REPS)
-
-else:
-    for embed_size, task_name in product(
-            [500],
-            [
-                # 'hypernyms',
-                'cohyponyms_semantic',
-                # 'cohyponyms_syntactic',
-                # 'events',
-                # 'features_has',
-                # 'features_is',
-                # 'nyms_syn_jw',
-                # 'nyms_ant_jw'
-            ]):
-        ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, ARCHITECTURE_NAME, EVAL_NAME, task_name, embed_size,
-                          load_from_file=DF_FROM_FILE, width=20, dpi=300, save=SAVE)

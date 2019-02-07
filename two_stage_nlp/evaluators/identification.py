@@ -7,10 +7,8 @@ from two_stage_nlp.scores import calc_accuracy
 
 
 class IdentificationParams:
-    only_positive_examples = [False, True]  # performance can be much better without negative examples
+    only_positive_examples = [True, False]  # performance can be much better without negative examples
     train_on_second_neighbors = [True]  # performance can be much better with additional training
-    # arch-evaluator interaction
-    num_epochs = [2000]  # 2000 is better than 100 or 200, 300, 500, 1000  but not 5000
 
 
 class Identification(EvalBase):

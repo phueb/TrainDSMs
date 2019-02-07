@@ -10,12 +10,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
-    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
     mb_size = [64]
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
-    num_epochs = [50]
+    prop_negative = [None, 0.3]  # 0.3 is better than 0.1 or 0.2 but not 0.5
+
+
+    # TODO clac num epochs based on num entries in eval mat
+    num_epochs_per_pair = [50]
 
 
 name = 'comparator'
@@ -145,7 +148,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         if config.Eval.verbose:
             print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
-        for epoch_id in range(trial.params.num_epochs):
+        for epoch_id in range(num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
             # split into batches
             num_splits = num_adj // trial.params.mb_size
@@ -160,7 +163,15 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if num_train_probes < trial.params.mb_size:
         raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
             num_train_probes, trial.params.mb_size))
-    num_train_steps = (num_train_probes // trial.params.mb_size) * trial.params.num_epochs
+
+    # TODO test
+    print(x1_train.shape)
+    num_pairs = None  # TODO
+    num_epochs = trial.params.num_epochs_per_pair * num_pairs
+    print('num_epochs={}'.format(num_epochs))
+
+    #
+    num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals

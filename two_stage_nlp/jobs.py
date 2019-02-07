@@ -12,6 +12,7 @@ from two_stage_nlp import config
 from two_stage_nlp.aggregator import Aggregator
 from two_stage_nlp.architectures import comparator, classifier
 from two_stage_nlp.evaluators.matching import Matching
+from two_stage_nlp.evaluators.identification import Identification
 from two_stage_nlp.embedders.base import w2e_to_sims
 from two_stage_nlp.embedders.rnn import RNNEmbedder
 from two_stage_nlp.embedders.count import CountEmbedder
@@ -122,6 +123,10 @@ def two_stage_job(param2val):
     if 'random_type' in param2val:
         embedder = RandomControlEmbedder(param2val)
     elif 'rnn_type' in param2val:
+
+        # TODO fix cuda error
+        return
+
         embedder = RNNEmbedder(param2val)
     elif 'w2vec_type' in param2val:
         embedder = W2VecEmbedder(param2val)
@@ -139,19 +144,17 @@ def two_stage_job(param2val):
     # stage 2
     for architecture in [classifier, comparator]:
         for ev in [
-            Matching(architecture, 'cohyponyms', 'semantic'),
-            Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
-            # Matching(architecture, 'nyms', 'syn'),
+            # Matching(architecture, 'cohyponyms', 'semantic'),
+            # Matching(architecture, 'cohyponyms', 'syntactic'),
+            # Matching(architecture, 'features', 'is'),
+            # Matching(architecture, 'features', 'has'),
             Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            # Matching(architecture, 'nyms', 'ant'),
             Matching(architecture, 'nyms', 'ant', suffix='_jw'),
-            Matching(architecture, 'hypernyms'),
-            Matching(architecture, 'events'),
+            # Matching(architecture, 'hypernyms'),
+            # Matching(architecture, 'events'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix=''),
-            # Identification(architecture, 'nyms', 'ant', suffix=''),
+            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))

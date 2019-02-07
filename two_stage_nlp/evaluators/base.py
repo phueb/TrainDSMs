@@ -16,7 +16,7 @@ class ResultsData:
 class Trial(object):
     def __init__(self, params_id, param2val):
         self.params_id = params_id
-        self.params = ObjectView(param2val)  # TODO test
+        self.params = ObjectView(param2val)
         self.df_row = None
         self.results = None
 

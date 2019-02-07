@@ -7,18 +7,11 @@ from two_stage_nlp.evaluators.base import EvalBase
 
 
 class MatchingParams:
-    prop_negative = [None]  # 0.3 is better than 0.1 or 0.2 but not 0.5
-
-    # TODO
-    # num epochs for cohyponyms semantic classifier
-    # novice - 0.80
-    # 2000 - 0.72
-    # 5000 - 0.82
-    # 10,000 - 0.86 - this is ba achieved by comparator
+    pass
 
 
 class Matching(EvalBase):
-    def __init__(self, arch, data_name1, data_name2='', matching_params=None, suffix=''):
+    def __init__(self, arch, data_name1, data_name2='', suffix=''):
         super().__init__(arch.name,
                          arch.Params,
                          arch.init_results_data,
@@ -27,7 +20,7 @@ class Matching(EvalBase):
                          arch.train_expert_on_train_fold,
                          arch.train_expert_on_test_fold,
                          'matching', data_name1, data_name2, suffix,
-                         matching_params or MatchingParams)
+                         MatchingParams)
         #
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
