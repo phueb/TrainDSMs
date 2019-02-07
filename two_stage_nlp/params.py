@@ -72,14 +72,13 @@ def iter_over_cycles(d):
 class CountParams:
     count_type = [
         ['ww', 'concatenated',  7,  'linear'],
-        ['ww', 'concatenated', 16,  'linear'],
         ['wd', None, None, None],
     ]
     # norm_type = [None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi']
     norm_type = ['ppmi']
     reduce_type = [
-        ['svd', 30],
-        # ['svd', 200],
+        # ['svd', 30],
+        ['svd', 200],
         # ['svd', 500],
         # [None, None]  # TODO this makes expert training last too long
     ]
@@ -87,14 +86,14 @@ class CountParams:
 
 class RNNParams:
     rnn_type = ['srn', 'lstm']
-    embed_size = [30, 200, 500]
+    embed_size = [200]
     train_percent = [0.9]
     num_eval_steps = [1000]
     shuffle_per_epoch = [True]
     embed_init_range = [0.1]
     dropout_prob = [0]
     num_layers = [1]
-    num_steps = [7, 16]
+    num_steps = [7]
     batch_size = [64]
     num_epochs = [20]  # 20 is only slightly better than 10
     learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay
@@ -103,19 +102,19 @@ class RNNParams:
 
 class Word2VecParams:
     w2vec_type = ['sg', 'cbow']
-    embed_size = [30, 200, 500]
-    window_size = [7, 16]
+    embed_size = [200]
+    window_size = [7]
     num_epochs = [20]
 
 
 class GloveParams:
     glove_type = []  # TODO
-    embed_size = [30, 200, 500]
-    window_size = [7, 16]
+    embed_size = [200]
+    window_size = [7]
     num_epochs = [20]  # semantic novice ba:  10: 0.64, 20: 0.66,  40: 0.66
     lr = [0.05]
 
 
 class RandomControlParams:
-    embed_size = [30, 200, 500]
+    embed_size = [200]
     random_type = ['normal']

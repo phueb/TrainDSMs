@@ -99,7 +99,7 @@ def two_stage_job(param2val):
     """
 
     def move_scores_to_server(location):
-        dst = config.Dirs.remote_runs / param2val['param_name'] / param2val['job_name']
+        dst = config.Dirs.remote_runs / param2val['param_name']
         if not dst.exists():
             dst.mkdir(parents=True)
         shutil.move(str(location), str(dst))
@@ -143,9 +143,9 @@ def two_stage_job(param2val):
             Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'features', 'is'),
             Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'nyms', 'syn'),
+            # Matching(architecture, 'nyms', 'syn'),
             Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            Matching(architecture, 'nyms', 'ant'),
+            # Matching(architecture, 'nyms', 'ant'),
             Matching(architecture, 'nyms', 'ant', suffix='_jw'),
             Matching(architecture, 'hypernyms'),
             Matching(architecture, 'events'),

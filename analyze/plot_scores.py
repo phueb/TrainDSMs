@@ -5,13 +5,14 @@ from two_stage_nlp.aggregator import Aggregator
 # factors to include or exclude
 CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
 NUM_VOCAB = 4096
-ARCHITECTURE_NAME = 'comparator'
+ARCHITECTURE_NAME = 'classifier'
 EVAL_NAME = 'matching'
 TASK_NAME = 'cohyponyms_semantic'  # TODO use _jw for paper
-EMBED_SIZE = 30
+EMBED_SIZE = 200
 
 DF_FROM_FILE = True
 SAVE = False
+MIN_NUM_REPS = 1
 
 
 # get all data
@@ -19,7 +20,12 @@ ag = Aggregator()
 
 if not SAVE:
     ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, ARCHITECTURE_NAME, EVAL_NAME, TASK_NAME, EMBED_SIZE,
-                      load_from_file=DF_FROM_FILE, verbose=True, width=20, dpi=196, save=SAVE)
+                      load_from_file=DF_FROM_FILE,
+                      verbose=True,
+                      width=20,
+                      dpi=196,
+                      save=SAVE,
+                      min_num_reps=MIN_NUM_REPS)
 
 else:
     for embed_size, task_name in product(

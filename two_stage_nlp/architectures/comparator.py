@@ -14,8 +14,7 @@ class Params:
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
-    # arch-evaluator interaction
-    num_epochs = None  # larger for matching vs identification task
+    num_epochs = [50]
 
 
 name = 'comparator'

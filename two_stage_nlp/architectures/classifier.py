@@ -13,9 +13,9 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    # arch-evaluator interaction
-    # TODO num_epochs is overwritten by eval
-    num_epochs = [None]
+
+    # TODO do not let eval overwrite params - hwo to deal with interactions?
+    num_epochs = [10000]  # 10k is better than any lower number for classifier
 
 
 name = 'classifier'
