@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # preprocess corpus + save corpus data to file server
     if namespace.preprocess:
         print('Preprocessing corpus...')
-        deterministic_w2f, vocab, docs, numeric_docs = preprocessing_job()
+        preprocessing_job()
         print()
     # create all possible hyperparameter configurations
     update_d = {'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab}

@@ -136,12 +136,9 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             num_train_probes, trial.params.mb_size))
     if config.Eval.verbose:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
-
-
-    # TODO test
+    # epochs
     num_epochs = trial.params.num_epochs_per_row_word * len(evaluator.row_words)
     print('num_epochs={:,}'.format(num_epochs))
-
     # eval steps
     num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals

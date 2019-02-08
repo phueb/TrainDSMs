@@ -12,6 +12,8 @@ DF_FROM_FILE = True
 SAVE = True
 MIN_NUM_REPS = 1
 
+PROP_NEGATIVE = 0.3
+
 
 # TODO get expert scores for specific prop_negative
 
@@ -23,8 +25,8 @@ for arch, task_name in product(
         ['classifier', 'comparator'],
         [
             # 'hypernyms',
-            # 'cohyponyms_semantic',
-            'cohyponyms_syntactic',
+            'cohyponyms_semantic',
+            # 'cohyponyms_syntactic',
             # 'events',
             # 'features_has',
             # 'features_is',
@@ -36,4 +38,5 @@ for arch, task_name in product(
                       width=20,
                       dpi=300,
                       save=False,
-                      min_num_reps=MIN_NUM_REPS)
+                      min_num_reps=MIN_NUM_REPS,
+                      prop_negative=PROP_NEGATIVE)

@@ -8,13 +8,13 @@
 #echo ${pwd} | sudo -S mount /media/lab
 
 cd /home/ph/LudwigCluster/scripts
-bash reload_watcher.sh
+#bash reload_watcher.sh
 bash kill_job.sh 2StageNLP
 
 echo "Submitting to Ludwig..."
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit.py -r3 -s -w bengio
+python submit.py -r3 -s
 deactivate
 echo "Submission completed"
 

@@ -3,7 +3,7 @@ import pickle
 import socket
 
 from two_stage_nlp import config
-from two_stage_nlp.jobs import two_stage_job, aggregation_job
+from two_stage_nlp.jobs import two_stage_job, aggregation_job, preprocessing_job
 from two_stage_nlp.params import CountParams, RandomControlParams, RNNParams
 
 hostname = socket.gethostname()
@@ -35,8 +35,9 @@ def run_on_host():
     """
     from ludwigcluster.utils import list_all_param2vals
     #
-    # for param2val in list_all_param2vals(RandomControlParams, update_d={'param_name': 'test', 'job_name': 'test'}):
-    for param2val in list_all_param2vals(RNNParams, update_d={'param_name': 'test', 'job_name': 'test'}):
+    preprocessing_job()
+
+    for param2val in list_all_param2vals(RandomControlParams, update_d={'param_name': 'test', 'job_name': 'test'}):
     # for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
         try:
             two_stage_job(param2val)

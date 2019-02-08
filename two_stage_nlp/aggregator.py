@@ -40,7 +40,7 @@ class Aggregator:
             res = yaml.load(f)
         return res
 
-    def make_df(self, load_from_file, verbose):
+    def make_df(self, load_from_file, verbose, prop_negative=None):
         # load from file
         p = config.Dirs.remote_root / self.df_name
         if p.exists() and load_from_file:
@@ -62,7 +62,8 @@ class Aggregator:
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
             embedder = to_embedder_name(param2val)
             #
-            df = self.make_embedder_df(corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose)
+            df = self.make_embedder_df(corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose,
+                                       prop_negative)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -73,14 +74,27 @@ class Aggregator:
         else:
             raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.remote_runs))
 
-    def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
+    def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose,
+                         prop_negative=None):
         dfs = []
         loc = config.Dirs.remote_runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
-            scores_df = pd.read_csv(scores_p, index_col=False)
-            score = scores_df['score'].max()
-            #
             arch, ev, task, stage = scores_p.relative_to(loc).parts[:-1]
+            scores_df = pd.read_csv(scores_p, index_col=False)
+            # filter
+
+            # TODO prop_negative - improve (other factors may be used here for filtering)
+            if 'prop_negative' in scores_df.columns and stage == 'expert':
+                scores_df_filtered = scores_df[scores_df['prop_negative'] == str(prop_negative)]
+
+                print(scores_df[['prop_negative', 'score']])
+
+            else:
+                scores_df_filtered = scores_df
+
+            #
+            score = scores_df_filtered['score'].max()
+
             vals = [corpus, num_vocab, embed_size, param_name, job_name, embedder, arch, ev, task, stage, score]
             if verbose:
                 for n, v in enumerate(vals[5:]):
@@ -101,6 +115,7 @@ class Aggregator:
                        eval,
                        task,
                        embed_size,
+                       prop_negative=None,
                        load_from_file=False,
                        verbose=True,
                        save=False,
@@ -114,7 +129,8 @@ class Aggregator:
                        width=14,
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
-        df = self.make_df(load_from_file, verbose)
+        load_from_file = False if prop_negative is not None else load_from_file
+        df = self.make_df(load_from_file, verbose, prop_negative)
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
