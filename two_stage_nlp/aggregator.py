@@ -94,8 +94,14 @@ class Aggregator:
                 except KeyError:
                     continue
                 for expert_param_val, group in grouped:
+
+                    # TODO - temporary for prop_negative - remove this
+                    if expert_param_val == 'None':
+                        expert_param_val = 0.0
+                        print('CHANGING to FLOAT')
+
                     score = np.asscalar(group['score'].values)
-                    expert_param_vals = [expert_param_val if pn == expert_param_name else 'na'
+                    expert_param_vals = [expert_param_val if pn == expert_param_name else np.nan
                                          for pn in self.expert_param_names]
                     vals = [corpus, num_vocab, embed_size, param_name, job_name,
                             embedder, arch, ev, task, stage] + expert_param_vals + [score]
@@ -132,12 +138,11 @@ class Aggregator:
                        width=14,
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
-        load_from_file = False if prop_negative is not None else load_from_file
         df = self.make_df(load_from_file, verbose)
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
-                  (df['prop_negative'] == prop_negative) & \
+                  (df['prop_negative'].isin([np.nan, prop_negative])) & \
                   (df['evaluation'] == ev) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
@@ -145,8 +150,8 @@ class Aggregator:
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, ev)
-        title = 'Scores for\n{} + {} + {} + embed_size={}\n{} num_vocab={}'.format(
-            arch, ev, task, embed_size, corpus, num_vocab)
+        title = 'Scores for\n{} + {} + {} + embed_size={} + prop_neg={}\n{} num_vocab={}'.format(
+            arch, ev, task, embed_size, prop_negative, corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
@@ -162,6 +167,11 @@ class Aggregator:
         param2val_list = []
         embedder_names = []
         novice_df = filtered_df[filtered_df['stage'] == 'novice']
+
+        # TODO
+        print(filtered_df['stage'])
+
+
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
         for param_id, param_name in enumerate(param_names_sorted_by_score):
