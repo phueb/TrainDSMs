@@ -13,6 +13,7 @@ from two_stage_nlp.params import to_embedder_name
 
 class Aggregator:
     def __init__(self):
+        self.expert_param_names = ['prop_negative']
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -22,8 +23,7 @@ class Aggregator:
                          'arch',
                          'evaluation',
                          'task',
-                         'stage',
-                         'score']
+                         'stage'] + self.expert_param_names + ['score']
         self.df_name = '2stage_data.csv'
         self.df = None
         self.counter = count(0, 1)
@@ -40,7 +40,7 @@ class Aggregator:
             res = yaml.load(f)
         return res
 
-    def make_df(self, load_from_file, verbose, prop_negative=None):
+    def make_df(self, load_from_file, verbose):
         # load from file
         p = config.Dirs.remote_root / self.df_name
         if p.exists() and load_from_file:
@@ -62,8 +62,7 @@ class Aggregator:
             embed_size = param2val['embed_size'] if 'embed_size' in param2val else param2val['reduce_type'][1]
             embedder = to_embedder_name(param2val)
             #
-            df = self.make_embedder_df(corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose,
-                                       prop_negative)
+            df = self.make_embedder_df(corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose)
             if len(df) > 0:
                 dfs.append(df)
         if dfs:
@@ -74,33 +73,37 @@ class Aggregator:
         else:
             raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.remote_runs))
 
-    def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose,
-                         prop_negative=None):
+    def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
         dfs = []
         loc = config.Dirs.remote_runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
             arch, ev, task, stage = scores_p.relative_to(loc).parts[:-1]
             scores_df = pd.read_csv(scores_p, index_col=False)
-            # filter
-
-            # TODO prop_negative - improve (other factors may be used here for filtering)
-            if 'prop_negative' in scores_df.columns and stage == 'expert':
-                scores_df_filtered = scores_df[scores_df['prop_negative'] == str(prop_negative)]
-
-                print(scores_df[['prop_negative', 'score']])
-
-            else:
-                scores_df_filtered = scores_df
-
-            #
-            score = scores_df_filtered['score'].max()
-
-            vals = [corpus, num_vocab, embed_size, param_name, job_name, embedder, arch, ev, task, stage, score]
-            if verbose:
-                for n, v in enumerate(vals[5:]):
-                    print('\t' * (n + 1), v)
-            df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
-            dfs.append(df)
+            # expert_param_names for which scores for differnet values exist
+            manip_expert_params = []
+            for pn in self.expert_param_names:
+                if pn in scores_df.columns:
+                    if len(scores_df[pn].unique()) > 1:
+                        manip_expert_params.append(pn)
+            print('----------------------------')
+            print('manipulated expert params={}'.format(manip_expert_params))
+            # collect score for each row in scores_df
+            for expert_param_name in manip_expert_params or ['score']:  # if empty, then no row will be recorded
+                try:
+                    grouped = scores_df.groupby(expert_param_name)
+                except KeyError:
+                    continue
+                for expert_param_val, group in grouped:
+                    score = np.asscalar(group['score'].values)
+                    expert_param_vals = [expert_param_val if pn == expert_param_name else 'na'
+                                         for pn in self.expert_param_names]
+                    vals = [corpus, num_vocab, embed_size, param_name, job_name,
+                            embedder, arch, ev, task, stage] + expert_param_vals + [score]
+                    if verbose:
+                        for n, v in enumerate(vals[5:]):
+                            print('\t' * (n + 1), v)
+                    df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
+                    dfs.append(df)
         if dfs:
             return pd.concat(dfs, axis=0)
         else:
@@ -112,10 +115,10 @@ class Aggregator:
                        corpus,
                        num_vocab,
                        arch,
-                       eval,
+                       ev,
                        task,
                        embed_size,
-                       prop_negative=None,
+                       prop_negative,
                        load_from_file=False,
                        verbose=True,
                        save=False,
@@ -130,19 +133,20 @@ class Aggregator:
                        leg1_y=1.2):
         # filter by arch + task + embed_size + evaluation
         load_from_file = False if prop_negative is not None else load_from_file
-        df = self.make_df(load_from_file, verbose, prop_negative)
+        df = self.make_df(load_from_file, verbose)
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
-                  (df['evaluation'] == eval) & \
+                  (df['prop_negative'] == prop_negative) & \
+                  (df['evaluation'] == ev) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
         filtered_df = df[bool_id]
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
-        ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, eval)
+        ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, ev)
         title = 'Scores for\n{} + {} + {} + embed_size={}\n{} num_vocab={}'.format(
-            arch, eval, task, embed_size, corpus, num_vocab)
+            arch, ev, task, embed_size, corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
