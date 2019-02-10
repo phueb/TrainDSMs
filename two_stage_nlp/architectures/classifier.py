@@ -170,3 +170,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.y: y_batch})
+
+
+def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):  # TODO leave this for analyses
+    raise NotImplementedError
