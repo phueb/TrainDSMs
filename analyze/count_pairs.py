@@ -6,8 +6,6 @@ from two_stage_nlp import config
 CORPUS_NAME = config.Corpus.name
 NUM_VOCAB = config.Corpus.num_vocab
 
-# for p in (config.Dirs.tasks / 'cohyponyms' / 'semantic').rglob('{}_{}.txt'.format(CORPUS_NAME, NUM_VOCAB)):
-# for p in (config.Dirs.tasks / 'hypernyms').rglob('{}_{}.txt'.format(CORPUS_NAME, NUM_VOCAB)):
 for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(CORPUS_NAME, NUM_VOCAB)):
 
     with p.open('r') as f:
@@ -24,15 +22,18 @@ for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(CORPUS_NAME, NUM_VOCAB)):
         probes.update([probe] + relata)
         num_possible += len(relata)
     print(p.relative_to(config.Dirs.tasks))
-    print('Num positive pairs={:,}'.format(len(pairs)))
-    print('Num positive possible={:,}'.format(num_possible))
-
-    # TODO test
-    print('NUm probes={}'.format(len(probes)))
+    #
+    num_pos = len(pairs)
+    print('Num unique positive pairs={:,}'.format(num_pos))
+    print('Num unique positive possible={:,}'.format(num_possible))
+    #
+    print('Num unique probes={}'.format(len(probes)))
     num_total = len(probes) ** 2
-
-    print('Num total possible={:,}'.format(num_total))
+    #
+    print('Num unique total possible={:,}'.format(num_total))
+    print('Positive prob={:.3f}'.format(num_pos / num_total))
+    #
     diff = num_possible - len(pairs)
     if diff > 0:
-        print('WARNING: Difference={}. Duplicates exist'.format(diff))
+        print('WARNING: Difference={}. Duplicates pairs exist'.format(diff))
     print()

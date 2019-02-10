@@ -14,8 +14,8 @@ class Params:
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
-    prop_negative = [0.3, 0.0]  # 0.3 is better than 0.1 or 0.2 but not 0.5, 0.0 = prop_positive
-    num_epochs_per_row_word = [0.1]
+    neg_pos_ratio = [1.0, 0.0]  # 1.0 is better than anything higher  # TODO is 0.0 better than 1.0?
+    num_epochs_per_row_word = [0.2]  # 0.2 is slightly better than 0.1
 
 
 name = 'comparator'

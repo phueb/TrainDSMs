@@ -13,7 +13,7 @@ from two_stage_nlp.params import to_embedder_name
 
 class Aggregator:
     def __init__(self):
-        self.expert_param_names = ['prop_negative']
+        self.expert_param_names = ['neg_pos_ratio', 'num_epochs_per_row_word']
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -79,37 +79,21 @@ class Aggregator:
         for scores_p in loc.rglob('scores.csv'):
             arch, ev, task, stage = scores_p.relative_to(loc).parts[:-1]
             scores_df = pd.read_csv(scores_p, index_col=False)
-            # expert_param_names for which scores for differnet values exist
-            manip_expert_params = []
-            for pn in self.expert_param_names:
-                if pn in scores_df.columns:
-                    if len(scores_df[pn].unique()) > 1:
-                        manip_expert_params.append(pn)
-            print('----------------------------')
-            print('manipulated expert params={}'.format(manip_expert_params))
+            # group by expert_params which are present in scores_df
+            group_names = [pn for pn in self.expert_param_names
+                           if pn in scores_df.columns] + ['score']
             # collect score for each row in scores_df
-            for expert_param_name in manip_expert_params or ['score']:  # if empty, then no row will be recorded
-                try:
-                    grouped = scores_df.groupby(expert_param_name)
-                except KeyError:
-                    continue
-                for expert_param_val, group in grouped:
-
-                    # TODO - temporary for prop_negative - remove this
-                    if expert_param_val == 'None':
-                        expert_param_val = 0.0
-                        print('CHANGING to FLOAT')
-
-                    score = np.asscalar(group['score'].values)
-                    expert_param_vals = [expert_param_val if pn == expert_param_name else np.nan
-                                         for pn in self.expert_param_names]
-                    vals = [corpus, num_vocab, embed_size, param_name, job_name,
-                            embedder, arch, ev, task, stage] + expert_param_vals + [score]
-                    if verbose:
-                        for n, v in enumerate(vals[5:]):
-                            print('\t' * (n + 1), v)
-                    df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
-                    dfs.append(df)
+            for param_vals_and_score, group in scores_df.groupby(group_names):
+                it = iter([pn if pn != 'None' else np.nan for pn in param_vals_and_score])  # None to nan
+                all_param_vals_and_score = [next(it) if pn in group_names else np.nan
+                                            for pn in self.expert_param_names + ['score']]
+                vals = [corpus, num_vocab, embed_size, param_name, job_name,
+                        embedder, arch, ev, task, stage] + all_param_vals_and_score
+                if verbose:
+                    for n, v in enumerate(vals[5:]):
+                        print('\t' * (n + 1), v)
+                df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
+                dfs.append(df)
         if dfs:
             return pd.concat(dfs, axis=0)
         else:
@@ -124,7 +108,8 @@ class Aggregator:
                        ev,
                        task,
                        embed_size,
-                       prop_negative,
+                       neg_pos_ratio,
+                       num_epochs_per_row_word,
                        load_from_file=False,
                        verbose=True,
                        save=False,
@@ -142,16 +127,23 @@ class Aggregator:
         bool_id = (df['arch'] == arch) & \
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
-                  (df['prop_negative'].isin([np.nan, prop_negative])) & \
+                  (df['neg_pos_ratio'].isin([np.nan, neg_pos_ratio])) & \
+                  (df['num_epochs_per_row_word'].isin([np.nan, num_epochs_per_row_word])) & \
                   (df['evaluation'] == ev) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
         filtered_df = df[bool_id]
+
+        print(df['neg_pos_ratio'].unique(), neg_pos_ratio)
+        print(df['num_epochs_per_row_word'].unique(), num_epochs_per_row_word)
+
+
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, ev)
-        title = 'Scores for\n{} + {} + {} + embed_size={} + prop_neg={}\n{} num_vocab={}'.format(
-            arch, ev, task, embed_size, prop_negative, corpus, num_vocab)
+        title = 'Scores for\n{} + {} + {} + embed_size={} + neg_pos_ratio={} + num_epochs_prw={}\n' \
+                '{} num_vocab={}'.format(arch, ev, task, embed_size, neg_pos_ratio, num_epochs_per_row_word,
+                                         corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis
         ax.yaxis.grid(True)
@@ -167,11 +159,6 @@ class Aggregator:
         param2val_list = []
         embedder_names = []
         novice_df = filtered_df[filtered_df['stage'] == 'novice']
-
-        # TODO
-        print(filtered_df['stage'])
-
-
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
         for param_id, param_name in enumerate(param_names_sorted_by_score):
@@ -190,7 +177,10 @@ class Aggregator:
             #
             bars = []
             x = param_id + 0.6
-            for stage, stage_df in embedder_df.groupby('stage'):  # gives df with len = num_reps
+            grouped = embedder_df.groupby('stage')
+            if len(grouped) != 3:
+                raise RuntimeError('Found only stage(s): {}'.format(embedder_df['stage'].unique()))
+            for stage, stage_df in grouped:
                 ys = stage_df['score'].values
                 print(ys)
                 if len(ys) < min_num_reps:

@@ -35,10 +35,9 @@ def run_on_host():
     """
     from ludwigcluster.utils import list_all_param2vals
     #
-    preprocessing_job()
-
-    for param2val in list_all_param2vals(RandomControlParams, update_d={'param_name': 'test', 'job_name': 'test'}):
-    # for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
+    preprocessing_job() if not config.Eval.debug else None
+    Params = CountParams if not config.Eval.debug else RandomControlParams
+    for param2val in list_all_param2vals(Params, update_d={'param_name': 'test', 'job_name': 'test'}):
         try:
             two_stage_job(param2val)
         except NotImplementedError as e:

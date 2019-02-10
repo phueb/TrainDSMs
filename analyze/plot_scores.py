@@ -14,6 +14,9 @@ SAVE = False
 MIN_NUM_REPS = 1
 
 
+# TODO add num_epochs_per_row_word to plot
+
+
 # get all data
 ag = Aggregator()
 
@@ -25,23 +28,28 @@ for arch, task in product(
             # 'cohyponyms_syntactic',
             # 'events',
             # 'features_has',
-            'features_is',
-            # 'nyms_syn_jw',
+            # 'features_is',
+            'nyms_syn_jw',
             # 'nyms_ant_jw'
         ]):
 
     #
     if arch == 'classifier':
-        prop_negatives = [np.nan]
+        neg_pos_ratios = [np.nan]
+        num_epochs_per_row_word_list = [20, 40]
     elif arch == 'comparator':
-        prop_negatives = [0.5, 0.0]
+        neg_pos_ratios = [0.0, 1.0]
+        num_epochs_per_row_word_list = [0.1, 0.2]
     else:
         raise  AttributeError('Invalid arg to "architecture".')
-    for prop_negative in prop_negatives:
-        print(arch, task, prop_negative)
-        ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, arch, EVAL_NAME, task, EMBED_SIZE, prop_negative,
-                          load_from_file=DF_FROM_FILE,
-                          width=20,
-                          dpi=200,
-                          save=SAVE,
-                          min_num_reps=MIN_NUM_REPS)
+    for neg_pos_ratio in neg_pos_ratios:
+        for num_epochs_per_row_word in num_epochs_per_row_word_list:
+            print(arch, task, neg_pos_ratio, num_epochs_per_row_word)
+            ag.make_task_plot(CORPUS_NAME, NUM_VOCAB, arch, EVAL_NAME, task, EMBED_SIZE,
+                              neg_pos_ratio,
+                              num_epochs_per_row_word,
+                              load_from_file=DF_FROM_FILE,
+                              width=20,
+                              dpi=200,
+                              save=SAVE,
+                              min_num_reps=MIN_NUM_REPS)

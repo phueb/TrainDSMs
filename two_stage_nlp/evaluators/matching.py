@@ -42,12 +42,13 @@ class Matching(EvalBase):
     def check_negative_example(self, trial, p=None, c=None):
         if c in self.probe2relata[p]:
             raise RuntimeError('While checking negative example, found positive example')
-        if trial.params.prop_negative == 0.0:  # balance positive : negative  approximately  1 : 1
+        if trial.params.neg_pos_ratio == 1.0:  # balance positive : negative  approximately  1 : 1
             prob = self.pos_prob
         else:
-            if trial.params.prop_negative > 0.5:
-                raise ValueError('Setting "prop_negative" too high might cause memory error.')
-            prob = trial.params.prop_negative
+            neg_prob = self.pos_prob * trial.params.neg_pos_ratio
+            if neg_prob > 0.5:
+                raise ValueError('Setting "neg_pos_ratio" would result in negative_prob > 0.5 ({}).'.format(neg_prob))
+            prob = min(1.0, neg_prob)
         return bool(self.binomial(n=1, p=prob, size=1))
 
     def score(self, eval_sims_mat, verbose=False):

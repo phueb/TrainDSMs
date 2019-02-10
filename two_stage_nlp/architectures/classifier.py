@@ -13,7 +13,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_row_word = [20]
+    num_epochs_per_row_word = [20, 40]
 
 
 name = 'classifier'
@@ -170,7 +170,3 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             start = time.time()
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.y: y_batch})
-
-
-def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):
-    raise NotImplementedError

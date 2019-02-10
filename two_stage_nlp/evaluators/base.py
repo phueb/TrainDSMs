@@ -119,7 +119,7 @@ class EvalBase(object):
         novice_score = self.score(eval_sims_mat)
         if config.Eval.verbose:
             self.print_score(novice_score)
-        return [[novice_score] + [None for _ in self.df_header]]
+        return [[novice_score] + [np.nan for _ in self.df_header]]
 
     def train_and_score_expert(self, embedder, shuffled):
         # run each trial in separate process
