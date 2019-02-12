@@ -13,7 +13,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_row_word = [20, 40]
+    num_epochs_per_row_word = [20]  # 20 is as good as 40
 
 
 name = 'classifier'

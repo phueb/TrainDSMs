@@ -29,12 +29,10 @@ class Eval:
     remove_duplicates_for_identification = False  # needs to be False to get above chance
 
 
-
 class Embeddings:
-    save_w2e = False
+    save_w2e = True
     verbose = True
     precision = 5
-    sim_method = 'cosine'
 
 
 class Corpus:
@@ -50,9 +48,6 @@ class Figs:
     dpi = 196
     axlabel_fontsize = 12
     line_width = 2
-    # hypernym_identification
-    softmax_criterion = 0.5
-    num_bins = 10
     num_diagnosticity_steps = 50
 
 

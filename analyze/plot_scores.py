@@ -26,20 +26,20 @@ for arch, task in product(
             # 'hypernyms',
             # 'cohyponyms_semantic',
             # 'cohyponyms_syntactic',
-            # 'events',
+            'events',
             # 'features_has',
             # 'features_is',
-            'nyms_syn_jw',
+            # 'nyms_syn_jw',
             # 'nyms_ant_jw'
         ]):
 
     #
     if arch == 'classifier':
         neg_pos_ratios = [np.nan]
-        num_epochs_per_row_word_list = [20, 40]
+        num_epochs_per_row_word_list = [20]
     elif arch == 'comparator':
-        neg_pos_ratios = [0.0, 1.0]
-        num_epochs_per_row_word_list = [0.1, 0.2]
+        neg_pos_ratios = [1.0]
+        num_epochs_per_row_word_list = [0.2]
     else:
         raise  AttributeError('Invalid arg to "architecture".')
     for neg_pos_ratio in neg_pos_ratios:

@@ -3,7 +3,6 @@ import numpy as np
 from cached_property import cached_property
 import pickle
 
-from sklearn.metrics.pairwise import cosine_similarity
 from sortedcontainers import SortedDict
 
 from two_stage_nlp import config
@@ -32,7 +31,8 @@ class EmbedderBase(object):
                 f.write('{} {}\n'.format(probe, embedding_str))
 
     def load_w2e(self):  # TODO unused - keep in case it is needed
-        mat = np.loadtxt(self.location / 'embeddings.txt', dtype='str', comments=None)
+        mat = np.loadtxt(config.Dirs.remote_runs / self.param_name / self.job_name / 'embeddings.txt',
+                         dtype='str', comments=None)
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
@@ -113,11 +113,3 @@ class EmbedderBase(object):
         return res
 
 
-def w2e_to_sims(w2e, row_words, col_words):
-    x = np.vstack([w2e[w] for w in row_words])
-    y = np.vstack([w2e[w] for w in col_words])
-    # sim
-    res = cosine_similarity(x, y)
-    if config.Eval.verbose:
-        print('Shape of similarity matrix: {}'.format(res.shape))
-    return np.around(res, config.Embeddings.precision)
