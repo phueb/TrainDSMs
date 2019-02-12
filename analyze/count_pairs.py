@@ -28,8 +28,9 @@ for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(CORPUS_NAME, NUM_VOCAB)):
     print('Num unique positive possible={:,}'.format(num_possible))
     #
     print('Num unique probes={}'.format(len(probes)))
-    num_total = len(probes) ** 2
+    print('Average num relata per probe={}'.format(num_possible / len(lines)))
     #
+    num_total = len(probes) ** 2
     print('Num unique total possible={:,}'.format(num_total))
     print('Positive prob={:.3f}'.format(num_pos / num_total))
     #

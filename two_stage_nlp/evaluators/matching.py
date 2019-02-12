@@ -28,7 +28,7 @@ class Matching(EvalBase):
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def make_all_eval_data(self, vocab_sims_mat, vocab):
+    def make_all_eval_data(self, vocab_sims_mat, vocab):  # vocab_sims_mat is used in identification eval
         # load
         probes, probe_relata = self.load_probes()  # relata can be synonyms, hypernyms, etc.
         relata = sorted(np.unique(np.concatenate(probe_relata)).tolist())

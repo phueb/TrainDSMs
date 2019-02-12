@@ -3,18 +3,12 @@ import numpy as np
 import seaborn as sns
 import pyprind
 from cytoolz import itertoolz
-from itertools import chain
 import sys
 
 from two_stage_nlp import config
-from two_stage_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from two_stage_nlp.params import gen_combinations
-from two_stage_nlp.embedders.rnn import RNNEmbedder
-from two_stage_nlp.embedders.count import CountEmbedder
-from two_stage_nlp.embedders.random_control import RandomControlEmbedder
-from two_stage_nlp.embedders.w2vec import W2VecEmbedder
+from two_stage_nlp.job_utils import init_embedder
 
-CAT_TYPE = 'sem'
+from analyze.utils import gen_param2vals_for_completed_jobs
 
 
 def make_feature_diagnosticity_distribution_fig(mat, name):
@@ -66,7 +60,7 @@ def make_feature_diagnosticity_fig(mat, name):
     return fig
 
 
-p = config.Dirs.tasks / '{}_categories'.format(CAT_TYPE) / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+p = config.Dirs.tasks / 'hypernyms' / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
 both = np.loadtxt(p, dtype='str')
 np.random.shuffle(both)
 probes, probe_cats = both.T
@@ -76,15 +70,10 @@ cat2probes = {cat: [p for p, c in zip(probes, probe_cats) if c == cat]
 num_probes = len(probes)
 num_cats = len(cats)
 
-embedders = chain(
-    (RNNEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RNNParams)),
-    (W2VecEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(Word2VecParams)),
-    (CountEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(CountParams)),
-    (RandomControlEmbedder(param2id, param2val) for param2id, param2val in gen_combinations(RandomControlParams))
-)
-
-for embedder in embedders:
-    # feature diagnosticity about category membership
+for param2val in gen_param2vals_for_completed_jobs():
+    embedder = init_embedder(param2val)
+    embedder.load_w2e()
+    #
     probe_embed_mat = np.zeros((num_probes, embedder.dim1))
     for n, p in enumerate(probes):
         probe_embed_mat[n] = embedder.w2e[p]
@@ -110,4 +99,5 @@ for embedder in embedders:
     # plot
     fig1 = make_feature_diagnosticity_distribution_fig(feature_diagnosticity_mat, embedder.name),
     fig2 = make_feature_diagnosticity_fig(feature_diagnosticity_mat, embedder.name)
-    # TODO save fig
+
+    plt.show()

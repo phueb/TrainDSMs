@@ -91,8 +91,8 @@ def two_stage_job(param2val):
     for architecture in [comparator, classifier]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
-            # Matching(architecture, 'cohyponyms', 'syntactic'),
-            # Matching(architecture, 'features', 'is'),
+            Matching(architecture, 'cohyponyms', 'syntactic'),
+            Matching(architecture, 'features', 'is'),
             # Matching(architecture, 'features', 'has'),
             # Matching(architecture, 'nyms', 'syn', suffix='_jw'),
             # Matching(architecture, 'nyms', 'ant', suffix='_jw'),

@@ -1,5 +1,6 @@
 import argparse
-
+import shutil
+import sys
 
 from ludwigcluster.client import Client
 from ludwigcluster.config import SFTP
@@ -25,7 +26,15 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--skip_data', default=False, action='store_true', dest='skip_data', required=False)
     parser.add_argument('-t', '--test', action='store_true', dest='test', required=False)
     parser.add_argument('-p', '--preprocess', action='store_true', default=False, dest='preprocess', required=False)
+    parser.add_argument('-x', '--clear_runs', action='store_true', default=False, dest='clear_runs', required=False)
     namespace = parser.parse_args()
+    # delete remote runs
+    if namespace.clear_runs:
+        for param_p in config.Dirs.remote_runs.glob('*param*'):
+            dst = param_p
+            print('Removing\n{}'.format(param_p))
+            sys.stdout.flush()
+            shutil.rmtree(str(param_p))
     # preprocess corpus + save corpus data to file server
     if namespace.preprocess:
         print('Preprocessing corpus...')

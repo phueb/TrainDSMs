@@ -7,7 +7,7 @@ bash kill_job.sh 2StageNLP
 
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit.py -r3 -s
+python submit.py -r3 -s -x
 deactivate
 
 sleep 5

@@ -14,21 +14,17 @@ SAVE = False
 MIN_NUM_REPS = 1
 
 
-# TODO add num_epochs_per_row_word to plot
-
-
-# get all data
 ag = Aggregator()
 
 for arch, task in product(
         ['comparator', 'classifier'],
         [
-            # 'hypernyms',
-            # 'cohyponyms_semantic',
-            # 'cohyponyms_syntactic',
+            'hypernyms',
+            'cohyponyms_semantic',
+            'cohyponyms_syntactic',
             'events',
-            # 'features_has',
-            # 'features_is',
+            'features_has',
+            'features_is',
             # 'nyms_syn_jw',
             # 'nyms_ant_jw'
         ]):

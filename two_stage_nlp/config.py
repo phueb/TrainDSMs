@@ -48,7 +48,7 @@ class Figs:
     dpi = 196
     axlabel_fontsize = 12
     line_width = 2
-    num_diagnosticity_steps = 50
+    num_diagnosticity_steps = 100
 
 
 class Glove:
