@@ -146,6 +146,6 @@ def aggregation_job(verbose=True):
     ag = Aggregator()
     df = ag.make_df(load_from_file=False, verbose=verbose)
     p = config.Dirs.remote_root / ag.df_name
-    df.to_csv(p)
+    df.to_csv(p, index=False)
     print('Done. Saved aggregated data to {}'.format(p))
     return df
