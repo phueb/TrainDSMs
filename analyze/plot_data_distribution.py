@@ -3,8 +3,9 @@ import numpy as np
 
 from two_stage_nlp import config
 
-DATA_NAME1 = 'cohyponyms'
-DATA_NAME2 = 'syntactic'
+DATA_NAME1 = 'features'
+DATA_NAME2 = 'is'
+
 
 def load_probes():
     data_dir = '{}/{}'.format(DATA_NAME1, DATA_NAME2) if DATA_NAME2 is not None else DATA_NAME1
@@ -37,7 +38,7 @@ print('Max num_relata={}'.format(max([len(relata) for relata in probe_relata])))
 
 
 # fig
-fig, ax = plt.subplots(1)
+fig, ax = plt.subplots(1, dpi=200)
 plt.title('Distribution of {} {} relata'.format(DATA_NAME1, DATA_NAME2))
 pr, cs = np.unique(np.concatenate(probe_relata), return_counts=True)
 ax.plot(np.sort(cs))

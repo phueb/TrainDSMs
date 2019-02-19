@@ -9,3 +9,32 @@ def gen_param2vals_for_completed_jobs():
         param2val = Aggregator.load_param2val(param_name)
         param2val['job_name'] = job_name
         yield param2val
+
+
+def to_label(s):
+    if 'nyms_syn' in s:
+        return 'synonyms'
+    elif 'nyms_ant' in s:
+        return 'antonyms'
+    else:
+        return s
+
+
+def to_diff_df(df):
+    df.drop(df[df['stage'].isin(['novice', 'control'])].index, inplace=True)
+    df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
+    df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
+    del df['corpus']
+    del df['num_vocab']
+    del df['embed_size']
+    del df['evaluation']
+    del df['param_name']
+    del df['stage']
+    del df['neg_pos_ratio']
+    del df['num_epochs_per_row_word']
+    #
+    df1, df2 = [x for _, x in df.groupby('arch')]
+    df1['diff_score'] = df1['score'].values - df2['score'].values
+    del df1['arch']
+    del df1['score']
+    return df1

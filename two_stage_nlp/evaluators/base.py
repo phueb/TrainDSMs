@@ -59,6 +59,13 @@ class EvalBase(object):
         self.eval_candidates_mat = None
         self.pos_prob = None
 
+    @property
+    def data_name(self):
+        res = '{}{}{}'.format(self.data_name1,
+                              self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
+                              self.suffix)
+        return res
+
     # ////////////////////////////////////////////////////// evaluator-specific
 
     def make_all_eval_data(self, vocab_sims_mat, vocab):
@@ -94,10 +101,7 @@ class EvalBase(object):
         return row_words, col_words, eval_candidates_mat
 
     def make_scores_p(self, embedder_location, stage):
-        data_name = '{}{}{}'.format(self.data_name1,
-                                    self.data_name2 if self.data_name2 is '' else '_' + self.data_name2,
-                                    self.suffix)
-        res = embedder_location / self.arch_name / self.name / data_name / stage / 'scores.csv'
+        res = embedder_location / self.arch_name / self.name / self.data_name / stage / 'scores.csv'
         return res
 
     def calc_pos_prob(self):

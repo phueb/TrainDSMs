@@ -1,39 +1,30 @@
-import pandas as pd
+import pickle
+
 
 from two_stage_nlp.aggregator import Aggregator
 from two_stage_nlp import config
+from analyze.utils import to_diff_df
 
+
+def load_column_from_file(which):
+    p = config.Dirs.remote_root / 'job_name2{}_probe_sim_data.pkl'.format(which)
+    with p.open('rb') as f:
+        job_name2probe_sim_data = pickle.load(f)
+    res =[job_name2probe_sim_data[row['job_name']][0][row['task']]
+          for n, row in diff_df.iterrows()]
+    return res
+
+
+# make diff_df
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
+diff_df = to_diff_df(df)
 
-df.drop(df[df['stage'].isin(['novice', 'control'])].index, inplace=True)
-df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
-del df['corpus']
-del df['num_vocab']
-del df['embed_size']
-del df['Unnamed: 0']
-del df['evaluation']
-del df['param_name']
-del df['stage']
-del df['neg_pos_ratio']
-del df['num_epochs_per_row_word']
+# add data about sim per embedder and per task
+diff_df['all_probe_sim'] = load_column_from_file('all')
+diff_df['pos_probe_sim'] = load_column_from_file('pos')
 
-print([name for name, _ in df.groupby('arch')])
-df1, df2 = [x for _, x in df.groupby('arch')]
-
-assert list(df1['embedder'].values) == list(df2['embedder'].values)
-assert list(df1['task'].values) == list(df2['task'].values)
-assert list(df1['job_name'].values) == list(df2['job_name'].values)
-
-print(df1['score'])
-print(df2['score'])
-
-
-df1['diff_score'] = df1['score'].values - df2['score'].values
-del df1['arch']
-del df1['score']
-print(df1)
-print(df1.columns)
-
+# save
 p = config.Dirs.remote_root / 'diff_scores.csv'
-df1.to_csv(p)
+diff_df.to_csv(p)
+
