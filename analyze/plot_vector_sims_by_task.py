@@ -101,8 +101,8 @@ for embedder_name, plot_data in embedder_name2plot_data.items():
         means = np.asarray([data_name2mean[dn] for dn in sorted_data_names])
         stds = np.asarray([data_name2std[dn] for dn in sorted_data_names])
         ax.plot(x, means, label=label, color=color, zorder=3, linewidth=2)
-        ax.fill_between(x, means - stds / 2, means + stds / 2, facecolor=color, alpha=0.1)
-ax.legend(loc='best')
+        ax.fill_between(x, means - stds / 2, means + stds / 2, facecolor=color, alpha=0.05)
+ax.legend(loc='best', frameon=False)
 plt.tight_layout()
 plt.show()
 
