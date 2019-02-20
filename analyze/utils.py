@@ -1,3 +1,4 @@
+from itertools import product
 
 from two_stage_nlp import config
 from two_stage_nlp.aggregator import Aggregator
@@ -38,3 +39,37 @@ def to_diff_df(df):
     del df1['arch']
     del df1['score']
     return df1
+
+
+def make_task_name2_probe_data(corpus_name, num_vocab):
+    res = {}
+    for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
+        with p.open('r') as f:
+            lines = f.read().splitlines()  # removes '\n' newline character
+        pairs = set()
+        pairs.update()
+        num_pos_possible = 0
+        probes = set()
+        for line in lines:
+            probe = line.split()[0]
+            relata = line.split()[1:]
+            pairs.update(list(product([probe], relata)))
+            probes.update([probe] + relata)
+            num_pos_possible += len(relata)
+        # task_name
+        try:
+            suffix = str(p.relative_to(config.Dirs.tasks).stem).split('_')[2]
+        except IndexError:
+            suffix = ''
+        task_name = '{}{}'.format(str(p.relative_to(config.Dirs.tasks).parent).replace('/', '_'),
+                                  '_' + suffix if suffix else '')
+        #
+        num_row_words = len(lines)
+        num_unique_probes = len(probes)
+        num_total_possible = len(probes) ** 2
+        num_pos = len(pairs)
+        num_neg = num_total_possible - num_pos
+        diff = num_pos_possible - num_pos
+        res[task_name] = \
+            (num_row_words, num_unique_probes, num_total_possible, num_pos, num_neg, num_pos_possible, diff)
+    return res
