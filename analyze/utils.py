@@ -12,9 +12,9 @@ def gen_param2vals_for_completed_jobs():
 
 
 def to_label(s):
-    if 'nyms_syn' in s:
+    if s == 'nyms_syn_jw' or s == s == 'nyms_syn':
         return 'synonyms'
-    elif 'nyms_ant' in s:
+    elif s == 'nyms_ant_jw' or s == s == 'nyms_ant':
         return 'antonyms'
     else:
         return s

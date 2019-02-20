@@ -14,12 +14,13 @@ diff_df = to_diff_df(df)
 
 # data
 task_names = diff_df['task'].unique()
+print(task_names)
 task_name2ys = {}
 for n, task_name in enumerate(task_names):
     ys = diff_df[diff_df['task'] == task_name]['diff_score'].values
     task_name2ys[task_name] = ys
 sorted_task_names = sorted(task_name2ys.keys(),
-                                     key=lambda task_name: np.mean(task_name2ys[task_name]))
+                           key=lambda task_name: np.mean(task_name2ys[task_name]))
 
 # figure
 task_name2color = {level: plt.cm.get_cmap('tab10')(n)
@@ -39,6 +40,7 @@ ax.tick_params(axis='both', which='both', top=False, right=False)
 # plot
 for n, task_name in enumerate(sorted_task_names):
     ys = task_name2ys[task_name]
+    print(task_name, ys)
     color = task_name2color[task_name]
     ax.bar(x=n,
            height=ys.mean(),
