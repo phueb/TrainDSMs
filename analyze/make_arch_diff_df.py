@@ -32,6 +32,8 @@ diff_df['num_unique_probes'] = [task_name2_probe_data[row['task']][1]
                                 for _, row in diff_df.iterrows()]
 diff_df['avg_num_relata'] = [task_name2_probe_data[row['task']][3] / task_name2_probe_data[row['task']][0]
                              for _, row in diff_df.iterrows()]
+diff_df['num_pos'] = [task_name2_probe_data[row['task']][3] / task_name2_probe_data[row['task']][0]
+                             for _, row in diff_df.iterrows()]
 # num_row_words, num_unique_probes, num_total_possible, num_pos, num_neg, num_pos_possible, diff
 
 # save

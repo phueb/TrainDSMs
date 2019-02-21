@@ -6,6 +6,12 @@ from analyze.utils import to_diff_df
 from analyze.utils import to_label
 
 
+LEG_FONTSIZE = 16
+AX_FONTSIZE = 14
+FIGSIZE = (12, 6)
+DPI = 200
+
+
 # make diff_df
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
@@ -26,14 +32,14 @@ sorted_task_names = sorted(task_name2ys.keys(),
 task_name2color = {level: plt.cm.get_cmap('tab10')(n)
                    for n, level in enumerate(task_names)}
 
-fig, ax = plt.subplots(1, figsize=(10, 6), dpi=200)
+fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
 ax.set_ylim([-0.1, 0.10])
 num_x = len(task_names)
 x = np.arange(num_x)
 ax.set_xticks(x)
-ax.set_xticklabels([to_label(task_name).replace('_', '\n') for task_name in sorted_task_names])
-ax.set_ylabel('Balanced Accuracy Difference (Classifier - Comparator)')
-ax.set_xlabel('Task')
+ax.set_xticklabels([to_label(task_name).replace('_', '\n') for task_name in sorted_task_names], fontsize=AX_FONTSIZE)
+ax.set_ylabel('Balanced Accuracy Difference\n(Classifier - Comparator)', fontsize=AX_FONTSIZE)
+ax.set_xlabel('Task', fontsize=AX_FONTSIZE)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.tick_params(axis='both', which='both', top=False, right=False)

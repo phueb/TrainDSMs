@@ -17,6 +17,8 @@ def to_label(s):
         return 'synonyms'
     elif s == 'nyms_ant_jw' or s == s == 'nyms_ant':
         return 'antonyms'
+    elif s == 'cohyponyms_semantic':
+        return 'cohyponyms'
     else:
         return s
 

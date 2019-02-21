@@ -18,16 +18,16 @@ summary(fit_lm)
 abline(fit_lm, col="red", lwd=5) # regression line (y~x)
 abline(h=0, col="grey", lwd=2)
 
-#///////////////////////////////////////////// num_unique_probes
+#///////////////////////////////////////////// num_pos
 
-fit <- lmer(diff_score ~ num_unique_probes + (1|job_name), data=dat)
+fit <- lmer(diff_score ~ num_pos + (1|job_name), data=dat)
 anova(fit)
 
 # scatter
 par(cex = 3.0)  # magnify text on plot
-plot(x=dat$num_unique_probes, y=dat$diff_score, main="Scatter",
-   xlab="num_unique_probes", ylab="BalAcc Difference (Classifier - Comparator)", pch=19)
-fit_lm = lm(diff_score ~ num_unique_probes, data=dat)
+plot(x=dat$num_pos, y=dat$diff_score, main="Scatter",
+   xlab="num_pos", ylab="BalAcc Difference (Classifier - Comparator)", pch=19)
+fit_lm = lm(diff_score ~ num_pos, data=dat)
 summary(fit_lm)
 abline(fit_lm, col="red", lwd=5) # regression line (y~x)
 abline(h=0, col="grey", lwd=2)
