@@ -14,7 +14,7 @@ class Params:
     beta = [0.0]  # 0.0 is always better than any beta
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
-    neg_pos_ratio = [1.0, 0.0]  # 1.0 is better than anything higher  # TODO is 0.0 better than 1.0?
+    neg_pos_ratio = [1.0]  # 1.0 is better than anything higher or lower
     num_epochs_per_row_word = [0.2]  # 0.2 is slightly better than 0.1
 
 
@@ -82,8 +82,9 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     return x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test
 
 
-def make_graph(evaluator, trial, embed_size):
+def make_graph(evaluator, trial, w2e, embed_size):
     assert evaluator is not None   # arbitrary usage of evaluator
+    assert w2e is not None   # arbitrary usage of w2e
 
     def siamese_leg(x, wy):
         y = tf.matmul(x, wy)

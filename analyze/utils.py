@@ -19,6 +19,8 @@ def to_label(s):
         return 'antonyms'
     elif s == 'cohyponyms_semantic':
         return 'cohyponyms'
+    elif s == 'random_normal':
+        return 'random'
     else:
         return s
 

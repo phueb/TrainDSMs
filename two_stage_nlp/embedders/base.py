@@ -30,8 +30,10 @@ class EmbedderBase(object):
                 embedding_str = ' '.join(np.around(embedding, config.Embeddings.precision).astype(np.str).tolist())
                 f.write('{} {}\n'.format(probe, embedding_str))
 
-    def load_w2e(self):  # TODO unused - keep in case it is needed
-        mat = np.loadtxt(config.Dirs.remote_runs / self.param_name / self.job_name / 'embeddings.txt',
+    def load_w2e(self, remote=True):
+        runs_dir = config.Dirs.remote_runs if remote else config.Dirs.local_runs
+        print('Loading w2e from {}'.format(runs_dir))
+        mat = np.loadtxt(runs_dir / self.param_name / self.job_name / 'embeddings.txt',
                          dtype='str', comments=None)
         vocab = mat[:, 0]
         embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))

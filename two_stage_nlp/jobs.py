@@ -4,6 +4,7 @@ from collections import Counter, OrderedDict
 from itertools import islice
 import pyprind
 from spacy.lang.en import English
+import numpy as np
 
 from two_stage_nlp import config
 from two_stage_nlp.aggregator import Aggregator
@@ -80,15 +81,17 @@ def two_stage_job(param2val):
     print('Param2val:')
     for k, v in param2val.items():
         print(k, v)
-    # embedder
-    embedder = init_embedder(param2val)
     # stage 1
+    embedder = init_embedder(param2val)
     print('Training stage 1...')
     sys.stdout.flush()
-    embedder.train()
-    embedder.save_w2e() if config.Embeddings.save_w2e else None  # just keep w2e in memory - it is never loaded
+    if not config.Eval.debug:
+        embedder.train()
+    else:
+        embedder.load_w2e(remote=False)
+    embedder.save_w2e() if config.Embeddings.save_w2e else None
     # stage 2
-    for architecture in [comparator, classifier]:
+    for architecture in [classifier, comparator]:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             Matching(architecture, 'cohyponyms', 'syntactic'),

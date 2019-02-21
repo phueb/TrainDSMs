@@ -4,6 +4,7 @@ import tensorflow as tf
 import time
 
 from two_stage_nlp import config
+from two_stage_nlp.job_utils import w2e_to_sims
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -13,7 +14,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_row_word = [20]  # 20 is as good as 40
+    num_epochs_per_row_word = [2, 20]  # 20 is as good as 40
 
 
 name = 'classifier'
@@ -67,8 +68,16 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     return x1_train, y_train, x1_test, eval_sims_mat_row_ids_test
 
 
-def make_graph(evaluator, trial, embed_size):
+def make_graph(evaluator, trial, w2e, embed_size):
     num_outputs = len(evaluator.col_words)
+
+    # smart weight init
+    sims_mat = w2e_to_sims(w2e, evaluator.row_words, evaluator.col_words)
+    embed_mat = np.vstack([w2e[w] for w in evaluator.row_words])
+    wy_init = np.zeros((embed_size, num_outputs))
+    for n, sims_mat_col in enumerate(sims_mat.T):
+        x, res, rank, s = np.linalg.lstsq(embed_mat, sims_mat_col, rcond=None)
+        wy_init[:, n] = x
 
     class Graph:
         with tf.Graph().as_default():
@@ -89,8 +98,9 @@ def make_graph(evaluator, trial, embed_size):
                         by = tf.Variable(tf.zeros([num_outputs]))
                         logits = tf.matmul(hidden, wy) + by
                     else:
-                        wy = tf.get_variable('wy', shape=[embed_size, num_outputs],
-                                             dtype=tf.float32)
+                        # init = tf.constant_initializer(wy_init)  # TODO test
+                        init = None
+                        wy = tf.get_variable('wy', shape=[embed_size, num_outputs],  dtype=tf.float32, initializer=init)
                         by = tf.Variable(tf.zeros([num_outputs]))
                         logits = tf.matmul(x1, wy) + by
                 # loss

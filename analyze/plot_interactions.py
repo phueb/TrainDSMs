@@ -5,7 +5,8 @@ from two_stage_nlp.aggregator import Aggregator
 from analyze.utils import to_label
 
 
-FACTOR = 'arch'
+FACTOR = 'embedder'
+STAGES = ['novice', 'control']
 
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
@@ -19,12 +20,12 @@ df = ag.make_df(load_from_file=True, verbose=True)
 # clean df
 df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
-df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
+# df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 # df.drop(df[df['arch'] == 'classifier'].index, inplace=True)
 
 
 # figure
-stages = ['novice', 'expert']
+
 factor_levels = df[FACTOR].unique()
 level2color = {level: plt.cm.get_cmap('tab10')(n)
                for n, level in enumerate(factor_levels)}
@@ -41,7 +42,7 @@ ax.set_ylim([0.5, 0.90])
 num_x = len(factor_levels)
 x = np.arange(2)
 ax.set_xticks(x)
-ax.set_xticklabels(stages, fontsize=AX_FONTSIZE)
+ax.set_xticklabels(STAGES, fontsize=AX_FONTSIZE)
 ax.set_ylabel('Balanced Accuracy', fontsize=AX_FONTSIZE)
 ax.set_xlabel('Stage', fontsize=AX_FONTSIZE)
 ax.spines['right'].set_visible(False)
@@ -51,7 +52,7 @@ ax.tick_params(axis='both', which='both', top=False, right=False)
 for level in factor_levels:
     df_subset = df[df[FACTOR] == level]
     y = []
-    for stage in stages:
+    for stage in STAGES:
         score = df_subset[df_subset['stage'] == stage]['score'].mean()
         y.append(score)
     color = level2color[level]
