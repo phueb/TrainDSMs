@@ -32,7 +32,7 @@ for arch, task in product(
     #
     if arch == 'classifier':
         neg_pos_ratios = [np.nan]
-        num_epochs_per_row_word_list = [20]
+        num_epochs_per_row_word_list = [0.2, 2, 20]  # TODO does classifier with smart init do as good with 2 as 20?
     elif arch == 'comparator':
         neg_pos_ratios = [1.0]
         num_epochs_per_row_word_list = [0.2]

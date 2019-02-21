@@ -14,7 +14,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_row_word = [2, 20]  # 20 is as good as 40
+    num_epochs_per_row_word = [2, 0.2]  # 20 is as good as 40 (without smart weight-init)  # TODO how about smart weight init?
 
 
 name = 'classifier'
@@ -98,8 +98,7 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         by = tf.Variable(tf.zeros([num_outputs]))
                         logits = tf.matmul(hidden, wy) + by
                     else:
-                        # init = tf.constant_initializer(wy_init)  # TODO test
-                        init = None
+                        init = tf.constant_initializer(wy_init)  # ensures expert performance starts at novice-level
                         wy = tf.get_variable('wy', shape=[embed_size, num_outputs],  dtype=tf.float32, initializer=init)
                         by = tf.Variable(tf.zeros([num_outputs]))
                         logits = tf.matmul(x1, wy) + by
@@ -147,7 +146,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if config.Eval.verbose:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # epochs
-    num_epochs = trial.params.num_epochs_per_row_word * len(evaluator.row_words)
+    num_epochs = max(1, int(trial.params.num_epochs_per_row_word * len(evaluator.row_words)))
     print('num_epochs={:,}'.format(num_epochs))
     # eval steps
     num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
