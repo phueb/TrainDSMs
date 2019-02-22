@@ -42,6 +42,14 @@ def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
     with p.open('wb') as f:
         pickle.dump(numeric_docs, f)
     # save docs
+
+    # TODO test EOFErrow when reading pickled docs stored n server on worker
+    from ludwigcluster.config import SFTP
+    for worker in SFTP.worker_names:
+        p = config.Dirs.remote_root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
+        with p.open('wb') as f:
+            pickle.dump(docs, f)
+
     p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('wb') as f:
         pickle.dump(docs, f)

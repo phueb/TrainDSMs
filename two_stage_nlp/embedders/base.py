@@ -64,7 +64,12 @@ class EmbedderBase(object):
 
     @cached_property
     def docs(self):
-        p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+
+        # TODO test hostname
+        import socket
+        hostname = socket.gethostname().lower()
+
+        p = config.Dirs.remote_root / '{}_{}_{}_docs.pkl'.format(hostname, config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         #

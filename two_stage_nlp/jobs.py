@@ -4,7 +4,6 @@ from collections import Counter, OrderedDict
 from itertools import islice
 import pyprind
 from spacy.lang.en import English
-import numpy as np
 
 from two_stage_nlp import config
 from two_stage_nlp.aggregator import Aggregator
@@ -94,12 +93,12 @@ def two_stage_job(param2val):
     for architecture in [classifier, comparator]:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
-            Matching(architecture, 'cohyponyms', 'syntactic'),
+            # Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
+            # Matching(architecture, 'features', 'has'),
             Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            Matching(architecture, 'nyms', 'ant', suffix='_jw'),
-            Matching(architecture, 'hypernyms'),
+            # Matching(architecture, 'nyms', 'ant', suffix='_jw'),
+            # Matching(architecture, 'hypernyms'),
             Matching(architecture, 'events'),
 
             # Identification(architecture, 'nyms', 'syn', suffix='_jw'),

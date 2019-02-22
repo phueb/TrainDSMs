@@ -85,7 +85,7 @@ class CountParams:
 
 
 class RNNParams:
-    rnn_type = ['srn', 'lstm']
+    rnn_type = ['srn']  #, 'lstm']
     embed_size = [200]
     train_percent = [0.9]
     num_eval_steps = [1000]
@@ -101,7 +101,7 @@ class RNNParams:
 
 
 class Word2VecParams:
-    w2vec_type = ['sg', 'cbow']
+    w2vec_type = ['sg']  #, 'cbow']
     embed_size = [200]
     window_size = [7]
     num_epochs = [20]

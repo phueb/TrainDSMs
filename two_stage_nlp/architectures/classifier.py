@@ -14,7 +14,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    num_epochs_per_row_word = [2, 0.2]  # 20 is as good as 40 (without smart weight-init)  # TODO how about smart weight init?
+    num_epochs_per_row_word = [2]  # 2 is better than 0.2 (especially for events task)
 
 
 name = 'classifier'
