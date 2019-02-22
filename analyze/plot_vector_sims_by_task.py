@@ -13,6 +13,7 @@ from analyze.utils import to_label
 
 
 WHICH_PAIRS = 'all'  # TODO implement negative pairs
+BY_EMBEDDER = False
 
 
 evaluators = [
@@ -83,7 +84,7 @@ embedder_name2color = {embedder_name: plt.cm.get_cmap('tab10')(n)
 
 fig, ax = plt.subplots(1, figsize=(10, 5), dpi=300)
 plt.title('Cosine similarities between {} probe pairs in task'.format(WHICH_PAIRS))
-sorted_data_names = sorted(data_names, key=data_name2mean_sum.get)
+sorted_data_names = sorted(data_names, key=data_name2mean_sum.get, reverse=True)
 num_x = len(sorted_data_names)
 x = np.arange(num_x)
 ax.set_xticks(x)
@@ -94,14 +95,25 @@ ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.tick_params(axis='both', which='both', top=False, right=False)
 # plot
-for embedder_name, plot_data in embedder_name2plot_data.items():
-    for n, (data_name2mean, data_name2std) in enumerate(plot_data):
-        label = embedder_name if n == 0 else None
-        color = embedder_name2color[embedder_name]
-        means = np.asarray([data_name2mean[dn] for dn in sorted_data_names])
-        stds = np.asarray([data_name2std[dn] for dn in sorted_data_names])
-        ax.plot(x, means, label=label, color=color, zorder=3, linewidth=2)
-        ax.fill_between(x, means - stds / 2, means + stds / 2, facecolor=color, alpha=0.05)
+if BY_EMBEDDER:
+    for embedder_name, plot_data in embedder_name2plot_data.items():
+        for n, (data_name2mean, data_name2std) in enumerate(plot_data):
+            label = embedder_name if n == 0 else None
+            color = embedder_name2color[embedder_name]
+            means = np.asarray([data_name2mean[dn] for dn in sorted_data_names])
+            stds = np.asarray([data_name2std[dn] for dn in sorted_data_names])
+            ax.plot(x, means, label=label, color=color, zorder=3, linewidth=2)
+            ax.fill_between(x, means - stds / 2, means + stds / 2, facecolor=color, alpha=0.05)
+else:
+    for n, dn in enumerate(sorted_data_names):
+        ys = np.asarray([plot_data[0][0][dn] if plot_data else np.nan
+                         for plot_data in embedder_name2plot_data.values()])
+        ax.bar(x=n,
+               height=np.nanmean(ys),
+               yerr=np.nanstd(ys),
+               edgecolor='black',
+               width=1.0)
+
 ax.legend(loc='best', frameon=False)
 plt.tight_layout()
 plt.show()

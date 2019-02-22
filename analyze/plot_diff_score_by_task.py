@@ -16,6 +16,7 @@ DPI = 200
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
 diff_df = to_diff_df(df)
+# diff_df = diff_df[diff_df['task'] != 'cohyponyms_syntactic']
 
 
 # data

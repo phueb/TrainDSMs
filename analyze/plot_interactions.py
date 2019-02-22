@@ -5,7 +5,7 @@ from two_stage_nlp.aggregator import Aggregator
 from analyze.utils import to_label
 
 
-FACTOR = 'embedder'
+FACTOR = 'task'
 STAGES = ['novice', 'expert']
 
 LEG_FONTSIZE = 16
