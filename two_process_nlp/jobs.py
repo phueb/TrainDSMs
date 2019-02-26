@@ -90,16 +90,16 @@ def main_job(param2val):
         embedder.load_w2e(remote=False)
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
-    for architecture in [classifier, comparator]:
+    for architecture in [comparator]:  # TODO classifier
         for ev in [
-            # Matching(architecture, 'cohyponyms', 'semantic'),
+            Matching(architecture, 'cohyponyms', 'semantic'),
             # Matching(architecture, 'cohyponyms', 'syntactic'),
             Matching(architecture, 'features', 'is'),
-            # Matching(architecture, 'features', 'has'),
-            # Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            # Matching(architecture, 'nyms', 'ant', suffix='_jw'),
-            # Matching(architecture, 'hypernyms'),
-            # Matching(architecture, 'events'),
+            Matching(architecture, 'features', 'has'),
+            Matching(architecture, 'nyms', 'syn', suffix='_jw'),
+            Matching(architecture, 'nyms', 'ant', suffix='_jw'),
+            Matching(architecture, 'hypernyms'),
+            Matching(architecture, 'events'),
 
             # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
             # Identification(architecture, 'nyms', 'ant', suffix='_jw'),
@@ -128,7 +128,8 @@ def main_job(param2val):
                 control_scores = None
             else:
                 expert_scores = ev.train_and_score_expert(embedder, shuffled=False)
-                control_scores = ev.train_and_score_expert(embedder, shuffled=True)
+                control_scores = ev.train_and_score_expert(embedder, shuffled=True) if \
+                    config.Eval.shuffled_control else None
             # save
             for scores, process in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
                 print('process "{}" best score={:2.2f}'.format(process, max([s[0] for s in scores])))

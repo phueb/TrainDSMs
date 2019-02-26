@@ -85,7 +85,7 @@ class CountParams:
 
 
 class RNNParams:
-    rnn_type = ['srn']  #, 'lstm']
+    rnn_type = ['srn', 'lstm']
     embed_size = [200]
     train_percent = [0.9]
     num_eval_steps = [1000]

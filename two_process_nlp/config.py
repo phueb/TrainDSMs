@@ -15,6 +15,7 @@ class Dirs:
 class Eval:
     debug = False   # catches tensorflow errors properly
     only_process1 = False
+    shuffled_control = False  # TODO test
     resample = False
     verbose = False
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
