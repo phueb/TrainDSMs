@@ -11,7 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 class Params:
     mb_size = [64]
-    beta = [0.0]  # 0.0 is always better than any beta
+    beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
     neg_pos_ratio = [1.0]  # 1.0 is better than anything higher or lower
@@ -154,10 +154,10 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 yield step, x1[row_ids],  x2[row_ids], y[row_ids]
                 step += 1
 
-    # train size
     assert evaluator is not None  # arbitrary usage of evaluator
     assert isinstance(fold_id, int)  # arbitrary usage of fold_id
-    x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids = data
+    # train size
+    x1_train, x2_train, y_train, x1_test, x2_test, eval_sims_mat_row_ids_test = data
     num_train_probes, num_test_probes = len(x1_train), len(x1_test)
     if num_train_probes < trial.params.mb_size:
         raise RuntimeError('Number of train probes ({}) is less than mb_size={}'.format(
@@ -166,7 +166,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # epochs
     num_epochs = max(1, int(trial.params.num_epochs_per_row_word * len(evaluator.row_words)))
-    print('num_epochs={}'.format(num_epochs))
+    print('num_epochs={:,}'.format(num_epochs))
     # eval steps
     num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
@@ -183,7 +183,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                                                                graph.y: y_train})
             # x1_test and x2_test are 3d, where each 2d slice is a test-set-size batch of embeddings
             cosines = []
-            for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids):
+            for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids_test):
                 cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: x1_mat,
                                                            graph.x2: x2_mat})
                 cosines.append(cos)
@@ -202,6 +202,5 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
 
-def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):
+def train_expert_on_test_fold(evaluator, trial, graph, data, fold_id):  # TODO leave this for analyses
     raise NotImplementedError
-

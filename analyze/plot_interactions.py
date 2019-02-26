@@ -21,7 +21,7 @@ df = ag.make_df(load_from_file=True, verbose=True)
 df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
-df.drop(df[df['arch'] == 'comparator'].index, inplace=True)
+df.drop(df[df['arch'] == 'classifier'].index, inplace=True)
 
 
 # figure

@@ -30,7 +30,7 @@ dat = dat[dat$stage != "control",]
 print(summary(dat))
 
 # mixed-effects model
-fit <- lmer(score ~ stage * embedder + (stage|job_name) + (stage|task), data=dat)
+fit <- lmer(score ~ stage * arch + (stage|task) + (stage|embedder/job_name) , data=dat)
 anova = anova(fit)
 print(summary(fit))
 print(analyze(anova))
