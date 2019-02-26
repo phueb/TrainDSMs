@@ -2,8 +2,8 @@ import multiprocessing as mp
 import numpy as np
 import sys
 
-from two_stage_nlp import config
-from two_stage_nlp.params import make_param2val_list, ObjectView
+from two_process_nlp import config
+from two_process_nlp.params import make_param2val_list, ObjectView
 
 
 class ResultsData:
@@ -100,8 +100,8 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
-    def make_scores_p(self, embedder_location, stage):
-        res = embedder_location / self.arch_name / self.name / self.data_name / stage / 'scores.csv'
+    def make_scores_p(self, embedder_location, process):
+        res = embedder_location / self.arch_name / self.name / self.data_name / process / 'scores.csv'
         return res
 
     def calc_pos_prob(self):

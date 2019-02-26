@@ -7,8 +7,8 @@ import pyprind
 from cytoolz import itertoolz
 import sys
 
-from two_stage_nlp import config
-from two_stage_nlp.job_utils import init_embedder
+from two_process_nlp import config
+from two_process_nlp.job_utils import init_embedder
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 
@@ -55,7 +55,10 @@ def make_feature_diagnosticity_distribution_fig(mat, name):
     return fig
 
 
-def make_feature_diagnosticity_fig(mat, name):
+def make_feature_diagnosticity_fig(mat_raw, name):
+    # subtract row-mean from elements in each row - large categories have larger overall f1
+    mat = mat_raw - mat_raw.mean(axis=1, keepdims=True)
+    #
     fig, ax_heatmap = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
     plt.title(name)
     # divide axis
@@ -78,7 +81,7 @@ def make_feature_diagnosticity_fig(mat, name):
     max_y_extent = ax_dendleft.get_ylim()[1]
     im = ax_heatmap.imshow(z,
                            vmin=vmin,
-                           vmax=vmax,
+                           vmax=vmax - mat_raw.mean(),
                            aspect='auto',
                            cmap=plt.cm.jet,
                            interpolation='nearest',
@@ -104,14 +107,10 @@ def make_feature_diagnosticity_fig(mat, name):
     # fig.subplots_adjust(bottom=0.2)  # make room for tick labels
     fig.tight_layout()
     # colorbar
-
-    # TODO cbar ticks are not right - cbar colors stay the same but tick moves
-
-
     cbar = plt.colorbar(im, cax=ax_colorbar, ticks=[vmin, vmax], orientation='vertical')
     cbar.set_ticks([vmin, vmid, vmax])
     cbar.set_ticklabels([str(vmin), str(vmid), str(vmax)])
-    cbar.set_label('F1 score')
+    cbar.set_label('F1 score (centered row-wise)')
     plt.tight_layout()
     return fig
 

@@ -5,7 +5,7 @@ import pickle
 
 from sortedcontainers import SortedDict
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 
 class EmbedderBase(object):

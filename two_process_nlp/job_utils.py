@@ -5,11 +5,11 @@ import numpy as np
 import yaml
 from sklearn.metrics.pairwise import cosine_similarity
 
-from two_stage_nlp.embedders.rnn import RNNEmbedder
-from two_stage_nlp.embedders.count import CountEmbedder
-from two_stage_nlp.embedders.random_control import RandomControlEmbedder
-from two_stage_nlp.embedders.w2vec import W2VecEmbedder
-from two_stage_nlp import config
+from two_process_nlp.embedders.rnn import RNNEmbedder
+from two_process_nlp.embedders.count import CountEmbedder
+from two_process_nlp.embedders.random_control import RandomControlEmbedder
+from two_process_nlp.embedders.w2vec import W2VecEmbedder
+from two_process_nlp import config
 
 
 def move_scores_to_server(param2val, location):

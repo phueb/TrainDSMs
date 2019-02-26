@@ -1,7 +1,7 @@
 import numpy as np
 from bayes_opt import BayesianOptimization
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 
 def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):

@@ -6,9 +6,9 @@ from ludwigcluster.client import Client
 from ludwigcluster.config import SFTP
 from ludwigcluster.utils import list_all_param2vals
 
-from two_stage_nlp import config
-from two_stage_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
-from two_stage_nlp.jobs import preprocessing_job
+from two_process_nlp import config
+from two_process_nlp.params import CountParams, RNNParams, Word2VecParams, RandomControlParams
+from two_process_nlp.jobs import preprocessing_job
 
 
 """

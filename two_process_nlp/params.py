@@ -1,7 +1,7 @@
 import numpy as np
 from itertools import cycle, chain
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 
 class ObjectView(object):

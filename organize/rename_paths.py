@@ -1,5 +1,5 @@
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 SRC_NAME = 'parm2val.yaml'
 DST_NAME = 'param2val.yaml'

@@ -2,11 +2,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import matplotlib.pyplot as plt
 
-from two_stage_nlp.job_utils import init_embedder
-from two_stage_nlp.job_utils import w2e_to_sims
-from two_stage_nlp.architectures import comparator
-from two_stage_nlp.evaluators.matching import Matching
-from two_stage_nlp.params import to_embedder_name
+from two_process_nlp.job_utils import init_embedder
+from two_process_nlp.job_utils import w2e_to_sims
+from two_process_nlp.architectures import comparator
+from two_process_nlp.evaluators.matching import Matching
+from two_process_nlp.params import to_embedder_name
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 from analyze.utils import to_label

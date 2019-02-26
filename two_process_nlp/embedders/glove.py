@@ -1,5 +1,5 @@
 
-from two_stage_nlp.embedders.base import EmbedderBase
+from two_process_nlp.embedders.base import EmbedderBase
 
 
 class GloveEmbedder(EmbedderBase):

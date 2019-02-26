@@ -2,9 +2,9 @@ import argparse
 import pickle
 import socket
 
-from two_stage_nlp import config
-from two_stage_nlp.jobs import two_stage_job, aggregation_job, preprocessing_job
-from two_stage_nlp.params import CountParams
+from two_process_nlp import config
+from two_process_nlp.jobs import main_job, aggregation_job, preprocessing_job
+from two_process_nlp.params import CountParams
 
 hostname = socket.gethostname()
 
@@ -21,7 +21,7 @@ def run_on_cluster():
         param2val_chunk = pickle.load(f)
     for param2val in param2val_chunk:
         try:
-            two_stage_job(param2val)
+            main_job(param2val)
         except NotImplementedError as e:
             print(e)
     #
@@ -38,7 +38,7 @@ def run_on_host():
     preprocessing_job() if not config.Eval.debug else None
     for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
         try:
-            two_stage_job(param2val)
+            main_job(param2val)
         except NotImplementedError as e:
             print(e)
 

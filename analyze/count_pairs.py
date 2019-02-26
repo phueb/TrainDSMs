@@ -1,5 +1,5 @@
 
-from two_stage_nlp import config
+from two_process_nlp import config
 from analyze.utils import make_task_name2_probe_data
 
 

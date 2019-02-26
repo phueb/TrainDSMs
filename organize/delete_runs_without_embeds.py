@@ -1,6 +1,6 @@
 import shutil
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 
 param_ps = config.Dirs.remote_runs.glob('**/*num*')

@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from two_stage_nlp.aggregator import Aggregator
+from two_process_nlp.aggregator import Aggregator
 from analyze.utils import to_label
 
 
 FACTOR = 'embedder'
 ARCHITECTURES = ['classifier']
-STAGES = ['novice', 'expert']
+PROCESSES = ['novice', 'expert']
 
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
@@ -35,9 +35,9 @@ level2color = {level: plt.cm.get_cmap('tab10')(n)
 
 fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
 if FACTOR == 'embedder':
-    factor = 'stage-1-model'
+    factor = 'process-1-model'
 elif FACTOR == 'arch':
-    factor = 'stage-2-model'
+    factor = 'process-2-model'
 else:
     factor = FACTOR
 plt.title('Interaction between {} and process\n process-2 architectures: {}'.format(
@@ -46,7 +46,7 @@ ax.set_ylim([0.5, 0.90])
 num_x = len(factor_levels)
 x = np.arange(2)
 ax.set_xticks(x)
-ax.set_xticklabels(STAGES, fontsize=AX_FONTSIZE)
+ax.set_xticklabels(PROCESSES, fontsize=AX_FONTSIZE)
 ax.set_ylabel('Balanced Accuracy', fontsize=AX_FONTSIZE)
 ax.set_xlabel('Process', fontsize=AX_FONTSIZE)
 ax.spines['right'].set_visible(False)
@@ -57,9 +57,9 @@ for level in factor_levels:
     df_subset = df[df[FACTOR] == level]
     y = []
     print(level)
-    for stage in STAGES:
-        score = df_subset[df_subset['stage'] == stage]['score'].mean()
-        print(stage, score)
+    for process in PROCESSES:
+        score = df_subset[df_subset['process'] == process]['score'].mean()
+        print(process, score)
         y.append(score)
     color = level2color[level]
     ax.plot(x, y, label=to_label(level), color=color, zorder=3, linewidth=2)

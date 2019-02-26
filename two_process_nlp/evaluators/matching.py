@@ -1,9 +1,9 @@
 import numpy as np
 from functools import partial
 
-from two_stage_nlp import config
-from two_stage_nlp.scores import calc_cluster_score
-from two_stage_nlp.evaluators.base import EvalBase
+from two_process_nlp import config
+from two_process_nlp.scores import calc_cluster_score
+from two_process_nlp.evaluators.base import EvalBase
 
 
 class MatchingParams:

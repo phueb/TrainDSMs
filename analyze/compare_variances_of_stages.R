@@ -1,6 +1,6 @@
 
 
-dat = read.csv(file='/media/lab/2StageNLP/2stage_data.csv', header=TRUE, sep=",")
+dat = read.csv(file='/media/lab/2StageNLP/2process_data.csv', header=TRUE, sep=",")
 
 # drop levels
 dat = dat[dat$task != "cohyponyms_syntactic",]
@@ -10,7 +10,7 @@ dat = dat[dat$arch != "classifier",]
 summary(dat)
 
 # F test to compare variances of two sampels from normal populations
-nov_scores = unlist(dat[dat$stage == "novice",]["score"], use.names=FALSE)
-exp_scores = unlist(dat[dat$stage == "expert",]["score"], use.names=FALSE)
+nov_scores = unlist(dat[dat$process == "novice",]["score"], use.names=FALSE)
+exp_scores = unlist(dat[dat$process == "expert",]["score"], use.names=FALSE)
 var.test(nov_scores, exp_scores, alternative="less")
 

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 CORPUS_NAME = 'childes-20180319'
 DIFFICULTY = 'easy'  # TODO  ['easy' 'medium' 'hard']

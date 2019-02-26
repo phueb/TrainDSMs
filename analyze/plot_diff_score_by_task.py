@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from two_stage_nlp.aggregator import Aggregator
+from two_process_nlp.aggregator import Aggregator
 from analyze.utils import to_diff_df
 from analyze.utils import to_label
 

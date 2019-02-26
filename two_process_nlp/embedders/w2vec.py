@@ -2,7 +2,7 @@ import logging
 from gensim.models import Word2Vec
 import numpy as np
 
-from two_stage_nlp.embedders.base import EmbedderBase
+from two_process_nlp.embedders.base import EmbedderBase
 
 
 class W2VecEmbedder(EmbedderBase):

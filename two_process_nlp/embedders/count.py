@@ -6,8 +6,8 @@ import time
 from scipy.sparse import linalg as slinalg
 from scipy import sparse
 
-from two_stage_nlp.embedders.base import EmbedderBase
-from two_stage_nlp import config
+from two_process_nlp.embedders.base import EmbedderBase
+from two_process_nlp import config
 
 PAD = '*PAD*'
 VERBOSE = False

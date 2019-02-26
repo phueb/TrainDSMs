@@ -5,15 +5,15 @@ from itertools import islice
 import pyprind
 from spacy.lang.en import English
 
-from two_stage_nlp import config
-from two_stage_nlp.aggregator import Aggregator
-from two_stage_nlp.architectures import comparator, classifier
-from two_stage_nlp.evaluators.matching import Matching
-from two_stage_nlp.evaluators.identification import Identification
-from two_stage_nlp.job_utils import init_embedder
-from two_stage_nlp.job_utils import w2e_to_sims
-from two_stage_nlp.job_utils import save_corpus_data
-from two_stage_nlp.job_utils import move_scores_to_server
+from two_process_nlp import config
+from two_process_nlp.aggregator import Aggregator
+from two_process_nlp.architectures import comparator, classifier
+from two_process_nlp.evaluators.matching import Matching
+from two_process_nlp.evaluators.identification import Identification
+from two_process_nlp.job_utils import init_embedder
+from two_process_nlp.job_utils import w2e_to_sims
+from two_process_nlp.job_utils import save_corpus_data
+from two_process_nlp.job_utils import move_scores_to_server
 
 
 nlp = English()
@@ -69,7 +69,7 @@ def preprocessing_job():
     save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs)
 
 
-def two_stage_job(param2val):
+def main_job(param2val):
     """
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
@@ -80,16 +80,16 @@ def two_stage_job(param2val):
     print('Param2val:')
     for k, v in param2val.items():
         print(k, v)
-    # stage 1
+    # process 1
     embedder = init_embedder(param2val)
-    print('Training stage 1...')
+    print('Training process 1...')
     sys.stdout.flush()
     if not config.Eval.debug:
         embedder.train()
     else:
         embedder.load_w2e(remote=False)
     embedder.save_w2e() if config.Embeddings.save_w2e else None
-    # stage 2
+    # process 2
     for architecture in [classifier, comparator]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
@@ -123,16 +123,16 @@ def two_stage_job(param2val):
             # score
             sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows
             novice_scores = ev.score_novice(sims_mat)
-            if config.Eval.only_stage1:
+            if config.Eval.only_process1:
                 expert_scores = None
                 control_scores = None
             else:
                 expert_scores = ev.train_and_score_expert(embedder, shuffled=False)
                 control_scores = ev.train_and_score_expert(embedder, shuffled=True)
             # save
-            for scores, stage in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
-                print('stage "{}" best score={:2.2f}'.format(stage, max([s[0] for s in scores])))
-                scores_p = ev.make_scores_p(embedder.location, stage)
+            for scores, process in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
+                print('process "{}" best score={:2.2f}'.format(process, max([s[0] for s in scores])))
+                scores_p = ev.make_scores_p(embedder.location, process)
                 df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists
                 if not scores_p.parent.exists():
                     scores_p.parent.mkdir(parents=True)
@@ -147,7 +147,9 @@ def aggregation_job(verbose=True):
     print('Aggregating runs data...')
     ag = Aggregator()
     df = ag.make_df(load_from_file=False, verbose=verbose)
+    p_with_date = config.Dirs.remote_root / ag.df_name_with_date
     p = config.Dirs.remote_root / ag.df_name
+    df.to_csv(p_with_date, index=False)
     df.to_csv(p, index=False)
     print('Done. Saved aggregated data to {}'.format(p))
     return df

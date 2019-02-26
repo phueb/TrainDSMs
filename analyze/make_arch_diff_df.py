@@ -1,8 +1,8 @@
 import pickle
 
 
-from two_stage_nlp.aggregator import Aggregator
-from two_stage_nlp import config
+from two_process_nlp.aggregator import Aggregator
+from two_process_nlp import config
 from analyze.utils import to_diff_df
 from analyze.utils import make_task_name2_probe_data
 

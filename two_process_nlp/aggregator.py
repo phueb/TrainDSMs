@@ -7,8 +7,8 @@ import numpy as np
 import datetime
 import time
 
-from two_stage_nlp import config
-from two_stage_nlp.params import to_embedder_name
+from two_process_nlp import config
+from two_process_nlp.params import to_embedder_name
 
 
 class Aggregator:
@@ -23,11 +23,12 @@ class Aggregator:
                          'arch',
                          'evaluation',
                          'task',
-                         'stage'] + self.expert_param_names + ['score']
-        self.df_name = '2stage_data.csv'
+                         'process'] + self.expert_param_names + ['score']
+        self.df_name_with_date = '2process_data_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+        self.df_name = '2process_data.csv'
         self.df = None
         self.counter = count(0, 1)
-        self.stages = ['control', 'expert', 'novice']
+        self.processes = ['control', 'expert', 'novice']
         # constants
         self.bw = 0.2
         self.hatches = cycle(['--', '\\\\', 'xx'])
@@ -77,7 +78,7 @@ class Aggregator:
         dfs = []
         loc = config.Dirs.remote_runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
-            arch, ev, task, stage = scores_p.relative_to(loc).parts[:-1]
+            arch, ev, task, process = scores_p.relative_to(loc).parts[:-1]
             scores_df = pd.read_csv(scores_p, index_col=False)
             # group by expert_params which are present in scores_df
             group_names = [pn for pn in self.expert_param_names
@@ -88,7 +89,7 @@ class Aggregator:
                 all_param_vals_and_score = [next(it) if pn in group_names else np.nan
                                             for pn in self.expert_param_names + ['score']]
                 vals = [corpus, num_vocab, embed_size, param_name, job_name,
-                        embedder, arch, ev, task, stage] + all_param_vals_and_score
+                        embedder, arch, ev, task, process] + all_param_vals_and_score
                 if verbose:
                     for n, v in enumerate(vals[5:]):
                         print('\t' * (n + 1), v)
@@ -158,7 +159,7 @@ class Aggregator:
         bars_list = []
         param2val_list = []
         embedder_names = []
-        novice_df = filtered_df[filtered_df['stage'] == 'novice']
+        novice_df = filtered_df[filtered_df['process'] == 'novice']
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
         for param_id, param_name in enumerate(param_names_sorted_by_score):
@@ -177,18 +178,18 @@ class Aggregator:
             #
             bars = []
             x = param_id + 0.6
-            grouped = embedder_df.groupby('stage')
+            grouped = embedder_df.groupby('process')
             if len(grouped) != 3:
-                raise RuntimeError('Found only stage(s): {}'.format(embedder_df['stage'].unique()))
-            for stage, stage_df in grouped:
-                ys = stage_df['score'].values
+                raise RuntimeError('Found only process(s): {}'.format(embedder_df['process'].unique()))
+            for process, process_df in grouped:
+                ys = process_df['score'].values
                 print(ys)
                 if len(ys) < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
                     continue
                 x += self.bw
-                ys = stage_df['score']
-                print('{:<10} score mean={:.2f} std={:.3f} n={:>2}'.format(stage, ys.mean(), ys.std(), len(ys)))
+                ys = process_df['score']
+                print('{:<10} score mean={:.2f} std={:.3f} n={:>2}'.format(process, ys.mean(), ys.std(), len(ys)))
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),
@@ -215,7 +216,7 @@ class Aggregator:
         # legend
         plt.tight_layout()
         labels1 = embedder_names
-        labels2 = self.stages
+        labels2 = self.processes
         if not bars_list:
             raise RuntimeError('No scores found for given factors.')
         self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)

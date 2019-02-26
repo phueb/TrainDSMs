@@ -1,7 +1,7 @@
 from itertools import product
 
-from two_stage_nlp import config
-from two_stage_nlp.aggregator import Aggregator
+from two_process_nlp import config
+from two_process_nlp.aggregator import Aggregator
 
 
 def gen_param2vals_for_completed_jobs():
@@ -26,7 +26,7 @@ def to_label(s):
 
 
 def to_diff_df(df):
-    df.drop(df[df['stage'].isin(['novice', 'control'])].index, inplace=True)
+    df.drop(df[df['process'].isin(['novice', 'control'])].index, inplace=True)
     df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
     df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
     del df['corpus']
@@ -34,7 +34,7 @@ def to_diff_df(df):
     del df['embed_size']
     del df['evaluation']
     del df['param_name']
-    del df['stage']
+    del df['process']
     del df['neg_pos_ratio']
     del df['num_epochs_per_row_word']
     #

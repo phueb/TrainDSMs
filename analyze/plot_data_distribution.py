@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from two_stage_nlp import config
+from two_process_nlp import config
 
 DATA_NAME1 = 'features'
 DATA_NAME2 = 'is'
