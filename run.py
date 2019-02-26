@@ -41,8 +41,8 @@ def run_on_host():
             main_job(param2val)
         except NotImplementedError as e:
             print(e)
-
-        print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
+    #
+    print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
 
 
 if __name__ == '__main__':

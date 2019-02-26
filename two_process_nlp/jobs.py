@@ -124,14 +124,19 @@ def main_job(param2val):
             sims_mat = w2e_to_sims(embedder.w2e, ev.row_words, ev.col_words)  # sims can have duplicate rows
             novice_scores = ev.score_novice(sims_mat)
             if config.Eval.only_process1:
-                expert_scores = None
-                control_scores = None
+                expert_scores = []
+                control_scores = []
             else:
                 expert_scores = ev.train_and_score_expert(embedder, shuffled=False)
                 control_scores = ev.train_and_score_expert(embedder, shuffled=True) if \
-                    config.Eval.shuffled_control else None
+                    config.Eval.shuffled_control else []  # TODO test
             # save
-            for scores, process in [(novice_scores, 'novice'), (expert_scores, 'expert'), (control_scores, 'control')]:
+            for scores, process in [(novice_scores, 'novice'),
+                                    (expert_scores, 'expert'),
+                                    (control_scores, 'control')]:
+                if not scores:
+                    print('Did not calculate {} scores'.format(process))
+                    continue
                 print('process "{}" best score={:2.2f}'.format(process, max([s[0] for s in scores])))
                 scores_p = ev.make_scores_p(embedder.location, process)
                 df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists
@@ -141,7 +146,8 @@ def main_job(param2val):
                     df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
             print('-')
     # move scores to file server
-    move_scores_to_server(param2val, embedder.location)
+    if not config.Eval.debug and job_name != 'test':
+            move_scores_to_server(param2val, embedder.location)
 
 
 def aggregation_job(verbose=True):
