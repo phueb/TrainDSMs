@@ -178,12 +178,6 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):
         if step in eval_steps:
             eval_id = eval_steps.index(step)
-            # train loss
-
-            # TODO y_train must be created as 2D
-            train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
-                                                               graph.x2: x2_train,  # is output_ids
-                                                               graph.y: y_train})
             # test
             cosines = []
             for x1, x2, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids_test):
@@ -193,6 +187,9 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
             if config.Eval.verbose:
+                train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
+                                                                   graph.x2: x2_train,  # is output_ids
+                                                                   graph.y: y_train})
                 print('step {:>9,}/{:>9,} |Train Loss={:>2.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
                     step,
                     num_train_steps - 1,
@@ -202,6 +199,11 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                     np.mean(cosines)))
             start = time.time()
         # train
+
+        # TODO y_train must be created as 2D
+        print(x1_batch.shape)
+        print(x2_batch.shape)
+        print(y_batch.shape)
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
 
