@@ -15,8 +15,8 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    neg_pos_ratio = [0.0, 1.0, 10]  # TODO test
-    num_epochs_per_row_word = [2]  # 2 is better than 0.2 (especially for events task)
+    neg_pos_ratio = [1.0, 0.0, 10]  # TODO test
+    num_epochs_per_row_word = [0.1, 1, 2, 4]  # 2 is better than 0.2 (especially for events task)
 
 
 name = 'classifier'
@@ -37,8 +37,11 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     y_train = []
     x1_test = []
     x2_test = []
+    assert len(set(evaluator.col_words)) == len(evaluator.col_words)  # using .index() method below
     eval_sims_mat_row_ids_test = []
     test_pairs = set()  # prevent train/test leak
+    num_col_words = len(evaluator.col_words)
+    col_word_ids = np.arange(num_col_words)
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
     # test - always make test data first to populate test_pairs before making training data
@@ -50,8 +53,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
             test_pairs.add((p, c))
             test_pairs.add((c, p))  # crucial to collect both orderings
         #
-        x1_test.append(w2e[probe])
-        x2_test.append(row_word_ids)  # all output_ids
+        x1_test += [[w2e[probe]] * len(candidates)]
+        x2_test += [col_word_ids]  # must be ordered (diag_part operation in graph relies on this)
         eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
     # train
     for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
@@ -68,10 +71,10 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[p])
-                        x2_train.append([eval_sims_mat_row_id])
+                        x2_train.append(evaluator.col_words.index(c))
                         y_train.append(1.0 if c in evaluator.probe2relata[p] else 0.0)
     x1_train = np.vstack(x1_train)
-    x2_train = np.vstack(x2_train)
+    x2_train = np.array(x2_train)
     y_train = np.array(y_train)
     x1_test = np.array(x1_test)
     x2_test = np.array(x2_test)
@@ -100,7 +103,7 @@ def make_graph(evaluator, trial, w2e, embed_size):
                 # placeholders
                 x1 = tf.placeholder(tf.float32, shape=(None, embed_size), name='x1')
                 x2 = tf.placeholder(tf.int32, shape=None, name='output_ids')  # (num outputs to compute)
-                y = tf.placeholder(tf.float32, shape=(None, None), name='y')  # (batch size, num outputs to compute)
+                y = tf.placeholder(tf.float32, shape=None, name='y')  # (batch size, num outputs to compute)
                 # forward
                 with tf.name_scope('hidden'):
                     wx = tf.get_variable('wx', shape=[embed_size, trial.params.num_hiddens],
@@ -118,10 +121,14 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         init = tf.constant_initializer(wy_init)  # ensures expert performance starts at novice-level
                         wy = tf.get_variable('wy', shape=[embed_size, num_outputs],  dtype=tf.float32, initializer=init)
                         by = tf.Variable(tf.zeros([num_outputs]))
-                        # compute sub-selection of logits specified by output_ids
+                        # select cols of wy and elements of by
                         wy_col = tf.gather(wy, x2, axis=1)
                         b_col = tf.gather(by, x2, axis=0)
-                        logits = tf.matmul(x1, wy_col) + b_col
+                        # matmul computes dot product for each combination of row and col
+                        # but we are interested in dotproduct of first row with first col, sec row with sec col, etc.
+                        # to filter out those dotproducts, we use only the diagonal of the matmul op result
+                        logits_2d = tf.matmul(x1, wy_col) + b_col
+                        logits = tf.linalg.tensor_diag_part(logits_2d)  # retrieve only diagonal
                 # loss
                 pred_cos = tf.nn.sigmoid(logits)  # gives same ba as tanh
                 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)
@@ -176,19 +183,20 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     # training and eval
     start = time.time()
     for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):
+        # test
         if step in eval_steps:
             eval_id = eval_steps.index(step)
-            # test
+            # x1_test is 3d, where each 2d slice is a test-set-size batch of embeddings
             cosines = []
-            for x1, x2, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids_test):
-                cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: np.expand_dims(x1, axis=0),
-                                                                graph.x2: np.expand_dims(x2, axis=0)})
+            for x1_mat, x2, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids_test):
+                cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: x1_mat,
+                                                                graph.x2: x2})
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
             if config.Eval.verbose:
                 train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
-                                                                   graph.x2: x2_train,  # is output_ids
+                                                                   graph.x2: x2_train,
                                                                    graph.y: y_train})
                 print('step {:>9,}/{:>9,} |Train Loss={:>2.2f} |secs={:>2.1f} |any nans={} |mean-cos={:.1f}'.format(
                     step,
@@ -199,11 +207,6 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                     np.mean(cosines)))
             start = time.time()
         # train
-
-        # TODO y_train must be created as 2D
-        print(x1_batch.shape)
-        print(x2_batch.shape)
-        print(y_batch.shape)
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
 

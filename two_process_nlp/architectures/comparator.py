@@ -14,8 +14,8 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
-    neg_pos_ratio = [1.0]  # 1.0 is better than anything higher or lower
-    num_epochs_per_row_word = [0.2]  # 0.2 is slightly better than 0.1
+    neg_pos_ratio = [1.0, 0.0, 10]  # 1.0 is better than anything higher or lower
+    num_epochs_per_row_word = [0.1, 1, 2, 4]  # 0.2 is slightly better than 0.1
 
 
 name = 'comparator'
@@ -175,13 +175,14 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     # training and eval
     start = time.time()
     for step, x1_batch, x2_batch, y_batch in gen_batches_in_order(x1_train, x2_train, y_train):
+        # test
         if step in eval_steps:
             eval_id = eval_steps.index(step)
             # x1_test and x2_test are 3d, where each 2d slice is a test-set-size batch of embeddings
             cosines = []
             for x1_mat, x2_mat, eval_sims_mat_row_id in zip(x1_test, x2_test, eval_sims_mat_row_ids_test):
                 cos = graph.sess.run(graph.pred_cos, feed_dict={graph.x1: x1_mat,
-                                                           graph.x2: x2_mat})
+                                                                graph.x2: x2_mat})
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row

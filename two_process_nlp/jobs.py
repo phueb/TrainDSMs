@@ -90,7 +90,7 @@ def main_job(param2val):
         embedder.load_w2e(remote=False)
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
-    for architecture in [comparator]:  # TODO classifier
+    for architecture in [classifier, comparator]:
         for ev in [
             Matching(architecture, 'cohyponyms', 'semantic'),
             # Matching(architecture, 'cohyponyms', 'syntactic'),

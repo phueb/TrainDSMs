@@ -5,8 +5,8 @@ from two_process_nlp.aggregator import Aggregator
 from analyze.utils import to_label
 
 
-FACTOR = 'embedder'
-ARCHITECTURES = ['classifier']
+FACTOR = 'task'
+ARCHITECTURES = ['comparator']
 PROCESSES = ['novice', 'expert']
 
 LEG_FONTSIZE = 16
