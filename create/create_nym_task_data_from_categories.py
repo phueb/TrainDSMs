@@ -1,18 +1,30 @@
 import numpy as np
+import pandas as pd
+
 
 from two_process_nlp import config
 
+
+VERBOSE = False
+
 CORPUS_NAME = 'childes-20180319'
+GRAM_CAT = 'adj'
+
+
+def to_word_list(x):
+    return pd.Series({'word_list': x['word'].tolist()})
 
 
 if __name__ == '__main__':
     for vocab_size in config.Corpus.vocab_sizes:
-
-        # TODO load xlsx file and parse it
-
-
-
-
+        # load nyms data
+        df = pd.read_excel('{}_nyms.xlsx'.format(CORPUS_NAME))
+        df.drop_duplicates(inplace=True)
+        df_filtered = df[df['gram'] == GRAM_CAT]
+        grouped = df_filtered.groupby(['category', 'group'])
+        df_combined = grouped.apply(to_word_list)
+        df_combined.reset_index(level=1, inplace=True)  # make index 'group' a column
+        print(df_combined)
         # vocab
         p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
@@ -20,21 +32,51 @@ if __name__ == '__main__':
         vocab = np.loadtxt(p, 'str').tolist()
         # probes
         assert len(vocab) == vocab_size
-
-        # TODO exclude words if not in vocab
-
-        #
-        for nym_type in ['syn', 'ant']:
+        probes = []
+        for word in df_filtered['word']:
+            if word in vocab:
+                probes.append(word)
+        print('Num words in vocab={}\n'.format(len(probes)))
+        # get both syns and ants for probes
+        probe2syns = {p: [] for p in probes}
+        probe2ants = {p: [] for p in probes}
+        for cat, group in df_combined.groupby('category'):
+            if VERBOSE:
+                print(cat)
+            word_lists = group['word_list'].values
+            if not len(word_lists) == 2:
+                print('WARNING: Skipping category "{}"'.format(cat))
+                continue
+            a = word_lists[0]
+            b = word_lists[1]
+            a = [p for p in a if p in vocab]
+            b = [p for p in b if p in vocab]
+            if VERBOSE:
+                print(a)
+                print(b)
+            # get nyms for each probe
+            excluded_syns = []
+            for probe in a:
+                excluded_syns.append(probe)
+                probe2syns[probe] = [p for p in a if p != probe]
+                probe2ants[probe] = [p for p in b]
+            for probe in b:
+                probe2syns[probe] = [p for p in b if p != probe]
+                probe2ants[probe] = [p for p in b]
+            # check
+            if VERBOSE:
+                print(probe2syns)  # duplicates are allowed when duplicates are mirrored versions of existing pairs
+                print(probe2ants)  # there will always be more antonym pairs than synonym pairs
+                print()
+        # write to file
+        for nym_type, probe2nyms in [('syn', probe2syns),
+                                     ('ant', probe2ants)]:
             out_path = config.LocalDirs.tasks / 'nyms' / nym_type / '{}_{}_jw.txt'.format(CORPUS_NAME, vocab_size)
             if not out_path.parent.exists():
                 out_path.parent.mkdir()
             with out_path.open('w') as f:
-
-                # TODO nyms
-
-                # write to file
                 print('Writing {}'.format(out_path))
-                for probe, nyms in zip(probes, nyms):
+                for probe, nyms in probe2nyms.items():
                     nyms = ' '.join([nym for nym in nyms
                                      if nym != probe and nym in vocab])
                     if not nyms:
