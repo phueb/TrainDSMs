@@ -2,12 +2,12 @@ from bs4 import BeautifulSoup
 import aiohttp
 import string
 import asyncio
+import numpy as np
 from cytoolz import itertoolz
 from spacy.lemmatizer import Lemmatizer
 from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 
 from two_process_nlp import config
-from two_process_nlp.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 LEMMATIZE = True
@@ -94,7 +94,12 @@ def find_antonyms(soup):
 if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Corpus.vocab_sizes:
-        vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
+        # vocab
+        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        vocab = np.loadtxt(p, 'str').tolist()
+        # probes
         assert len(vocab) == vocab_size
         probes = []
         for w in vocab:

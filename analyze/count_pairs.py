@@ -1,6 +1,7 @@
 
 from two_process_nlp import config
 from analyze.utils import make_task_name2_probe_data
+from analyze.utils import check_duplicate_pairs
 
 
 CORPUS_NAME = config.Corpus.name
@@ -44,3 +45,6 @@ print('Average num_total_possible per task={}'.format(num_total_possible_sum / n
 print('Average pos_prob per task={}'.format(pos_prob_sum / num_tasks))
 print('Average neg_prob per task={}'.format(neg_prob_sum / num_tasks))
 print('Average neg_pos_ratio={}'.format((neg_prob_sum / num_tasks) / (pos_prob_sum / num_tasks)))
+
+
+check_duplicate_pairs(corpus_name=config.Corpus.name, num_vocab=config.Corpus.num_vocab)

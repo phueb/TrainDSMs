@@ -4,6 +4,7 @@ from pathlib import Path
 class LocalDirs:
     root = Path(__file__).parent.parent
     src = root / 'two_process_nlp'
+    create = root / 'create'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
     runs = root / '{}_runs'.format(src.name)

@@ -5,7 +5,6 @@ from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 import pandas as pd
 
 from two_process_nlp import config
-from two_process_nlp.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 VERBOSE = False
@@ -37,7 +36,7 @@ if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Corpus.vocab_sizes:
         # process mcrae data
-        mcrae_df = pd.read_csv(config.LocalDirs.tasks / 'features' / 'mcrae_features.csv', index_col=False)
+        mcrae_df = pd.read_csv(config.LocalDirs.create / 'mcrae_features.csv', index_col=False)
         mcrae_df.rename(inplace=True, columns={'Feature': 'relatum'})
         mcrae_df['concept'] = [w.split('_')[0] for w in mcrae_df['Concept']]
         print('Number of unique concept words={}'.format(len(mcrae_df['concept'].unique())))
@@ -46,14 +45,18 @@ if __name__ == '__main__':
         num_relations = num_relations.to_frame('frequency')
         print(num_relations)
         # process BLESS data
-        bless_df = pd.read_csv(config.LocalDirs.tasks / 'BLESS.txt', sep="\t", header=None)
+        bless_df = pd.read_csv(config.LocalDirs.create / 'BLESS.txt', sep="\t", header=None)
         bless_df.columns = ['concept', 'class', 'relation', 'relatum']
         bless_df['concept'] = bless_df['concept'].apply(strip_pos)
         bless_df['relatum'] = bless_df['relatum'].apply(strip_pos)
         bless_df['relation'] = bless_df['relation'].apply(rename_relation)
+        # vocab
+        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        vocab = np.loadtxt(p, 'str').tolist()
         # make probes
         concepts = mcrae_df['concept'].values.tolist() + bless_df['concept'].values.tolist()
-        vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         assert len(vocab) == vocab_size
         probes = []
         for w in vocab:
@@ -91,8 +94,8 @@ if __name__ == '__main__':
                             if mcrae_f not in bless_features:
                                 print('{}-{} in McRae data but not in BLESS data.'.format(probe, mcrae_f))
                     # write
-                    features = ' '.join([f for f in mcrae_features + bless_features
-                                         if f != probe and f in vocab])
+                    all_unique_features = set(mcrae_features + bless_features)
+                    features = ' '.join([f for f in all_unique_features if f != probe and f in vocab])
                     if not features:
                         continue
                     line = '{} {}\n'.format(probe, features)

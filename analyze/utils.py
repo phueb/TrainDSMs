@@ -1,4 +1,5 @@
 from itertools import product
+from collections import Counter
 
 from two_process_nlp import config
 from two_process_nlp.aggregator import Aggregator
@@ -45,21 +46,45 @@ def to_diff_df(df):
     return df1
 
 
+def check_duplicate_pairs(corpus_name, num_vocab):
+    for p in config.LocalDirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
+        with p.open('r') as f:
+            lines = f.read().splitlines()  # removes '\n' newline character
+        unique_pairs = set()
+        all_pairs = []
+        for line in lines:
+            probe = line.split()[0]
+            relata = line.split()[1:]
+            pairs_in_line = list(product([probe], relata))
+            unique_pairs.update(pairs_in_line)
+            all_pairs.extend(pairs_in_line)
+        # check
+        print()
+        print(p.relative_to(config.LocalDirs.tasks))
+        c = Counter(all_pairs)
+        for pair, num in c.items():
+            if num > 1:
+                print(pair, num)
+
+
 def make_task_name2_probe_data(corpus_name, num_vocab):
     res = {}
     for p in config.LocalDirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
         with p.open('r') as f:
             lines = f.read().splitlines()  # removes '\n' newline character
-        pairs = set()
-        pairs.update()
+        unique_pairs = set()
         num_pos_possible = 0
         probes = set()
         for line in lines:
             probe = line.split()[0]
             relata = line.split()[1:]
-            pairs.update(list(product([probe], relata)))
+            pairs_in_line = list(product([probe], relata))
+            unique_pairs.update(pairs_in_line)
             probes.update([probe] + relata)
             num_pos_possible += len(relata)
+            # check
+            if len(set(relata)) != len(relata):
+                print('WARNING: Duplicate relata in line.')
         # task_name
         try:
             suffix = str(p.relative_to(config.LocalDirs.tasks).stem).split('_')[2]
@@ -71,7 +96,7 @@ def make_task_name2_probe_data(corpus_name, num_vocab):
         num_row_words = len(lines)
         num_unique_probes = len(probes)
         num_total_possible = len(probes) ** 2
-        num_pos = len(pairs)
+        num_pos = len(unique_pairs)
         num_neg = num_total_possible - num_pos
         diff = num_pos_possible - num_pos
         res[task_name] = \

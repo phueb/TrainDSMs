@@ -5,7 +5,6 @@ from spacy.lang.en import LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES
 import pandas as pd
 
 from two_process_nlp import config
-from two_process_nlp.embedders.base import EmbedderBase
 
 CORPUS_NAME = 'childes-20180319'
 LEMMATIZE = True
@@ -19,13 +18,17 @@ if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Corpus.vocab_sizes:
         # process BLESS data
-        bless_df = pd.read_csv(config.LocalDirs.tasks / 'BLESS.txt', sep="\t", header=None)
+        bless_df = pd.read_csv(config.LocalDirs.create / 'BLESS.txt', sep="\t", header=None)
         bless_df.columns = ['concept', 'class', 'relation', 'relatum']
         bless_df['concept'] = bless_df['concept'].apply(strip_pos)
         bless_df['relatum'] = bless_df['relatum'].apply(strip_pos)
+        # vocab
+        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        if not p.exists():
+            raise RuntimeError('{} does not exist'.format(p))
+        vocab = np.loadtxt(p, 'str').tolist()
         # make probes
         concepts = bless_df['concept'].values.tolist()
-        vocab = EmbedderBase.load_corpus_data(num_vocab=vocab_size)[1]
         assert len(vocab) == vocab_size
         probes = []
         for w in vocab:
