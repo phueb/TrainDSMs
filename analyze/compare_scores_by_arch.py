@@ -6,7 +6,7 @@ ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
 
 # clean df
-df.drop(df[df['process'].isin(['novice', 'control'])].index, inplace=True)
+df.drop(df[df['regime'].isin(['novice', 'control'])].index, inplace=True)
 df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 

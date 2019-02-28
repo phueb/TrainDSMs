@@ -10,7 +10,7 @@ dat = dat[dat$arch != "classifier",]
 summary(dat)
 
 # F test to compare variances of two sampels from normal populations
-nov_scores = unlist(dat[dat$process == "novice",]["score"], use.names=FALSE)
-exp_scores = unlist(dat[dat$process == "expert",]["score"], use.names=FALSE)
+nov_scores = unlist(dat[dat$regime == "novice",]["score"], use.names=FALSE)
+exp_scores = unlist(dat[dat$regime == "expert",]["score"], use.names=FALSE)
 var.test(nov_scores, exp_scores, alternative="less")
 

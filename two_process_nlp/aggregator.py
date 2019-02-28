@@ -23,7 +23,7 @@ class Aggregator:
                          'arch',
                          'evaluation',
                          'task',
-                         'process'] + self.expert_param_names + ['score']
+                         'regime'] + self.expert_param_names + ['score']
         self.df_name_with_date = '2process_data_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
         self.df_name = '2process_data.csv'
         self.df = None
@@ -153,7 +153,7 @@ class Aggregator:
         bars_list = []
         param2val_list = []
         embedder_names = []
-        novice_df = filtered_df[filtered_df['process'] == 'novice']
+        novice_df = filtered_df[filtered_df['regime'] == 'novice']
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
         hatches = None
@@ -173,12 +173,12 @@ class Aggregator:
             print('num_scores={}'.format(len(embedder_df)))
             # hatches
             hatches = self.hatches.copy()
-            grouped = embedder_df.groupby('process')
+            grouped = embedder_df.groupby('regime')
             processes = [p for p, g in grouped]
-            if 'expert' not in embedder_df['process'].unique():
+            if 'expert' not in embedder_df['regime'].unique():
                 print(('WARNING: Found only process(s): {}'.format(processes)))
                 hatches.pop()
-            if 'control' not in embedder_df['process'].unique():
+            if 'control' not in embedder_df['regime'].unique():
                 print(('WARNING: Found only process(s): {}'.format(processes)))
                 hatches.pop()
             hatches = cycle(hatches)

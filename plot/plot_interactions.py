@@ -61,7 +61,7 @@ for level in factor_levels:
     y = []
     print(level)
     for process in PROCESSES:
-        score = df_subset[df_subset['process'] == process]['score'].mean()
+        score = df_subset[df_subset['regime'] == process]['score'].mean()
         print(process, score)
         y.append(score)
     color = level2color[level]

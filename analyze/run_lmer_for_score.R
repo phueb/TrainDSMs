@@ -10,7 +10,7 @@ dat = read.csv(file='/media/lab/2ProcessNLP/2process_data.csv', header=TRUE, sep
 # to factor
 dat$num_epochs_per_row_word = factor(dat$num_epochs_per_row_word)
 dat$neg_pos_ratio = factor(dat$neg_pos_ratio)
-dat$process = factor(dat$process)
+dat$regime = factor(dat$regime)
 dat$arch = factor(dat$arch)
 dat$task = factor(dat$task)
 dat$evaluation = factor(dat$evaluation)
@@ -26,11 +26,11 @@ dat = dat[dat$embedder != "random_normal",]
 # dat = dat[dat$arch != "classifier",]
 dat = dat[(dat$neg_pos_ratio == 1) | (is.na(dat$neg_pos_ratio)), ]
 dat = dat[(dat$num_epochs_per_row_word != 0) | (is.na(dat$num_epochs_per_row_word)), ]
-dat = dat[dat$process != "control",]
+dat = dat[dat$regime != "control",]
 print(summary(dat))
 
 # mixed-effects model
-fit <- lmer(score ~ process * arch + (process|task) + (process|embedder/job_name) , data=dat)
+fit <- lmer(score ~ regime * arch + (regime|task) + (regime|embedder/job_name) , data=dat)
 anova = anova(fit)
 print(summary(fit))
 print(analyze(anova))

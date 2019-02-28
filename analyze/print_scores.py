@@ -20,7 +20,7 @@ filtered_df = df[(df['embedder'] == EMBEDDER) &
                  (df['task'] == TASK) &
                  (df['corpus'] == CORPUS) &
                  (df['num_vocab'] == NUM_VOCAB) &
-                 (df['process'] == PROCESS) &
+                 (df['regime'] == PROCESS) &
                  (df['embed_size'] == EMBED_SIZE)]
 
 print()
