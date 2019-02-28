@@ -15,7 +15,7 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    neg_pos_ratio = [1.0, 0.0]
+    neg_pos_ratio = [1.0]
     num_epochs_per_row_word = [1.0]  # 1.0 is best
 
 
@@ -122,13 +122,12 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         wy = tf.get_variable('wy', shape=[embed_size, num_outputs],  dtype=tf.float32, initializer=init)
                         by = tf.Variable(tf.zeros([num_outputs]))
                         # select cols of wy and elements of by
-                        wy_col = tf.gather(wy, x2, axis=1)
-                        b_col = tf.gather(by, x2, axis=0)
-                        # matmul computes dot product for each combination of row and col
-                        # but we are interested in dotproduct of first row with first col, sec row with sec col, etc.
-                        # to filter out those dotproducts, we use only the diagonal of the matmul op result
-                        logits_2d = tf.matmul(x1, wy_col) + b_col
-                        logits = tf.linalg.tensor_diag_part(logits_2d)  # retrieve only diagonal
+                        wy_cols = tf.gather(wy, x2, axis=1)
+                        by_cols = tf.gather(by, x2, axis=0)
+                        # pairwise vector-dot-product: calc dot-product for each row in x1 and column in wy_cols
+                        logits = tf.reduce_sum(tf.multiply(x1, tf.transpose(wy_cols)), axis=1)
+
+
                 # loss
                 pred_cos = tf.nn.sigmoid(logits)  # gives same ba as tanh
                 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)
