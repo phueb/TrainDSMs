@@ -7,7 +7,7 @@ NUM_VOCAB = 4096
 EMBEDDER = 'ww'  # rnd_normal
 EMBED_SIZE = 200
 TASK = 'cohyponyms_semantic'
-PROCESS = 'novice'
+PROCESS = 'expert'
 
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
@@ -25,5 +25,7 @@ filtered_df = df[(df['embedder'] == EMBEDDER) &
 
 print()
 print('Length of complete data={}'.format(len(df)))
+print('Trained embedders={}'.format(df['embedder'].unique()))
 print()
+print('Data for given criteria:')
 print(filtered_df[['job_name', 'score']])

@@ -15,7 +15,7 @@ class Params:
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
     neg_pos_ratio = [1.0, 0.0]  # 1.0 is better than anything higher or lower
-    num_epochs_per_row_word = [0.1, 1, 2, 4]  # 0.2 is slightly better than 0.1
+    num_epochs_per_row_word = [1.0]  # 1.0 is best
 
 
 name = 'comparator'

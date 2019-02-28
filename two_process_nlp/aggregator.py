@@ -28,10 +28,9 @@ class Aggregator:
         self.df_name = '2process_data.csv'
         self.df = None
         self.counter = count(0, 1)
-        self.processes = ['control', 'expert', 'novice']
         # constants
         self.bw = 0.2
-        self.hatches = cycle(['--', '\\\\', 'xx'])
+        self.hatches = ['--', '\\\\', 'xx']
         self.embedder2color = {embedder_name: plt.cm.get_cmap('tab10')(n) for n, embedder_name in enumerate(
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
@@ -134,11 +133,6 @@ class Aggregator:
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
         filtered_df = df[bool_id]
-
-        print(df['neg_pos_ratio'].unique(), neg_pos_ratio)
-        print(df['num_epochs_per_row_word'].unique(), num_epochs_per_row_word)
-
-
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, ev)
@@ -162,6 +156,8 @@ class Aggregator:
         novice_df = filtered_df[filtered_df['process'] == 'novice']
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
+        hatches = None
+        processes = None
         for param_id, param_name in enumerate(param_names_sorted_by_score):
             #
             bool_id = df['param_name'] == param_name
@@ -175,12 +171,20 @@ class Aggregator:
             print(param_name)
             print(embedder_name)
             print('num_scores={}'.format(len(embedder_df)))
-            #
+            # hatches
+            hatches = self.hatches.copy()
+            grouped = embedder_df.groupby('process')
+            processes = [p for p, g in grouped]
+            if 'expert' not in embedder_df['process'].unique():
+                print(('WARNING: Found only process(s): {}'.format(processes)))
+                hatches.pop()
+            if 'control' not in embedder_df['process'].unique():
+                print(('WARNING: Found only process(s): {}'.format(processes)))
+                hatches.pop()
+            hatches = cycle(hatches)
+            # bars
             bars = []
             x = param_id + 0.6
-            grouped = embedder_df.groupby('process')
-            if len(grouped) != 3:
-                raise RuntimeError('Found only process(s): {}'.format(embedder_df['process'].unique()))
             for process, process_df in grouped:
                 ys = process_df['score'].values
                 print(ys)
@@ -195,7 +199,7 @@ class Aggregator:
                             yerr=ys.std(),
                             color=self.embedder2color[embedder_name],
                             edgecolor='black',
-                            hatch=next(self.hatches))
+                            hatch=next(hatches))
                 bars.append(copy.copy(b))
             if bars:
                 bars_list.append(bars)
@@ -216,10 +220,11 @@ class Aggregator:
         # legend
         plt.tight_layout()
         labels1 = embedder_names
-        labels2 = self.processes
+        labels2 = processes
         if not bars_list:
-            raise RuntimeError('No scores found for given factors.')
-        self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders)
+            print('WARNING:No scores found for given factors.')
+            return
+        self.add_double_legend(bars_list, labels1, labels2, leg1_y, num_embedders, hatches)
         fig.subplots_adjust(bottom=0.1)
         if not save:
             plt.show()
@@ -246,7 +251,8 @@ class Aggregator:
             raise AttributeError('Invalid arg to "EVALUATOR_NAME".')
         return ylabel, ylims, yticks, y_chance
 
-    def add_double_legend(self, bars_list, labels1, labels2, leg1_y, num_leg1_cols, leg_fs=12, num_leg2_cols=4):
+    def add_double_legend(self, bars_list, labels1, labels2, leg1_y, num_leg1_cols, hatches,
+                          leg_fs=12, num_leg2_cols=4):
         for bars in bars_list:
             for bar in bars:
                 bar.set_hatch(None)
@@ -255,7 +261,7 @@ class Aggregator:
         for bars in bars_list:
             for bar in bars:
                 bar.set_facecolor('white')
-                bar.set_hatch(next(self.hatches))
+                bar.set_hatch(next(hatches))
         plt.legend(bars_list[0], labels2, loc='upper center',
                    bbox_to_anchor=(0.5, leg1_y - 0.1), ncol=num_leg2_cols, frameon=False, fontsize=leg_fs)
         plt.gca().add_artist(leg1)  # order of legend creation matters here

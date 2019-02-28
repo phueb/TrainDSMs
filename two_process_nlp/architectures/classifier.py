@@ -15,8 +15,8 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
-    neg_pos_ratio = [1.0, 0.0]  # TODO test
-    num_epochs_per_row_word = [0.1, 1, 2, 4]  # 2 is better than 0.2 (especially for events task)
+    neg_pos_ratio = [1.0, 0.0]
+    num_epochs_per_row_word = [1.0]  # 1.0 is best
 
 
 name = 'classifier'

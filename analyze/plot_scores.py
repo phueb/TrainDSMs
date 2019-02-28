@@ -16,26 +16,26 @@ MIN_NUM_REPS = 1
 
 ag = Aggregator()
 
-for arch, task in product(
-        ['comparator', 'classifier'],
+for task, arch in product(
         [
-            'hypernyms',
-            'cohyponyms_semantic',
-            'cohyponyms_syntactic',
-            'events',
-            'features_has',
-            'features_is',
-            'nyms_syn_jw',
+            # 'cohyponyms_semantic',
+            # 'hypernyms',
+            # 'cohyponyms_syntactic',
+            # 'events',
+            # 'features_has',
+            # 'features_is',
+            # 'nyms_syn_jw',
             'nyms_ant_jw'
-        ]):
+        ],
+        ['classifier', 'comparator'],):
 
     #
     if arch == 'classifier':
-        neg_pos_ratios = [np.nan]
-        num_epochs_per_row_word_list = [0.2, 2]  # TODO does classifier with smart init do as good with 2 as 20?
+        neg_pos_ratios = [0.0, 1.0]
+        num_epochs_per_row_word_list = [1]
     elif arch == 'comparator':
-        neg_pos_ratios = [1.0]
-        num_epochs_per_row_word_list = [0.2]
+        neg_pos_ratios = [0.0, 1.0]
+        num_epochs_per_row_word_list = [1]
     else:
         raise  AttributeError('Invalid arg to "architecture".')
     for neg_pos_ratio in neg_pos_ratios:
@@ -45,7 +45,8 @@ for arch, task in product(
                               neg_pos_ratio,
                               num_epochs_per_row_word,
                               load_from_file=DF_FROM_FILE,
-                              width=20,
+                              height=10,
+                              width=16,
                               dpi=200,
                               save=SAVE,
                               min_num_reps=MIN_NUM_REPS)
