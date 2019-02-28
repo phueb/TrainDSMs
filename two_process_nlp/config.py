@@ -1,15 +1,17 @@
 from pathlib import Path
 
 
-class Dirs:
+class LocalDirs:
     root = Path(__file__).parent.parent
     src = root / 'two_process_nlp'
     tasks = root / 'tasks'
     corpora = root / 'corpora'
-    local_runs = root / '{}_runs'.format(src.name)
-    #
-    remote_root = Path('/') / 'media' / 'lab' / '2ProcessNLP'
-    remote_runs = remote_root / 'runs'
+    runs = root / '{}_runs'.format(src.name)
+
+
+class RemoteDirs:
+    root = Path('/') / 'media' / 'lab' / '2ProcessNLP'
+    runs = root / 'runs'
 
 
 class Eval:

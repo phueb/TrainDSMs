@@ -16,7 +16,7 @@ class EmbedderBase(object):
 
     @property
     def location(self):
-        res = config.Dirs.local_runs / self.param_name / self.job_name
+        res = config.LocalDirs.runs / self.param_name / self.job_name
         if not res.exists():
             res.mkdir(parents=True)
         return res
@@ -31,7 +31,7 @@ class EmbedderBase(object):
                 f.write('{} {}\n'.format(probe, embedding_str))
 
     def load_w2e(self, remote=True):
-        runs_dir = config.Dirs.remote_runs if remote else config.Dirs.local_runs
+        runs_dir = config.RemoteDirs.runs if remote else config.LocalDirs.runs
         print('Loading w2e from {}'.format(runs_dir))
         mat = np.loadtxt(runs_dir / self.param_name / self.job_name / 'embeddings.txt',
                          dtype='str', comments=None)
@@ -43,7 +43,7 @@ class EmbedderBase(object):
 
     @cached_property
     def vocab(self):
-        p = config.Dirs.remote_root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         #
@@ -52,7 +52,7 @@ class EmbedderBase(object):
 
     @cached_property
     def w2freq(self):
-        p = config.Dirs.remote_root / '{}_w2freq.txt'.format(config.Corpus.name)
+        p = config.RemoteDirs.root / '{}_w2freq.txt'.format(config.Corpus.name)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         #
@@ -69,7 +69,7 @@ class EmbedderBase(object):
         import socket
         hostname = socket.gethostname().lower()
 
-        p = config.Dirs.remote_root / '{}_{}_{}_docs.pkl'.format(hostname, config.Corpus.name, config.Corpus.num_vocab)
+        p = config.RemoteDirs.root / '{}_{}_{}_docs.pkl'.format(hostname, config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         #
@@ -79,7 +79,7 @@ class EmbedderBase(object):
 
     @cached_property
     def numeric_docs(self):
-        p = config.Dirs.remote_root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.RemoteDirs.root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         #

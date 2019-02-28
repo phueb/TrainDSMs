@@ -19,7 +19,7 @@ if __name__ == '__main__':
     lemmatizer = Lemmatizer(LEMMA_INDEX, LEMMA_EXC, LEMMA_RULES)
     for vocab_size in config.Corpus.vocab_sizes:
         # process BLESS data
-        bless_df = pd.read_csv(config.Dirs.tasks / 'BLESS.txt', sep="\t", header=None)
+        bless_df = pd.read_csv(config.LocalDirs.tasks / 'BLESS.txt', sep="\t", header=None)
         bless_df.columns = ['concept', 'class', 'relation', 'relatum']
         bless_df['concept'] = bless_df['concept'].apply(strip_pos)
         bless_df['relatum'] = bless_df['relatum'].apply(strip_pos)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         if LEMMATIZE:
             probes = set([p for p in probes if p in vocab])  # lemmas may not be in vocab
         # write to file
-        out_path = config.Dirs.tasks / 'events' / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
+        out_path = config.LocalDirs.tasks / 'events' / '{}_{}.txt'.format(CORPUS_NAME, vocab_size)
         if not out_path.parent.exists():
             out_path.parent.mkdir(parents=True)
         with out_path.open('w') as f:

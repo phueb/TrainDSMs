@@ -9,7 +9,7 @@ DATA_NAME2 = 'is'
 
 def load_probes():
     data_dir = '{}/{}'.format(DATA_NAME1, DATA_NAME2) if DATA_NAME2 is not None else DATA_NAME1
-    p = config.Dirs.tasks / data_dir / '{}_{}.txt'.format(
+    p = config.LocalDirs.tasks / data_dir / '{}_{}.txt'.format(
         config.Corpus.name, config.Corpus.num_vocab)
     probes = []
     probe_relata = []

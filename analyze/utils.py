@@ -5,7 +5,7 @@ from two_process_nlp.aggregator import Aggregator
 
 
 def gen_param2vals_for_completed_jobs():
-    for location in config.Dirs.remote_runs.glob('**/*num*'):
+    for location in config.RemoteDirs.runs.glob('**/*num*'):
         param_name, job_name = location.parts[-2:]
         param2val = Aggregator.load_param2val(param_name)
         param2val['job_name'] = job_name
@@ -47,7 +47,7 @@ def to_diff_df(df):
 
 def make_task_name2_probe_data(corpus_name, num_vocab):
     res = {}
-    for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
+    for p in config.LocalDirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
         with p.open('r') as f:
             lines = f.read().splitlines()  # removes '\n' newline character
         pairs = set()
@@ -62,10 +62,10 @@ def make_task_name2_probe_data(corpus_name, num_vocab):
             num_pos_possible += len(relata)
         # task_name
         try:
-            suffix = str(p.relative_to(config.Dirs.tasks).stem).split('_')[2]
+            suffix = str(p.relative_to(config.LocalDirs.tasks).stem).split('_')[2]
         except IndexError:
             suffix = ''
-        task_name = '{}{}'.format(str(p.relative_to(config.Dirs.tasks).parent).replace('/', '_'),
+        task_name = '{}{}'.format(str(p.relative_to(config.LocalDirs.tasks).parent).replace('/', '_'),
                                   '_' + suffix if suffix else '')
         #
         num_row_words = len(lines)

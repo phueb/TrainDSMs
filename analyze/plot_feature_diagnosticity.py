@@ -136,7 +136,7 @@ def make_feature_diagnosticity_mat():
     return res
 
 
-p = config.Dirs.tasks / 'hypernyms' / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+p = config.LocalDirs.tasks / 'hypernyms' / '{}_{}.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
 both = np.loadtxt(p, dtype='str')
 np.random.shuffle(both)
 probes, probe_cats = both.T

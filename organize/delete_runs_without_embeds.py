@@ -3,7 +3,7 @@ import shutil
 from two_process_nlp import config
 
 
-param_ps = config.Dirs.remote_runs.glob('**/*num*')
+param_ps = config.RemoteDirs.runs.glob('**/*num*')
 
 locations_to_del = []
 while True:

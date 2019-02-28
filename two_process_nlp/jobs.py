@@ -25,7 +25,7 @@ def preprocessing_job():
     docs = []
     w2freq = Counter()
     # tokenize + count words
-    p = config.Dirs.corpora / '{}.txt'.format(config.Corpus.name)
+    p = config.LocalDirs.corpora / '{}.txt'.format(config.Corpus.name)
     with p.open('r') as f:
         texts = f.read().splitlines()  # removes '\n' newline character
     num_texts = len(texts)
@@ -154,8 +154,8 @@ def aggregation_job(verbose=True):
     print('Aggregating runs data...')
     ag = Aggregator()
     df = ag.make_df(load_from_file=False, verbose=verbose)
-    p_with_date = config.Dirs.remote_root / ag.df_name_with_date
-    p = config.Dirs.remote_root / ag.df_name
+    p_with_date = config.RemoteDirs.root / ag.df_name_with_date
+    p = config.RemoteDirs.root / ag.df_name
     df.to_csv(p_with_date, index=False)
     df.to_csv(p, index=False)
     print('Done. Saved aggregated data to {}'.format(p))

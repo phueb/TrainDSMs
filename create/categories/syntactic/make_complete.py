@@ -14,7 +14,7 @@ for pos in pos_list:
     pos_words = df[(df['pos'] == pos) & (df['difficulty'] == DIFFICULTY)]['word'].values.tolist()[:MAX]
     pos2words[pos] = pos_words
 
-p = config.Dirs.root / 'create' / 'categories' / 'syntactic' / '{}_complete.txt'.format(CORPUS_NAME)
+p = config.LocalDirs.root / 'create' / 'categories' / 'syntactic' / '{}_complete.txt'.format(CORPUS_NAME)
 with open(str(p), 'w') as f:
     for pos in pos_list:
         for probe in pos2words[pos]:

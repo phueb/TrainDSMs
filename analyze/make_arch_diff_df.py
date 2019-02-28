@@ -8,7 +8,7 @@ from analyze.utils import make_task_name2_probe_data
 
 
 def load_column_from_file(which):
-    p = config.Dirs.remote_root / 'job_name2{}_probe_sim_data.pkl'.format(which)
+    p = config.RemoteDirs.root / 'job_name2{}_probe_sim_data.pkl'.format(which)
     with p.open('rb') as f:
         job_name2probe_sim_data = pickle.load(f)
     res = [job_name2probe_sim_data[row['job_name']][0][row['task']]
@@ -37,6 +37,6 @@ diff_df['num_pos'] = [task_name2_probe_data[row['task']][3] / task_name2_probe_d
 # num_row_words, num_unique_probes, num_total_possible, num_pos, num_neg, num_pos_possible, diff
 
 # save
-p = config.Dirs.remote_root / 'diff_scores.csv'
+p = config.RemoteDirs.root / 'diff_scores.csv'
 diff_df.to_csv(p)
 

@@ -133,9 +133,9 @@ class Identification(EvalBase):
 
     def load_probes(self):
         # get paths to relata and lures
-        p1 = config.Dirs.tasks / self.data_name1 / self.data_name2 / '{}_{}{}.txt'.format(
+        p1 = config.LocalDirs.tasks / self.data_name1 / self.data_name2 / '{}_{}{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab, self.suffix)
-        p2s = [p for p in (config.Dirs.tasks / self.data_name1).rglob('{}_{}{}.txt'.format(
+        p2s = [p for p in (config.LocalDirs.tasks / self.data_name1).rglob('{}_{}{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab, self.suffix)) if p != p1]
         if len(p2s) != 1:
             print(p2s)

@@ -37,13 +37,13 @@ class Aggregator:
 
     @classmethod
     def load_param2val(cls, param_name):
-        with (config.Dirs.remote_runs / param_name / 'param2val.yaml').open('r') as f:
+        with (config.RemoteDirs.runs / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 
     def make_df(self, load_from_file, verbose):
         # load from file
-        p = config.Dirs.remote_root / self.df_name
+        p = config.RemoteDirs.root / self.df_name
         if p.exists() and load_from_file:
             print('Loading data frame from file. Re-export data to file if data has changed')
             res = pd.read_csv(p)
@@ -51,7 +51,7 @@ class Aggregator:
             return res
         # make from runs data
         dfs = []
-        for location in config.Dirs.remote_runs.glob('**/*num*'):
+        for location in config.RemoteDirs.runs.glob('**/*num*'):
             if verbose:
                 print()
                 print(location)
@@ -72,11 +72,11 @@ class Aggregator:
             print('Num rows in df={}'.format(len(res)))
             return res
         else:
-            raise RuntimeError('Did not find any scores in {}'.format(config.Dirs.remote_runs))
+            raise RuntimeError('Did not find any scores in {}'.format(config.RemoteDirs.runs))
 
     def make_embedder_df(self, corpus, num_vocab, embed_size, param_name, job_name, embedder, verbose):
         dfs = []
-        loc = config.Dirs.remote_runs / param_name / job_name
+        loc = config.RemoteDirs.runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
             arch, ev, task, process = scores_p.relative_to(loc).parts[:-1]
             scores_df = pd.read_csv(scores_p, index_col=False)
@@ -225,7 +225,7 @@ class Aggregator:
             plt.show()
         else:
             time_of_fig = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-            p = config.Dirs.root / 'figs' / '{}.png'.format(time_of_fig)
+            p = config.LocalDirs.root / 'figs' / '{}.png'.format(time_of_fig)
             print('Saving fig to {}'.format(p))
             plt.savefig(p.open('wb'), bbox_inches="tight")
             time.sleep(1)

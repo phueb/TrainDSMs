@@ -13,13 +13,13 @@ from two_process_nlp import config
 
 
 def move_scores_to_server(param2val, location):
-    dst = config.Dirs.remote_runs / param2val['param_name']
+    dst = config.RemoteDirs.runs / param2val['param_name']
     if not dst.exists():
         dst.mkdir(parents=True)
     shutil.move(str(location), str(dst))
 
     # write param2val to shared drive
-    param2val_p = config.Dirs.remote_runs / param2val['param_name'] / 'param2val.yaml'
+    param2val_p = config.RemoteDirs.runs / param2val['param_name'] / 'param2val.yaml'
     if not param2val_p.exists():
         param2val['job_name'] = None
         with param2val_p.open('w', encoding='utf8') as f:
@@ -28,17 +28,17 @@ def move_scores_to_server(param2val, location):
 
 def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
     # save w2freq
-    p = config.Dirs.remote_root / '{}_w2freq.txt'.format(config.Corpus.name)
+    p = config.RemoteDirs.root / '{}_w2freq.txt'.format(config.Corpus.name)
     with p.open('w') as f:
         for probe, freq in deterministic_w2f.items():
             f.write('{} {}\n'.format(probe, freq))
     # save vocab
-    p = config.Dirs.remote_root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('w') as f:
         for v in vocab:
             f.write('{}\n'.format(v))
     # save numeric_docs
-    p = config.Dirs.remote_root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = config.RemoteDirs.root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('wb') as f:
         pickle.dump(numeric_docs, f)
     # save docs
@@ -46,11 +46,11 @@ def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
     # TODO test EOFErrow when reading pickled docs stored n server on worker
     from ludwigcluster.config import SFTP
     for worker in SFTP.worker_names:
-        p = config.Dirs.remote_root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
+        p = config.RemoteDirs.root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
         with p.open('wb') as f:
             pickle.dump(docs, f)
 
-    p = config.Dirs.remote_root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = config.RemoteDirs.root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('wb') as f:
         pickle.dump(docs, f)
 

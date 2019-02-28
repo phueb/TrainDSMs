@@ -13,10 +13,10 @@ def run_on_cluster():
     """
     run multiple jobs on multiple LudwigCluster nodes.
     """
-    config.Dirs.corpora = config.Dirs.remote_root / 'corpora'
-    config.Dirs.tasks = config.Dirs.remote_root / 'tasks'
+    config.LocalDirs.corpora = config.RemoteDirs.root / 'corpora'
+    config.LocalDirs.tasks = config.RemoteDirs.root / 'tasks'
     #
-    p = config.Dirs.remote_root / '{}_param2val_chunk.pkl'.format(hostname)
+    p = config.RemoteDirs.root / '{}_param2val_chunk.pkl'.format(hostname)
     with p.open('rb') as f:
         param2val_chunk = pickle.load(f)
     for param2val in param2val_chunk:
@@ -26,7 +26,7 @@ def run_on_cluster():
             print(e)
     #
     aggregation_job(verbose=False)
-    print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
+    print('Finished {} jobs\n'.format(config.RemoteDirs.root.name))
 
 
 def run_on_host():
@@ -35,14 +35,14 @@ def run_on_host():
     """
     from ludwigcluster.utils import list_all_param2vals
     #
-    preprocessing_job() if not config.Eval.debug else None
+    # preprocessing_job()
     for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
         try:
             main_job(param2val)
         except NotImplementedError as e:
             print(e)
     #
-    print('Finished {} jobs\n'.format(config.Dirs.remote_root.name))
+    print('Finished {} jobs\n'.format(config.RemoteDirs.root.name))
 
 
 if __name__ == '__main__':

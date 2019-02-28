@@ -149,18 +149,18 @@ class EvalBase(object):
         return scores
 
     def get_best_trial_score(self, trial):
-        best_expert_score = 0
+        res = 0
         best_eval_id = 0
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
-            expert_score = self.score(eval_sims_mat)
+            trial_score = self.score(eval_sims_mat)
             if config.Eval.verbose:
-                self.print_score(expert_score, eval_id)
-            if expert_score > best_expert_score:
-                best_expert_score = expert_score
+                self.print_score(trial_score, eval_id)
+            if trial_score > res:
+                res = trial_score
                 best_eval_id = eval_id
         if config.Eval.verbose:
-            print('Expert score={:.2f} (at eval step {})'.format(best_expert_score, best_eval_id + 1))
-        return best_expert_score
+            print('Expert score={:.2f} (at eval step {})'.format(res, best_eval_id + 1))
+        return res
 
     def do_trial(self, trial, w2e, embed_size, shuffled):
         trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))

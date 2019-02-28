@@ -98,7 +98,7 @@ class Matching(EvalBase):
 
     def load_probes(self):
         data_dir = '{}/{}'.format(self.data_name1, self.data_name2) if self.data_name2 is not None else self.data_name1
-        p = config.Dirs.tasks / data_dir / '{}_{}{}.txt'.format(
+        p = config.LocalDirs.tasks / data_dir / '{}_{}{}.txt'.format(
             config.Corpus.name, config.Corpus.num_vocab, self.suffix)
         probes1 = []
         probe_relata1 = []

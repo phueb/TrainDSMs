@@ -4,22 +4,26 @@ DF_FROM_FILE = True
 
 CORPUS = 'childes-20180319'
 NUM_VOCAB = 4096
-EMBEDDER = 'srn'  # rnd_normal
-EMBED_SIZE = 500
+EMBEDDER = 'ww'  # rnd_normal
+EMBED_SIZE = 200
 TASK = 'cohyponyms_semantic'
 PROCESS = 'novice'
 
-ag_matching = Aggregator()
-matching_df = ag_matching.make_df(load_from_file=True, verbose=True)
-for col in matching_df.columns:
+ag = Aggregator()
+df = ag.make_df(load_from_file=True, verbose=True)
+print('Columns:')
+for col in df.columns:
     print(col)
 
 # filter
-filtered_df = matching_df[(matching_df['embedder'] == EMBEDDER) &
-                          (matching_df['task'] == TASK) &
-                          (matching_df['corpus'] == CORPUS) &
-                          (matching_df['num_vocab'] == NUM_VOCAB) &
-                          (matching_df['process'] == PROCESS) &
-                          (matching_df['embed_size'] == EMBED_SIZE)]
+filtered_df = df[(df['embedder'] == EMBEDDER) &
+                 (df['task'] == TASK) &
+                 (df['corpus'] == CORPUS) &
+                 (df['num_vocab'] == NUM_VOCAB) &
+                 (df['process'] == PROCESS) &
+                 (df['embed_size'] == EMBED_SIZE)]
 
-print(filtered_df[['location', 'score']])
+print()
+print('Length of complete data={}'.format(len(df)))
+print()
+print(filtered_df[['job_name', 'score']])

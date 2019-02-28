@@ -166,7 +166,7 @@ if ADD_MORE_ANTS and NYM_TYPE == 'ant':
                 new_probe2relata[p1] = {p2}
 
 # write to file
-out_path = config.Dirs.tasks / 'nyms' / NYM_TYPE / '{}_{}.txt'.format(CORPUS_NAME, VOCAB_SIZE)
+out_path = config.LocalDirs.tasks / 'nyms' / NYM_TYPE / '{}_{}.txt'.format(CORPUS_NAME, VOCAB_SIZE)
 if not out_path.parent.exists():
     out_path.parent.mkdir()
 with out_path.open('w') as f:

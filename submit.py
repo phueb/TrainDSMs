@@ -30,7 +30,7 @@ if __name__ == '__main__':
     namespace = parser.parse_args()
     # delete remote runs
     if namespace.clear_runs:
-        for param_p in config.Dirs.remote_runs.glob('*param*'):
+        for param_p in config.RemoteDirs.runs.glob('*param*'):
             dst = param_p
             print('Removing\n{}'.format(param_p))
             sys.stdout.flush()
@@ -48,9 +48,9 @@ if __name__ == '__main__':
                      list_all_param2vals(Word2VecParams, update_d)
     # submit
     data_dirs = ['tasks'] if not namespace.skip_data else []
-    client = Client(config.Dirs.remote_root.name)
-    client.submit(src_ps=[config.Dirs.src],
-                  data_ps=[config.Dirs.root / d for d in data_dirs],
+    client = Client(config.RemoteDirs.root.name)
+    client.submit(src_ps=[config.LocalDirs.src],
+                  data_ps=[config.LocalDirs.root / d for d in data_dirs],
                   param2val_list=param2val_list,
                   reps=namespace.reps,
                   test=namespace.test,
