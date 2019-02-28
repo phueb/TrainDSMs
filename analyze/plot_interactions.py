@@ -5,8 +5,8 @@ from two_process_nlp.aggregator import Aggregator
 from analyze.utils import to_label
 
 
-FACTOR = 'task'
-ARCHITECTURES = ['comparator']
+FACTOR = 'arch'
+ARCHITECTURES = ['comparator', 'classifier']
 PROCESSES = ['novice', 'expert']
 
 LEG_FONTSIZE = 16
@@ -18,17 +18,20 @@ DPI = 200
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
 
-# clean df
-df.drop(df[df['neg_pos_ratio'] == 0.0].index, inplace=True)
+# include
+df = df[df['neg_pos_ratio'].isin([np.nan, 1.0])]
+df = df[df['num_epochs_per_row_word'].isin([np.nan, 0.1])]
+# exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
-# df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
+df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 
 # filter by arch
 df = df[df['arch'].isin(ARCHITECTURES)]
+if FACTOR == 'arch' and len(ARCHITECTURES) == 1:
+    raise RuntimeWarning('Forgot to include an architecture in ARCHITECTURES?')
 
 
 # figure
-
 factor_levels = df[FACTOR].unique().tolist()
 level2color = {level: plt.cm.get_cmap('tab10')(n)
                for n, level in enumerate(factor_levels)}

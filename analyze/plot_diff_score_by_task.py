@@ -15,9 +15,16 @@ DPI = 200
 # make diff_df
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)
-diff_df = to_diff_df(df)
-# diff_df = diff_df[diff_df['task'] != 'cohyponyms_syntactic']
 
+# include
+df = df[df['neg_pos_ratio'].isin([np.nan, 1.0])]
+df = df[df['num_epochs_per_row_word'].isin([np.nan, 0.1])]
+# exclude
+df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
+df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
+
+# make diff_df
+diff_df = to_diff_df(df)
 
 # data
 task_names = diff_df['task'].unique()
@@ -34,7 +41,7 @@ task_name2color = {level: plt.cm.get_cmap('tab10')(n)
                    for n, level in enumerate(task_names)}
 
 fig, ax = plt.subplots(1, figsize=FIGSIZE, dpi=DPI)
-ax.set_ylim([-0.1, 0.10])
+ax.set_ylim([-0.2, 0.20])
 num_x = len(task_names)
 x = np.arange(num_x)
 ax.set_xticks(x)

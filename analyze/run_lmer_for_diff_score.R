@@ -2,12 +2,13 @@
 
 library(lmerTest)
 
-dat = read.csv(file='/media/lab/2StageNLP/diff_scores.csv', header=TRUE, sep=",", row.names=1)
+dat = read.csv(file='/media/lab/2ProcessNLP/diff_scores.csv', header=TRUE, sep=",", row.names=1)
 
 #///////////////////////////////////////////// all_probe_sim
 
-fit <- lmer(diff_score ~ all_probe_sim + (1|job_name), data=dat)
-anova(fit)
+fit <- lmer(diff_score ~ all_probe_sim + (1|embedder/job_name), data=dat)
+print(fit)
+print(anova(fit))
 
 # scatter
 par(cex = 3.0)  # magnify text on plot
