@@ -2,8 +2,8 @@
 
 
 cd /home/ph/LudwigCluster/scripts
-bash kill_job.sh 2StageNLP
-bash reload_watcher.sh
+bash kill_job.sh 2ProcessNLP
+#bash reload_watcher.sh
 
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate

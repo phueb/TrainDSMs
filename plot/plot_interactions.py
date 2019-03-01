@@ -7,7 +7,7 @@ from analyze.utils import to_label
 
 FACTOR = 'arch'
 ARCHITECTURES = ['comparator', 'classifier']
-PROCESSES = ['novice', 'expert']
+REGIMES = ['novice', 'expert']
 
 LEG_FONTSIZE = 16
 AX_FONTSIZE = 16
@@ -20,7 +20,7 @@ df = ag.make_df(load_from_file=True, verbose=True)
 
 # include
 df = df[df['neg_pos_ratio'].isin([np.nan, 1.0])]
-df = df[df['num_epochs_per_row_word'].isin([np.nan, 0.1])]
+df = df[df['num_epochs_per_row_word'].isin([np.nan, 0.21])]
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
@@ -43,15 +43,15 @@ elif FACTOR == 'arch':
     factor = 'process-2-model'
 else:
     factor = FACTOR
-plt.title('Interaction between {} and process\n process-2 architectures: {}'.format(
+plt.title('Interaction between {} and regime\n process-2 architectures: {}'.format(
     factor, ', '.join(ARCHITECTURES)), fontsize=AX_FONTSIZE)
 ax.set_ylim([0.5, 0.90])
 num_x = len(factor_levels)
 x = np.arange(2)
 ax.set_xticks(x)
-ax.set_xticklabels(PROCESSES, fontsize=AX_FONTSIZE)
+ax.set_xticklabels(REGIMES, fontsize=AX_FONTSIZE)
 ax.set_ylabel('Balanced Accuracy', fontsize=AX_FONTSIZE)
-ax.set_xlabel('Process', fontsize=AX_FONTSIZE)
+ax.set_xlabel('Regime', fontsize=AX_FONTSIZE)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.tick_params(axis='both', which='both', top=False, right=False)
@@ -60,9 +60,9 @@ for level in factor_levels:
     df_subset = df[df[FACTOR] == level]
     y = []
     print(level)
-    for process in PROCESSES:
-        score = df_subset[df_subset['regime'] == process]['score'].mean()
-        print(process, score)
+    for regime in REGIMES:
+        score = df_subset[df_subset['regime'] == regime]['score'].mean()
+        print(regime, score)
         y.append(score)
     color = level2color[level]
     ax.plot(x, y, label=to_label(level), color=color, zorder=3, linewidth=2)
