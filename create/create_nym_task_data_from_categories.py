@@ -5,7 +5,7 @@ import pandas as pd
 from two_process_nlp import config
 
 
-VERBOSE = False
+VERBOSE = True
 
 CORPUS_NAME = 'childes-20180319'
 GRAM_CAT = 'adj'
@@ -62,11 +62,11 @@ if __name__ == '__main__':
                 probe2ants[probe] = [p for p in b]
             for probe in b:
                 probe2syns[probe] = [p for p in b if p != probe]
-                probe2ants[probe] = [p for p in b]
+                probe2ants[probe] = [p for p in a]
             # check
             if VERBOSE:
-                print(probe2syns)  # duplicates are allowed when duplicates are mirrored versions of existing pairs
-                print(probe2ants)  # there will always be more antonym pairs than synonym pairs
+                print([(p, probe2syns[p]) for p in a + b])  # duplicates are allowed when duplicates are mirrored versions of existing pairs
+                print([(p, probe2ants[p]) for p in a + b])  # there will always be more antonym pairs than synonym pairs
                 print()
         # write to file
         for nym_type, probe2nyms in [('syn', probe2syns),

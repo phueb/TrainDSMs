@@ -21,19 +21,21 @@ class Eval:
     shuffled_control = False
     resample = False
     verbose = True
-    num_epochs = 100
+    min_num_relata = 1  # TODO need to change evaluation code if > 1 (eval assumes only first candidate is correct)
+    min_num_lures = 3  # TODO vary
+    num_epochs_matching = 100
+    num_epochs_identification = 2000  # TODO 2000 is good for comparator but much less is needed for classifier
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     max_num_eval_rows = 600  # 1200x1200 uses over 32GB RAM
     max_num_eval_cols = 600  # 600  # should be as large as num_rows for full matching evaluation
     standardize_num_relata = False  # don't do this - it reduces performance dramatically
-    only_negative_examples = False
     num_folds = 4
     num_opt_steps = 5
-    num_evals = 10
+    num_evals = 20
     matching_metric = 'BalAcc'
-    remove_duplicates_for_identification = False  # needs to be False to get above chance
     #
-    assert num_epochs % num_evals == 0
+    assert num_epochs_matching % num_evals == 0
+    assert num_epochs_identification % num_evals == 0
 
 
 class Embeddings:

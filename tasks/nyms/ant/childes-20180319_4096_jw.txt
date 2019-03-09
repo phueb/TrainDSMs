@@ -1,376 +1,376 @@
-locked open
-covered open
-closed open
-free tight stuck caught
-open clear plain seen
-clear open plain seen
-old above ahead before beginning early first forward front head new opening starting top winner
-preschool young growing
-young preschool growing
-growing preschool young
-nervous slow still strong brave calm
-worried slow still strong brave calm
-scared slow still strong brave calm
-afraid slow still strong brave calm
-crazy slow still strong brave calm
-shaky strong able big heavy tough hard
-shy slow still strong brave calm
-upset happy smily giddy glad gracious proud welcome merry
-frightened slow still strong brave calm
-nuts slow still strong brave calm
-slow long
-still crawling walking running flying shaky rolling moving
-strong able big heavy tough hard
-brave slow still strong calm
-calm sunny light good
-tired awake busy excited curious impressed interested surprised
-asleep alive living live awake
-sleepy awake busy excited curious impressed interested surprised
-bored sharp quick bright clever careful curious interested serious smart
-awake alive living live
-busy awake excited curious impressed interested surprised
-excited awake busy curious impressed interested surprised
-curious sharp quick bright clever careful interested serious smart
-impressed awake busy excited curious interested surprised
-interested sharp quick bright clever careful curious serious smart
-surprised awake busy excited curious impressed interested
-mixed same
-different same such like alike
-same such like alike
-scary safe okay good
-lovely good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand neat perfect
-ugly fair friendly gentle good helpful kind nice okay perfect polite sweet
-plain clear open seen
-gross yummy fresh delicious tasty ripe nice good super sweet
-pretty lovely cute beautiful handsome gorgeous neat hot
-cute lovely pretty beautiful handsome gorgeous neat hot
-beautiful lovely pretty cute handsome gorgeous neat hot
-handsome lovely pretty cute beautiful gorgeous neat hot
-gorgeous lovely pretty cute beautiful handsome neat hot
-neat interesting
-hot warm boiling baking stuffy
-confused sure certain clear
-sure true right correct certain
-certain true right correct sure
-dark sunny light calm good
-black rainbow colored colorful
-grey rainbow colored colorful
-light little fluffy
-shiny light fair sunny bright golden clear shining white
-fair friendly gentle good helpful kind nice okay perfect polite sweet
-sunny light calm good
-bright sharp quick clever careful curious interested serious smart
-golden light shiny fair sunny bright clear shining white
-shining light shiny fair sunny bright golden clear white
-white rainbow colored colorful
-muddy clear
-dirty clean neat clear washed
-hidden clear open plain seen
-yucky yummy fresh delicious tasty ripe nice good super sweet
-messy clean neat clear washed
-disgusting clean neat clear washed
-nasty yummy fresh delicious tasty ripe nice good super sweet
-clean neat clear washed
-washed clean neat clear
-naked covered dressed
-bare covered dressed
-dressed covered
-rainbow colored colorful
-colored rainbow colorful
-colorful rainbow colored
-cozy comfortable comfy safe
-comfortable rough scratchy bumpy sharp hairy
-comfy rough scratchy bumpy sharp hairy
-safe okay good
-hard strong able big heavy tough
-deep thin narrow skinny small lean
-fancy free sale
-easy possible
-fresh yummy delicious tasty ripe nice good super sweet
-cooked baked burned boiled melted
-baked wet slippery soggy runny juicy dripping
-burned healthy strong tough
-boiled cooked baked burned melted
-melted cooked baked burned boiled
-expensive free sale
-sale free
-mushy hard tough strong
-soft rough scratchy bumpy sharp hairy
-mashed crunchy hard
-squishy hard tough strong
-crunchy hard
-flat straight smooth
-straight flat smooth
-square crooked bent round curly twisted oval
-sharp flat straight smooth
-smooth sticky
-crooked flat straight smooth
-bent crooked round curly twisted oval
-round flat straight smooth
-curly crooked bent round twisted oval
-twisted crooked bent round curly oval
-oval crooked bent round curly twisted
-tough yummy fresh delicious tasty ripe nice good super sweet
-difficult easy possible
-tricky easy possible
-possible easy
-bad yummy fresh delicious tasty ripe nice good super sweet
+loud quiet
 terrible good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-worse good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-awful yummy fresh delicious tasty ripe nice good super sweet
-horrible good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-frustrating good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-good sunny light calm
-great big important key main serious top used
-better good great fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-fine good great better best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-best good great better fine favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-favorite many liked together loved married
-special regular natural
-wonderful good great better fine best favorite special excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-excellent good great better fine best favorite special wonderful terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
-terrific good great better fine best favorite special wonderful excellent dear super amazing exciting fantastic awesome grand lovely neat perfect
-dear good great better fine best favorite special wonderful excellent terrific super amazing exciting fantastic awesome grand lovely neat perfect
-super yummy fresh delicious tasty ripe nice good sweet
-amazing good great better fine best favorite special wonderful excellent terrific dear super exciting fantastic awesome grand lovely neat perfect
-exciting good great better fine best favorite special wonderful excellent terrific dear super amazing fantastic awesome grand lovely neat perfect
-fantastic true right correct certain sure
-awesome good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic grand lovely neat perfect
-grand good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome lovely neat perfect
-perfect together whole
-less many much enough such extra whole double several plenty most
-least quite very most more extra also totally much great
-little light fluffy
-quite very most more extra also totally much great
-very quite most more extra also totally much great
-most many much enough such extra whole double several plenty
-more quite very most extra also totally much great
-extra many much enough such whole double several plenty most
-also quite very most more extra totally much great
-totally quite very most more extra also much great
-much many enough such extra whole double several plenty most
-new above ahead before beginning early first forward front head opening starting top winner
-empty full stuffed
-dry wet slippery soggy runny juicy dripping
-filled full packed crowded
-full stuffed
-packed filled full crowded
-crowded filled full packed
-ripe yummy fresh delicious tasty nice good super sweet
-broken together perfect whole
-ready perfect able working running
-able strong big heavy tough hard
-working perfect ready able running
-running crawling walking flying shaky rolling moving
-thick thin narrow skinny small lean
-fat thin narrow skinny small lean
-wide thin narrow skinny small lean
-long slow
-heavy light little fluffy
-thin narrow skinny small lean
-narrow thin skinny small lean
-skinny thin narrow small lean
-small big huge large giant
-lean thin narrow skinny small
-angry happy smily giddy glad gracious proud welcome merry
-cranky happy smily giddy glad gracious proud welcome merry
-frustrated happy smily giddy glad gracious proud welcome merry
-grumpy happy smily giddy glad gracious proud welcome merry
-mad happy smily giddy glad gracious proud welcome merry
-sad happy smily giddy glad gracious proud welcome merry
-sorry happy smily giddy glad gracious proud welcome merry
-unhappy happy fun funny goofy merry ridiculous silly
-happy fun funny goofy merry ridiculous silly
-smily happy giddy glad gracious proud welcome merry
-giddy happy smily glad gracious proud welcome merry
-glad happy smily giddy gracious proud welcome merry
-gracious happy smily giddy glad proud welcome merry
-proud happy smily giddy glad gracious welcome merry
-welcome happy smily giddy glad gracious proud merry
-merry happy fun funny goofy ridiculous silly
-floppy hard tough strong
-plastic hard tough strong
-sick healthy strong tough
-dizzy healthy strong tough
-itchy healthy strong tough
-sore healthy strong tough
-stuffy hot warm boiling baking
-hurting healthy strong tough
-healthy strong tough
-short long slow
-low high above over
-tiny big huge large giant
-wee big huge large giant
-tall big high
-big strong able heavy tough hard
-high above over
-boring interesting neat
-serious sharp quick bright clever careful curious interested smart
-stupid sharp quick bright clever careful curious interested serious smart
-fun happy funny goofy merry ridiculous silly
-funny flat straight smooth
-goofy happy fun funny merry ridiculous silly
-ridiculous true right correct certain sure
-silly happy fun funny goofy merry ridiculous
-thirsty full stuffed
-hungry full stuffed
-stuffed full
-bottom above ahead before beginning early first forward front head new opening starting top winner
-other big great important key main serious top used
-spare big great important key main serious top used
-important big great key main serious top used
-key big great important main serious top used
-main big great important key serious top used
-top lucky
-used big great important key main serious top
-dumb sharp quick bright clever careful curious interested serious smart
-quick long slow
-clever sharp quick bright careful curious interested serious smart
-careful sharp quick bright clever curious interested serious smart
-smart sharp quick bright clever careful curious interested serious
-interesting neat
-dead alive living live awake
-alive living live awake
-living alive live awake
-live alive living awake
-alone many favorite liked together loved married
-lonely many favorite liked together loved married
-only many much enough such extra whole double several plenty most
-apart many favorite liked together loved married
-single many much enough such extra whole double several plenty most
-one many much enough such extra whole double several plenty most
-many much enough such extra whole double several plenty most
-liked many favorite together loved married
-together perfect whole
-loved many favorite liked together married
-married many favorite liked together loved
-right true correct certain sure
-wrong true right correct certain sure
-evil fair friendly gentle good helpful kind nice okay perfect polite sweet
-mean fair friendly gentle good helpful kind nice okay perfect polite sweet
-wicked fair friendly gentle good helpful kind nice okay perfect polite sweet
-true right correct certain sure
-stable crawling walking running flying shaky rolling moving
-crawling walking running flying shaky rolling moving
-walking crawling running flying shaky rolling moving
-flying fast quick
-rolling crawling walking running flying shaky moving
-moving crawling walking running flying shaky rolling
-naughty fair friendly gentle good helpful kind nice okay perfect polite sweet
-dangerous safe okay good
-rough scratchy bumpy sharp hairy
-friendly fair gentle good helpful kind nice okay perfect polite sweet
-gentle fair friendly good helpful kind nice okay perfect polite sweet
-helpful fair friendly gentle good kind nice okay perfect polite sweet
-kind fair friendly gentle good helpful nice okay perfect polite sweet
-nice yummy fresh delicious tasty ripe good super sweet
-okay safe good
-polite fair friendly gentle good helpful kind nice okay perfect sweet
-sweet yummy fresh delicious tasty ripe nice good super
-stopped open
-after above ahead before beginning early first forward front head new opening starting top winner
-back above ahead before beginning early first forward front head new opening starting top winner
-backwards above ahead before beginning early first forward front head new opening starting top winner
-behind above ahead before beginning early first forward front head new opening starting top winner
-below high above over
-closing above ahead before beginning early first forward front head new opening starting top winner
-following above ahead before beginning early first forward front head new opening starting top winner
-last above ahead before beginning early first forward front head new opening starting top winner
-late above ahead before beginning early first forward front head new opening starting top winner
-tail above ahead before beginning early first forward front head new opening starting top winner
-above high over
-ahead above before beginning early first forward front head new opening starting top winner
-before above ahead beginning early first forward front head new opening starting top winner
-beginning above ahead before early first forward front head new opening starting top winner
-early above ahead before beginning first forward front head new opening starting top winner
-first above ahead before beginning early forward front head new opening starting top winner
-forward above ahead before beginning early first front head new opening starting top winner
-front above ahead before beginning early first forward head new opening starting top winner
-head above ahead before beginning early first forward front new opening starting top winner
-opening above ahead before beginning early first forward front head new starting top winner
-starting above ahead before beginning early first forward front head new opening top winner
-winner above ahead before beginning early first forward front head new opening starting top
-away touching close near together next
-far near inside middle center
-separate touching close near together next
-touching close near together next
-close touching near together next
-near inside middle center
-next touching close near together
-whatever many much enough such extra whole double several plenty most
-particular many much enough such extra whole double several plenty most
-few many much enough such extra whole double several plenty most
+plenty single less whatever particular few medium small only half one
 medium many much enough such extra whole double several plenty most
-half many much enough such extra whole double several plenty most
-enough many much such extra whole double several plenty most
-such same like alike
-whole together perfect
-double many much enough such extra whole several plenty most
-several many much enough such extra whole double plenty most
-plenty many much enough such extra whole double several most
-pretend real natural true
-magic real natural true
-incredible true right correct certain sure
-real natural true
-natural regular
-fuzzy rough scratchy bumpy sharp hairy
-fluffy light little
-furry rough scratchy bumpy sharp hairy
-scratchy rough bumpy sharp hairy
-bumpy flat straight smooth
-hairy rough scratchy bumpy sharp
-like same such alike
-alike same such like
-itsy big huge large giant
-teeny big huge large giant
-baby big huge large giant
-huge big large giant
-large big huge giant
-giant big huge large
-pointy flat straight smooth
-outside near inside middle center
-surface near inside middle center
-inside near middle center
-middle near inside center
-center near inside middle
-fast long slow
-slippery wet soggy runny juicy dripping
-sleep sticky
-lucky top
-sour sweet
-yummy fresh delicious tasty ripe nice good super sweet
-delicious yummy fresh tasty ripe nice good super sweet
-tasty yummy fresh delicious ripe nice good super sweet
-cold hot warm boiling baking stuffy
-cool hot warm boiling baking stuffy
-frozen hot warm boiling baking stuffy
-chilly hot warm boiling baking stuffy
-polar hot warm boiling baking stuffy
-warm hot boiling baking stuffy
-boiling hot warm baking stuffy
-baking hot warm boiling stuffy
-loose tight stuck caught
-tight stuck caught
-stuck tight caught
-caught tight stuck
-correct true right certain sure
-strange regular natural
+true ridiculous incredible wrong fantastic
+thick thin narrow skinny small lean
+low high above over
+whole broken cracked
+shy slow still strong brave calm
+real pretend magic ridiculous incredible
+runny dry baked
+colored plain black white grey
+frustrated happy smily giddy glad gracious proud welcome merry
+fantastic true right correct certain sure
+rainbow plain black white grey
+crunchy mushy soft mashed squishy
+behind above ahead before beginning early first forward front head new opening starting top winner
+open hidden secret
+favorite alone lonely only apart single one
+moving stable still
+dumb sharp quick bright clever careful curious interested serious smart
+backwards above ahead before beginning early first forward front head new opening starting top winner
+alive dead asleep
+careful stupid dumb bored
+warm cold cool frozen chilly polar
+serious stupid dumb bored
+melted fresh
+single many much enough such extra whole double several plenty most
+head after back backwards behind below bottom closing following last late old tail
+dirty clean neat clear washed
+exciting bad terrible worse awful horrible frustrating
+interested stupid dumb bored
+delicious tough yucky nasty gross bad awful
+stuffed thirsty hungry empty
+starting after back backwards behind below bottom closing following last late old tail
+smooth sticky
+spare big great important key main serious top used
+little heavy
+live dead asleep
+sore healthy strong tough
+loved alone lonely only apart single one
 weird regular natural
-odd regular natural
-regular natural
-under high above over
-over high above
-secret clear open plain seen
-seen clear open plain
-quiet loud noisy
-loud noisy
-noisy loud
-windy sunny light calm good
-rainy sunny light calm good
-wet slippery soggy runny juicy dripping
-snowy sunny light calm good
-soggy wet slippery runny juicy dripping
-runny wet slippery soggy juicy dripping
-juicy wet slippery soggy runny dripping
-dripping wet slippery soggy runny juicy
+wee big huge large giant
+broken together perfect whole
+crazy slow still strong brave calm
+tricky easy possible
+next away far separate free
+living dead asleep
+fresh tough yucky nasty gross bad awful
+other big great important key main serious top used
+back above ahead before beginning early first forward front head new opening starting top winner
+filled empty dry
+boring interesting neat
+liked alone lonely only apart single one
+sick healthy strong tough
+grumpy happy smily giddy glad gracious proud welcome merry
+clear hidden secret
+plain hidden secret
+naked covered dressed
+preschool old
+free tight stuck caught
+amazing bad terrible worse awful horrible frustrating
+bored sharp quick bright clever careful curious interested serious smart
+right ridiculous incredible wrong fantastic
+mixed same
+crowded empty dry
+mushy hard tough strong
+left right
+sleep sticky
+much single less whatever particular few medium small only half one
+only many much enough such extra whole double several plenty most
+furry rough scratchy bumpy sharp hairy
+winner after back backwards behind below bottom closing following last late old tail
+polar hot warm boiling baking stuffy
+gross yummy fresh delicious tasty ripe nice good super sweet
+quite less least little
+fancy free sale
+sorry happy smily giddy glad gracious proud welcome merry
+strange regular natural
+before after back backwards behind below bottom closing following last late old tail
+alone many favorite liked together loved married
+comfy rough scratchy bumpy sharp hairy
+totally less least little
+bumpy flat straight smooth
+sad happy smily giddy glad gracious proud welcome merry
+tasty tough yucky nasty gross bad awful
+neat boring
+huge little tiny wee small itsy teeny baby
+loose tight stuck caught
+asleep alive living live awake
+possible hard tough difficult tricky
+apart many favorite liked together loved married
+main bottom extra other small spare
+best bad terrible worse awful horrible frustrating
+baking cold cool frozen chilly polar
+seen hidden secret
+forward after back backwards behind below bottom closing following last late old tail
+regular strange weird odd special
+like different
+small big huge large giant
+light heavy
+running stable still
 cracked together perfect whole
+burned healthy strong tough
+goofy boring bored serious unhappy stuffy stupid
+key bottom extra other small spare
+such different
+stinky sweet
+close away far separate free
+mad happy smily giddy glad gracious proud welcome merry
+tiny big huge large giant
+slippery dry baked
+natural strange weird odd special
+together broken cracked
+stupid sharp quick bright clever careful curious interested serious smart
+able shaky broken
+sharp flat straight smooth
+plastic hard tough strong
+quick long slow
+safe dangerous scary
+correct ridiculous incredible wrong fantastic
+different same such like alike
+dark sunny light calm good
+bare covered dressed
+cold hot warm boiling baking stuffy
+nuts slow still strong brave calm
+double single less whatever particular few medium small only half one
+alike different
+shining dark black grey
+big shaky broken
+below high above over
+surface near inside middle center
+still crawling walking running flying shaky rolling moving
+first after back backwards behind below bottom closing following last late old tail
+frustrating good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
+grey rainbow colored colorful
+dear bad terrible worse awful horrible frustrating
+slow short quick fast
+above below low under
+more less least little
+yucky yummy fresh delicious tasty ripe nice good super sweet
+chilly hot warm boiling baking stuffy
+friendly nasty wicked naughty evil mean dangerous rough ugly
+worse good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
+stable crawling walking running flying shaky rolling moving
+hurting healthy strong tough
+better bad terrible worse awful horrible frustrating
+confused sure certain clear
+smart stupid dumb bored
+gracious angry cranky frustrated grumpy mad sad sorry unhappy upset
+curly flat straight square sharp smooth
+caught loose free
+unhappy happy fun funny goofy merry ridiculous silly
+mean fair friendly gentle good helpful kind nice okay perfect polite sweet
+difficult easy possible
+sure ridiculous incredible wrong fantastic
+most single less whatever particular few medium small only half one
+closing above ahead before beginning early first forward front head new opening starting top winner
+many single less whatever particular few medium small only half one
+deep thin narrow skinny small lean
+married alone lonely only apart single one
+middle outside surface far
+hidden clear open plain seen
+tough yummy fresh delicious tasty ripe nice good super sweet
+naughty fair friendly gentle good helpful kind nice okay perfect polite sweet
+lovely bad terrible worse awful horrible frustrating
+oval flat straight square sharp smooth
+awesome bad terrible worse awful horrible frustrating
+worried slow still strong brave calm
+least quite very most more extra also totally much great
+gorgeous scary lovely ugly plain gross
+pointy flat straight smooth
+soggy dry baked
+expensive free sale
+following above ahead before beginning early first forward front head new opening starting top winner
+helpful nasty wicked naughty evil mean dangerous rough ugly
+stuck loose free
+comfortable rough scratchy bumpy sharp hairy
+secret clear open plain seen
+crooked flat straight smooth
+itchy healthy strong tough
+young old
+old above ahead before beginning early first forward front head new opening starting top winner
+white rainbow colored colorful
+enough single less whatever particular few medium small only half one
+dry wet slippery soggy runny juicy dripping
+silly boring bored serious unhappy stuffy stupid
+boiled fresh
+dizzy healthy strong tough
+early after back backwards behind below bottom closing following last late old tail
+upset happy smily giddy glad gracious proud welcome merry
+tall short little low small tiny wee
+away touching close near together next
+pretend real natural true
+kind nasty wicked naughty evil mean dangerous rough ugly
+straight sharp pointy bumpy funny crooked round
+shaky strong able big heavy tough hard
+certain ridiculous incredible wrong fantastic
+fat thin narrow skinny small lean
+very less least little
+nice tough yucky nasty gross bad awful
+hairy soft fuzzy fluffy comfy comfortable smooth furry
+sale expensive fancy
+bright stupid dumb bored
+fluffy heavy
+noisy quiet
+ripe tough yucky nasty gross bad awful
+nervous slow still strong brave calm
+same different
+cranky happy smily giddy glad gracious proud welcome merry
+near outside surface far
+excited tired asleep sleepy bored
+polite nasty wicked naughty evil mean dangerous rough ugly
+interesting boring
+less many much enough such extra whole double several plenty most
+messy clean neat clear washed
+bent flat straight square sharp smooth
+bad yummy fresh delicious tasty ripe nice good super sweet
+empty full stuffed
+square crooked bent round curly twisted oval
+fast long slow
+important bottom extra other small spare
+boiling cold cool frozen chilly polar
+colorful plain black white grey
+brave nervous worried scared afraid crazy shaky shy upset frightened nuts
+itsy big huge large giant
+dead alive living live awake
+sweet tough yucky nasty gross bad awful
+walking stable still
+evil fair friendly gentle good helpful kind nice okay perfect polite sweet
+clean dirty yucky messy disgusting gross nasty
+separate touching close near together next
+whatever many much enough such extra whole double several plenty most
+dressed naked bare
+fine bad terrible worse awful horrible frustrating
+ridiculous true right correct certain sure
+scary safe okay good
+wonderful bad terrible worse awful horrible frustrating
+juicy dry baked
+ready broken
+full thirsty hungry empty
+sour sweet
+cooked fresh
+rolling stable still
+incredible true right correct certain sure
+dangerous safe okay good
+covered open
+extra single less whatever particular few medium small only half one
+sticky smooth slippery sleep
+glad angry cranky frustrated grumpy mad sad sorry unhappy upset
+fun boring bored serious unhappy stuffy stupid
+yummy tough yucky nasty gross bad awful
+floppy hard tough strong
+tired awake busy excited curious impressed interested surprised
+tail above ahead before beginning early first forward front head new opening starting top winner
+calm windy rainy wet snowy dark
+large little tiny wee small itsy teeny baby
+cute scary lovely ugly plain gross
+half many much enough such extra whole double several plenty most
+crawling stable still
+packed empty dry
+also less least little
+growing old
+black rainbow colored colorful
+shiny dark black grey
+center outside surface far
+sunny windy rainy wet snowy dark
+ugly fair friendly gentle good helpful kind nice okay perfect polite sweet
+muddy clear
+flying slow
+wicked fair friendly gentle good helpful kind nice okay perfect polite sweet
+healthy sick dizzy itchy sore stuffy shaky hurting burned
+impressed tired asleep sleepy bored
+awake dead asleep
+inside outside surface far
+particular many much enough such extra whole double several plenty most
+happy boring bored serious unhappy stuffy stupid
+skinny thick fat wide deep long heavy
+good windy rainy wet snowy dark
+last above ahead before beginning early first forward front head new opening starting top winner
+lean thick fat wide deep long heavy
+working broken
+handsome scary lovely ugly plain gross
+front after back backwards behind below bottom closing following last late old tail
+teeny big huge large giant
+tight loose free
+perfect broken cracked
+bottom above ahead before beginning early first forward front head new opening starting top winner
+dripping dry baked
+golden dark black grey
+smily angry cranky frustrated grumpy mad sad sorry unhappy upset
+opening after back backwards behind below bottom closing following last late old tail
+short long slow
+hungry full stuffed
+mashed crunchy hard
+one many much enough such extra whole double several plenty most
+several single less whatever particular few medium small only half one
+round flat straight smooth
+terrific bad terrible worse awful horrible frustrating
+clever stupid dumb bored
+strong shaky broken
+afraid slow still strong brave calm
+closed open
+hard shaky broken
+flat sharp pointy bumpy funny crooked round
+high below low under
+rainy sunny light calm good
+frozen hot warm boiling baking stuffy
+excellent bad terrible worse awful horrible frustrating
+nasty yummy fresh delicious tasty ripe nice good super sweet
+washed dirty yucky messy disgusting gross nasty
+horrible good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat perfect
+touching away far separate free
+few many much enough such extra whole double several plenty most
+easy hard tough difficult tricky
+giant little tiny wee small itsy teeny baby
+scratchy soft fuzzy fluffy comfy comfortable smooth furry
+thin thick fat wide deep long heavy
+beginning after back backwards behind below bottom closing following last late old tail
+stuffy cold cool frozen chilly polar
+baked wet slippery soggy runny juicy dripping
+after above ahead before beginning early first forward front head new opening starting top winner
+heavy light little fluffy
+surprised tired asleep sleepy bored
+snowy sunny light calm good
+used bottom extra other small spare
+soft rough scratchy bumpy sharp hairy
+late above ahead before beginning early first forward front head new opening starting top winner
+busy tired asleep sleepy bored
+special regular natural
+narrow thick fat wide deep long heavy
+locked open
+hot cold cool frozen chilly polar
+wide thin narrow skinny small lean
+lonely many favorite liked together loved married
+over below low under
+funny flat straight smooth
+super tough yucky nasty gross bad awful
+new after back backwards behind below bottom closing following last late old tail
+squishy hard tough strong
+wrong true right correct certain sure
+merry boring bored serious unhappy stuffy stupid
+under high above over
+scared slow still strong brave calm
+rough soft fuzzy fluffy comfy comfortable smooth furry
+cool hot warm boiling baking stuffy
+odd regular natural
+outside near inside middle center
+proud angry cranky frustrated grumpy mad sad sorry unhappy upset
+fair nasty wicked naughty evil mean dangerous rough ugly
+pretty scary lovely ugly plain gross
+okay dangerous scary
+angry happy smily giddy glad gracious proud welcome merry
+ahead after back backwards behind below bottom closing following last late old tail
+fuzzy rough scratchy bumpy sharp hairy
+frightened slow still strong brave calm
+magic real natural true
+long short quick fast
+far near inside middle center
+great bottom extra other small spare
+gentle nasty wicked naughty evil mean dangerous rough ugly
+sleepy awake busy excited curious impressed interested surprised
+welcome angry cranky frustrated grumpy mad sad sorry unhappy upset
+quiet loud noisy
+baby big huge large giant
+twisted flat straight square sharp smooth
+thirsty full stuffed
+giddy angry cranky frustrated grumpy mad sad sorry unhappy upset
+windy sunny light calm good
+beautiful scary lovely ugly plain gross
+wet dry baked
+grand bad terrible worse awful horrible frustrating
+disgusting clean neat clear washed
+stopped open
+curious stupid dumb bored
+awful yummy fresh delicious tasty ripe nice good super sweet

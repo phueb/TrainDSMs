@@ -6,9 +6,8 @@ from two_process_nlp.evaluators.base import EvalBase
 from two_process_nlp.scores import calc_accuracy
 
 
-class IdentificationParams:
-    only_positive_examples = [True, False]  # performance can be much better without negative examples
-    train_on_second_neighbors = [True]  # performance can be much better with additional training
+class IdentificationParams:  # to retrieve a property during runtime: trial.params.property1
+    pass
 
 
 class Identification(EvalBase):
@@ -23,9 +22,11 @@ class Identification(EvalBase):
                          'identification', data_name1, data_name2, suffix,
                          IdentificationParams)
         #
+        self.num_epochs = config.Eval.num_epochs_identification
+        self.num_epochs_in_eval_step = self.num_epochs // config.Eval.num_evals
+        #
         self.probe2relata = None
         self.probe2lures = None
-        self.probe2sns = None
         self.metric = 'acc'
         self.suffix = suffix
         if suffix != '':
@@ -37,50 +38,39 @@ class Identification(EvalBase):
         """
         actual evaluation data is sampled from result of this method
         """
+
+        def sample_candidates(population, num):
+            np.random.seed(42)
+            try:
+                return np.random.choice(population, num, replace=False).tolist()
+            except ValueError:
+                if verbose:
+                    print('Skipping "{}". Not enough lures (needed={}, available={})'.format(
+                        probe, config.Eval.min_num_lures, len(self.probe2lures[probe])))
+                return []
         # load
         probes, probe_relata, probe_lures = self.load_probes()
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
-        self.probe2sns = {p: set() for p in probes}
-        # make lures and relata
-        if config.Eval.remove_duplicates_for_identification:
-            all_eval_probes = probes  # leave this - eval_probes is different from probes if duplicates are not removed
-            eval_relata = [np.random.choice(self.probe2relata[p], 1)[0] for p in all_eval_probes]
-            eval_lures = [np.random.choice(self.probe2lures[p], 1)[0] for p in all_eval_probes]
-        else:
-            all_eval_probes = []
-            eval_relata = []
-            eval_lures = []
-            for probe in probes:
-                for relatum, lure in zip(self.probe2relata[probe], self.probe2lures[probe]):
-                    all_eval_probes.append(probe)
-                    eval_relata.append(relatum)
-                    eval_lures.append(lure)
-        # get neutrals + neighbors
-        num_roll = len(eval_relata) // 2
-        assert num_roll > max([len(i) for i in self.probe2relata.values()])
-        neutrals = np.roll(eval_relata, num_roll)  # avoids relatum to be wrong answer in next pair
-        first_neighbors = []
-        second_neighbors =[]
-        for p in all_eval_probes:
-            row_id = vocab.index(p)
-            ids = np.argsort(vocab_sims_mat[row_id])[::-1][:10]
-            nearest_neighbors = [vocab[i] for i in ids]
-            first_neighbors.append(nearest_neighbors[1])  # don't use id=zero because it returns the probe
-            second_neighbors.append(nearest_neighbors[2])
         # make candidates_mat
+        all_eval_probes = []
         all_eval_candidates_mat = []
-        for n, probe in enumerate(all_eval_probes):
-            if first_neighbors[n] == eval_relata[n]:  # TODO doesn't exclude alternative spellings or morphologies (or alternative synonyms)
-                first_neighbors[n] = neutrals[n]
-            if second_neighbors[n] == eval_relata[n]:
-                second_neighbors[n] = neutrals[n]
-            candidates = [eval_relata[n], eval_lures[n], first_neighbors[n], second_neighbors[n], neutrals[n]]
-            self.probe2sns[probe].add(second_neighbors[n])
-            if verbose:
-                print(all_eval_probes[n])
-                print(candidates)
+        num_skipped = 0
+        for n, probe in enumerate(probes):
+            relata = sample_candidates(self.probe2relata[probe], config.Eval.min_num_relata)
+            lures = sample_candidates(self.probe2lures[probe], config.Eval.min_num_lures)
+            if not relata or not lures:
+                num_skipped += 1
+                continue
+            candidates = relata + lures
+            all_eval_probes.append(probe)
             all_eval_candidates_mat.append(candidates)
+            #
+            if verbose:
+                print(probe)
+                print(candidates)
+        if config.Eval.verbose:
+            print('Skipped {} probes due to insufficient relata or lures'.format(num_skipped))
         all_eval_candidates_mat = np.vstack(all_eval_candidates_mat)
         return all_eval_probes, all_eval_candidates_mat
 
@@ -88,16 +78,8 @@ class Identification(EvalBase):
         assert p is not None
         assert c is not None
         #
-        if trial.params.only_positive_examples:
-            return False  # this is much better than training on negatives
-        #
         if c in self.probe2lures[p]:
             return True
-        elif c in self.probe2sns[p]:
-            if trial.params.train_on_second_neighbors:
-                return True
-            else:
-                return False
         else:
             return False
 
@@ -110,9 +92,9 @@ class Identification(EvalBase):
         # 1-tailed: is observed proportion higher than chance?
         # pval=1.0 when prop=0 because it is almost always true that a prop > 0.0 is observed
         # assumes that proportion of correct responses is binomially distributed
-        chance = 1 / self.eval_candidates_mat.shape[1]
+        chance = config.Eval.min_num_relata / (config.Eval.min_num_relata + config.Eval.min_num_lures)
         n = len(self.row_words)
-        pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)
+        pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)  # TODO only correct if config.Eval.min_num_relata = 1
         # console
         print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
             'Expert' if num_epochs is not None else 'Novice',
@@ -162,10 +144,12 @@ class Identification(EvalBase):
                 probes.append(probe)
                 probe_relata.append(relata)
                 probe_lures.append(probes2relata2[probe])
+            else:
+                print('"{}" does not occur in both task files.'.format(probe))
         # no need for downsampling because identification eval is much less memory consuming
         # (identification evaluation is for testing hypotheses about training on specifically selected negative pairs)
         # rather than on all possible negative pairs - this provides a strong test of the idea that
         # it matter more WHICH negative pairings are trained, rather than HOW MANY)
         # no need for shuffling because shuffling is done when eval data is created
-        print('{}: After finding lures, number of probes left={}'.format(self.name, len(probes)))  # TODO not many probes leftover
+        print('{}: After finding lures, number of probes left={}'.format(self.name, len(probes)))
         return probes, probe_relata, probe_lures

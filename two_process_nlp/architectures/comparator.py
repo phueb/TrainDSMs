@@ -59,9 +59,6 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
-                    if config.Eval.only_negative_examples:
-                        if c in evaluator.probe2relata[p]:  # splitting if statement into two is faster # TODO test
-                            continue
                     if (p, c) in test_pairs:
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
@@ -145,7 +142,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         if config.Eval.verbose:
             print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
-        for epoch_id in range(num_epochs):
+        for epoch_id in range(evaluator.num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
             # split into batches
             num_splits = num_adj // trial.params.mb_size
@@ -164,7 +161,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if config.Eval.verbose:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # eval steps
-    num_train_steps = (num_train_probes // trial.params.mb_size) * config.Eval.num_epochs
+    num_train_steps = (num_train_probes // trial.params.mb_size) * evaluator.num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals

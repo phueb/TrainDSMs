@@ -39,8 +39,6 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     assert len(set(evaluator.col_words)) == len(evaluator.col_words)  # using .index() method below
     eval_sims_mat_row_ids_test = []
     test_pairs = set()  # prevent train/test leak
-    num_col_words = len(evaluator.col_words)
-    col_word_ids = np.arange(num_col_words)
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
     # test - always make test data first to populate test_pairs before making training data
@@ -53,9 +51,10 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
             test_pairs.add((c, p))  # crucial to collect both orderings
         #
         x1_test += [[w2e[probe]] * len(candidates)]
-        x2_test += [col_word_ids]  # must be ordered (diag_part operation in graph relies on this)
+        x2_test += [[evaluator.col_words.index(c) for c in candidates]]
         eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
     # train
+    num_skipped = 0
     for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
@@ -63,10 +62,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
-                    if config.Eval.only_negative_examples:
-                        if c in evaluator.probe2relata[p]:  # splitting if statement into two is faster # TODO test
-                            continue
                     if (p, c) in test_pairs:
+                        num_skipped += 1
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[p])
@@ -77,6 +74,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     y_train = np.array(y_train)
     x1_test = np.array(x1_test)
     x2_test = np.array(x2_test)
+    # console
+    print('Num pairs skipped due to occurrence in test={}'.format(num_skipped))
     # shuffle x-y mapping
     if shuffled:
         if config.Eval.verbose:
@@ -125,8 +124,6 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         by_cols = tf.gather(by, x2, axis=0)
                         # pairwise vector-dot-product: calc dot-product for each row in x1 and column in wy_cols
                         logits = tf.reduce_sum(tf.multiply(x1, tf.transpose(wy_cols)), axis=1)
-
-
                 # loss
                 pred_cos = tf.nn.sigmoid(logits)  # gives same ba as tanh
                 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)
@@ -152,7 +149,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         if config.Eval.verbose:
             print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
-        for epoch_id in range(config.Eval.num_epochs):
+        for epoch_id in range(evaluator.num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
             # split into batches
             num_splits = num_adj // trial.params.mb_size
@@ -171,7 +168,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
     if config.Eval.verbose:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
     # eval steps
-    num_train_steps = (num_train_probes // trial.params.mb_size) * config.Eval.num_epochs
+    num_train_steps = (num_train_probes // trial.params.mb_size) * evaluator.num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals

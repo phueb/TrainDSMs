@@ -22,6 +22,9 @@ class Matching(EvalBase):
                          'matching', data_name1, data_name2, suffix,
                          MatchingParams)
         #
+        self.num_epochs = config.Eval.num_epochs_matching
+        self.num_epochs_in_eval_step = self.num_epochs // config.Eval.num_evals
+        #
         self.binomial = np.random.binomial
         self.metric = config.Eval.matching_metric
         self.suffix = suffix

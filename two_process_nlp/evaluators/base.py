@@ -150,13 +150,12 @@ class EvalBase(object):
         return scores
 
     def get_scores_at_eval_steps(self, trial):
-        num_epochs_in_eval_step = config.Eval.num_epochs // config.Eval.num_evals
         best_score = 0
         best_epoch = 0
         res = []
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
             trial_score = self.score(eval_sims_mat)
-            num_epochs = eval_id * num_epochs_in_eval_step
+            num_epochs = eval_id * self.num_epochs_in_eval_step
             #
             if config.Eval.verbose:
                 self.print_score(trial_score, num_epochs)
