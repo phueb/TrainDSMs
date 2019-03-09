@@ -123,7 +123,7 @@ class EvalBase(object):
         novice_score = self.score(eval_sims_mat)
         if config.Eval.verbose:
             self.print_score(novice_score)
-        return [[novice_score] + [np.nan for _ in self.df_header]]
+        return [[novice_score] + [np.nan for _ in self.df_header] + [np.nan for _ in ['num_epochs']]]
 
     def train_and_score_expert(self, embedder, shuffled):
         # run each trial in separate process
@@ -131,15 +131,16 @@ class EvalBase(object):
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
         if config.Eval.debug:
             self.do_trial(self.trials[0], embedder.w2e, embedder.dim1, shuffled)  # cannot pickle tensorflow errors
-            raise SystemExit('Exited debugging mode successfully. Turn off debugging mode to train on all evaluators.')
+            raise SystemExit('Exited debugging mode (without saving scores).'
+                             'Turn off debugging mode to train on all tasks.')
         else:
             results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1, shuffled))
                        for trial in self.trials]
             scores = []
             try:
                 for res in results:
-                    score = res.get()  # returns a list [score, param1, param2, ...]
-                    scores.append(score)
+                    for score in res.get():  # score is a list [score, param1, param2, ...]
+                        scores.append(score)
                 pool.close()
                 sys.stdout.flush()
             except KeyboardInterrupt:
@@ -148,18 +149,25 @@ class EvalBase(object):
                 raise SystemExit('Interrupt occurred during multiprocessing. Closed worker pool.')
         return scores
 
-    def get_best_trial_score(self, trial):
-        res = 0
-        best_eval_id = 0
+    def get_scores_at_eval_steps(self, trial):
+        num_epochs_in_eval_step = config.Eval.num_epochs // config.Eval.num_evals
+        best_score = 0
+        best_epoch = 0
+        res = []
         for eval_id, eval_sims_mat in enumerate(trial.results.eval_sims_mats):
             trial_score = self.score(eval_sims_mat)
+            num_epochs = eval_id * num_epochs_in_eval_step
+            #
             if config.Eval.verbose:
-                self.print_score(trial_score, eval_id)
-            if trial_score > res:
-                res = trial_score
-                best_eval_id = eval_id
+                self.print_score(trial_score, num_epochs)
+            if trial_score > best_score:
+                best_score = trial_score
+                best_epoch = num_epochs
+            # collect
+            score_at_eval_step = [trial_score] + [trial.params.__dict__[p] for p in self.df_header] + [num_epochs]
+            res.append(score_at_eval_step)
         if config.Eval.verbose:
-            print('Expert score={:.2f} (at eval step {})'.format(res, best_eval_id + 1))
+            print('Expert score={:.2f} (at epoch {})'.format(best_score, best_epoch))
         return res
 
     def do_trial(self, trial, w2e, embed_size, shuffled):
@@ -176,6 +184,5 @@ class EvalBase(object):
                 self.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
             except NotImplementedError:
                 pass
-        trial_score = self.get_best_trial_score(trial)
-        res = [trial_score] + [trial.params.__dict__[p] for p in self.df_header]
-        return res
+        scores_at_eval_steps = self.get_scores_at_eval_steps(trial)
+        return scores_at_eval_steps

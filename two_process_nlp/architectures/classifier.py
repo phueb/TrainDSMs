@@ -16,7 +16,6 @@ class Params:
     learning_rate = [0.1]
     num_hiddens = [0]  # 0 is best
     neg_pos_ratio = [1.0]
-    num_epochs_per_row_word = [0.01, 0.11, 0.21, 0.31, 0.41]  # 1.0 is better than 0.1
 
 
 name = 'classifier'
@@ -153,7 +152,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
         if config.Eval.verbose:
             print('Adjusting for mini-batching: before={} after={} diff={}'.format(num_rows, num_adj, num_rows-num_adj))
         step = 0
-        for epoch_id in range(num_epochs):
+        for epoch_id in range(config.Eval.num_epochs):
             row_ids = np.random.choice(num_rows, size=num_adj, replace=False)
             # split into batches
             num_splits = num_adj // trial.params.mb_size
@@ -171,11 +170,8 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             num_train_probes, trial.params.mb_size))
     if config.Eval.verbose:
         print('Train data size: {:,} | Test data size: {:,}'.format(num_train_probes, num_test_probes))
-    # epochs
-    num_epochs = max(1, int(trial.params.num_epochs_per_row_word * len(evaluator.row_words)))
-    print('num_epochs={:,}'.format(num_epochs))
     # eval steps
-    num_train_steps = (num_train_probes // trial.params.mb_size) * num_epochs
+    num_train_steps = (num_train_probes // trial.params.mb_size) * config.Eval.num_epochs
     eval_interval = num_train_steps // config.Eval.num_evals
     eval_steps = np.arange(0, num_train_steps + eval_interval,
                            eval_interval)[:config.Eval.num_evals].tolist()  # equal sized intervals

@@ -37,7 +37,7 @@ def to_diff_df(df):
     del df['param_name']
     del df['regime']
     del df['neg_pos_ratio']
-    del df['num_epochs_per_row_word']
+    del df['num_epochs']
     #
     df1, df2 = [x for _, x in df.groupby('arch')]
     df1['diff_score'] = df1['score'].values - df2['score'].values

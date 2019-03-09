@@ -6,6 +6,7 @@ from analyze.utils import to_label
 
 
 FACTOR = 'arch'
+NUM_EPOCHS = 100
 ARCHITECTURES = ['comparator', 'classifier']
 REGIMES = ['novice', 'expert']
 
@@ -20,7 +21,7 @@ df = ag.make_df(load_from_file=True, verbose=True)
 
 # include
 df = df[df['neg_pos_ratio'].isin([np.nan, 1.0])]
-df = df[df['num_epochs_per_row_word'].isin([np.nan, 0.21])]
+df = df[df['num_epochs'].isin([np.nan, NUM_EPOCHS])]
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)

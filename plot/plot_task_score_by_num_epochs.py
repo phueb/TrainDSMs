@@ -21,13 +21,13 @@ df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 # figure
 fig, axarr = plt.subplots(1, len(ARCHITECTURES), figsize=FIGSIZE, dpi=DPI)
 plt.title('Tasks & number of epochs')
-x = [i for i in df['num_epochs_per_row_word'].unique() if not np.isnan(i)]
+x = [i for i in df['num_epochs'].unique() if not np.isnan(i)]
 for ax, arch in zip(axarr, ARCHITECTURES):
     # ax
     ax.set_xticks(x)
     ax.set_xticklabels(x)
     ax.set_ylabel('Balanced Accuracy')
-    ax.set_xlabel('num_epochs_per_row_word')
+    ax.set_xlabel('num_epochs')
     ax.set_ylim([0.5, 0.85])
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -37,7 +37,7 @@ for ax, arch in zip(axarr, ARCHITECTURES):
     ax.set_title(arch)
     for task_name, group in df_filtered.groupby('task'):
         print(task_name)
-        y = group.groupby('num_epochs_per_row_word').mean()['score']
+        y = group.groupby('num_epochs').mean()['score']
         ax.plot(x, y, label=task_name)
 plt.legend(bbox_to_anchor=(1.0, 0.5), ncol=1,
           frameon=False, fontsize=LEG_FONTSIZE)

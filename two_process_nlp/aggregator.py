@@ -13,7 +13,7 @@ from two_process_nlp.params import to_embedder_name
 
 class Aggregator:
     def __init__(self):
-        self.expert_param_names = ['neg_pos_ratio', 'num_epochs_per_row_word']
+        self.expert_param_names = ['neg_pos_ratio']
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -109,7 +109,7 @@ class Aggregator:
                        task,
                        embed_size,
                        neg_pos_ratio,
-                       num_epochs_per_row_word,
+                       num_epochs,
                        load_from_file=False,
                        verbose=True,
                        save=False,
@@ -128,7 +128,7 @@ class Aggregator:
                   (df['task'] == task) & \
                   (df['embed_size'] == embed_size) & \
                   (df['neg_pos_ratio'].isin([np.nan, neg_pos_ratio])) & \
-                  (df['num_epochs_per_row_word'].isin([np.nan, num_epochs_per_row_word])) & \
+                  (df['num_epochs'].isin([np.nan, num_epochs])) & \
                   (df['evaluation'] == ev) & \
                   (df['corpus'] == corpus) & \
                   (df['num_vocab'] == num_vocab)
@@ -136,8 +136,8 @@ class Aggregator:
         # fig
         fig, ax = plt.subplots(figsize=(width, height), dpi=dpi)
         ylabel, ylims, yticks, y_chance = self.make_y_label_lims_ticks(y_step, ev)
-        title = 'Scores for\n{} + {} + {} + embed_size={} + neg_pos_ratio={} + num_epochs_prw={}\n' \
-                '{} num_vocab={}'.format(arch, ev, task, embed_size, neg_pos_ratio, num_epochs_per_row_word,
+        title = 'Scores for\n{} + {} + {} + embed_size={} + neg_pos_ratio={} + num_epochs={}\n' \
+                '{} num_vocab={}'.format(arch, ev, task, embed_size, neg_pos_ratio, num_epochs,
                                          corpus, num_vocab)
         plt.title(title, fontsize=t_fontsize, y=leg1_y)
         # axis

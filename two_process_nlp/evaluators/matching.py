@@ -82,14 +82,14 @@ class Matching(EvalBase):
         res = calc_cluster_score(calc_signals, sims_mean, verbose=False)
         return res
 
-    def print_score(self, score, eval_id=None):
+    def print_score(self, score, num_epochs=None):
         # significance test
         pval_binom = 'notImplemented'  # TODO implement
         chance = 0.5
         print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
-            'Expert' if eval_id is not None else 'Novice',
+            'Expert' if num_epochs is not None else 'Novice',
             self.metric, score, chance, pval_binom,
-            'at eval={}'.format(eval_id + 1) if eval_id is not None else ''))
+            'at epoch={}'.format(num_epochs) if num_epochs is not None else ''))
 
     def to_eval_sims_mat(self, sims_mat):
         return sims_mat

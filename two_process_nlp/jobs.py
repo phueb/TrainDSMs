@@ -139,7 +139,8 @@ def main_job(param2val):
                     continue
                 print('process "{}" best score={:2.2f}'.format(process, max([s[0] for s in scores])))
                 scores_p = ev.make_scores_p(embedder.location, process)
-                df = pd.DataFrame(data=scores, columns=['score'] + ev.df_header)  # scores is list of lists
+                df = pd.DataFrame(data=scores,
+                                  columns=['score'] + ev.df_header + ['num_epochs'])  # scores is list of lists
                 if not scores_p.parent.exists():
                     scores_p.parent.mkdir(parents=True)
                 with scores_p.open('w') as f:
