@@ -52,6 +52,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         x2_test += [[w2e[c] for c in candidates]]
         eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
     # train
+    num_skipped = 0
     for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
@@ -60,6 +61,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
                     if (p, c) in test_pairs:
+                        num_skipped += 1
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
                         x1_train.append(w2e[p])
@@ -70,6 +72,8 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     y_train = np.array(y_train)
     x1_test = np.array(x1_test)
     x2_test = np.array(x2_test)
+    # console
+    print('Num pairs skipped due to occurrence in test={}'.format(num_skipped))
     # shuffle x-y mapping
     if shuffled:
         if config.Eval.verbose:

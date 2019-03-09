@@ -34,19 +34,19 @@ class Identification(EvalBase):
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def make_all_eval_data(self, vocab_sims_mat, vocab, verbose=False):
+    def make_all_eval_data(self, vocab_sims_mat, vocab, verbose=True):
         """
         actual evaluation data is sampled from result of this method
         """
 
-        def sample_candidates(population, num):
-            np.random.seed(42)
+        def sample_candidates(name, population, num):
+            np.random.seed(43)
             try:
                 return np.random.choice(population, num, replace=False).tolist()
             except ValueError:
                 if verbose:
-                    print('Skipping "{}". Not enough lures (needed={}, available={})'.format(
-                        probe, config.Eval.min_num_lures, len(self.probe2lures[probe])))
+                    print('Skipping "{}". Not enough {} (needed={}, available={})'.format(
+                        probe, name, num, len(population)))
                 return []
         # load
         probes, probe_relata, probe_lures = self.load_probes()
@@ -57,18 +57,20 @@ class Identification(EvalBase):
         all_eval_candidates_mat = []
         num_skipped = 0
         for n, probe in enumerate(probes):
-            relata = sample_candidates(self.probe2relata[probe], config.Eval.min_num_relata)
-            lures = sample_candidates(self.probe2lures[probe], config.Eval.min_num_lures)
+            relata = sample_candidates('relata', self.probe2relata[probe], config.Eval.min_num_relata)
+            lures = sample_candidates('lures', self.probe2lures[probe], config.Eval.min_num_lures)
             if not relata or not lures:
                 num_skipped += 1
+                print()
                 continue
-            candidates = relata + lures
+            candidates = relata + lures  # relata must be first (because correct answers are assumed first)
             all_eval_probes.append(probe)
             all_eval_candidates_mat.append(candidates)
             #
             if verbose:
                 print(probe)
                 print(candidates)
+                print()
         if config.Eval.verbose:
             print('Skipped {} probes due to insufficient relata or lures'.format(num_skipped))
         all_eval_candidates_mat = np.vstack(all_eval_candidates_mat)
@@ -92,9 +94,9 @@ class Identification(EvalBase):
         # 1-tailed: is observed proportion higher than chance?
         # pval=1.0 when prop=0 because it is almost always true that a prop > 0.0 is observed
         # assumes that proportion of correct responses is binomially distributed
-        chance = config.Eval.min_num_relata / (config.Eval.min_num_relata + config.Eval.min_num_lures)
+        chance = 1 / (config.Eval.min_num_lures + 1)  # because each question has one correct answer
         n = len(self.row_words)
-        pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)  # TODO only correct if config.Eval.min_num_relata = 1
+        pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)
         # console
         print('{} {}={:.2f} (chance={:.2f}, p={}) {}'.format(
             'Expert' if num_epochs is not None else 'Novice',
@@ -139,7 +141,7 @@ class Identification(EvalBase):
         probes = []
         probe_relata = []
         probe_lures = []
-        for probe, relata in probes2relata1.items():
+        for probe, relata in sorted(probes2relata1.items(), key=lambda i: i[0]):
             if probe in probes2relata2:
                 probes.append(probe)
                 probe_relata.append(relata)

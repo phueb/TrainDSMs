@@ -4,16 +4,36 @@ from bayes_opt import BayesianOptimization
 from two_process_nlp import config
 
 
-def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):
+def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat, verbose=True):
     """
     eval_sims has same shape as eval_candidates_mat (to save memory)
     """
     assert eval_sims_mat.shape == eval_candidates_mat.shape
     num_correct = 0
     for eval_sims_row in eval_sims_mat:
-        if np.all(eval_sims_row[1:] < eval_sims_row[0]):  # correct is always in first position
-            num_correct += 1
-    res = num_correct / len(eval_probes)
+        for correct_id in range(config.Eval.min_num_relata):
+            if np.all(eval_sims_row[config.Eval.min_num_relata:] < eval_sims_row[correct_id]):  # there can be multiple correct  # TODO test
+                num_correct += 1
+    res = num_correct / (len(eval_probes) * config.Eval.min_num_relata)
+    #
+    if verbose:
+        for eval_sims_row, eval_candidates_row, eval_probe in zip(
+                eval_sims_mat, eval_candidates_mat, eval_probes):
+            print('------------')
+            print(eval_probe)
+            print('------------')
+            for correct_id in range(config.Eval.min_num_relata):
+                print(eval_candidates_row[config.Eval.min_num_relata:])
+                print(eval_sims_row[config.Eval.min_num_relata:])
+                print(eval_candidates_row[correct_id])
+                print(eval_sims_row[correct_id])
+                #
+                if np.all(eval_sims_row[config.Eval.min_num_relata:] < eval_sims_row[correct_id]):  # there can be multiple correct  # TODO test
+                    print('correct')
+                else:
+                    print('false')
+                print('-')
+            print()
     return res
 
 

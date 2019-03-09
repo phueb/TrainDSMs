@@ -92,7 +92,7 @@ def main_job(param2val):
     # process 2
     for architecture in [
         classifier,
-        # comparator
+        comparator
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),

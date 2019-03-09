@@ -53,6 +53,7 @@ class EvalBase(object):
         merged_keys = set(list(arch_params.__dict__.keys()) + list(ev_params_class.__dict__.keys()))
         self.df_header = sorted([k for k in merged_keys if not k.startswith('_')])
         #
+        self.num_epochs_in_eval_step = None
         self.probe2relata = None
         self.row_words = None
         self.col_words = None
@@ -167,6 +168,7 @@ class EvalBase(object):
             res.append(score_at_eval_step)
         if config.Eval.verbose:
             print('Expert score={:.2f} (at epoch {})'.format(best_score, best_epoch))
+            sys.stdout.flush()
         return res
 
     def do_trial(self, trial, w2e, embed_size, shuffled):

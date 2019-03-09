@@ -21,10 +21,10 @@ class Eval:
     shuffled_control = False
     resample = False
     verbose = True
-    min_num_relata = 1  # TODO need to change evaluation code if > 1 (eval assumes only first candidate is correct)
-    min_num_lures = 3  # TODO vary
+    min_num_relata = 3
+    min_num_lures = 3
     num_epochs_matching = 100
-    num_epochs_identification = 2000  # TODO 2000 is good for comparator but much less is needed for classifier
+    num_epochs_identification = 2000  # 2000 is good for comparator but much less is needed for classifier
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine
     max_num_eval_rows = 600  # 1200x1200 uses over 32GB RAM
     max_num_eval_cols = 600  # 600  # should be as large as num_rows for full matching evaluation
