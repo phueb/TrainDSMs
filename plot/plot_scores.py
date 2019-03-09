@@ -4,9 +4,9 @@ from two_process_nlp.aggregator import Aggregator
 
 # factors to include or exclude
 CORPUS_NAME = 'childes-20180319'  # childes-20180319 or tasa-20181213
-NUM_EPOCHS = 100  # TODO test
+NUM_EPOCHS = 1000
 NUM_VOCAB = 4096
-EVAL_NAME = 'matching'
+EVAL_NAME = 'identification'
 EMBED_SIZE = 200
 
 DF_FROM_FILE = True
@@ -15,6 +15,7 @@ MIN_NUM_REPS = 1
 
 
 ag = Aggregator()
+
 
 for task, arch in product(
         [
@@ -31,9 +32,9 @@ for task, arch in product(
 
     #
     if arch == 'classifier':
-        neg_pos_ratios = [0.0, 1.0]
+        neg_pos_ratios = [1.0]
     elif arch == 'comparator':
-        neg_pos_ratios = [0.0, 1.0]
+        neg_pos_ratios = [1.0]
     else:
         raise  AttributeError('Invalid arg to "architecture".')
     for neg_pos_ratio in neg_pos_ratios:

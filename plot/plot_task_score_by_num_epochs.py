@@ -12,7 +12,7 @@ DPI = 200
 
 
 ag = Aggregator()
-df = ag.make_df(load_from_file=True, verbose=True)
+df = ag.make_df(load_from_file=False, verbose=True)
 
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
@@ -37,6 +37,10 @@ for ax, arch in zip(axarr, ARCHITECTURES):
     ax.set_title(arch)
     for task_name, group in df_filtered.groupby('task'):
         print(task_name)
+
+        # TODO debug
+        # print(group.groupby('num_epochs').mean())
+
         y = group.groupby('num_epochs').mean()['score']
         ax.plot(x, y, label=task_name)
 plt.legend(bbox_to_anchor=(1.0, 0.5), ncol=1,

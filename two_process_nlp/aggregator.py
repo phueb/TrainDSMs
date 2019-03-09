@@ -13,7 +13,7 @@ from two_process_nlp.params import to_embedder_name
 
 class Aggregator:
     def __init__(self):
-        self.expert_param_names = ['neg_pos_ratio']
+        self.expert_param_names = ['neg_pos_ratio', 'num_epochs']
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',
@@ -77,21 +77,25 @@ class Aggregator:
         dfs = []
         loc = config.RemoteDirs.runs / param_name / job_name
         for scores_p in loc.rglob('scores.csv'):
-            arch, ev, task, process = scores_p.relative_to(loc).parts[:-1]
+            arch, ev, task, regime = scores_p.relative_to(loc).parts[:-1]
             scores_df = pd.read_csv(scores_p, index_col=False)
             # group by expert_params which are present in scores_df
             group_names = [pn for pn in self.expert_param_names
-                           if pn in scores_df.columns] + ['score']
+                                            if pn in scores_df.columns] + ['score']
             # collect score for each row in scores_df
             for param_vals_and_score, group in scores_df.groupby(group_names):
                 it = iter([pn if pn != 'None' else np.nan for pn in param_vals_and_score])  # None to nan
                 all_param_vals_and_score = [next(it) if pn in group_names else np.nan
                                             for pn in self.expert_param_names + ['score']]
                 vals = [corpus, num_vocab, embed_size, param_name, job_name,
-                        embedder, arch, ev, task, process] + all_param_vals_and_score
+                        embedder, arch, ev, task, regime] + all_param_vals_and_score
                 if verbose:
                     for n, v in enumerate(vals[5:]):
                         print('\t' * (n + 1), v)
+
+                # TODO add num_epochs column
+
+
                 df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
                 dfs.append(df)
         if dfs:
@@ -157,7 +161,7 @@ class Aggregator:
         param_names_sorted_by_score = novice_df.groupby('param_name').mean().sort_values(
             'score', ascending=False).index.values
         hatches = None
-        processes = None
+        regimes = None
         for param_id, param_name in enumerate(param_names_sorted_by_score):
             #
             bool_id = df['param_name'] == param_name
@@ -174,26 +178,26 @@ class Aggregator:
             # hatches
             hatches = self.hatches.copy()
             grouped = embedder_df.groupby('regime')
-            processes = [p for p, g in grouped]
+            regimes = [p for p, g in grouped]
             if 'expert' not in embedder_df['regime'].unique():
-                print(('WARNING: Found only process(s): {}'.format(processes)))
+                print(('WARNING: Found only regime(s): {}'.format(regimes)))
                 hatches.pop()
             if 'control' not in embedder_df['regime'].unique():
-                print(('WARNING: Found only process(s): {}'.format(processes)))
+                print(('WARNING: Found only regime(s): {}'.format(regimes)))
                 hatches.pop()
             hatches = cycle(hatches)
             # bars
             bars = []
             x = param_id + 0.6
-            for process, process_df in grouped:
-                ys = process_df['score'].values
+            for regime, regime_df in grouped:
+                ys = regime_df['score'].values
                 print(ys)
                 if len(ys) < min_num_reps:
                     print('Skipping due to num_reps={}<min_num_reps'.format(len(ys)))
                     continue
                 x += self.bw
-                ys = process_df['score']
-                print('{:<10} score mean={:.2f} std={:.3f} n={:>2}'.format(process, ys.mean(), ys.std(), len(ys)))
+                ys = regime_df['score']
+                print('{:<10} score mean={:.2f} std={:.3f} n={:>2}'.format(regime, ys.mean(), ys.std(), len(ys)))
                 b, = ax.bar(x + 0 * self.bw, ys.mean(),
                             width=self.bw,
                             yerr=ys.std(),
@@ -220,7 +224,7 @@ class Aggregator:
         # legend
         plt.tight_layout()
         labels1 = embedder_names
-        labels2 = processes
+        labels2 = regimes
         if not bars_list:
             print('WARNING:No scores found for given factors.')
             return
@@ -245,8 +249,8 @@ class Aggregator:
         elif eval == 'identification':
             ylabel = 'Accuracy'
             ylims = [0, 1]
-            yticks = np.arange(0, 1 + y_step, y_step)
-            y_chance = 0.20
+            yticks = np.arange(0, 1 + y_step, y_step).round(2)
+            y_chance = 0.0  # TODO dynamic
         else:
             raise AttributeError('Invalid arg to "EVALUATOR_NAME".')
         return ylabel, ylims, yticks, y_chance
