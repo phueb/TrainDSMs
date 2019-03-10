@@ -174,15 +174,17 @@ class EvalBase(object):
         return res
 
     @staticmethod
-    def standardize_w2e(w2e):  # TODO test
+    def standardize_w2e(w2e):
         # to embed_mat
         embeds = []
         for w in w2e.keys():
             embeds.append(w2e[w])
         mat = np.vstack(embeds)
+        print('mean before standardization={}'.format(mat.mean()))
         #
         scaler = preprocessing.StandardScaler()
         standardized_mat = scaler.fit_transform(mat)
+        print('mean after standardization={}'.format(standardized_mat.mean()))
         # back to w2e
         res = SortedDict()
         vocab = sorted(w2e.keys())
@@ -193,17 +195,16 @@ class EvalBase(object):
     def do_trial(self, trial, w2e, embed_size, shuffled):
         trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
+        # standardize
+        if trial.params.standardize:
+            print('Standardizing embeddings')
+            w2e = self.standardize_w2e(w2e)
+        else:
+            print('Not standardizing embeddings')
         # train on each train-fold separately (fold_id is test_fold)
         for fold_id in range(config.Eval.num_folds):
             if config.Eval.verbose:
                 print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
-            # standardize
-            if trial.params.standardize:
-                print('Standardizing embeddings')
-                w2e = self.standardize_w2e(w2e)
-            else:
-                print('Not standardizing embeddings')
-            #
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id, shuffled)
             graph = self.make_graph(self, trial, w2e, embed_size)
             self.train_expert_on_train_fold(self, trial, graph, data, fold_id)

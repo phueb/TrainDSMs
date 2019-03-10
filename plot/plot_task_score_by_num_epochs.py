@@ -21,6 +21,7 @@ df = ag.make_df(load_from_file=LOAD_FROM_FILE, verbose=True)
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
+df.drop(df[df['standardize'] == 0].index, inplace=True)
 
 # eval
 if EVAL == 'matching':
@@ -33,7 +34,7 @@ else:
     raise AttributeError('Invalid arg to "EVAL".')
 
 
-embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
+embedder_names = ['sg']  #, 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
 task_names = df['task'].unique()
 task_name2color = {t: plt.cm.get_cmap('tab10')(n) for n, t in enumerate(task_names)}
 for embedder in embedder_names:
@@ -71,9 +72,9 @@ for embedder in embedder_names:
             num_reps = group.groupby('num_epochs').size().mean()
             print(task_name)
             print('num reps={}\n'.format(num_reps))
-    plt.legend(bbox_to_anchor=(1.0, 0.5), ncol=1,
-               frameon=False, fontsize=LEG_FONTSIZE)
-    plt.tight_layout()
+    plt.legend(bbox_to_anchor=(1.0, 0.1), ncol=1,
+               frameon=False, fontsize=LEG_FONTSIZE, loc='right')
+    # plt.tight_layout()
     plt.show()
 
 

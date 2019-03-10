@@ -15,10 +15,11 @@ class Params:
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]
     num_output = [None]  # 100 is better than 30  but None is best (matches embed_size)
+    num_alignment = [30]  # 30 is as good as 100
     neg_pos_ratio = [1.0]  # 1.0 is better than anything higher or lower
 
 
-name = 'comparator'
+name = 'aligner'
 
 
 def init_results_data(evaluator, eval_data_class):
@@ -87,8 +88,8 @@ def make_graph(evaluator, trial, w2e, embed_size):
     assert evaluator is not None   # arbitrary usage of evaluator
     assert w2e is not None   # arbitrary usage of w2e
 
-    def siamese_leg(x, wy):
-        y = tf.matmul(x, wy)
+    def siamese_leg(x, w):
+        y = tf.matmul(x, w)
         return y
 
     def cosine_sim(left, right, eps=1e-12):
@@ -119,8 +120,16 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         init = None
                     wy = tf.get_variable('wy', shape=[embed_size, num_output], dtype=tf.float32,
                                          initializer=init)
-                    o1 = siamese_leg(x1, wy)
-                    o2 = siamese_leg(x2, wy)
+                    # alignment
+                    wa1 = tf.get_variable('wa1', shape=[embed_size, trial.params.num_alignment], dtype=tf.float32)
+                    wa2 = tf.get_variable('wa2', shape=[trial.params.num_alignment, embed_size], dtype=tf.float32)
+                    combo = tf.add(x1, x2)
+                    abstract = tf.matmul(combo, wa1)
+                    alignment = tf.matmul(abstract, wa2)
+                    #
+                    o1 = siamese_leg(x1, wy) + alignment
+                    o2 = siamese_leg(x2, wy) + alignment
+
                 # loss
                 corr_cos = 2 * tf.cast(y, tf.float32) - 1  # converts range [0, 1] to [-1, 1]
                 pred_cos = cosine_sim(o1, o2)

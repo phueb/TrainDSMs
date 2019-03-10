@@ -7,7 +7,7 @@ from spacy.lang.en import English
 
 from two_process_nlp import config
 from two_process_nlp.aggregator import Aggregator
-from two_process_nlp.architectures import comparator, classifier
+from two_process_nlp.architectures import comparator, classifier, aligner
 from two_process_nlp.evaluators.matching import Matching
 from two_process_nlp.evaluators.identification import Identification
 from two_process_nlp.job_utils import init_embedder
@@ -91,8 +91,9 @@ def main_job(param2val):
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
     for architecture in [
-        classifier,
-        comparator
+        aligner,
+        comparator,
+        classifier
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
@@ -104,7 +105,7 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
             Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':

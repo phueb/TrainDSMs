@@ -13,7 +13,7 @@ from two_process_nlp.params import to_embedder_name
 
 class Aggregator:
     def __init__(self):
-        self.expert_param_names = ['neg_pos_ratio', 'num_epochs']
+        self.expert_param_names = ['neg_pos_ratio', 'standardize', 'num_epochs']  # TODo test standardize
         self.df_index = ['corpus',
                          'num_vocab',
                          'embed_size',

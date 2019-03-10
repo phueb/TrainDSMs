@@ -8,9 +8,6 @@ from two_process_nlp.params import to_embedder_name
 from analyze.utils import gen_param2vals_for_completed_jobs
 
 
-# TODO run without standardization
-
-
 embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform']
 embedder_name2plot_data = {embedder_name: [] for embedder_name in embedder_names}
 job_name2plot_data = {}
@@ -26,15 +23,6 @@ for param2val in gen_param2vals_for_completed_jobs():
     print(embedder_name)
     print(vocab_sims_mat.mean())
     print(vocab_sims_mat.std())
-    #
-    col_ids = np.argmin(vocab_sims_mat, axis=1)
-    print(vocab_sims_mat[np.arange(len(vocab_sims_mat)), col_ids])
-
-    # TODO are pairs with lowest (negative) cosine sim antonyms?
-    for row_id, col_id in list(enumerate(col_ids))[1000:1100]:
-        print(embedder.vocab[row_id], embedder.vocab[col_id])
-        print(vocab_sims_mat[row_id, col_id])
-        print()
 
 # figure
 embedder_name2color = {embedder_name: plt.cm.get_cmap('tab10')(n)
