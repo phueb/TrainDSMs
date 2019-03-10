@@ -10,6 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 class Params:
+    standardize = [True, False]  # TODO test
     mb_size = [64]
     beta = [0.0]  # 0.0 is best
     learning_rate = [0.1]

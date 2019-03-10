@@ -1,4 +1,3 @@
-from sklearn import preprocessing
 import numpy as np
 from cached_property import cached_property
 import pickle
@@ -36,7 +35,7 @@ class EmbedderBase(object):
         mat = np.loadtxt(runs_dir / self.param_name / self.job_name / 'embeddings.txt',
                          dtype='str', comments=None)
         vocab = mat[:, 0]
-        embed_mat = self.standardize_embed_mat(mat[:, 1:].astype('float'))
+        embed_mat = mat[:, 1:].astype('float')
         self.w2e = self.embeds_to_w2e(embed_mat, vocab)
 
     # ///////////////////////////////////////////////////////////// corpus data
@@ -88,18 +87,6 @@ class EmbedderBase(object):
         return res
 
     # ///////////////////////////////////////////////////////////// embeddings
-
-    @staticmethod
-    def standardize_embed_mat(mat):
-        assert mat.shape[1] > 1
-        if config.Embeddings.standardize:
-            print('Standardizing embeddings')
-            scaler = preprocessing.StandardScaler()
-            res = scaler.fit_transform(mat)
-        else:
-            print('Not standardizing embeddings')
-            res = mat
-        return res
 
     @staticmethod
     def w2e_to_embeds(w2e):

@@ -6,9 +6,9 @@ from two_process_nlp.job_utils import w2e_to_sims
 from two_process_nlp.params import to_embedder_name
 
 from analyze.utils import gen_param2vals_for_completed_jobs
-from two_process_nlp import config
 
-config.Embeddings.standardize = False  # TODO run without standardization
+
+# TODO run without standardization
 
 
 embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform']

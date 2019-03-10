@@ -99,8 +99,7 @@ class CountEmbedder(EmbedderBase):
         norm_matrix, dimensions = self.normalize(count_matrix, self.norm_type)
         reduced_matrix, dimensions = self.reduce(norm_matrix, self.reduce_type[0], self.reduce_type[1])
         # to w2e
-        embed_mat = self.standardize_embed_mat(reduced_matrix)
-        self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
+        self.w2e = self.embeds_to_w2e(reduced_matrix, self.vocab)
         return reduced_matrix  # for unittest
 
     # ////////////////////////////////////////////////// normalizations

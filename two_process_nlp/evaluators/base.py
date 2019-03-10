@@ -1,6 +1,8 @@
 import multiprocessing as mp
 import numpy as np
 import sys
+from sortedcontainers import SortedDict
+from sklearn import preprocessing
 
 from two_process_nlp import config
 from two_process_nlp.params import make_param2val_list, ObjectView
@@ -171,6 +173,23 @@ class EvalBase(object):
             sys.stdout.flush()
         return res
 
+    @staticmethod
+    def standardize_w2e(w2e):  # TODO test
+        # to embed_mat
+        embeds = []
+        for w in w2e.keys():
+            embeds.append(w2e[w])
+        mat = np.vstack(embeds)
+        #
+        scaler = preprocessing.StandardScaler()
+        standardized_mat = scaler.fit_transform(mat)
+        # back to w2e
+        res = SortedDict()
+        vocab = sorted(w2e.keys())
+        for n, w in enumerate(vocab):
+            res[w] = standardized_mat[n]
+        return res
+
     def do_trial(self, trial, w2e, embed_size, shuffled):
         trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
         assert hasattr(trial.results, 'params_id')
@@ -178,6 +197,13 @@ class EvalBase(object):
         for fold_id in range(config.Eval.num_folds):
             if config.Eval.verbose:
                 print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
+            # standardize
+            if trial.params.standardize:
+                print('Standardizing embeddings')
+                w2e = self.standardize_w2e(w2e)
+            else:
+                print('Not standardizing embeddings')
+            #
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id, shuffled)
             graph = self.make_graph(self, trial, w2e, embed_size)
             self.train_expert_on_train_fold(self, trial, graph, data, fold_id)

@@ -30,5 +30,4 @@ class W2VecEmbedder(EmbedderBase):
         for n, term in enumerate(self.vocab):
             term_acts = sg.wv[term]
             wvs[n] = term_acts
-        wvs = self.standardize_embed_mat(wvs)
         self.w2e = self.embeds_to_w2e(wvs, self.vocab)

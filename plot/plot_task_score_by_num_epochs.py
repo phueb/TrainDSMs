@@ -4,7 +4,7 @@ import numpy as np
 from two_process_nlp.aggregator import Aggregator
 
 ARCHITECTURES = ['comparator', 'classifier']
-YLIMS = [0.0, 0.8]  # [0.5, 0.85]  # depends on evaluation
+EVAL = 'identification'  # changes ylim and ylabel
 
 AX_FONTSIZE = 16
 LEG_FONTSIZE = 10
@@ -19,6 +19,15 @@ df = ag.make_df(load_from_file=True, verbose=True)
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 
+
+if EVAL == 'matching':
+    ylabel = 'Balanced Accuracy'
+    ylims = [0.5, 0.85]
+elif EVAL == 'identification':
+    ylabel = 'Accuracy'
+    ylims = [0.0, 0.8]
+else:
+    raise AttributeError('Invalid arg to "EVAL".')
 embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
 for embedder in embedder_names:
     # include
@@ -34,10 +43,10 @@ for embedder in embedder_names:
         # ax
         ax.set_xticks([x[0], x[-1]])
         ax.set_xticklabels([x[0], x[-1]])
-        ax.set_ylabel('Balanced Accuracy')
+        ax.set_ylabel(ylabel)
         ax.set_xlabel('num_epochs')
         ax.yaxis.grid(True)
-        ax.set_ylim(YLIMS)
+        ax.set_ylim(ylims)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)

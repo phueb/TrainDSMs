@@ -157,8 +157,7 @@ class RNNEmbedder(EmbedderBase):
         if verbose:
             print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_numeric_docs, verbose)))
         wx = self.model.wx.weight.detach().cpu().numpy()
-        embed_mat = self.standardize_embed_mat(wx)
-        self.w2e = self.embeds_to_w2e(embed_mat, self.vocab)
+        self.w2e = self.embeds_to_w2e(wx, self.vocab)
 
 
 class TorchRNN(torch.nn.Module):

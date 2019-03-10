@@ -39,7 +39,6 @@ class Eval:
 
 
 class Embeddings:
-    standardize = True  # TODO test False
     save_w2e = True
     verbose = True
     precision = 5
