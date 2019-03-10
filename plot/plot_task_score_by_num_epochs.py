@@ -5,6 +5,9 @@ from two_process_nlp.aggregator import Aggregator
 
 ARCHITECTURES = ['comparator', 'classifier']
 EVAL = 'identification'  # changes ylim and ylabel
+CHANCE = 0.25
+
+LOAD_FROM_FILE = True
 
 AX_FONTSIZE = 16
 LEG_FONTSIZE = 10
@@ -13,13 +16,13 @@ DPI = 200
 
 
 ag = Aggregator()
-df = ag.make_df(load_from_file=True, verbose=True)
+df = ag.make_df(load_from_file=LOAD_FROM_FILE, verbose=True)
 
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
 df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 
-
+# eval
 if EVAL == 'matching':
     ylabel = 'Balanced Accuracy'
     ylims = [0.5, 0.85]
@@ -28,9 +31,13 @@ elif EVAL == 'identification':
     ylims = [0.0, 0.8]
 else:
     raise AttributeError('Invalid arg to "EVAL".')
+
+
 embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
+task_names = df['task'].unique()
+task_name2color = {t: plt.cm.get_cmap('tab10')(n) for n, t in enumerate(task_names)}
 for embedder in embedder_names:
-    # include
+    # filter
     df_filtered = df[df['embedder'] == embedder]
     if len(df_filtered) == 0:
         continue
@@ -51,13 +58,21 @@ for embedder in embedder_names:
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)
         # plot
+        ax.axhline(y=CHANCE, color='black')
         df_filtered2 = df_filtered[df_filtered['arch'] == arch]
         ax.set_title(arch)
         for task_name, group in df_filtered2.groupby('task'):
-            y = group.groupby('num_epochs').mean()['score']
-            ax.plot(x, y, label=task_name)
+            color = task_name2color[task_name]
+            means = group.groupby('num_epochs').mean()['score']
+            stds = group.groupby('num_epochs').std()['score']
+            ax.plot(x, means, label=task_name, color=color)
+            ax.fill_between(x, means - stds / 2, means + stds / 2, facecolor=color, alpha=0.3)
+            # console
+            num_reps = group.groupby('num_epochs').size().mean()
+            print(task_name)
+            print('num reps={}\n'.format(num_reps))
     plt.legend(bbox_to_anchor=(1.0, 0.5), ncol=1,
-              frameon=False, fontsize=LEG_FONTSIZE)
+               frameon=False, fontsize=LEG_FONTSIZE)
     plt.tight_layout()
     plt.show()
 
