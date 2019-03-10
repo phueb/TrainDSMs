@@ -34,7 +34,7 @@ class Identification(EvalBase):
 
     # ///////////////////////////////////////////// Overwritten Methods START
 
-    def make_all_eval_data(self, vocab_sims_mat, vocab, verbose=True):
+    def make_all_eval_data(self, vocab_sims_mat, vocab, verbose=False):
         """
         actual evaluation data is sampled from result of this method
         """
@@ -61,7 +61,8 @@ class Identification(EvalBase):
             lures = sample_candidates('lures', self.probe2lures[probe], config.Eval.min_num_lures)
             if not relata or not lures:
                 num_skipped += 1
-                print()
+                if verbose:
+                    print()
                 continue
             candidates = relata + lures  # relata must be first (because correct answers are assumed first)
             all_eval_probes.append(probe)

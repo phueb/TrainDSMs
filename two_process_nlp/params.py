@@ -101,7 +101,7 @@ class RNNParams:
 
 
 class Word2VecParams:
-    w2vec_type = ['sg']  #, 'cbow']
+    w2vec_type = ['sg', 'cbow']
     embed_size = [200]
     window_size = [7]
     num_epochs = [20]

@@ -7,7 +7,7 @@ bash reload_watcher.sh
 
 cd /home/ph/Two_Stage_NLP
 source venv/bin/activate
-python submit.py -r3 -s -x
+python submit.py -r3 -x
 deactivate
 
 sleep 5

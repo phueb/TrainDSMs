@@ -4,7 +4,7 @@ from bayes_opt import BayesianOptimization
 from two_process_nlp import config
 
 
-def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat, verbose=True):
+def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat, verbose=False):
     """
     eval_sims has same shape as eval_candidates_mat (to save memory)
     """

@@ -92,8 +92,13 @@ class EmbedderBase(object):
     @staticmethod
     def standardize_embed_mat(mat):
         assert mat.shape[1] > 1
-        scaler = preprocessing.StandardScaler()
-        res = scaler.fit_transform(mat)
+        if config.Embeddings.standardize:
+            print('Standardizing embeddings')
+            scaler = preprocessing.StandardScaler()
+            res = scaler.fit_transform(mat)
+        else:
+            print('Not standardizing embeddings')
+            res = mat
         return res
 
     @staticmethod

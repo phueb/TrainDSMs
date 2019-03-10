@@ -95,17 +95,17 @@ def main_job(param2val):
         comparator
     ]:
         for ev in [
-            Matching(architecture, 'cohyponyms', 'semantic'),
+            # Matching(architecture, 'cohyponyms', 'semantic'),
             # Matching(architecture, 'cohyponyms', 'syntactic'),
-            Matching(architecture, 'features', 'is'),
-            Matching(architecture, 'features', 'has'),
-            Matching(architecture, 'nyms', 'syn', suffix='_jw'),
-            Matching(architecture, 'nyms', 'ant', suffix='_jw'),
-            Matching(architecture, 'hypernyms'),
-            Matching(architecture, 'events'),
+            # Matching(architecture, 'features', 'is'),
+            # Matching(architecture, 'features', 'has'),
+            # Matching(architecture, 'nyms', 'syn', suffix='_jw'),
+            # Matching(architecture, 'nyms', 'ant', suffix='_jw'),
+            # Matching(architecture, 'hypernyms'),
+            # Matching(architecture, 'events'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
-            # Identification(architecture, 'nyms', 'ant', suffix='_jw'),
+            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
