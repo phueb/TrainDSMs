@@ -4,7 +4,7 @@ from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 
 from two_process_nlp.aggregator import Aggregator
 
-ARCHITECTURES = ['comparator', 'aligner', 'classifier']
+ARCHITECTURES = ['extractor', 'comparator', 'aligner', 'classifier']
 EVAL = 'identification'  # changes ylim and ylabel
 CHANCE = 0.25
 
@@ -12,7 +12,7 @@ LOAD_FROM_FILE = True
 
 AX_FONTSIZE = 16
 LEG_FONTSIZE = 10
-FIGSIZE = (12, 6)
+FIGSIZE = (16, 6)
 DPI = 200
 
 
@@ -21,7 +21,6 @@ df = ag.make_df(load_from_file=LOAD_FROM_FILE, verbose=True)
 
 # exclude
 df.drop(df[df['task'] == 'cohyponyms_syntactic'].index, inplace=True)
-df.drop(df[df['embedder'] == 'random_normal'].index, inplace=True)
 df.drop(df[df['standardize'] == 0].index, inplace=True)
 
 # eval
@@ -35,7 +34,7 @@ else:
     raise AttributeError('Invalid arg to "EVAL".')
 
 
-embedder_names = ['ww']  #, 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
+embedder_names = ['random_normal']  #, 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
 task_names = df['task'].unique()
 task_name2color = {t: plt.cm.get_cmap('tab10')(n) for n, t in enumerate(task_names)}
 for embedder in embedder_names:
