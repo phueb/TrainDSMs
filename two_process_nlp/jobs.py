@@ -91,9 +91,9 @@ def main_job(param2val):
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
     for architecture in [
+        classifier,
         aligner,
         comparator,
-        classifier
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
@@ -105,7 +105,7 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
             Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':

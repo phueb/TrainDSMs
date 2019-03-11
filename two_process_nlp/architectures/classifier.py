@@ -111,11 +111,12 @@ def make_graph(evaluator, trial, w2e, embed_size):
                     hidden = tf.nn.tanh(tf.matmul(x1, wx) + bx)
                 with tf.name_scope('logits'):
                     if trial.params.num_hiddens > 0:
-                        wy = tf.get_variable('wy', shape=(trial.params.num_hiddens, num_outputs),
-                                             dtype=tf.float32)
+                        wy = tf.get_variable('wy', shape=(trial.params.num_hiddens, num_outputs), dtype=tf.float32)
                         by = tf.Variable(tf.zeros([num_outputs]))
-                        logit = None  # TODO not implemented
-                        logits = tf.matmul(hidden, wy) + by
+                        # select cols of wy and elements of by
+                        wy_cols = tf.gather(wy, x2, axis=1)
+                        by_cols = tf.gather(by, x2, axis=0)
+                        logits = tf.reduce_sum(tf.multiply(hidden, tf.transpose(wy_cols)), axis=1)
                     else:
                         init = tf.constant_initializer(wy_init)  # ensures expert performance starts at novice-level
                         wy = tf.get_variable('wy', shape=[embed_size, num_outputs],  dtype=tf.float32, initializer=init)

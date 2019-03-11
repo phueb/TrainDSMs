@@ -92,10 +92,6 @@ class Aggregator:
                 if verbose:
                     for n, v in enumerate(vals[5:]):
                         print('\t' * (n + 1), v)
-
-                # TODO add num_epochs column
-
-
                 df = pd.DataFrame(index=[next(self.counter)], data={k: v for k, v in zip(self.df_index, vals)})
                 dfs.append(df)
         if dfs:
