@@ -8,9 +8,8 @@ CORPUS_NAME = 'childes-20180319'
 VERBOSE = True
 
 NUM_ROW_WORDS = 400
-REPLACEMENT = False  # TODO test
-NUM_NYMS = 3
-SUFFIX = 'random1'
+NUM_NYMS = [1, 5]
+SUFFIX = 'random3'
 
 if __name__ == '__main__':
     for vocab_size in config.Corpus.vocab_sizes:
@@ -21,14 +20,16 @@ if __name__ == '__main__':
         vocab = np.loadtxt(p, 'str').tolist()
         np.random.shuffle(vocab)
         # probes
-        row_words = np.random.choice(vocab, size=NUM_ROW_WORDS, replace=REPLACEMENT)
+        row_words = np.random.choice(vocab, size=NUM_ROW_WORDS, replace=False)
         # generate syns and ants for probes
         probe2syns = {}
         probe2ants = {}
         candidates = [v for v in vocab if v not in row_words]
         for rw in row_words:
-            probe2syns[rw] = [candidates.pop() for _ in range(NUM_NYMS)]
-            probe2ants[rw] = [candidates.pop() for _ in range(NUM_NYMS)]
+            probe2syns[rw] = [candidates.pop() for _ in range(
+                np.random.randint(NUM_NYMS[0], NUM_NYMS[-1] + 1, size=1).item())]
+            probe2ants[rw] = [candidates.pop() for _ in range(
+                np.random.randint(NUM_NYMS[0], NUM_NYMS[-1] + 1, size=1).item())]
 
         # write to file
         for nym_type, probe2nyms in [('syn', probe2syns),

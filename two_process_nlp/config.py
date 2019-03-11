@@ -21,8 +21,8 @@ class Eval:
     shuffled_control = False
     resample = False
     verbose = True
-    min_num_relata = 1
-    min_num_lures = 1
+    min_num_relata = 3
+    min_num_lures = 3
     num_epochs_matching = 100
     num_epochs_identification = 2000  # 2000 is good for comparator but much less is needed for classifier
     num_processes = 4  # if too high (e.g. 8) doesn't result in speed-up (4 is sweet spot, 3x speedup) on 8-core machine

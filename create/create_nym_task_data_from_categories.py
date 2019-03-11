@@ -7,6 +7,7 @@ from two_process_nlp import config
 
 VERBOSE = True
 
+SHUFFLE = True
 CORPUS_NAME = 'childes-20180319'
 GRAM_CAT = 'adj'
 
@@ -19,6 +20,8 @@ if __name__ == '__main__':
     for vocab_size in config.Corpus.vocab_sizes:
         # load nyms data
         df = pd.read_excel('{}_nyms.xlsx'.format(CORPUS_NAME))
+        if SHUFFLE:
+            df['word'] = np.random.permutation(df['word'].tolist())
         df.drop_duplicates(inplace=True)
         df_filtered = df[df['gram'] == GRAM_CAT]
         grouped = df_filtered.groupby(['category', 'group'])
@@ -71,7 +74,8 @@ if __name__ == '__main__':
         # write to file
         for nym_type, probe2nyms in [('syn', probe2syns),
                                      ('ant', probe2ants)]:
-            out_path = config.LocalDirs.tasks / 'nyms' / nym_type / '{}_{}_jw.txt'.format(CORPUS_NAME, vocab_size)
+            out_path = config.LocalDirs.tasks / 'nyms' / nym_type / '{}_{}_jw{}.txt'.format(
+                CORPUS_NAME, vocab_size, 'shuffled' if SHUFFLE else '')
             if not out_path.parent.exists():
                 out_path.parent.mkdir()
             with out_path.open('w') as f:
