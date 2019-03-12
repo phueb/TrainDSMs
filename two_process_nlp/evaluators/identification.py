@@ -57,8 +57,8 @@ class Identification(EvalBase):
         all_eval_candidates_mat = []
         num_skipped = 0
         for n, probe in enumerate(probes):
-            relata = sample_candidates('relata', self.probe2relata[probe], config.Eval.min_num_relata)
-            lures = sample_candidates('lures', self.probe2lures[probe], config.Eval.min_num_lures)
+            relata = sample_candidates('relata', self.probe2relata[probe], config.Eval.num_relata)
+            lures = sample_candidates('lures', self.probe2lures[probe], config.Eval.num_lures)
             if not relata or not lures:
                 num_skipped += 1
                 if verbose:
@@ -84,7 +84,7 @@ class Identification(EvalBase):
         if c in self.probe2lures[p]:
             return True
         else:
-            return False
+            raise RuntimeError('Example must be a lure but is not.')
 
     def score(self, eval_sims_mat):
         res = calc_accuracy(eval_sims_mat, self.row_words, self.eval_candidates_mat)
@@ -95,7 +95,7 @@ class Identification(EvalBase):
         # 1-tailed: is observed proportion higher than chance?
         # pval=1.0 when prop=0 because it is almost always true that a prop > 0.0 is observed
         # assumes that proportion of correct responses is binomially distributed
-        chance = 1 / (config.Eval.min_num_lures + 1)  # because each question has one correct answer
+        chance = 1 / 2  # because each multi-answer question is broken down into a 2-part question
         n = len(self.row_words)
         pval_binom = 1 - binom.cdf(k=score * n, n=n, p=chance)
         # console

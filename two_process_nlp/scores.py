@@ -4,36 +4,22 @@ from bayes_opt import BayesianOptimization
 from two_process_nlp import config
 
 
-def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat, verbose=False):
+def calc_accuracy(eval_sims_mat, eval_probes, eval_candidates_mat):
     """
     eval_sims has same shape as eval_candidates_mat (to save memory)
     """
+    assert eval_probes is not None
     assert eval_sims_mat.shape == eval_candidates_mat.shape
     num_correct = 0
+    num_total = 0
+    # if there are multiple relata and/or lures - break each multi-answer question into 2-answer question
     for eval_sims_row in eval_sims_mat:
-        for correct_id in range(config.Eval.min_num_relata):
-            if np.all(eval_sims_row[config.Eval.min_num_relata:] < eval_sims_row[correct_id]):  # there can be multiple correct  # TODO test
-                num_correct += 1
-    res = num_correct / (len(eval_probes) * config.Eval.min_num_relata)
-    #
-    if verbose:
-        for eval_sims_row, eval_candidates_row, eval_probe in zip(
-                eval_sims_mat, eval_candidates_mat, eval_probes):
-            print('------------')
-            print(eval_probe)
-            print('------------')
-            for correct_id in range(config.Eval.min_num_relata):
-                print(eval_candidates_row[config.Eval.min_num_relata:])
-                print(eval_sims_row[config.Eval.min_num_relata:])
-                print(eval_candidates_row[correct_id])
-                print(eval_sims_row[correct_id])
-                #
-                if np.all(eval_sims_row[config.Eval.min_num_relata:] < eval_sims_row[correct_id]):  # there can be multiple correct  # TODO test
-                    print('correct')
-                else:
-                    print('false')
-                print('-')
-            print()
+        for r_id in range(config.Eval.num_relata):
+            for l_id in range(config.Eval.num_lures):
+                if eval_sims_row[r_id] > eval_sims_row[config.Eval.num_relata + l_id]:
+                    num_correct += 1
+                num_total +=1
+    res = num_correct / num_total
     return res
 
 

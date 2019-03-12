@@ -6,7 +6,6 @@ from two_process_nlp.aggregator import Aggregator
 
 ARCHITECTURES = ['extractor', 'comparator', 'aligner', 'classifier']
 EVAL = 'identification'  # changes ylim and ylabel
-CHANCE = 0.25
 
 LOAD_FROM_FILE = True
 
@@ -60,7 +59,8 @@ for embedder in embedder_names:
         ax.spines['top'].set_visible(False)
         ax.tick_params(axis='both', which='both', top=False, right=False)
         # plot
-        ax.axhline(y=CHANCE, color='black')
+        if EVAL == 'identification':
+            ax.axhline(y=0.5, color='black')
         df_filtered2 = df_filtered[df_filtered['arch'] == arch]
         ax.set_title(arch)
         for task_name, group in df_filtered2.groupby('task'):

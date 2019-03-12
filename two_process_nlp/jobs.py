@@ -91,10 +91,10 @@ def main_job(param2val):
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
     for architecture in [
+        classifier,
         comparator,
         extractor,
         aligner,
-        classifier,
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
@@ -106,8 +106,8 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_random3'),  # TODO jw
-            Identification(architecture, 'nyms', 'ant', suffix='_random3'),
+            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffledunique'),  # TODO jw
+            Identification(architecture, 'nyms', 'ant', suffix='_jwshuffledunique'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))
