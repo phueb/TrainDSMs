@@ -106,8 +106,8 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffledunique'),  # TODO jw
-            Identification(architecture, 'nyms', 'ant', suffix='_jwshuffledunique'),
+            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffled'),  # TODO jw
+            Identification(architecture, 'nyms', 'ant', suffix='_jwshuffled'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))

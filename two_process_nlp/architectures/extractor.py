@@ -61,7 +61,7 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         if n != fold_id:
             for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
-                    if (p, c) in test_pairs:
+                    if (p, c) in test_pairs or (c, p) in test_pairs:
                         num_skipped += 1
                         continue
                     if c in evaluator.probe2relata[p] or evaluator.check_negative_example(trial, p, c):
