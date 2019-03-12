@@ -4,7 +4,7 @@ import socket
 
 from two_process_nlp import config
 from two_process_nlp.jobs import main_job, aggregation_job, preprocessing_job
-from two_process_nlp.params import CountParams
+from two_process_nlp.params import CountParams, RandomControlParams
 
 hostname = socket.gethostname()
 
@@ -29,14 +29,13 @@ def run_on_cluster():
     print('Finished {} jobs\n'.format(config.RemoteDirs.root.name))
 
 
-def run_on_host():
+def run_on_host(params):
     """
     run jobs on the local host for testing/development
     """
     from ludwigcluster.utils import list_all_param2vals
     #
-    # preprocessing_job()
-    for param2val in list_all_param2vals(CountParams, update_d={'param_name': 'test', 'job_name': 'test'}):
+    for param2val in list_all_param2vals(params, update_d={'param_name': 'test', 'job_name': 'test'}):
         try:
             main_job(param2val)
         except NotImplementedError as e:
@@ -49,10 +48,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', default=False, action='store_true', dest='local', required=False)
     parser.add_argument('-d', default=False, action='store_true', dest='debug', required=False)
+    parser.add_argument('-p', default=False, action='store_true', dest='preprocess', required=False)
+    parser.add_argument('-r', default=False, action='store_true', dest='random_normal', required=False)
     namespace = parser.parse_args()
     if namespace.debug:
         config.Eval.debug = True
+    if namespace.preprocess:
+        preprocessing_job()
     if namespace.local:
-        run_on_host()
+        run_on_host(CountParams if not namespace.random_normal else RandomControlParams)
     else:
         run_on_cluster()

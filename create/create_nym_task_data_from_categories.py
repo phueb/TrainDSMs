@@ -7,7 +7,8 @@ from two_process_nlp import config
 
 VERBOSE = True
 
-SHUFFLE = True
+SHUFFLE = True  # only for debugging
+REMOVE_DUPLICATES_IN_WORDS_COL = True  # only for debugging
 CORPUS_NAME = 'childes-20180319'
 GRAM_CAT = 'adj'
 
@@ -22,6 +23,8 @@ if __name__ == '__main__':
         df = pd.read_excel('{}_nyms.xlsx'.format(CORPUS_NAME))
         if SHUFFLE:
             df['word'] = np.random.permutation(df['word'].tolist())
+        if REMOVE_DUPLICATES_IN_WORDS_COL:
+            df = df.drop_duplicates(subset='word', keep="last")
         df.drop_duplicates(inplace=True)
         df_filtered = df[df['gram'] == GRAM_CAT]
         grouped = df_filtered.groupby(['category', 'group'])
@@ -74,8 +77,13 @@ if __name__ == '__main__':
         # write to file
         for nym_type, probe2nyms in [('syn', probe2syns),
                                      ('ant', probe2ants)]:
-            out_path = config.LocalDirs.tasks / 'nyms' / nym_type / '{}_{}_jw{}.txt'.format(
-                CORPUS_NAME, vocab_size, 'shuffled' if SHUFFLE else '')
+            suffix = 'jw'
+            if SHUFFLE:
+                suffix += 'shuffled'
+            if REMOVE_DUPLICATES_IN_WORDS_COL:
+                suffix += 'unique'
+            out_path = config.LocalDirs.tasks / 'nyms' / nym_type / '{}_{}_{}.txt'.format(
+                CORPUS_NAME, vocab_size, suffix)
             if not out_path.parent.exists():
                 out_path.parent.mkdir()
             with out_path.open('w') as f:

@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import cycle
 
 
 from two_process_nlp import config
@@ -8,7 +9,8 @@ CORPUS_NAME = 'childes-20180319'
 VERBOSE = True
 
 NUM_ROW_WORDS = 400
-NUM_NYMS = [1, 5]
+NUM_COL_WORDS = 200
+NUM_NYMS = [1, 10]
 SUFFIX = 'random3'
 
 if __name__ == '__main__':
@@ -24,11 +26,11 @@ if __name__ == '__main__':
         # generate syns and ants for probes
         probe2syns = {}
         probe2ants = {}
-        candidates = [v for v in vocab if v not in row_words]
+        candidates = cycle([v for v in vocab if v not in row_words][:NUM_COL_WORDS])
         for rw in row_words:
-            probe2syns[rw] = [candidates.pop() for _ in range(
+            probe2syns[rw] = [next(candidates) for _ in range(
                 np.random.randint(NUM_NYMS[0], NUM_NYMS[-1] + 1, size=1).item())]
-            probe2ants[rw] = [candidates.pop() for _ in range(
+            probe2ants[rw] = [next(candidates) for _ in range(
                 np.random.randint(NUM_NYMS[0], NUM_NYMS[-1] + 1, size=1).item())]
 
         # write to file
