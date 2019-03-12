@@ -32,7 +32,7 @@ if __name__ == '__main__':
         df_combined.reset_index(level=1, inplace=True)  # make index 'group' a column
         print(df_combined)
         # vocab
-        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, vocab_size)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         vocab = np.loadtxt(p, 'str').tolist()
