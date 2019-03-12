@@ -26,7 +26,7 @@ def move_scores_to_server(param2val, location):
             yaml.dump(param2val, f, default_flow_style=False, allow_unicode=True)
 
 
-def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
+def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs=False):
     # save w2freq
     p = config.RemoteDirs.root / '{}_w2freq.txt'.format(config.Corpus.name)
     with p.open('w') as f:
@@ -42,8 +42,9 @@ def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs):
     with p.open('wb') as f:
         pickle.dump(numeric_docs, f)
     # save docs
-
-    # TODO test EOFErrow when reading pickled docs stored n server on worker
+    if skip_docs:
+        return  # takes long to upload docs to file server
+    # save docs for each worker - otherwise multiple workers will open same files causing EOFError
     from ludwigcluster.config import SFTP
     for worker in SFTP.worker_names:
         p = config.RemoteDirs.root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)

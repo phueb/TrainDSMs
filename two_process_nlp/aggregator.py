@@ -12,7 +12,7 @@ from two_process_nlp.params import to_embedder_name
 
 
 class Aggregator:
-    def __init__(self):
+    def __init__(self, fname=None):
         self.expert_param_names = ['neg_pos_ratio', 'standardize', 'num_epochs']  # TODo test standardize
         self.df_index = ['corpus',
                          'num_vocab',
@@ -25,7 +25,7 @@ class Aggregator:
                          'task',
                          'regime'] + self.expert_param_names + ['score']
         self.df_name_with_date = '2process_data_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
-        self.df_name = '2process_data.csv'
+        self.df_name = fname or '2process_data.csv'
         self.df = None
         self.counter = count(0, 1)
         # constants

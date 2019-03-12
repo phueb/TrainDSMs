@@ -8,6 +8,7 @@ ARCHITECTURES = ['extractor', 'comparator', 'aligner', 'classifier']
 EVAL = 'identification'  # changes ylim and ylabel
 
 LOAD_FROM_FILE = True
+FNAME = None
 
 AX_FONTSIZE = 16
 LEG_FONTSIZE = 10
@@ -15,7 +16,7 @@ FIGSIZE = (16, 6)
 DPI = 200
 
 
-ag = Aggregator()
+ag = Aggregator(FNAME)
 df = ag.make_df(load_from_file=LOAD_FROM_FILE, verbose=True)
 
 # exclude
@@ -33,7 +34,7 @@ else:
     raise AttributeError('Invalid arg to "EVAL".')
 
 
-embedder_names = ['random_normal']  #, 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
+embedder_names = ['random_normal', 'ww']  #, 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal']
 task_names = df['task'].unique()
 task_name2color = {t: plt.cm.get_cmap('tab10')(n) for n, t in enumerate(task_names)}
 for embedder in embedder_names:

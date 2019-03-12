@@ -48,8 +48,8 @@ class Corpus:
     UNK = 'UNKNOWN'
     name = 'childes-20180319'
     # name = 'tasa-20181213'
-    num_vocab = 4096
-    vocab_sizes = [4096]  # also: 8192, 16384
+    num_vocab = 16384  # TODO test
+    vocab_sizes = [4096, 8192, 16384]  # also: 8192, 16384
 
 
 class Glove:

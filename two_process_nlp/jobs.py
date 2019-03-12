@@ -19,8 +19,8 @@ from two_process_nlp.job_utils import move_scores_to_server
 nlp = English()
 
 
-def preprocessing_job():
-    num_vocab = config.Corpus.num_vocab
+def preprocessing_job(num_vocab=None, skip_docs=False):
+    num_vocab = config.Corpus.num_vocab or num_vocab
     #
     docs = []
     w2freq = Counter()
@@ -66,7 +66,8 @@ def preprocessing_job():
                 numeric_doc.append(t2id[config.Corpus.UNK])
         numeric_docs.append(numeric_doc)
     # save to file server
-    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs)
+    print('Sending results from corpus preprocessing to file-server...')
+    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs)
 
 
 def main_job(param2val):
@@ -106,8 +107,14 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffled'),  # TODO jw
+            # Identification(architecture, 'nyms', 'syn', suffix='_jwshuffledunique'),
+            # Identification(architecture, 'nyms', 'ant', suffix='_jwshuffledunique'),
+
+            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffled'),
             Identification(architecture, 'nyms', 'ant', suffix='_jwshuffled'),
+
+            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':
                 print('WARNING: Using task file suffix "{}".'.format(ev.suffix))

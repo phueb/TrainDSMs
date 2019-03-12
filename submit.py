@@ -43,9 +43,9 @@ if __name__ == '__main__':
     # create all possible hyperparameter configurations
     update_d = {'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab}
     param2val_list = list_all_param2vals(RandomControlParams, update_d) + \
-                     list_all_param2vals(CountParams, update_d) + \
-                     list_all_param2vals(RNNParams, update_d) + \
-                     list_all_param2vals(Word2VecParams, update_d)
+                     list_all_param2vals(CountParams, update_d)
+                     # list_all_param2vals(RNNParams, update_d) + \
+                     # list_all_param2vals(Word2VecParams, update_d)
     # submit
     data_dirs = ['tasks'] if not namespace.skip_data else []
     client = Client(config.RemoteDirs.root.name)
