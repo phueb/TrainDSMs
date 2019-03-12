@@ -29,7 +29,7 @@ if EVAL == 'matching':
     ylims = [0.5, 0.85]
 elif EVAL == 'identification':
     ylabel = 'Accuracy'
-    ylims = [0.0, 0.8]
+    ylims = [0.0, 1.0]
 else:
     raise AttributeError('Invalid arg to "EVAL".')
 
