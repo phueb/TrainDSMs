@@ -42,9 +42,9 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
     # test - always make test data first to populate test_pairs before making training data
     test_row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
-    candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
+    test_candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
     row_word_ids_chunk = np.array_split(row_word_ids, config.Eval.num_folds)[fold_id]
-    for probe, candidates, eval_sims_mat_row_id in zip(test_row_words, candidate_rows, row_word_ids_chunk):
+    for probe, candidates, eval_sims_mat_row_id in zip(test_row_words, test_candidate_rows, row_word_ids_chunk):
         for p, c in product([probe], candidates):
             test_pairs.add((p, c))
             test_pairs.add((c, p))  # crucial to collect both orderings
@@ -54,12 +54,13 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
     # train
     num_skipped = 0
-    for n, (train_row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
+    for n, (train_row_words, train_candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
             np.array_split(row_word_ids, config.Eval.num_folds))):
         if n != fold_id:
-            for probe, candidates, eval_sims_mat_row_id in zip(train_row_words, candidate_rows, row_word_ids_chunk):
+            for probe, candidates, eval_sims_mat_row_id in zip(
+                    train_row_words, train_candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
                     if (p, c) in test_pairs or (c, p) in test_pairs:
                         num_skipped += 1
@@ -199,7 +200,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
             start = time.time()
             # save transformed word embeddings
 
-            # TODO test
+            # TODO also export train embed_mats
 
             test_embeds = x1_test[:, 0, :]
             process2_test_embeds = graph.sess.run(graph.o1, feed_dict={graph.x1: test_embeds})

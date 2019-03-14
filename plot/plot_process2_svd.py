@@ -12,24 +12,26 @@ from two_process_nlp import config
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 
-FIT_ID = 0
 
+SAVE_ANIMATION = True
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
-LABELED_CAT = 'INTELIGENCE'
+LABELED_CAT = 'LONELINESS'
 
-METHODS = ['pca']
-TSNE_PP = 30  # TODO vary
-PC_NUMS = (1, 2)  # TODO vary
+METHOD = 'pca'
+FIT_ID = -1
+TSNE_PP = 30
+PC_NUMS = (1, 0)
 
+TITLE_Y = 0.9
 SCATTER_SIZE = 6
-XLIM = 20
-YLIM = 20
+XLIM = 30
+YLIM = 30
 LABEL_BORDER = 1
-LABEL_FONTSIZE = 6
+LABEL_FONTSIZE = 8
 FIGSIZE = (6, 6)
-DPI = 192
-ANIM_INTERVAL = 1000  # ms
+DPI = None
+ANIM_INTERVAL = 500  # ms
 EVAL_STEP_INTERVAL = 1
 
 
@@ -47,6 +49,8 @@ def make_2d_fig(mat, meta_data_df):
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
     ax.set(xlim=(-XLIM, XLIM), ylim=(-YLIM, YLIM))
     ax.axis('off')
+    ax.set_title('{} of embedder={} test word vectors\nFrame {}/{}'.format(
+        METHOD, embedder_name, 1, len(mats_2d)), y=TITLE_Y)
     # plot
     scatters = []
     texts = []
@@ -90,39 +94,37 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
         print(meta_data_df['cat'].unique())
         # fig
         make_fig = None
-        for method in METHODS:
-            # fit model on last eval_step
-            if method == 'tsne':
-                fitter = TSNE(perplexity=TSNE_PP).fit(process2_embed_mats[FIT_ID])
-            elif method == 'pca':
-                fitter = PCA().fit(process2_embed_mats[FIT_ID])
-            else:
-                raise AttributeError('Invalid arg to "METHODS".')
-            # plot initial eval_step
+        # fit model on last eval_step
+        if METHOD == 'tsne':
+            fitter = TSNE(perplexity=TSNE_PP).fit(process2_embed_mats[FIT_ID])
+        elif METHOD == 'pca':
+            fitter = PCA().fit(process2_embed_mats[FIT_ID])
+        else:
+            raise AttributeError('Invalid arg to "METHODS".')
+        # plot initial eval_step
 
-            # TODO multiprocessing: fit_transform in parallel
+        # TODO multiprocessing: fit_transform in parallel
 
-            mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats]
-            fig, ax, scatters, texts, labels = make_2d_fig(mats_2d[0], meta_data_df)
+        mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats]
+        fig, ax, scatters, texts, labels = make_2d_fig(mats_2d[0], meta_data_df)
 
-            def animate(i):
-                ax.set_title('Frame {}/{}'.format(i + 1, len(mats_2d)))
-                for row_id, (scatter, label, text) in enumerate(zip(scatters, labels, texts)):
-                    offset = mats_2d[i][row_id, PC_NUMS]
-                    scatter.set_offsets(np.array([offset]))  # offsets must be passed an N×2 array
-                    xpos, ypos = offset
-                    text.set_position((xpos + 0.01, ypos + 0.01))
+        def animate(i):
+            ax.set_title('{} of embedder={} test word vectors\nFrame {}/{}'.format(
+                METHOD, embedder_name, i + 1, len(mats_2d)), y=TITLE_Y)
+            for row_id, (scatter, label, text) in enumerate(zip(scatters, labels, texts)):
+                offset = mats_2d[i][row_id, PC_NUMS]
+                scatter.set_offsets(np.array([offset]))  # offsets must be passed an N×2 array
+                xpos, ypos = offset
+                text.set_position((xpos + 0.01, ypos + 0.01))
 
-            anim = FuncAnimation(fig, animate, interval=ANIM_INTERVAL, frames=len(mats_2d))
-            plt.draw()
-            plt.show()
+        anim = FuncAnimation(fig, animate, interval=ANIM_INTERVAL, frames=len(mats_2d))
+        #
+        if SAVE_ANIMATION:
+            anim.save('{}.gif'.format(LABELED_CAT))
+        plt.draw()
+        plt.show()
 
-            # u, s, v = np.linalg.svd(mat, full_matrices=False)
-            # pcs = np.dot(u, np.diag(s))
-            # explained_variance = np.var(pcs, axis=0)
-            # full_variance = np.var(mat, axis=0)
-            # expl_var_perc = explained_variance / full_variance.sum() * 100
-            # res = u[:, PC_NUMS]  # this is correct, and gives same results as pca
+
 
 
 
