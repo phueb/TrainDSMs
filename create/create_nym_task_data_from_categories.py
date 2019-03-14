@@ -46,6 +46,7 @@ if __name__ == '__main__':
         # get both syns and ants for probes
         probe2syns = {p: [] for p in probes}
         probe2ants = {p: [] for p in probes}
+        probe2cat = {}
         for cat, group in df_combined.groupby('category'):
             if VERBOSE:
                 print(cat)
@@ -66,9 +67,11 @@ if __name__ == '__main__':
                 excluded_syns.append(probe)
                 probe2syns[probe] = [p for p in a if p != probe]
                 probe2ants[probe] = [p for p in b]
+                probe2cat[probe] = cat.upper() + '+'
             for probe in b:
                 probe2syns[probe] = [p for p in b if p != probe]
                 probe2ants[probe] = [p for p in a]
+                probe2cat[probe] = cat.upper() + '-'
             # check
             if VERBOSE:
                 print([(p, probe2syns[p]) for p in a + b])  # duplicates are allowed when duplicates are mirrored versions of existing pairs
@@ -93,6 +96,7 @@ if __name__ == '__main__':
                                      if nym != probe and nym in vocab])
                     if not nyms:
                         continue
-                    line = '{} {}\n'.format(probe, nyms)
+                    cat = probe2cat[probe]
+                    line = '{} {} {}\n'.format(probe, nyms, cat)
                     print(line.strip('\n'))
                     f.write(line)

@@ -28,6 +28,7 @@ class Identification(EvalBase):
         #
         self.probe2relata = None
         self.probe2lures = None
+        self.probe2cat = None
         self.metric = 'acc'
         self.suffix = suffix
         if suffix != '':
@@ -50,9 +51,10 @@ class Identification(EvalBase):
                         probe, name, num, len(population)))
                 return []
         # load
-        probes, probe_relata, probe_lures = self.load_probes()
+        probes, probe_relata, probe_lures, probe_cats = self.load_probes()
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
+        self.probe2cat = {p: l for p, l in zip(probes, probe_cats)}
         # make candidates_mat
         all_eval_probes = []
         all_eval_candidates_mat = []
@@ -83,25 +85,7 @@ class Identification(EvalBase):
         assert self.probe2lures is not None
         #
         df = pd.DataFrame(data={'probe': row_words})
-        #  assign preliminary categories based on last relatum
-        row_word2cat = {}
-        cats = set()
-        for row_word in row_words:
-            relata = self.probe2relata[row_word]
-            cat = relata[-1]  # at least in nym task files, last relatum indicates category membership
-            row_word2cat[row_word] = cat
-            cats.add(cat)
-        # any row_word which matches a category must be moved into category indicated by category
-        for row_word in row_words:
-            if row_word in cats:
-                row_word2cat[row_word] = row_word
-        df['cat'] = [row_word2cat[rw] for rw in row_words]
-
-        # TODO this finds each category twice (once for -1 words in category and once for +1 words in category)
-        # TODO what exactly do i want to do?
-
-        # TODO i should get both kinds of information - category and [-1 or +1]
-
+        df['cat'] = [self.probe2cat[rw] for rw in row_words]
         p = self.make_p(embedder_location, process, 'task_metadata.csv')
         df.to_csv(p, index=False)
 
@@ -156,25 +140,30 @@ class Identification(EvalBase):
         else:
             p2 = p2s[0]
         # load files
-        probes2relata1 = {}
+        probe2relata1 = {}
+        probe2cat = {}
         with p1.open('r') as f:
             for line in f.read().splitlines():
                 spl = line.split()
-                probes2relata1[spl[0]] = spl[1:]
-        probes2relata2 = {}
+                probe2relata1[spl[0]] = spl[1:-1]
+                probe2cat[spl[0]] = spl[-1]
+        probe2relata2 = {}
         with p2.open('r') as f:
             for line in f.read().splitlines():
                 spl = line.split()
-                probes2relata2[spl[0]] = spl[1:]
+                probe2relata2[spl[0]] = spl[1:-1]
+                probe2cat[spl[0]] = spl[-1]
         # get probes for which lures exist
         probes = []
         probe_relata = []
         probe_lures = []
-        for probe, relata in sorted(probes2relata1.items(), key=lambda i: i[0]):
-            if probe in probes2relata2:
+        probe_cats = []
+        for probe, relata in sorted(probe2relata1.items(), key=lambda i: i[0]):
+            if probe in probe2relata2:
                 probes.append(probe)
                 probe_relata.append(relata)
-                probe_lures.append(probes2relata2[probe])
+                probe_lures.append(probe2relata2[probe])
+                probe_cats.append(probe2cat[probe])
             else:
                 print('"{}" does not occur in both task files.'.format(probe))
         # no need for downsampling because identification eval is much less memory consuming
@@ -183,4 +172,4 @@ class Identification(EvalBase):
         # it matter more WHICH negative pairings are trained, rather than HOW MANY)
         # no need for shuffling because shuffling is done when eval data is created
         print('{}: After finding lures, number of probes left={}'.format(self.name, len(probes)))
-        return probes, probe_relata, probe_lures
+        return probes, probe_relata, probe_lures, probe_cats

@@ -125,7 +125,7 @@ def main_job(param2val):
             #
             ev.pos_prob = ev.calc_pos_prob()
             #
-            ev.save_task_meta_data(ev.row_words, embedder.location, 'expert')  # TODO test
+            ev.save_task_meta_data(ev.row_words, embedder.location, 'expert')
             # check that required embeddings exist for eval
             for w in set(ev.row_words + ev.col_words):
                 if w not in embedder.w2e:
