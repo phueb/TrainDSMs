@@ -19,7 +19,7 @@ from two_process_nlp.job_utils import move_scores_to_server
 nlp = English()
 
 
-def preprocessing_job(num_vocab=None, skip_docs=False):
+def preprocessing_job(num_vocab=None, skip_docs=False, local=False):
     num_vocab = config.Corpus.num_vocab or num_vocab
     #
     docs = []
@@ -67,7 +67,7 @@ def preprocessing_job(num_vocab=None, skip_docs=False):
         numeric_docs.append(numeric_doc)
     # save to file server
     print('Sending results from corpus preprocessing to file-server...')
-    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs)
+    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, local)
 
 
 def main_job(param2val):

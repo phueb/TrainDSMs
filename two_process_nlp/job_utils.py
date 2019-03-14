@@ -26,32 +26,34 @@ def move_scores_to_server(param2val, location):
             yaml.dump(param2val, f, default_flow_style=False, allow_unicode=True)
 
 
-def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs=False):
+def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, local):
+    #
+    root = config.LocalDirs.root if local else config.RemoteDirs.root
     # save w2freq
-    p = config.RemoteDirs.root / '{}_w2freq.txt'.format(config.Corpus.name)
+    p = root / '{}_w2freq.txt'.format(config.Corpus.name)
     with p.open('w') as f:
         for probe, freq in deterministic_w2f.items():
             f.write('{} {}\n'.format(probe, freq))
     # save vocab
-    p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('w') as f:
         for v in vocab:
             f.write('{}\n'.format(v))
     # save numeric_docs
-    p = config.RemoteDirs.root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('wb') as f:
         pickle.dump(numeric_docs, f)
     # save docs
-    if skip_docs:
+    if skip_docs or local:
         return  # takes long to upload docs to file server
     # save docs for each worker - otherwise multiple workers will open same files causing EOFError
     from ludwigcluster.config import SFTP
     for worker in SFTP.worker_names:
-        p = config.RemoteDirs.root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
+        p = root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
         with p.open('wb') as f:
             pickle.dump(docs, f)
 
-    p = config.RemoteDirs.root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
     with p.open('wb') as f:
         pickle.dump(docs, f)
 
