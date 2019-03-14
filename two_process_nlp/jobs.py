@@ -107,12 +107,6 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix='_jwshuffledunique'),
-            # Identification(architecture, 'nyms', 'ant', suffix='_jwshuffledunique'),
-
-            Identification(architecture, 'nyms', 'syn', suffix='_jwshuffled'),
-            Identification(architecture, 'nyms', 'ant', suffix='_jwshuffled'),
-
             Identification(architecture, 'nyms', 'syn', suffix='_jw'),
             Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:

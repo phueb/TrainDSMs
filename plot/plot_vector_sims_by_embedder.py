@@ -8,8 +8,10 @@ from two_process_nlp.params import to_embedder_name
 from analyze.utils import gen_param2vals_for_completed_jobs
 
 
-embedder_names = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform']
-embedder_name2plot_data = {embedder_name: [] for embedder_name in embedder_names}
+EMBEDDER_NAMES = ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform']
+
+
+embedder_name2plot_data = {embedder_name: [] for embedder_name in EMBEDDER_NAMES}
 job_name2plot_data = {}
 for param2val in gen_param2vals_for_completed_jobs():
     embedder_name = to_embedder_name(param2val)
@@ -26,10 +28,10 @@ for param2val in gen_param2vals_for_completed_jobs():
 
 # figure
 embedder_name2color = {embedder_name: plt.cm.get_cmap('tab10')(n)
-                       for n, embedder_name in enumerate(embedder_names)}
+                       for n, embedder_name in enumerate(EMBEDDER_NAMES)}
 fig, ax = plt.subplots(1, figsize=(10, 5), dpi=300)
 plt.title('Cosine similarities between all pairs in vocab')
-num_x = len(embedder_names)
+num_x = len(EMBEDDER_NAMES)
 x = np.arange(num_x)
 ax.set_xticks(x)
 sorted_embedder_names = list(zip(*sorted(embedder_name2plot_data.items(), key=lambda i: i[1])))[0]

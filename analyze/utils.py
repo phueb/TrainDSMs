@@ -5,8 +5,9 @@ from two_process_nlp import config
 from two_process_nlp.aggregator import Aggregator
 
 
-def gen_param2vals_for_completed_jobs():
-    for location in config.RemoteDirs.runs.glob('**/*num*'):
+def gen_param2vals_for_completed_jobs(local=False):
+    runs_dir = config.LocalDirs.runs if local else config.RemoteDirs.runs
+    for location in runs_dir.glob('**/*num*'):
         param_name, job_name = location.parts[-2:]
         param2val = Aggregator.load_param2val(param_name)
         param2val['job_name'] = job_name

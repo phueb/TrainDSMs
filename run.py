@@ -53,6 +53,8 @@ if __name__ == '__main__':
     namespace = parser.parse_args()
     if namespace.debug:
         config.Eval.debug = True
+        config.Eval.num_epochs_matching = 100
+        config.Eval.num_epochs_identification = 100
     if namespace.preprocess:
         preprocessing_job()
     if namespace.local:

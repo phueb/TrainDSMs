@@ -221,15 +221,11 @@ class EvalBase(object):
             except NotImplementedError:
                 pass
         # save transformed word vectors - vectors for test words collected across all folds
-
-        # TODO test
-
         process = 'expert' if not shuffled else 'control'
-        p = embedder_location / self.arch_name / self.name / self.data_name / process / 'o1.npy'
+        p = embedder_location / self.arch_name / self.name / self.data_name / process / 'process2_embed_mats.npy'
+        if not p.parent.exists():
+            p.parent.mkdir(parents=True)
         np.save(p,  trial.results.process2_embed_mats)  # these are matrices of transformed vectors for each eval_step
-
-
-
-
+        # scores
         scores_at_eval_steps = self.get_scores_at_eval_steps(trial)
         return scores_at_eval_steps
