@@ -100,6 +100,8 @@ class Identification(EvalBase):
         # TODO this finds each category twice (once for -1 words in category and once for +1 words in category)
         # TODO what exactly do i want to do?
 
+        # TODO i should get both kinds of information - category and [-1 or +1]
+
         p = self.make_p(embedder_location, process, 'task_metadata.csv')
         df.to_csv(p, index=False)
 

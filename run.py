@@ -54,7 +54,7 @@ if __name__ == '__main__':
     if namespace.debug:
         config.Eval.debug = True
         config.Eval.num_epochs_matching = 100
-        config.Eval.num_epochs_identification = 100  # TODO
+        config.Eval.num_epochs_identification = 2000  # TODO
     if namespace.preprocess:
         preprocessing_job()
     if namespace.local:
