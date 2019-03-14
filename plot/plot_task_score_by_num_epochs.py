@@ -7,7 +7,7 @@ from two_process_nlp.aggregator import Aggregator
 ARCHITECTURES = ['extractor', 'comparator', 'aligner', 'classifier']
 EVAL = 'identification'  # changes ylim and ylabel
 
-LOAD_FROM_FILE = True
+LOAD_FROM_FILE = False
 FNAME = None
 
 AX_FONTSIZE = 16

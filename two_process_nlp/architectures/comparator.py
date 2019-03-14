@@ -184,6 +184,7 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
+            # console
             if config.Eval.verbose:
                 train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
                                                                    graph.x2: x2_train,
@@ -196,6 +197,15 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                     np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
                     np.mean(cosines)))
             start = time.time()
+            # save transformed word embeddings
+
+            # TODO test
+
+            o1, o2 = graph.sess.run([graph.o1, graph.o2], feed_dict={graph.x1: x2_test[0],
+                                                                     graph.x2: x2_test[0]})
+            trial.results.process2_embed_mats[eval_id][eval_sims_mat_row_ids_test, :] = o1
+
+
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 

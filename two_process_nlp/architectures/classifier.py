@@ -126,6 +126,9 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         by_cols = tf.gather(by, x2, axis=0)
                         # pairwise vector-dot-product: calc dot-product for each row in x1 and column in wy_cols
                         logits = tf.reduce_sum(tf.multiply(x1, tf.transpose(wy_cols)), axis=1)
+                #
+                o1 = x1
+                o2 = x1  # used to compute transformed word representations in other architectures
                 # loss
                 pred_cos = tf.nn.sigmoid(logits)  # gives same ba as tanh
                 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)

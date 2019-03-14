@@ -9,10 +9,15 @@ from two_process_nlp.params import make_param2val_list, ObjectView
 
 
 class ResultsData:
-    def __init__(self, params_id, eval_candidates_mat):
+    def __init__(self, params_id, evaluator, embed_size):
         self.params_id = params_id
-        self.eval_sims_mats = [np.full_like(eval_candidates_mat, np.nan, dtype=float)
+        self.eval_sims_mats = [np.full_like(evaluator.eval_candidates_mat, np.nan, dtype=float)
                                for _ in range(config.Eval.num_evals)]
+
+        # TODO test
+
+        self.process2_embed_mats = [np.zeros((len(evaluator.row_words), embed_size))
+                        for _ in range(config.Eval.num_evals)]
 
 
 class Trial(object):
@@ -132,12 +137,13 @@ class EvalBase(object):
         # run each trial in separate process
         print('Training expert on "{}"'.format(self.full_name))
         pool = mp.Pool(processes=config.Eval.num_processes if not config.Eval.debug else 1)
-        if config.Eval.debug:
-            self.do_trial(self.trials[0], embedder.w2e, embedder.dim1, shuffled)  # cannot pickle tensorflow errors
+        if config.Eval.debug:  # cannot pickle tensorflow errors
+            self.do_trial(self.trials[0], embedder.w2e, embedder.dim1, embedder.location, shuffled)
             raise SystemExit('Exited debugging mode (without saving scores).'
                              'Turn off debugging mode to train on all tasks.')
         else:
-            results = [pool.apply_async(self.do_trial, args=(trial, embedder.w2e, embedder.dim1, shuffled))
+            results = [pool.apply_async(self.do_trial, args=(
+                trial, embedder.w2e, embedder.dim1, embedder.location, shuffled))
                        for trial in self.trials]
             scores = []
             try:
@@ -192,8 +198,9 @@ class EvalBase(object):
             res[w] = standardized_mat[n]
         return res
 
-    def do_trial(self, trial, w2e, embed_size, shuffled):
-        trial.results = self.init_results_data(self, ResultsData(trial.params_id, self.eval_candidates_mat))
+    def do_trial(self, trial, w2e, embed_size, embedder_location, shuffled):
+        trial.results = self.init_results_data(
+            self, ResultsData(trial.params_id, self, embed_size))
         assert hasattr(trial.results, 'params_id')
         # standardize
         if trial.params.standardize:
@@ -208,9 +215,21 @@ class EvalBase(object):
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id, shuffled)
             graph = self.make_graph(self, trial, w2e, embed_size)
             self.train_expert_on_train_fold(self, trial, graph, data, fold_id)
+            #
             try:
                 self.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
             except NotImplementedError:
                 pass
+        # save transformed word vectors - vectors for test words collected across all folds
+
+        # TODO test
+
+        process = 'expert' if not shuffled else 'control'
+        p = embedder_location / self.arch_name / self.name / self.data_name / process / 'o1.npy'
+        np.save(p,  trial.results.process2_embed_mats)  # these are matrices of transformed vectors for each eval_step
+
+
+
+
         scores_at_eval_steps = self.get_scores_at_eval_steps(trial)
         return scores_at_eval_steps

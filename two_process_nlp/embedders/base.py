@@ -44,7 +44,7 @@ class EmbedderBase(object):
     def vocab(self):
         p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
         if not p.exists():
-            raise RuntimeError('{} does not exist'.format(p))
+            raise RuntimeError('{} does not exist. Run pre-processing job to save a vocab file.'.format(p))
         #
         res = np.loadtxt(p, 'str').tolist()
         return res

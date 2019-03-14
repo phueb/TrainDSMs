@@ -92,8 +92,8 @@ def main_job(param2val):
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # process 2
     for architecture in [
-        classifier,
         comparator,
+        classifier,
         extractor,
         aligner,
     ]:

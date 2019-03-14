@@ -7,7 +7,7 @@ from two_process_nlp import config
 
 VERBOSE = True
 
-SHUFFLE = True  # only for debugging
+SHUFFLE = False  # only for debugging
 REMOVE_DUPLICATES_IN_WORDS_COL = False  # only for debugging
 CORPUS_NAME = 'childes-20180319'
 GRAM_CAT = 'adj'
