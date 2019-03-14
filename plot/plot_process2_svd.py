@@ -12,13 +12,19 @@ from two_process_nlp import config
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 
-METHODS = ['tsne']
+
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
+LABELED_PROBES = ['lovely', 'good', 'great', 'better', 'fine', 'best', 'favorite', 'special',
+                  'wonderful', 'excellent', 'terrific', 'dear', 'super', 'amazing', 'exciting',
+                  'fantastic', 'awesome', 'grand', 'neat', 'fabulous','marvelous', 'perfect']
 
+
+# TODO label probes using the probe which indicates the category
+
+METHODS = ['tsne']
 TSNE_PP = 30  # TODO vary
 PC_NUMS = (1, 0)  # TODO vary
-NUM_ROW_WORDS = 50
 
 SCATTER_SIZE = 8
 XLIM = 20
@@ -27,48 +33,49 @@ LABEL_BORDER = 0
 LABEL_FONTSIZE = 4
 FIGSIZE = (6, 6)
 DPI = 192
-ANIM_INTERVAL = 2000
+ANIM_INTERVAL = 3000
 EVAL_STEP_INTERVAL = 1
 
 
-# TODO spcify exactly which words hould be labeled and plotted
-
-
-def make_2d_fig(mat, meta_data_df, num_row_words):
+def make_2d_fig(mat, meta_data_df):
     """
     Returns fig showing probe activations in 2D space using TSNE.
     """
-    num_cats = len(meta_data_df['cat'].unique())
+    cats = meta_data_df['cat'].unique().tolist()
+    num_cats = len(cats)
     palette = np.array(sns.color_palette("hls", num_cats))
     # load data
     assert len(meta_data_df) == len(mat)
-    probe_cats = meta_data_df['cat']
-    cats = list(sorted(meta_data_df['cat'].unique()))
+    probes = meta_data_df['probe'].values.tolist()
+    probe_cats = meta_data_df['cat'].values.tolist()
     # fig
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
     ax.set(xlim=(-XLIM, XLIM), ylim=(-YLIM, YLIM))
+    ax.axis('off')
     # plot
-    palette_ids = [cats.index(probe_cat) for probe_cat in probe_cats]
-    scatter = ax.scatter(mat[:num_row_words, 0], mat[:num_row_words, 1],
-                      lw=0, s=SCATTER_SIZE, c=palette[palette_ids][:num_row_words])
-    # axarr[n].axis('off')
-    # axarr[n].axis('tight')
-    # label probes
+    scatters = []
     texts = []
-    probes = []
-    for probe in meta_data_df['probe'].values[:num_row_words]:
-        probes_acts_2d_ids = np.where(meta_data_df['probe'].values == probe)[0]
-        xpos, ypos = np.median(mat[probes_acts_2d_ids, :], axis=0)
-        text = ax.text(xpos + 0.01, ypos + 0.01, str(probe), fontsize=LABEL_FONTSIZE)
+    labels = []
+    for row_id, row in enumerate(mat):
+        # plot single point
+        row_word = probes[row_id]
+        probe_cat = probe_cats[row_id]
+        palette_id = cats.index(probe_cat)
+        scatter = ax.scatter(row[0], row[1], lw=0, s=SCATTER_SIZE, c=np.array([palette[palette_id]]))
+        scatters.append(scatter)
+        # label probe
+        if row_word not in LABELED_PROBES:
+            continue
+        xpos, ypos = mat[row_id]
+        text = ax.text(xpos + 0.01, ypos + 0.01, str(row_word), fontsize=LABEL_FONTSIZE)
         text.set_path_effects([
             patheffects.Stroke(linewidth=LABEL_BORDER, foreground="w"), patheffects.Normal()])
         texts.append(text)
-        probes.append(probe)
+        labels.append(row_word)
     fig.tight_layout()
-    return fig, scatter, texts, probes
+    return fig, ax, scatters, texts, labels
 
 
-embedder_name2plot_data = {embedder_name: [] for embedder_name in EMBEDDER_NAMES}
 job_name2plot_data = {}
 for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
     embedder_name = to_embedder_name(param2val)
@@ -92,17 +99,21 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
             else:
                 raise AttributeError('Invalid arg to "METHODS".')
             # plot initial eval_step
+
+            # TODO multiprocessing: fit_transform in parallel
+
             mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats]
-            fig, scatter, texts, probes = make_2d_fig(mats_2d[0], meta_data_df, num_row_words=NUM_ROW_WORDS)
+            fig, ax, scatters, texts, labels = make_2d_fig(mats_2d[0], meta_data_df)
 
             def animate(i):
-                scatter.set_offsets(mats_2d[i])  # offsets must be passed an N×2 array
-                for text, probe in zip(texts, probes):
-                    probes_acts_2d_ids = np.where(meta_data_df['probe'].values == probe)[0]
+                for scatter_id, scatter in enumerate(scatters):
+                    scatter.set_offsets(mats_2d[i][scatter_id])  # offsets must be passed an N×2 array
+                for text, label in zip(texts, labels):
+                    probes_acts_2d_ids = np.where(meta_data_df['probe'].values == label)[0]
                     xpos, ypos = np.median(mats_2d[i][probes_acts_2d_ids, :], axis=0)
                     text.set_position((xpos + 0.01, ypos + 0.01))
+                    ax.set_title('Frame {}/{}'.format(i, len(mats_2d) - 1))
 
-                # TODO test text updating
 
             anim = FuncAnimation(fig, animate, interval=ANIM_INTERVAL, frames=len(mats_2d) - 1)
             plt.draw()
