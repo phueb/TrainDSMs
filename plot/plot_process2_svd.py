@@ -16,8 +16,8 @@ METHODS = ['tsne']
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
 
-TSNE_PP = 30
-PC_NUMS = (1, 0)
+TSNE_PP = 30  # TODO vary
+PC_NUMS = (1, 0)  # TODO vary
 NUM_ROW_WORDS = 50
 
 SCATTER_SIZE = 8
@@ -27,8 +27,11 @@ LABEL_BORDER = 0
 LABEL_FONTSIZE = 4
 FIGSIZE = (6, 6)
 DPI = 192
-ANIM_INTERVAL = 1000
-EVAL_STEP_INTERVAL = 2
+ANIM_INTERVAL = 2000
+EVAL_STEP_INTERVAL = 1
+
+
+# TODO spcify exactly which words hould be labeled and plotted
 
 
 def make_2d_fig(mat, meta_data_df, num_row_words):
@@ -46,20 +49,23 @@ def make_2d_fig(mat, meta_data_df, num_row_words):
     ax.set(xlim=(-XLIM, XLIM), ylim=(-YLIM, YLIM))
     # plot
     palette_ids = [cats.index(probe_cat) for probe_cat in probe_cats]
-    scat = ax.scatter(mat[:num_row_words, 0], mat[:num_row_words, 1],
+    scatter = ax.scatter(mat[:num_row_words, 0], mat[:num_row_words, 1],
                       lw=0, s=SCATTER_SIZE, c=palette[palette_ids][:num_row_words])
     # axarr[n].axis('off')
     # axarr[n].axis('tight')
     # label probes
+    texts = []
+    probes = []
     for probe in meta_data_df['probe'].values[:num_row_words]:
         probes_acts_2d_ids = np.where(meta_data_df['probe'].values == probe)[0]
         xpos, ypos = np.median(mat[probes_acts_2d_ids, :], axis=0)
-        txt = ax.text(xpos + 0.01, ypos + 0.01, str(probe), fontsize=LABEL_FONTSIZE)
-        txt.set_path_effects([
+        text = ax.text(xpos + 0.01, ypos + 0.01, str(probe), fontsize=LABEL_FONTSIZE)
+        text.set_path_effects([
             patheffects.Stroke(linewidth=LABEL_BORDER, foreground="w"), patheffects.Normal()])
+        texts.append(text)
+        probes.append(probe)
     fig.tight_layout()
-    return fig, scat
-
+    return fig, scatter, texts, probes
 
 
 embedder_name2plot_data = {embedder_name: [] for embedder_name in EMBEDDER_NAMES}
@@ -73,7 +79,7 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
     runs_dir = config.LocalDirs.runs if LOCAL else config.RemoteDirs.runs
     for p in (runs_dir / param_name / job_name).rglob('process2_embed_mats.npy'):
         # load data
-        process2_embed_mats = np.load(p)
+        process2_embed_mats = np.load(p)[::EVAL_STEP_INTERVAL]
         meta_data_df = pd.read_csv(p.parent / 'task_metadata.csv')
         # fig
         make_fig = None
@@ -86,14 +92,17 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
             else:
                 raise AttributeError('Invalid arg to "METHODS".')
             # plot initial eval_step
-            mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats][::EVAL_STEP_INTERVAL]
-            fig, scat = make_2d_fig(mats_2d[0], meta_data_df, num_row_words=NUM_ROW_WORDS)
-
+            mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats]
+            fig, scatter, texts, probes = make_2d_fig(mats_2d[0], meta_data_df, num_row_words=NUM_ROW_WORDS)
 
             def animate(i):
-                scat.set_offsets(mats_2d[i])  # offsets must be passed an N×2 array
+                scatter.set_offsets(mats_2d[i])  # offsets must be passed an N×2 array
+                for text, probe in zip(texts, probes):
+                    probes_acts_2d_ids = np.where(meta_data_df['probe'].values == probe)[0]
+                    xpos, ypos = np.median(mats_2d[i][probes_acts_2d_ids, :], axis=0)
+                    text.set_position((xpos + 0.01, ypos + 0.01))
 
-                # TODO update text
+                # TODO test text updating
 
             anim = FuncAnimation(fig, animate, interval=ANIM_INTERVAL, frames=len(mats_2d) - 1)
             plt.draw()
