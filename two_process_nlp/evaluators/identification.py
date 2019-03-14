@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import binom
+import pandas as pd
 
 from two_process_nlp import config
 from two_process_nlp.evaluators.base import EvalBase
@@ -76,6 +77,31 @@ class Identification(EvalBase):
             print('Skipped {} probes due to insufficient relata or lures'.format(num_skipped))
         all_eval_candidates_mat = np.vstack(all_eval_candidates_mat)
         return all_eval_probes, all_eval_candidates_mat
+
+    def save_task_meta_data(self, row_words, embedder_location, process):
+        assert self.probe2relata is not None
+        assert self.probe2lures is not None
+        #
+        df = pd.DataFrame(data={'probe': row_words})
+        #  assign preliminary categories based on last relatum
+        row_word2cat = {}
+        cats = set()
+        for row_word in row_words:
+            relata = self.probe2relata[row_word]
+            cat = relata[-1]  # at least in nym task files, last relatum indicates category membership
+            row_word2cat[row_word] = cat
+            cats.add(cat)
+        # any row_word which matches a category must be moved into category indicated by category
+        for row_word in row_words:
+            if row_word in cats:
+                row_word2cat[row_word] = row_word
+        df['cat'] = [row_word2cat[rw] for rw in row_words]
+
+        # TODO this finds each category twice (once for -1 words in category and once for +1 words in category)
+        # TODO what exactly do i want to do?
+
+        p = self.make_p(embedder_location, process, 'task_metadata.csv')
+        df.to_csv(p, index=False)
 
     def check_negative_example(self, trial, p=None, c=None):
         assert p is not None

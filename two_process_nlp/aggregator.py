@@ -35,8 +35,9 @@ class Aggregator:
             ['ww', 'wd', 'sg', 'cbow', 'srn', 'lstm', 'random_normal', 'random_uniform', 'glove'])}
 
     @classmethod
-    def load_param2val(cls, param_name):
-        with (config.RemoteDirs.runs / param_name / 'param2val.yaml').open('r') as f:
+    def load_param2val(cls, param_name, local=False):
+        runs_dir = config.LocalDirs.runs if local else config.RemoteDirs.runs
+        with (runs_dir / param_name / 'param2val.yaml').open('r') as f:
             res = yaml.load(f)
         return res
 

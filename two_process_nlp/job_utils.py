@@ -18,8 +18,11 @@ def move_scores_to_server(param2val, location):
         dst.mkdir(parents=True)
     shutil.move(str(location), str(dst))
 
-    # write param2val to shared drive
-    param2val_p = config.RemoteDirs.runs / param2val['param_name'] / 'param2val.yaml'
+
+def save_param2val(param2val, local=False):
+    runs_dir = config.LocalDirs.runs if local else config.RemoteDirs.runs
+    param2val_p = runs_dir / param2val['param_name'] / 'param2val.yaml'
+    print('Saving param2val to {}'.format(param2val_p))
     if not param2val_p.exists():
         param2val['job_name'] = None
         with param2val_p.open('w', encoding='utf8') as f:

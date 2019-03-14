@@ -6,10 +6,15 @@ from two_process_nlp.aggregator import Aggregator
 
 
 def gen_param2vals_for_completed_jobs(local=False):
-    runs_dir = config.LocalDirs.runs if local else config.RemoteDirs.runs
-    for location in runs_dir.glob('**/*num*'):
+    locations = config.LocalDirs.runs.glob('test/test') if local else config.RemoteDirs.runs.glob('**/*num*')
+    for location in locations:
         param_name, job_name = location.parts[-2:]
-        param2val = Aggregator.load_param2val(param_name)
+
+        # TOOD debug
+        print(location)
+        print(param_name, job_name)
+
+        param2val = Aggregator.load_param2val(param_name, local)
         param2val['job_name'] = job_name
         yield param2val
 

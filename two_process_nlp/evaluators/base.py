@@ -108,8 +108,8 @@ class EvalBase(object):
         col_words = sorted(np.unique(eval_candidates_mat).tolist())
         return row_words, col_words, eval_candidates_mat
 
-    def make_scores_p(self, embedder_location, process):
-        res = embedder_location / self.arch_name / self.name / self.data_name / process / 'scores.csv'
+    def make_p(self, embedder_location, process, fname):
+        res = embedder_location / self.arch_name / self.name / self.data_name / process / fname
         return res
 
     def calc_pos_prob(self):
@@ -222,7 +222,7 @@ class EvalBase(object):
                 pass
         # save transformed word vectors - vectors for test words collected across all folds
         process = 'expert' if not shuffled else 'control'
-        p = embedder_location / self.arch_name / self.name / self.data_name / process / 'process2_embed_mats.npy'
+        p = self.make_p(embedder_location, process, 'process2_embed_mats.npy')
         if not p.parent.exists():
             p.parent.mkdir(parents=True)
         np.save(p,  trial.results.process2_embed_mats)  # these are matrices of transformed vectors for each eval_step

@@ -13,7 +13,7 @@ from two_process_nlp.evaluators.identification import Identification
 from two_process_nlp.job_utils import init_embedder
 from two_process_nlp.job_utils import w2e_to_sims
 from two_process_nlp.job_utils import save_corpus_data
-from two_process_nlp.job_utils import move_scores_to_server
+from two_process_nlp.job_utils import move_scores_to_server, save_param2val
 
 
 nlp = English()
@@ -90,6 +90,8 @@ def main_job(param2val):
     else:
         embedder.load_w2e(remote=False)
     embedder.save_w2e() if config.Embeddings.save_w2e else None
+    # save param2val
+    save_param2val(param2val, local=True if job_name == 'test' else False)
     # process 2
     for architecture in [
         comparator,
@@ -122,6 +124,8 @@ def main_job(param2val):
                 print('Shape of down-sampled eval data={}'.format(ev.eval_candidates_mat.shape))
             #
             ev.pos_prob = ev.calc_pos_prob()
+            #
+            ev.save_task_meta_data(ev.row_words, embedder.location, 'expert')  # TODO test
             # check that required embeddings exist for eval
             for w in set(ev.row_words + ev.col_words):
                 if w not in embedder.w2e:
@@ -143,18 +147,19 @@ def main_job(param2val):
                 if not scores:
                     print('Did not calculate {} scores'.format(process))
                     continue
+                # save scores
                 print('process "{}" best score={:2.2f}'.format(process, max([s[0] for s in scores])))
-                scores_p = ev.make_scores_p(embedder.location, process)
+                scores_p = ev.make_p(embedder.location, process, 'scores.csv')
                 df = pd.DataFrame(data=scores,
                                   columns=['score'] + ev.df_header + ['num_epochs'])  # scores is list of lists
                 if not scores_p.parent.exists():
                     scores_p.parent.mkdir(parents=True)
                 with scores_p.open('w') as f:
                     df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
-            print('-')
-    # move scores to file server
+        print('-')
+    # move scores to file-server
     if not config.Eval.debug and job_name != 'test':
-            move_scores_to_server(param2val, embedder.location)
+        move_scores_to_server(param2val, embedder.location)
 
 
 def aggregation_job(verbose=True):
