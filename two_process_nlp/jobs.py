@@ -109,7 +109,7 @@ def main_job(param2val):
             # Matching(architecture, 'hypernyms'),
             # Matching(architecture, 'events'),
 
-            # Identification(architecture, 'nyms', 'syn', suffix='_jw'),
+            Identification(architecture, 'nyms', 'syn', suffix='_jw'),
             Identification(architecture, 'nyms', 'ant', suffix='_jw'),
         ]:
             if ev.suffix != '':

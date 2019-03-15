@@ -28,7 +28,7 @@ class Identification(EvalBase):
         #
         self.probe2relata = None
         self.probe2lures = None
-        self.probe2cat = None
+        self.probe2cats = None
         self.metric = 'acc'
         self.suffix = suffix
         if suffix != '':
@@ -54,7 +54,7 @@ class Identification(EvalBase):
         probes, probe_relata, probe_lures, probe_cats = self.load_probes()
         self.probe2relata = {p: r for p, r in zip(probes, probe_relata)}
         self.probe2lures = {p: l for p, l in zip(probes, probe_lures)}
-        self.probe2cat = {p: l for p, l in zip(probes, probe_cats)}
+        self.probe2cats = {p: cats for p, cats in zip(probes, probe_cats)}
         # make candidates_mat
         all_eval_probes = []
         all_eval_candidates_mat = []
@@ -85,9 +85,22 @@ class Identification(EvalBase):
         assert self.probe2lures is not None
         #
         df = pd.DataFrame(data={'probe': row_words})
-        df['cat'] = [self.probe2cat[rw] for rw in row_words]
+
+        # TODO there are multiple cats - what's the best way to deal with this?
+
+        df['cat'] = [self.probe2cats[rw] for rw in row_words]
+
+
         p = self.make_p(embedder_location, process, 'task_metadata.csv')
         df.to_csv(p, index=False)
+
+        df = pd.read_csv(p)
+        print(df)
+        for n, row in df.iterrows():
+            print(row['probe'], row['cat'], type(row['cat']))  # TODO how to convert this to list?
+
+
+        raise SystemExit
 
     def check_negative_example(self, trial, p=None, c=None):
         assert p is not None
@@ -139,20 +152,42 @@ class Identification(EvalBase):
             raise ValueError('Found more or less than 1 item text files which is supposed to contain lures.')
         else:
             p2 = p2s[0]
-        # load files
-        probe2relata1 = {}
-        probe2cat = {}
-        with p1.open('r') as f:
-            for line in f.read().splitlines():
+        # load data
+
+        def opposite(cat_loading):
+            if cat_loading == '+':
+                return '-'
+            elif cat_loading == '-':
+                return '+'
+            else:
+                raise AttributeError('Invalid arg to "cat_loading".')
+
+        def populate_dicts(f_handle, d1, d2):
+            for line in f_handle.read().splitlines():
                 spl = line.split()
-                probe2relata1[spl[0]] = spl[1:-1]
-                probe2cat[spl[0]] = spl[-1]
+                probe = spl[0]
+                relata = spl[1:-1]
+                cat = spl[-1]  # category is in last position
+                cat_name, cat_loading = cat[:-1], cat[-1]
+                # relata
+                d1[probe] = relata
+                # cat
+                for w in [probe] + relata:  # the same word can be a probe or relatum (and therefore have > 1 category)
+                    if w in d2:
+                        if not (cat_name, opposite(cat_loading)) in d2[w]:  # TODO test
+                            d2[w].add((cat_name, cat_loading))
+                    else:
+                        d2[w] = set()
+                        d2[w].add((cat_name, cat_loading))
+            return d1, d2
+
+        probe2relata1 = {}
+        probe2cats = {}  # a probe can have multiple categories  # TODO test
+        with p1.open('r') as f:
+            probe2relata1, probe2cats = populate_dicts(f, probe2relata1, probe2cats)
         probe2relata2 = {}
         with p2.open('r') as f:
-            for line in f.read().splitlines():
-                spl = line.split()
-                probe2relata2[spl[0]] = spl[1:-1]
-                probe2cat[spl[0]] = spl[-1]
+            probe2relata2, probe2cats = populate_dicts(f, probe2relata2, probe2cats)
         # get probes for which lures exist
         probes = []
         probe_relata = []
@@ -163,7 +198,7 @@ class Identification(EvalBase):
                 probes.append(probe)
                 probe_relata.append(relata)
                 probe_lures.append(probe2relata2[probe])
-                probe_cats.append(probe2cat[probe])
+                probe_cats.append([cat_name + cat_loading for (cat_name, cat_loading) in probe2cats[probe]])
             else:
                 print('"{}" does not occur in both task files.'.format(probe))
         # no need for downsampling because identification eval is much less memory consuming
