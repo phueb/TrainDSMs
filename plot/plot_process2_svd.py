@@ -14,7 +14,7 @@ from analyze.utils import gen_param2vals_for_completed_jobs
 SAVE_ANIMATION = True
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
-LABELED_CAT = 'SWEETNESS'
+LABELED_CAT = 'FILLED'
 
 METHOD = 'pca'
 FIT_ID = 0
