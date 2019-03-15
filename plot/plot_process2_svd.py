@@ -11,13 +11,13 @@ from two_process_nlp import config
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 
-SAVE_ANIMATION = False
+SAVE_ANIMATION = True
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
 LABELED_CAT = 'SIZE'
 
 METHOD = 'pca'
-FIT_ID = -1
+FIT_ID = 0
 TSNE_PP = 30
 PC_NUMS = (1, 2)
 
@@ -26,8 +26,8 @@ TITLE_FONTSIZE = 8
 SCATTER_SIZE = 6
 LABEL_BORDER = 1
 LABEL_FONTSIZE = 8
-FIGSIZE = (10, 10)
-DPI = 192
+FIGSIZE = (6, 6)
+DPI = 300
 ANIM_INTERVAL = 500  # ms
 EVAL_STEP_INTERVAL = 1
 
@@ -43,8 +43,8 @@ def make_2d_fig(mat, meta_data_df):
     # fig
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
     if METHOD == 'pca':
-        xlim = 30
-        ylim = 30
+        xlim = 50
+        ylim = 50
     elif METHOD == 'tsne':
         xlim = 30
         ylim = 30
@@ -116,7 +116,7 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
         # TODO multiprocessing: fit_transform in parallel
 
         mats_2d = [fitter.fit_transform(m) for m in process2_embed_mats]
-        title = lambda i: '{} of embedder={} test word vectors\n{}\nFrame {}/{}'.format(
+        title = lambda i: '{} of embedder={} vector space\ntest=o train=*\n{}\nFrame {}/{}'.format(
             METHOD, embedder_name, p.relative_to(runs_dir / param_name / job_name), i + 1, len(mats_2d))
         fig, ax, scatters, texts, labels = make_2d_fig(mats_2d[0], meta_data_df)
 
@@ -134,6 +134,6 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
         anim = FuncAnimation(fig, animate, interval=ANIM_INTERVAL, frames=len(mats_2d))
         #
         if SAVE_ANIMATION:
-            anim.save('{}.gif'.format(LABELED_CAT))
+            anim.save('{}.gif'.format(LABELED_CAT), writer='imagemagick')
         plt.draw()
         plt.show()
