@@ -137,7 +137,7 @@ def make_graph(evaluator, trial, w2e, embed_size):
     return Graph()
 
 
-def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
+def train_expert_on_train_fold(evaluator, trial, w2e, graph, data, fold_id):
     def gen_batches_in_order(x1, x2, y):
         assert len(x1) == len(x2) == len(y)
         num_rows = len(x1)

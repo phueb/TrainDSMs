@@ -94,10 +94,10 @@ def main_job(param2val):
     save_param2val(param2val, local=True if job_name == 'test' else False)
     # process 2
     for architecture in [
+        aligner,
         comparator,
         classifier,
         extractor,
-        aligner,
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),

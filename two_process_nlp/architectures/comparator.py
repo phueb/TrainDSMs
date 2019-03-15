@@ -140,7 +140,7 @@ def make_graph(evaluator, trial, w2e, embed_size):
     return Graph()
 
 
-def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
+def train_expert_on_train_fold(evaluator, trial, w2e, graph, data, fold_id):
     def gen_batches_in_order(x1, x2, y):
         assert len(x1) == len(x2) == len(y)
         num_rows = len(x1)
@@ -199,12 +199,10 @@ def train_expert_on_train_fold(evaluator, trial, graph, data, fold_id):
                     np.mean(cosines)))
             start = time.time()
             # save transformed word embeddings
-
-            # TODO also export train embed_mats
-
-            test_embeds = x1_test[:, 0, :]
-            process2_test_embeds = graph.sess.run(graph.o1, feed_dict={graph.x1: test_embeds})
-            trial.results.process2_embed_mats[eval_id][eval_sims_mat_row_ids_test, :] = process2_test_embeds
+            if fold_id == 0:
+                x_all = np.vstack((w2e[p] for p in evaluator.row_words))
+                process2_embeds_mat = graph.sess.run(graph.o1, feed_dict={graph.x1: x_all})
+                trial.results.process2_embed_mats[eval_id][:, :] = process2_embeds_mat
 
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})

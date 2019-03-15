@@ -214,7 +214,7 @@ class EvalBase(object):
                 print('Fold {}/{}'.format(fold_id + 1, config.Eval.num_folds))
             data = self.split_and_vectorize_eval_data(self, trial, w2e, fold_id, shuffled)
             graph = self.make_graph(self, trial, w2e, embed_size)
-            self.train_expert_on_train_fold(self, trial, graph, data, fold_id)
+            self.train_expert_on_train_fold(self, trial, w2e, graph, data, fold_id)
             #
             try:
                 self.train_expert_on_test_fold(self, trial, graph, data, fold_id)  # TODO test
