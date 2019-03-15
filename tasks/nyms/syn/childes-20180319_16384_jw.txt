@@ -1,673 +1,673 @@
-locked blocked covered closed stopped OPENNESS+
-blocked locked covered closed stopped OPENNESS+
-covered locked blocked closed stopped OPENNESS+
-closed locked blocked covered stopped OPENNESS+
-free loose baggy relaxed loosened slack TIGHTNESS+
-open clear obvious exposed plain seen VISIBILITY-
-clear obvious exposed open plain seen VISIBILITY-
-cleared free open clear unlocked ACCESSIBILITY-
-unlocked open OPENNESS-
-old after back backward backwards behind below bottom closing ending final finishing following future last late tail ORDER+
-senior prehistoric old AGE+
-preschool young junior infant growing juvenile newborn AGE-
-young preschool junior infant growing juvenile newborn AGE-
-junior preschool young infant growing juvenile newborn AGE-
-infant preschool young junior growing juvenile newborn AGE-
-growing preschool young junior infant juvenile newborn AGE-
-juvenile preschool young junior infant growing newborn AGE-
-newborn preschool young junior infant growing juvenile AGE-
-nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-worried nervous scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-scared nervous worried afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-afraid nervous worried scared crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-crazy nervous worried scared afraid fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-fussy angry annoyed bitter cranky exasperated frustrated furious grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-anxious nervous worried scared afraid crazy fussy concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-concerned nervous worried scared afraid crazy fussy anxious jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-jumpy nervous worried scared afraid crazy fussy anxious concerned shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION+
-shaky weak fragile frail broken delicate unable STRENGTH+
-tense firm sturdy hard tough strong solid stiff HARDNESS-
-weak fragile shaky frail broken delicate unable STRENGTH+
-annoyed angry bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-shy nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed bothered upset distracted frightened insane nuts AGITATION+
-bothered nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy upset distracted frightened insane nuts AGITATION+
-upset angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy HAPPINESS+
-distracted nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset frightened insane nuts AGITATION+
-frightened nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted insane nuts AGITATION+
-insane nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened nuts AGITATION+
-nuts nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane AGITATION+
-peaceful happy smily giddy glad gracious proud welcome merry cheerful content delighted HAPPINESS-
-slow long permanent TIME_DURATION-
-still stable MOVEMENT+
-mild peaceful slow still strong brave calm AGITATION-
-strong mighty powerful able active big firm heavy steady tough hard solid stiff STRENGTH-
-brave peaceful slow still mild strong calm AGITATION-
-calm sunny light pleasant good WEATHER-
-tired asleep sleepy bored dull ALERTNESS+
-asleep dead LIVING+
-sleepy tired asleep bored dull ALERTNESS+
-bored stupid dumb foolish simple dense INTELIGENCE+
-dull boring routine INTERESTING+
-obsessed delighted awake thrilled involved busy excited curious impressed interested surprised ALERTNESS-
-delighted happy smily giddy glad gracious proud welcome merry cheerful content peaceful HAPPINESS-
-awake alive living live conscious LIVING-
-thrilled obsessed delighted awake involved busy excited curious impressed interested surprised ALERTNESS-
-involved obsessed delighted awake thrilled busy excited curious impressed interested surprised ALERTNESS-
-busy obsessed delighted awake thrilled involved excited curious impressed interested surprised ALERTNESS-
-excited obsessed delighted awake thrilled involved busy curious impressed interested surprised ALERTNESS-
-curious creative intelligent genius sharp quick brilliant bright clever wise careful interested serious smart INTELIGENCE-
-impressed obsessed delighted awake thrilled involved busy excited curious interested surprised ALERTNESS-
-interested creative intelligent genius sharp quick brilliant bright clever wise careful curious serious smart INTELIGENCE-
-surprised obsessed delighted awake thrilled involved busy excited curious impressed interested ALERTNESS-
-mixed different ASSORTMENT+
-different unlike contrary SIMILARITY+
-constant same uniform ASSORTMENT-
-same similar such twin equal like alike related identical uniform SIMILARITY-
-uniform same similar such twin equal like alike related identical SIMILARITY-
-scary dangerous unsafe exposed threatening SAFETY+
-lovely good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand neat fabulous marvelous perfect EVALUATION-
-ugly nasty wicked naughty evil mean greedy selfish dangerous rough rowdy NICENESS+
-plain clear obvious exposed open seen VISIBILITY-
-gross stale tough bitter rotten yucky nasty icky bad awful harsh TASTE+
-elegant lovely charming pretty cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY-
-charming elegant lovely pretty cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY-
-pretty elegant lovely charming cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY-
-cute elegant lovely charming pretty beautiful handsome gorgeous neat pleasant adorable hot BEAUTY-
-beautiful elegant lovely charming pretty cute handsome gorgeous neat pleasant adorable hot BEAUTY-
-handsome elegant lovely charming pretty cute beautiful gorgeous neat pleasant adorable hot BEAUTY-
-gorgeous elegant lovely charming pretty cute beautiful handsome neat pleasant adorable hot BEAUTY-
-neat interesting delightful INTERESTING-
-pleasant sunny light calm good WEATHER-
-adorable elegant lovely charming pretty cute beautiful handsome gorgeous neat pleasant hot BEAUTY-
-hot warm boiling tropical blazing baking burning stuffy smoking TEMPERATURE-
-confused unsure hazy BELIEF+
-unsure false ridiculous impossible incredible wrong absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-hazy confused unsure BELIEF+
-sure true right correct certain positive TRUTH-
-certain true right correct positive sure TRUTH-
-positive true right correct certain sure TRUTH-
-convinced sure certain clear positive BELIEF-
-dark windy rainy stormy wet snowy unpleasant foggy overcast WEATHER+
-gloomy dark dull cloudy black grey murky dreary BRIGHTNESS+
-cloudy dark gloomy dull black grey murky dreary BRIGHTNESS+
-black plain white grey COLORED+
-grey plain black white COLORED+
-murky dirty yucky messy filthy icky disgusting gross sloppy dusty nasty stained foul grubby slimy CLEANLINESS+
-dreary dark gloomy dull cloudy black grey murky BRIGHTNESS+
-light little slight fluffy delicate WEIGHT-
-shiny light fair sunny bright golden flashing brilliant glowing clear shining white BRIGHTNESS-
-fair decent faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-sunny light calm pleasant good WEATHER-
-bright creative intelligent genius sharp quick brilliant clever wise careful curious interested serious smart INTELIGENCE-
-golden light shiny fair sunny bright flashing brilliant glowing clear shining white BRIGHTNESS-
-flashing light shiny fair sunny bright golden brilliant glowing clear shining white BRIGHTNESS-
-brilliant creative intelligent genius sharp quick bright clever wise careful curious interested serious smart INTELIGENCE-
-glowing light shiny fair sunny bright golden flashing brilliant clear shining white BRIGHTNESS-
-shining light shiny fair sunny bright golden flashing brilliant glowing clear white BRIGHTNESS-
-white plain black grey COLORED+
-muddy blocked dull dirty hidden covered invisible CLARITY+
-dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS+
-hidden invisible secret VISIBILITY+
-invisible hidden secret VISIBILITY+
-obvious clear exposed open plain seen VISIBILITY-
-transparent obvious clear CLARITY-
-yucky stale tough bitter rotten nasty gross icky bad awful harsh TASTE+
-messy dirty yucky filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS+
-filthy dirty yucky messy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS+
-icky stale tough bitter rotten yucky nasty gross bad awful harsh TASTE+
-disgusting dirty yucky messy filthy icky gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS+
-sloppy dirty yucky messy filthy icky disgusting gross dusty murky nasty stained foul grubby slimy CLEANLINESS+
-dusty dry stale baked WETNESS+
-nasty stale tough bitter rotten yucky gross icky bad awful harsh TASTE+
-stained dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty foul grubby slimy CLEANLINESS+
-foul smelly stinky stinking ODOR-
-grubby dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul slimy CLEANLINESS+
-slimy dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby CLEANLINESS+
-clean neat pure clear tidy washed CLEANLINESS-
-pure right good honest proper appropriate true innocent upright MORALITY-
-tidy clean neat pure clear washed CLEANLINESS-
-washed clean neat pure clear tidy CLEANLINESS-
-naked bare undressed bald nude exposed CLOTHED+
-bare naked undressed bald nude exposed CLOTHED+
-undressed naked bare bald nude exposed CLOTHED+
-bald naked bare undressed nude exposed CLOTHED+
-nude naked bare undressed bald exposed CLOTHED+
-exposed clear obvious open plain seen VISIBILITY-
-dressed covered CLOTHED-
-rainbow colored colorful COLORED-
-colored rainbow colorful COLORED-
-colorful rainbow colored COLORED-
-uncomfortable rough scratchy bumpy jagged sharp wrinkled hairy ROUGHNESS-
-unpleasant windy rainy stormy wet snowy dark foggy overcast WEATHER+
-unsafe dangerous scary exposed threatening SAFETY+
-cozy comfortable comfy snug safe relaxed pleasant COMFORT-
-comfortable soft fuzzy fluffy comfy smooth furry silky ROUGHNESS+
-comfy soft fuzzy fluffy comfortable smooth furry silky ROUGHNESS+
-snug connected tight stuck caught TIGHTNESS-
-safe secure protected okay snug good SAFETY-
-relaxed loose baggy free loosened slack TIGHTNESS+
-complex impossible hard tough difficult tricky DIFFICULTY+
-hard mighty powerful strong able active big firm heavy steady tough solid stiff STRENGTH-
-confusing complex hard deep COMPLEXITY+
-deep thick fat wide chubby long massive husky pudgy heavy GIRTH+
-fancy expensive premium steep COST+
-simple stupid dumb bored foolish dense INTELIGENCE+
-easy possible simple basic DIFFICULTY-
-basic easy possible simple DIFFICULTY-
-raw sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning sensitive burned HEALTH+
-fresh yummy delicious tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE-
-cooked baked grilled burned toasted microwaved boiled roasted fried heated melted steamed COOKEDNESS-
-baked dry dusty stale WETNESS+
-grilled cooked baked burned toasted microwaved boiled roasted fried heated melted steamed COOKEDNESS-
-burned sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive HEALTH+
-toasted cooked baked grilled burned microwaved boiled roasted fried heated melted steamed COOKEDNESS-
-microwaved cooked baked grilled burned toasted boiled roasted fried heated melted steamed COOKEDNESS-
-boiled cooked baked grilled burned toasted microwaved roasted fried heated melted steamed COOKEDNESS-
-roasted cooked baked grilled burned toasted microwaved boiled fried heated melted steamed COOKEDNESS-
-fried cooked baked grilled burned toasted microwaved boiled roasted heated melted steamed COOKEDNESS-
-heated angry annoyed bitter cranky exasperated frustrated furious fussy grumpy irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-melted cooked baked grilled burned toasted microwaved boiled roasted fried heated steamed COOKEDNESS-
-steamed cooked baked grilled burned toasted microwaved boiled roasted fried heated melted COOKEDNESS-
-expensive fancy premium steep COST+
-premium expensive fancy steep COST+
-steep expensive fancy premium COST+
-cheap free inexpensive bargain generic sale COST-
-inexpensive free cheap bargain generic sale COST-
-bargain free cheap inexpensive generic sale COST-
-generic free cheap inexpensive bargain sale COST-
-sale free cheap inexpensive bargain generic COST-
-chewy mushy soft mashed squishy CRUNCHINESS+
-mushy soft floppy squishy plastic flexible HARDNESS+
-soft fuzzy fluffy comfy comfortable smooth furry silky ROUGHNESS+
-mashed chewy mushy soft squishy CRUNCHINESS+
-squishy soft floppy mushy plastic flexible HARDNESS+
-crunchy hard crisp crusty CRUNCHINESS-
-crisp cold cool frozen chilly polar frosty icy iced TEMPERATURE+
-crusty crunchy hard crisp CRUNCHINESS-
-flat straight level smooth SMOOTHNESS-
-straight flat level smooth SMOOTHNESS-
-square flat straight sharp level smooth CURVINESS+
-sharp pointy bumpy funny crooked curvy round curved SMOOTHNESS+
-level flat straight smooth SMOOTHNESS-
-smooth slick slippery sleep greasy soapy STICKYNESS+
-crooked sharp pointy bumpy funny curvy round curved SMOOTHNESS+
-rounded crooked curvy looped bent round curled curly curved twisted oval CURVINESS-
-curvy sharp pointy bumpy funny crooked round curved SMOOTHNESS+
-looped crooked rounded curvy bent round curled curly curved twisted oval CURVINESS-
-bent crooked rounded curvy looped round curled curly curved twisted oval CURVINESS-
-round sharp pointy bumpy funny crooked curvy curved SMOOTHNESS+
-curled crooked rounded curvy looped bent round curly curved twisted oval CURVINESS-
-curly crooked rounded curvy looped bent round curled curved twisted oval CURVINESS-
-curved sharp pointy bumpy funny crooked curvy round SMOOTHNESS+
-twisted crooked rounded curvy looped bent round curled curly curved oval CURVINESS-
-oval crooked rounded curvy looped bent round curled curly curved twisted CURVINESS-
-impossible false ridiculous incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-tough stale bitter rotten yucky nasty gross icky bad awful harsh TASTE+
-difficult impossible hard tough tricky complex DIFFICULTY+
-tricky impossible hard tough difficult complex DIFFICULTY+
-possible easy simple basic DIFFICULTY-
-modern fresh new novel recent latest current popular FASHIONABLENESS-
-recent fresh new novel latest current modern popular FASHIONABLENESS-
-current fresh new novel recent latest modern popular FASHIONABLENESS-
-present modern recent current ERA-
-bad stale tough bitter rotten yucky nasty gross icky awful harsh TASTE+
-terrible bad worse worst lousy crummy awful horrible frustrating EVALUATION+
-worse bad terrible worst lousy crummy awful horrible frustrating EVALUATION+
-worst bad terrible worse lousy crummy awful horrible frustrating EVALUATION+
-lousy bad terrible worse worst crummy awful horrible frustrating EVALUATION+
-crummy bad terrible worse worst lousy awful horrible frustrating EVALUATION+
-awful stale tough bitter rotten yucky nasty gross icky bad harsh TASTE+
-horrible bad terrible worse worst lousy crummy awful frustrating EVALUATION+
-frustrating bad terrible worse worst lousy crummy awful horrible EVALUATION+
-good sunny light calm pleasant WEATHER-
-great big central important key main major necessary primary principal serious top used IMPORTANCE-
-better good great fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-fine good great better best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-best good great better fine favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-favorite many popular liked together loved married LONELINESS-
-special unusual strange weird odd unique bizarre peculiar TYPICALITY+
-wonderful good great better fine best favorite special excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-excellent good great better fine best favorite special wonderful terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-terrific good great better fine best favorite special wonderful excellent dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-dear good great better fine best favorite special wonderful excellent terrific super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-super yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant sweet TASTE-
-amazing good great better fine best favorite special wonderful excellent terrific dear super exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-exciting good great better fine best favorite special wonderful excellent terrific dear super amazing fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION-
-fantastic false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable TRUTH+
-awesome good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic grand lovely neat fabulous marvelous perfect EVALUATION-
-grand good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome lovely neat fabulous marvelous perfect EVALUATION-
-fabulous good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat marvelous perfect EVALUATION-
-marvelous good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous perfect EVALUATION-
-perfect together solid complete whole WHOLENESS-
-less limited single whatever particular few medium small only half one lone QUANTITY+
-least less partly little EXTREMETY+
-partly less least little EXTREMETY+
-little light slight fluffy delicate WEIGHT-
-quite very most more extra added also fully extremely totally entirely much great EXTREMETY-
-very quite most more extra added also fully extremely totally entirely much great EXTREMETY-
-most many much enough such extra whole double several plenty entire QUANTITY-
-more quite very most extra added also fully extremely totally entirely much great EXTREMETY-
-extra many much enough such whole double several plenty entire most QUANTITY-
-added quite very most more extra also fully extremely totally entirely much great EXTREMETY-
-also quite very most more extra added fully extremely totally entirely much great EXTREMETY-
-fully quite very most more extra added also extremely totally entirely much great EXTREMETY-
-extremely quite very most more extra added also fully totally entirely much great EXTREMETY-
-totally quite very most more extra added also fully extremely entirely much great EXTREMETY-
-entirely quite very most more extra added also fully extremely totally much great EXTREMETY-
-much many enough such extra whole double several plenty entire most QUANTITY-
-stale dry dusty baked WETNESS+
-new above advanced ahead before beginning early first forward forwards front head lead opening original previous primary starting top winner ORDER-
-novel fresh new recent latest current modern popular FASHIONABLENESS-
-latest fresh new novel recent current modern popular FASHIONABLENESS-
-popular usual familiar normal typical common regular ordinary standard expected natural TYPICALITY-
-empty thirsty hungry HUNGER+
-dry dusty stale baked WETNESS+
-hollow empty dry exhausted FILLED+
-exhausted empty dry hollow FILLED+
-filled full packed overflowing complete crowded jammed bursting FILLED-
-full stuffed HUNGER-
-packed filled full overflowing complete crowded jammed bursting FILLED-
-overflowing filled full packed complete crowded jammed bursting FILLED-
-complete together solid perfect whole WHOLENESS-
-crowded filled full packed overflowing complete jammed bursting FILLED-
-jammed filled full packed overflowing complete crowded bursting FILLED-
-bursting filled full packed overflowing complete crowded jammed FILLED-
-rotten stale tough bitter yucky nasty gross icky bad awful harsh TASTE+
-moldy raw rotten old stale spoiled bad FRESHNESS+
-spoiled raw rotten old stale moldy bad FRESHNESS+
-ripe yummy fresh delicious tasty scrumptious delightful nice rich good pleasant super sweet TASTE-
-broken cracked busted smashed collapsed WHOLENESS+
-busted broken cracked smashed collapsed WHOLENESS+
-ruined broken busted wrecked FUNCTIONALITY+
-wrecked broken busted ruined FUNCTIONALITY+
-ready perfect able working running functioning FUNCTIONALITY-
-able mighty powerful strong active big firm heavy steady tough hard solid stiff STRENGTH-
-working perfect ready able running functioning FUNCTIONALITY-
-running crawling jogging walking flying shaky rolling moving MOVEMENT-
-functioning perfect ready able working running FUNCTIONALITY-
-thick fat wide deep chubby long massive husky pudgy heavy GIRTH+
-fat thick wide deep chubby long massive husky pudgy heavy GIRTH+
-wide thick fat deep chubby long massive husky pudgy heavy GIRTH+
-chubby thick fat wide deep long massive husky pudgy heavy GIRTH+
-long slow permanent TIME_DURATION-
-massive heavy WEIGHT+
-husky thick fat wide deep chubby long massive pudgy heavy GIRTH+
-pudgy thick fat wide deep chubby long massive husky heavy GIRTH+
-heavy massive WEIGHT+
-thin narrow skinny slim small lean shallow GIRTH-
-narrow thin skinny slim small lean shallow GIRTH-
-skinny thin narrow slim small lean shallow GIRTH-
-slim thin narrow skinny small lean shallow GIRTH-
-small little tiny wee itsy bitty mini teeny baby limited SIZE+
-lean thin narrow skinny slim small shallow GIRTH-
-shallow thin narrow skinny slim small lean GIRTH-
-angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-bitter stale tough rotten yucky nasty gross icky bad awful harsh TASTE+
-cranky angry annoyed bitter exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-exasperated angry annoyed bitter cranky frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-frustrated angry annoyed bitter cranky exasperated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-furious angry annoyed bitter cranky exasperated frustrated fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-grumpy angry annoyed bitter cranky exasperated frustrated furious fussy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-irritable angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritated jealous mad offended sad sorry unhappy upset HAPPINESS+
-irritated angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable jealous mad offended sad sorry unhappy upset HAPPINESS+
-jealous angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated mad offended sad sorry unhappy upset HAPPINESS+
-mad angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous offended sad sorry unhappy upset HAPPINESS+
-offended angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad sad sorry unhappy upset HAPPINESS+
-sad angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sorry unhappy upset HAPPINESS+
-sorry angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad unhappy upset HAPPINESS+
-unhappy boring bored serious dull stale stuffy stupid HUMOR+
-happy cheerful absurd fun funny goofy hilarious merry playful pleasant ridiculous silly HUMOR-
-smily happy giddy glad gracious proud welcome merry cheerful content delighted peaceful HAPPINESS-
-giddy happy smily glad gracious proud welcome merry cheerful content delighted peaceful HAPPINESS-
-glad happy smily giddy gracious proud welcome merry cheerful content delighted peaceful HAPPINESS-
-gracious happy smily giddy glad proud welcome merry cheerful content delighted peaceful HAPPINESS-
-proud happy smily giddy glad gracious welcome merry cheerful content delighted peaceful HAPPINESS-
-welcome happy smily giddy glad gracious proud merry cheerful content delighted peaceful HAPPINESS-
-merry cheerful happy absurd fun funny goofy hilarious playful pleasant ridiculous silly HUMOR-
-cheerful happy absurd fun funny goofy hilarious merry playful pleasant ridiculous silly HUMOR-
-content happy smily giddy glad gracious proud welcome merry cheerful delighted peaceful HAPPINESS-
-floppy soft squishy mushy plastic flexible HARDNESS+
-plastic soft floppy squishy mushy flexible HARDNESS+
-flexible soft floppy squishy mushy plastic HARDNESS+
-firm mighty powerful strong able active big heavy steady tough hard solid stiff STRENGTH-
-sturdy firm hard tough strong solid stiff tense HARDNESS-
-solid together complete perfect whole WHOLENESS-
-stiff mighty powerful strong able active big firm heavy steady tough hard solid STRENGTH-
-sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-allergic sick dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-dizzy sick allergic itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-itchy sick allergic dizzy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-sore sick allergic dizzy itchy stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-stuffy hot warm boiling tropical blazing baking burning smoking TEMPERATURE-
-frail weak fragile shaky broken delicate unable STRENGTH+
-infected sick allergic dizzy itchy sore stuffy frail suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-suffering sick allergic dizzy itchy sore stuffy frail infected shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-aching sick allergic dizzy itchy sore stuffy frail infected suffering shaky bruised hurting painful uncomfortable burning raw sensitive burned HEALTH+
-bruised sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching hurting painful uncomfortable burning raw sensitive burned HEALTH+
-hurting sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised painful uncomfortable burning raw sensitive burned HEALTH+
-painful sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting uncomfortable burning raw sensitive burned HEALTH+
-burning hot warm boiling tropical blazing baking stuffy smoking TEMPERATURE-
-sensitive sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw burned HEALTH+
-healthy lively strong tough HEALTH-
-lively healthy strong tough HEALTH-
-short quick brief swift fast TIME_DURATION+
-low below under VERT_POSITION+
-slight light little fluffy delicate WEIGHT-
-tiny little wee small itsy bitty mini teeny baby limited SIZE+
-wee little tiny small itsy bitty mini teeny baby limited SIZE+
-tall lanky big soaring high HEIGHT-
-lanky tall big soaring high HEIGHT-
-big mighty powerful strong able active firm heavy steady tough hard solid stiff STRENGTH-
-soaring tall lanky big high HEIGHT-
-high above over VERT_POSITION-
-boring dull routine INTERESTING+
-serious creative intelligent genius sharp quick brilliant bright clever wise careful curious interested smart INTELIGENCE-
-stupid dumb bored foolish simple dense INTELIGENCE+
-absurd false ridiculous impossible incredible wrong unsure bizarre foolish wacky unbelievable fantastic TRUTH+
-fun cheerful happy absurd funny goofy hilarious merry playful pleasant ridiculous silly HUMOR-
-funny sharp pointy bumpy crooked curvy round curved SMOOTHNESS+
-goofy cheerful happy absurd fun funny hilarious merry playful pleasant ridiculous silly HUMOR-
-hilarious cheerful happy absurd fun funny goofy merry playful pleasant ridiculous silly HUMOR-
-playful cheerful happy absurd fun funny goofy hilarious merry pleasant ridiculous silly HUMOR-
-ridiculous false impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-silly cheerful happy absurd fun funny goofy hilarious merry playful pleasant ridiculous HUMOR-
-thirsty hungry empty HUNGER+
-hungry thirsty empty HUNGER+
-stuffed full HUNGER-
-bottom after back backward backwards behind below closing ending final finishing following future last late old tail ORDER+
-leftover bottom extra limited minor other small spare unnecessary IMPORTANCE+
-limited little tiny wee small itsy bitty mini teeny baby SIZE+
-minor bottom extra leftover limited other small spare unnecessary IMPORTANCE+
-other bottom extra leftover limited minor small spare unnecessary IMPORTANCE+
-spare bottom extra leftover limited minor other small unnecessary IMPORTANCE+
-unnecessary bottom extra leftover limited minor other small spare IMPORTANCE+
-central near inner inside middle center SPAT_CENTRALITY-
-important big central great key main major necessary primary principal serious top used IMPORTANCE-
-key big central great important main major necessary primary principal serious top used IMPORTANCE-
-main big central great important key major necessary primary principal serious top used IMPORTANCE-
-major big central great important key main necessary primary principal serious top used IMPORTANCE-
-necessary big central great important key main major primary principal serious top used IMPORTANCE-
-primary above advanced ahead before beginning early first forward forwards front head lead new opening original previous starting top winner ORDER-
-principal big central great important key main major necessary primary serious top used IMPORTANCE-
-top blessed winning successful lucky SUCCESS-
-used big central great important key main major necessary primary principal serious top IMPORTANCE-
-dumb stupid bored foolish simple dense INTELIGENCE+
-foolish false ridiculous impossible incredible wrong unsure absurd bizarre wacky unbelievable fantastic TRUTH+
-dense stupid dumb bored foolish simple INTELIGENCE+
-creative intelligent genius sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE-
-intelligent creative genius sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE-
-genius creative intelligent sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE-
-quick short brief swift fast TIME_DURATION+
-clever creative intelligent genius sharp quick brilliant bright wise careful curious interested serious smart INTELIGENCE-
-wise creative intelligent genius sharp quick brilliant bright clever careful curious interested serious smart INTELIGENCE-
-careful creative intelligent genius sharp quick brilliant bright clever wise curious interested serious smart INTELIGENCE-
-smart creative intelligent genius sharp quick brilliant bright clever wise careful curious interested serious INTELIGENCE-
-routine boring dull INTERESTING+
-interesting neat delightful INTERESTING-
-delightful yummy fresh delicious tasty ripe scrumptious nice rich good pleasant super sweet TASTE-
-dead asleep LIVING+
-alive living live conscious awake LIVING-
-living alive live conscious awake LIVING-
-live alive living conscious awake LIVING-
-conscious alive living live awake LIVING-
-alone lonely only apart single individual one LONELINESS+
-lonely alone only apart single individual one LONELINESS+
-only limited single less whatever particular few medium small half one lone QUANTITY+
-apart alone lonely only single individual one LONELINESS+
-single limited less whatever particular few medium small only half one lone QUANTITY+
-individual alone lonely only apart single one LONELINESS+
-one limited single less whatever particular few medium small only half lone QUANTITY+
-many much enough such extra whole double several plenty entire most QUANTITY-
-liked many popular favorite together loved married LONELINESS-
-together solid complete perfect whole WHOLENESS-
-loved many popular favorite liked together married LONELINESS-
-married many popular favorite liked together loved LONELINESS-
-right true correct certain positive sure TRUTH-
-wrong false ridiculous impossible incredible unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-evil nasty wicked naughty mean greedy selfish dangerous rough ugly rowdy NICENESS+
-mean nasty wicked naughty evil greedy selfish dangerous rough ugly rowdy NICENESS+
-wicked nasty naughty evil mean greedy selfish dangerous rough ugly rowdy NICENESS+
-honest decent fair faithful friendly generous gentle good helpful holy kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-proper right good honest appropriate true innocent upright pure MORALITY-
-appropriate right good honest proper true innocent upright pure MORALITY-
-true right correct certain positive sure TRUTH-
-innocent right good honest proper appropriate true upright pure MORALITY-
-upright right good honest proper appropriate true innocent pure MORALITY-
-stable still MOVEMENT+
-crawling jogging walking running flying shaky rolling moving MOVEMENT-
-jogging crawling walking running flying shaky rolling moving MOVEMENT-
-walking crawling jogging running flying shaky rolling moving MOVEMENT-
-flying fast quick swift hurried SPEED-
-rolling crawling jogging walking running flying shaky moving MOVEMENT-
-moving crawling jogging walking running flying shaky rolling MOVEMENT-
-naughty nasty wicked evil mean greedy selfish dangerous rough ugly rowdy NICENESS+
-greedy nasty wicked naughty evil mean selfish dangerous rough ugly rowdy NICENESS+
-selfish nasty wicked naughty evil mean greedy dangerous rough ugly rowdy NICENESS+
-dangerous scary unsafe exposed threatening SAFETY+
-rough scratchy uncomfortable bumpy jagged sharp wrinkled hairy ROUGHNESS-
-rowdy loud noisy VOLUME-
-decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-faithful decent fair friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-friendly decent fair faithful generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-generous decent fair faithful friendly gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-gentle decent fair faithful friendly generous good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-helpful decent fair faithful friendly generous gentle good holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-holy decent fair faithful friendly generous gentle good helpful honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS-
-kind decent fair faithful friendly generous gentle good helpful holy honest nice okay perfect polite sweet willing pleasant behaved NICENESS-
-nice yummy fresh delicious tasty ripe scrumptious delightful rich good pleasant super sweet TASTE-
-okay safe secure protected snug good SAFETY-
-polite decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect sweet willing pleasant behaved NICENESS-
-sweet yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant super TASTE-
-willing decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet pleasant behaved NICENESS-
-behaved decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant NICENESS-
-smelly stinky stinking foul ODOR-
-stinky smelly stinking foul ODOR-
-stinking smelly stinky foul ODOR-
-stopped locked blocked covered closed OPENNESS+
-after back backward backwards behind below bottom closing ending final finishing following future last late old tail ORDER+
-back after backward backwards behind below bottom closing ending final finishing following future last late old tail ORDER+
-backward after back backwards behind below bottom closing ending final finishing following future last late old tail ORDER+
-backwards after back backward behind below bottom closing ending final finishing following future last late old tail ORDER+
-behind after back backward backwards below bottom closing ending final finishing following future last late old tail ORDER+
-below low under VERT_POSITION+
-closing after back backward backwards behind below bottom ending final finishing following future last late old tail ORDER+
-ending after back backward backwards behind below bottom closing final finishing following future last late old tail ORDER+
-final after back backward backwards behind below bottom closing ending finishing following future last late old tail ORDER+
-finishing after back backward backwards behind below bottom closing ending final following future last late old tail ORDER+
-following after back backward backwards behind below bottom closing ending final finishing future last late old tail ORDER+
-future after back backward backwards behind below bottom closing ending final finishing following last late old tail ORDER+
-last after back backward backwards behind below bottom closing ending final finishing following future late old tail ORDER+
-late after back backward backwards behind below bottom closing ending final finishing following future last old tail ORDER+
-tail after back backward backwards behind below bottom closing ending final finishing following future last late old ORDER+
-above high over VERT_POSITION-
-advanced above ahead before beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER-
-ahead above advanced before beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER-
-before above advanced ahead beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER-
-beginning above advanced ahead before early first forward forwards front head lead new opening original previous primary starting top winner ORDER-
-early above advanced ahead before beginning first forward forwards front head lead new opening original previous primary starting top winner ORDER-
-first above advanced ahead before beginning early forward forwards front head lead new opening original previous primary starting top winner ORDER-
-forward above advanced ahead before beginning early first forwards front head lead new opening original previous primary starting top winner ORDER-
-forwards above advanced ahead before beginning early first forward front head lead new opening original previous primary starting top winner ORDER-
-front above advanced ahead before beginning early first forward forwards head lead new opening original previous primary starting top winner ORDER-
-head above advanced ahead before beginning early first forward forwards front lead new opening original previous primary starting top winner ORDER-
-lead above advanced ahead before beginning early first forward forwards front head new opening original previous primary starting top winner ORDER-
-opening above advanced ahead before beginning early first forward forwards front head lead new original previous primary starting top winner ORDER-
-original above advanced ahead before beginning early first forward forwards front head lead new opening previous primary starting top winner ORDER-
-previous above advanced ahead before beginning early first forward forwards front head lead new opening original primary starting top winner ORDER-
-starting above advanced ahead before beginning early first forward forwards front head lead new opening original previous primary top winner ORDER-
-winner above advanced ahead before beginning early first forward forwards front head lead new opening original previous primary starting top ORDER-
-away far separate free remote PROXIMITY+
-far outer outside beyond surface SPAT_CENTRALITY+
-separate away far free remote PROXIMITY+
-remote away far separate free PROXIMITY+
-touching close near together next nearby PROXIMITY-
-close touching near together next nearby PROXIMITY-
-near inner central inside middle center SPAT_CENTRALITY-
-next touching close near together nearby PROXIMITY-
-nearby touching close near together next PROXIMITY-
-whatever limited single less particular few medium small only half one lone QUANTITY+
-particular limited single less whatever few medium small only half one lone QUANTITY+
-few limited single less whatever particular medium small only half one lone QUANTITY+
-medium limited single less whatever particular few small only half one lone QUANTITY+
-half limited single less whatever particular few medium small only one lone QUANTITY+
-lone limited single less whatever particular few medium small only half one QUANTITY+
-enough many much such extra whole double several plenty entire most QUANTITY-
-such same similar twin equal like alike related identical uniform SIMILARITY-
-whole together solid complete perfect WHOLENESS-
-double many much enough such extra whole several plenty entire most QUANTITY-
-several many much enough such extra whole double plenty entire most QUANTITY-
-plenty many much enough such extra whole double several entire most QUANTITY-
-entire many much enough such extra whole double several plenty most QUANTITY-
-fake pretend magical magic ridiculous impossible incredible imitation phony mock false REALITY+
-pretend fake magical magic ridiculous impossible incredible imitation phony mock false REALITY+
-magical fake pretend magic ridiculous impossible incredible imitation phony mock false REALITY+
-magic fake pretend magical ridiculous impossible incredible imitation phony mock false REALITY+
-incredible false ridiculous impossible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-imitation fake pretend magical magic ridiculous impossible incredible phony mock false REALITY+
-phony fake pretend magical magic ridiculous impossible incredible imitation mock false REALITY+
-mock fake pretend magical magic ridiculous impossible incredible imitation phony false REALITY+
-false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH+
-real natural actual concrete true REALITY-
-natural usual familiar normal typical common regular ordinary standard popular expected TYPICALITY-
-actual real natural concrete true REALITY-
-concrete real natural actual true REALITY-
-fuzzy soft fluffy comfy comfortable smooth furry silky ROUGHNESS+
-fluffy light little slight delicate WEIGHT-
-furry soft fuzzy fluffy comfy comfortable smooth silky ROUGHNESS+
-silky soft fuzzy fluffy comfy comfortable smooth furry ROUGHNESS+
-scratchy rough uncomfortable bumpy jagged sharp wrinkled hairy ROUGHNESS-
-bumpy sharp pointy funny crooked curvy round curved SMOOTHNESS+
-jagged rough scratchy uncomfortable bumpy sharp wrinkled hairy ROUGHNESS-
-wrinkled rough scratchy uncomfortable bumpy jagged sharp hairy ROUGHNESS-
-hairy rough scratchy uncomfortable bumpy jagged sharp wrinkled ROUGHNESS-
-threatening dangerous scary unsafe exposed SAFETY+
-secure safe protected okay snug good SAFETY-
-protected safe secure okay snug good SAFETY-
-unlike different contrary SIMILARITY+
-contrary different unlike SIMILARITY+
-similar same such twin equal like alike related identical uniform SIMILARITY-
-twin same similar such equal like alike related identical uniform SIMILARITY-
-equal same similar such twin like alike related identical uniform SIMILARITY-
-like same similar such twin equal alike related identical uniform SIMILARITY-
-alike same similar such twin equal like related identical uniform SIMILARITY-
-related same similar such twin equal like alike identical uniform SIMILARITY-
-identical same similar such twin equal like alike related uniform SIMILARITY-
-itsy little tiny wee small bitty mini teeny baby limited SIZE+
-bitty little tiny wee small itsy mini teeny baby limited SIZE+
-mini little tiny wee small itsy bitty teeny baby limited SIZE+
-teeny little tiny wee small itsy bitty mini baby limited SIZE+
-baby little tiny wee small itsy bitty mini teeny limited SIZE+
-huge big large giant gigantic enormous massive tremendous SIZE-
-large big huge giant gigantic enormous massive tremendous SIZE-
-giant big huge large gigantic enormous massive tremendous SIZE-
-gigantic big huge large giant enormous massive tremendous SIZE-
-enormous big huge large giant gigantic massive tremendous SIZE-
-tremendous big huge large giant gigantic enormous massive SIZE-
-pointy sharp bumpy funny crooked curvy round curved SMOOTHNESS+
-outer outside beyond surface far SPAT_CENTRALITY+
-outside outer beyond surface far SPAT_CENTRALITY+
-beyond outer outside surface far SPAT_CENTRALITY+
-surface outer outside beyond far SPAT_CENTRALITY+
-inner near central inside middle center SPAT_CENTRALITY-
-inside near inner central middle center SPAT_CENTRALITY-
-middle near inner central inside center SPAT_CENTRALITY-
-center near inner central inside middle SPAT_CENTRALITY-
-fast short quick brief swift TIME_DURATION+
-swift short quick brief fast TIME_DURATION+
-hurried fast quick swift flying SPEED-
-slick smooth slippery sleep greasy soapy STICKYNESS+
-slippery wet soggy runny humid soaked juicy dripping WETNESS-
-sleep slick smooth slippery greasy soapy STICKYNESS+
-greasy slick smooth slippery sleep soapy STICKYNESS+
-soapy slick smooth slippery sleep greasy STICKYNESS+
-sticky tacky STICKYNESS-
-tacky sticky STICKYNESS-
-fragile weak shaky frail broken delicate unable STRENGTH+
-delicate light little slight fluffy WEIGHT-
-unable weak fragile shaky frail broken delicate STRENGTH+
-mighty powerful strong able active big firm heavy steady tough hard solid stiff STRENGTH-
-powerful mighty strong able active big firm heavy steady tough hard solid stiff STRENGTH-
-active mighty powerful strong able big firm heavy steady tough hard solid stiff STRENGTH-
-steady mighty powerful strong able active big firm heavy tough hard solid stiff STRENGTH-
-blessed winning successful lucky top SUCCESS-
-winning blessed successful lucky top SUCCESS-
-successful rich loaded WEALTH-
-lucky blessed winning successful top SUCCESS-
-sour tart SWEETNESS+
-tart sour SWEETNESS+
-sugary sweet candied SWEETNESS-
-candied sweet sugary SWEETNESS-
-harsh stale tough bitter rotten yucky nasty gross icky bad awful TASTE+
-yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE-
-delicious yummy fresh tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE-
-tasty yummy fresh delicious ripe scrumptious delightful nice rich good pleasant super sweet TASTE-
-scrumptious yummy fresh delicious tasty ripe delightful nice rich good pleasant super sweet TASTE-
-rich successful loaded WEALTH-
-cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
-cool cold frozen chilly polar frosty crisp icy iced TEMPERATURE+
-frozen cold cool chilly polar frosty crisp icy iced TEMPERATURE+
-chilly cold cool frozen polar frosty crisp icy iced TEMPERATURE+
-polar cold cool frozen chilly frosty crisp icy iced TEMPERATURE+
-frosty cold cool frozen chilly polar crisp icy iced TEMPERATURE+
-icy cold cool frozen chilly polar frosty crisp iced TEMPERATURE+
-iced cold cool frozen chilly polar frosty crisp icy TEMPERATURE+
-warm hot boiling tropical blazing baking burning stuffy smoking TEMPERATURE-
-boiling hot warm tropical blazing baking burning stuffy smoking TEMPERATURE-
-tropical hot warm boiling blazing baking burning stuffy smoking TEMPERATURE-
-blazing hot warm boiling tropical baking burning stuffy smoking TEMPERATURE-
-baking hot warm boiling tropical blazing burning stuffy smoking TEMPERATURE-
-smoking hot warm boiling tropical blazing baking burning stuffy TEMPERATURE-
-loose baggy relaxed free loosened slack TIGHTNESS+
-baggy loose relaxed free loosened slack TIGHTNESS+
-loosened loose baggy relaxed free slack TIGHTNESS+
-slack loose baggy relaxed free loosened TIGHTNESS+
-connected tight stuck snug caught TIGHTNESS-
-tight connected stuck snug caught TIGHTNESS-
-stuck connected tight snug caught TIGHTNESS-
-caught connected tight stuck snug TIGHTNESS-
-brief short quick swift fast TIME_DURATION+
-permanent long slow TIME_DURATION-
-bizarre unusual strange weird odd special unique peculiar TYPICALITY+
-wacky false ridiculous impossible incredible wrong unsure absurd bizarre foolish unbelievable fantastic TRUTH+
-unbelievable false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky fantastic TRUTH+
-correct true right certain positive sure TRUTH-
-unusual strange weird odd special unique bizarre peculiar TYPICALITY+
-strange unusual weird odd special unique bizarre peculiar TYPICALITY+
-weird unusual strange odd special unique bizarre peculiar TYPICALITY+
-odd unusual strange weird special unique bizarre peculiar TYPICALITY+
-unique unusual strange weird odd special bizarre peculiar TYPICALITY+
-peculiar unusual strange weird odd special unique bizarre TYPICALITY+
-usual familiar normal typical common regular ordinary standard popular expected natural TYPICALITY-
-familiar usual normal typical common regular ordinary standard popular expected natural TYPICALITY-
-normal usual familiar typical common regular ordinary standard popular expected natural TYPICALITY-
-typical usual familiar normal common regular ordinary standard popular expected natural TYPICALITY-
-common usual familiar normal typical regular ordinary standard popular expected natural TYPICALITY-
-regular usual familiar normal typical common ordinary standard popular expected natural TYPICALITY-
-ordinary usual familiar normal typical common regular standard popular expected natural TYPICALITY-
-standard usual familiar normal typical common regular ordinary popular expected natural TYPICALITY-
-expected usual familiar normal typical common regular ordinary standard popular natural TYPICALITY-
-under below low VERT_POSITION+
-over high above VERT_POSITION-
-secret invisible hidden VISIBILITY+
-seen clear obvious exposed open plain VISIBILITY-
-silent quiet VOLUME+
-quiet silent VOLUME+
-loud noisy rowdy VOLUME-
-noisy loud rowdy VOLUME-
-loaded successful rich WEALTH-
-windy rainy stormy wet snowy unpleasant dark foggy overcast WEATHER+
-rainy windy stormy wet snowy unpleasant dark foggy overcast WEATHER+
-stormy windy rainy wet snowy unpleasant dark foggy overcast WEATHER+
-wet slippery soggy runny humid soaked juicy dripping WETNESS-
-snowy windy rainy stormy wet unpleasant dark foggy overcast WEATHER+
-foggy windy rainy stormy wet snowy unpleasant dark overcast WEATHER+
-overcast windy rainy stormy wet snowy unpleasant dark foggy WEATHER+
-soggy wet slippery runny humid soaked juicy dripping WETNESS-
-runny wet slippery soggy humid soaked juicy dripping WETNESS-
-humid wet slippery soggy runny soaked juicy dripping WETNESS-
-soaked wet slippery soggy runny humid juicy dripping WETNESS-
-juicy wet slippery soggy runny humid soaked dripping WETNESS-
-dripping wet slippery soggy runny humid soaked juicy WETNESS-
-cracked broken busted smashed collapsed WHOLENESS+
-smashed broken cracked busted collapsed WHOLENESS+
-collapsed broken cracked busted smashed WHOLENESS+
+wrecked broken busted ruined FUNCTIONALITY-
+dusty dry stale baked WETNESS-
+humid wet slippery soggy runny soaked juicy dripping WETNESS+
+decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+appropriate right good honest proper true innocent upright pure MORALITY+
+toasted cooked baked grilled burned microwaved boiled roasted fried heated melted steamed COOKEDNESS+
+unbelievable false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky fantastic TRUTH-
+recent fresh new novel latest current modern popular FASHIONABLENESS+
+greedy nasty wicked naughty evil mean selfish dangerous rough ugly rowdy NICENESS-
+bumpy sharp pointy funny crooked curvy round curved SMOOTHNESS-
+bitty little tiny wee small itsy mini teeny baby limited SIZE-
+high above over VERT_POSITION+
+funny sharp pointy bumpy crooked curvy round curved SMOOTHNESS-
+next touching close near together nearby PROXIMITY+
+moving crawling jogging walking running flying shaky rolling MOVEMENT+
+newborn preschool young junior infant growing juvenile AGE+
+smoking hot warm boiling tropical blazing baking burning stuffy TEMPERATURE+
+different unlike contrary SIMILARITY-
+obsessed delighted awake thrilled involved busy excited curious impressed interested surprised ALERTNESS+
+junior preschool young infant growing juvenile newborn AGE+
+stained dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty foul grubby slimy CLEANLINESS-
+ahead above advanced before beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER+
+convinced sure certain clear positive BELIEF+
+impossible false ridiculous incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+pretty elegant lovely charming cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY+
+transparent obvious clear CLARITY+
+bizarre unusual strange weird odd special unique peculiar TYPICALITY-
+single limited less whatever particular few medium small only half one lone QUANTITY-
+clear obvious exposed open plain seen VISIBILITY+
+cloudy dark gloomy dull black grey murky dreary BRIGHTNESS-
+skinny thin narrow slim small lean shallow GIRTH+
+flying fast quick swift hurried SPEED+
+middle near inner central inside center SPAT_CENTRALITY+
+holy decent fair faithful friendly generous gentle good helpful honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+baby little tiny wee small itsy bitty mini teeny limited SIZE-
+mashed chewy mushy soft squishy CRUNCHINESS-
+colored rainbow colorful COLORED+
+cozy comfortable comfy snug safe relaxed pleasant COMFORT+
+gentle decent fair faithful friendly generous good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+long slow permanent TIME_DURATION+
+roasted cooked baked grilled burned toasted microwaved boiled fried heated melted steamed COOKEDNESS+
+thrilled obsessed delighted awake involved busy excited curious impressed interested surprised ALERTNESS+
+slick smooth slippery sleep greasy soapy STICKYNESS-
+above high over VERT_POSITION+
+foggy windy rainy stormy wet snowy unpleasant dark overcast WEATHER-
+individual alone lonely only apart single one LONELINESS-
+loved many popular favorite liked together married LONELINESS+
+working perfect ready able running functioning FUNCTIONALITY+
+caught connected tight stuck snug TIGHTNESS+
+entirely quite very most more extra added also fully extremely totally much great EXTREMETY+
+uniform same similar such twin equal like alike related identical SIMILARITY+
+bargain free cheap inexpensive generic sale COST+
+tall lanky big soaring high HEIGHT+
+unlocked open OPENNESS+
+protected safe secure okay snug good SAFETY+
+washed clean neat pure clear tidy CLEANLINESS+
+rainy windy stormy wet snowy unpleasant dark foggy overcast WEATHER-
+backwards after back backward behind below bottom closing ending final finishing following future last late old tail ORDER-
+smooth slick slippery sleep greasy soapy STICKYNESS-
+asleep dead LIVING-
+threatening dangerous scary unsafe exposed SAFETY-
+complete together solid perfect whole WHOLENESS+
+disgusting dirty yucky messy filthy icky gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS-
+dry dusty stale baked WETNESS-
+busted broken cracked smashed collapsed WHOLENESS-
+inside near inner central middle center SPAT_CENTRALITY+
+permanent long slow TIME_DURATION+
+broken cracked busted smashed collapsed WHOLENESS-
+dull boring routine INTERESTING-
+covered locked blocked closed stopped OPENNESS-
+sweet yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant super TASTE+
+crooked sharp pointy bumpy funny curvy round curved SMOOTHNESS-
+imitation fake pretend magical magic ridiculous impossible incredible phony mock false REALITY-
+soaring tall lanky big high HEIGHT+
+jagged rough scratchy uncomfortable bumpy sharp wrinkled hairy ROUGHNESS+
+dripping wet slippery soggy runny humid soaked juicy WETNESS+
+quite very most more extra added also fully extremely totally entirely much great EXTREMETY+
+loaded successful rich WEALTH+
+filthy dirty yucky messy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS-
+senior prehistoric old AGE-
+bright creative intelligent genius sharp quick brilliant clever wise careful curious interested serious smart INTELIGENCE+
+muddy blocked dull dirty hidden covered invisible CLARITY-
+tropical hot warm boiling blazing baking burning stuffy smoking TEMPERATURE+
+thin narrow skinny slim small lean shallow GIRTH+
+future after back backward backwards behind below bottom closing ending final finishing following last late old tail ORDER-
+firm mighty powerful strong able active big heavy steady tough hard solid stiff STRENGTH+
+ordinary usual familiar normal typical common regular standard popular expected natural TYPICALITY+
+little light slight fluffy delicate WEIGHT+
+comfy soft fuzzy fluffy comfortable smooth furry silky ROUGHNESS-
+smelly stinky stinking foul ODOR+
+nuts nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane AGITATION-
+plenty many much enough such extra whole double several entire most QUANTITY+
+real natural actual concrete true REALITY+
+snowy windy rainy stormy wet unpleasant dark foggy overcast WEATHER-
+runny wet slippery soggy humid soaked juicy dripping WETNESS+
+premium expensive fancy steep COST-
+twisted crooked rounded curvy looped bent round curled curly curved oval CURVINESS+
+main big central great important key major necessary primary principal serious top used IMPORTANCE+
+soft fuzzy fluffy comfy comfortable smooth furry silky ROUGHNESS-
+grilled cooked baked burned toasted microwaved boiled roasted fried heated melted steamed COOKEDNESS+
+shy nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed bothered upset distracted frightened insane nuts AGITATION-
+teeny little tiny wee small itsy bitty mini baby limited SIZE-
+crummy bad terrible worse worst lousy awful horrible frustrating EVALUATION-
+surface outer outside beyond far SPAT_CENTRALITY-
+grand good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome lovely neat fabulous marvelous perfect EVALUATION+
+dense stupid dumb bored foolish simple INTELIGENCE-
+bent crooked rounded curvy looped round curled curly curved twisted oval CURVINESS+
+playful cheerful happy absurd fun funny goofy hilarious merry pleasant ridiculous silly HUMOR+
+original above advanced ahead before beginning early first forward forwards front head lead new opening previous primary starting top winner ORDER+
+heated angry annoyed bitter cranky exasperated frustrated furious fussy grumpy irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+close touching near together next nearby PROXIMITY+
+small little tiny wee itsy bitty mini teeny baby limited SIZE-
+dark windy rainy stormy wet snowy unpleasant foggy overcast WEATHER-
+dreary dark gloomy dull cloudy black grey murky BRIGHTNESS-
+worried nervous scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+warm hot boiling tropical blazing baking burning stuffy smoking TEMPERATURE+
+hairy rough scratchy uncomfortable bumpy jagged sharp wrinkled ROUGHNESS+
+unable weak fragile shaky frail broken delicate STRENGTH-
+best good great better fine favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+strong mighty powerful able active big firm heavy steady tough hard solid stiff STRENGTH+
+tasty yummy fresh delicious ripe scrumptious delightful nice rich good pleasant super sweet TASTE+
+shiny light fair sunny bright golden flashing brilliant glowing clear shining white BRIGHTNESS+
+round sharp pointy bumpy funny crooked curvy curved SMOOTHNESS-
+cooked baked grilled burned toasted microwaved boiled roasted fried heated melted steamed COOKEDNESS+
+proper right good honest appropriate true innocent upright pure MORALITY+
+partly less least little EXTREMETY-
+unique unusual strange weird odd special bizarre peculiar TYPICALITY-
+juvenile preschool young junior infant growing newborn AGE+
+connected tight stuck snug caught TIGHTNESS+
+bare naked undressed bald nude exposed CLOTHED-
+scratchy rough uncomfortable bumpy jagged sharp wrinkled hairy ROUGHNESS+
+favorite many popular liked together loved married LONELINESS+
+swift short quick brief fast TIME_DURATION-
+certain true right correct positive sure TRUTH+
+tail after back backward backwards behind below bottom closing ending final finishing following future last late old ORDER-
+forward above advanced ahead before beginning early first forwards front head lead new opening original previous primary starting top winner ORDER+
+top blessed winning successful lucky SUCCESS+
+weak fragile shaky frail broken delicate unable STRENGTH-
+living alive live conscious awake LIVING+
+limited little tiny wee small itsy bitty mini teeny baby SIZE-
+rolling crawling jogging walking running flying shaky moving MOVEMENT+
+narrow thin skinny slim small lean shallow GIRTH+
+actual real natural concrete true REALITY+
+horrible bad terrible worse worst lousy crummy awful frustrating EVALUATION-
+awesome good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic grand lovely neat fabulous marvelous perfect EVALUATION+
+wee little tiny small itsy bitty mini teeny baby limited SIZE-
+preschool young junior infant growing juvenile newborn AGE+
+involved obsessed delighted awake thrilled busy excited curious impressed interested surprised ALERTNESS+
+serious creative intelligent genius sharp quick brilliant bright clever wise careful curious interested smart INTELIGENCE+
+jumpy nervous worried scared afraid crazy fussy anxious concerned shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+ripe yummy fresh delicious tasty scrumptious delightful nice rich good pleasant super sweet TASTE+
+slimy dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby CLEANLINESS-
+welcome happy smily giddy glad gracious proud merry cheerful content delighted peaceful HAPPINESS+
+sad angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sorry unhappy upset HAPPINESS-
+handsome elegant lovely charming pretty cute beautiful gorgeous neat pleasant adorable hot BEAUTY+
+huge big large giant gigantic enormous massive tremendous SIZE+
+grubby dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul slimy CLEANLINESS-
+great big central important key main major necessary primary principal serious top used IMPORTANCE+
+back after backward backwards behind below bottom closing ending final finishing following future last late old tail ORDER-
+before above advanced ahead beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER+
+healthy lively strong tough HEALTH+
+young preschool junior infant growing juvenile newborn AGE+
+pointy sharp bumpy funny crooked curvy round curved SMOOTHNESS-
+soapy slick smooth slippery sleep greasy STICKYNESS-
+generic free cheap inexpensive bargain sale COST+
+outside outer beyond surface far SPAT_CENTRALITY-
+generous decent fair faithful friendly gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+lousy bad terrible worse worst crummy awful horrible frustrating EVALUATION-
+tacky sticky STICKYNESS+
+blazing hot warm boiling tropical baking burning stuffy smoking TEMPERATURE+
+slippery wet soggy runny humid soaked juicy dripping WETNESS+
+advanced above ahead before beginning early first forward forwards front head lead new opening original previous primary starting top winner ORDER+
+content happy smily giddy glad gracious proud welcome merry cheerful delighted peaceful HAPPINESS+
+aching sick allergic dizzy itchy sore stuffy frail infected suffering shaky bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+frail weak fragile shaky broken delicate unable STRENGTH-
+many much enough such extra whole double several plenty entire most QUANTITY+
+lean thin narrow skinny slim small shallow GIRTH+
+uncomfortable rough scratchy bumpy jagged sharp wrinkled hairy ROUGHNESS+
+cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE-
+jogging crawling walking running flying shaky rolling moving MOVEMENT+
+scrumptious yummy fresh delicious tasty ripe delightful nice rich good pleasant super sweet TASTE+
+stuffy hot warm boiling tropical blazing baking burning smoking TEMPERATURE+
+lonely alone only apart single individual one LONELINESS-
+bruised sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching hurting painful uncomfortable burning raw sensitive burned HEALTH-
+running crawling jogging walking flying shaky rolling moving MOVEMENT+
+closing after back backward backwards behind below bottom ending final finishing following future last late old tail ORDER-
+jealous angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated mad offended sad sorry unhappy upset HAPPINESS-
+ending after back backward backwards behind below bottom closing final finishing following future last late old tail ORDER-
+comfortable soft fuzzy fluffy comfy smooth furry silky ROUGHNESS-
+key big central great important main major necessary primary principal serious top used IMPORTANCE+
+rowdy loud noisy VOLUME+
+invisible hidden secret VISIBILITY-
+forwards above advanced ahead before beginning early first forward front head lead new opening original previous primary starting top winner ORDER+
+neat interesting delightful INTERESTING+
+shaky weak fragile frail broken delicate unable STRENGTH-
+boring dull routine INTERESTING-
+unpleasant windy rainy stormy wet snowy dark foggy overcast WEATHER-
+like same similar such twin equal alike related identical uniform SIMILARITY+
+baggy loose relaxed free loosened slack TIGHTNESS-
+rough scratchy uncomfortable bumpy jagged sharp wrinkled hairy ROUGHNESS+
+squishy soft floppy mushy plastic flexible HARDNESS-
+selfish nasty wicked naughty evil mean greedy dangerous rough ugly rowdy NICENESS-
+closed locked blocked covered stopped OPENNESS-
+lanky tall big soaring high HEIGHT+
+mad angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous offended sad sorry unhappy upset HAPPINESS-
+curled crooked rounded curvy looped bent round curly curved twisted oval CURVINESS+
+married many popular favorite liked together loved LONELINESS+
+hilarious cheerful happy absurd fun funny goofy merry playful pleasant ridiculous silly HUMOR+
+silky soft fuzzy fluffy comfy comfortable smooth furry ROUGHNESS-
+overflowing filled full packed complete crowded jammed bursting FILLED+
+cool cold frozen chilly polar frosty crisp icy iced TEMPERATURE-
+latest fresh new novel recent current modern popular FASHIONABLENESS+
+hidden invisible secret VISIBILITY-
+necessary big central great important key main major primary principal serious top used IMPORTANCE+
+positive true right correct certain sure TRUTH+
+raw sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning sensitive burned HEALTH-
+faithful decent fair friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+added quite very most more extra also fully extremely totally entirely much great EXTREMETY+
+fresh yummy delicious tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE+
+awake alive living live conscious LIVING+
+weird unusual strange odd special unique bizarre peculiar TYPICALITY-
+microwaved cooked baked grilled burned toasted boiled roasted fried heated melted steamed COOKEDNESS+
+ready perfect able working running functioning FUNCTIONALITY+
+extra many much enough such whole double several plenty entire most QUANTITY+
+worse bad terrible worst lousy crummy awful horrible frustrating EVALUATION-
+wise creative intelligent genius sharp quick brilliant bright clever careful curious interested serious smart INTELIGENCE+
+surprised obsessed delighted awake thrilled involved busy excited curious impressed interested ALERTNESS+
+curly crooked rounded curvy looped bent round curled curved twisted oval CURVINESS+
+related same similar such twin equal like alike identical uniform SIMILARITY+
+fragile weak shaky frail broken delicate unable STRENGTH-
+light little slight fluffy delicate WEIGHT+
+fried cooked baked grilled burned toasted microwaved boiled roasted heated melted steamed COOKEDNESS+
+fine good great better best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+bored stupid dumb foolish simple dense INTELIGENCE-
+growing preschool young junior infant juvenile newborn AGE+
+bothered nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy upset distracted frightened insane nuts AGITATION-
+icky stale tough bitter rotten yucky nasty gross bad awful harsh TASTE-
+curious creative intelligent genius sharp quick brilliant bright clever wise careful interested serious smart INTELIGENCE+
+honest decent fair faithful friendly generous gentle good helpful holy kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+awful stale tough bitter rotten yucky nasty gross icky bad harsh TASTE-
+magical fake pretend magic ridiculous impossible incredible imitation phony mock false REALITY-
+fair decent faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+only limited single less whatever particular few medium small half one lone QUANTITY-
+sunny light calm pleasant good WEATHER+
+exciting good great better fine best favorite special wonderful excellent terrific dear super amazing fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+complex impossible hard tough difficult tricky DIFFICULTY-
+mild peaceful slow still strong brave calm AGITATION+
+cleared free open clear unlocked ACCESSIBILITY+
+insane nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened nuts AGITATION-
+smily happy giddy glad gracious proud welcome merry cheerful content delighted peaceful HAPPINESS+
+difficult impossible hard tough tricky complex DIFFICULTY-
+painful sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting uncomfortable burning raw sensitive burned HEALTH-
+lone limited single less whatever particular few medium small only half one QUANTITY-
+beautiful elegant lovely charming pretty cute handsome gorgeous neat pleasant adorable hot BEAUTY+
+nasty stale tough bitter rotten yucky gross icky bad awful harsh TASTE-
+obvious clear exposed open plain seen VISIBILITY+
+offended angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad sad sorry unhappy upset HAPPINESS-
+unsafe dangerous scary exposed threatening SAFETY-
+large big huge giant gigantic enormous massive tremendous SIZE+
+below low under VERT_POSITION-
+behaved decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant NICENESS+
+nice yummy fresh delicious tasty ripe scrumptious delightful rich good pleasant super sweet TASTE+
+chubby thick fat wide deep long massive husky pudgy heavy GIRTH-
+typical usual familiar normal common regular ordinary standard popular expected natural TYPICALITY+
+minor bottom extra leftover limited other small spare unnecessary IMPORTANCE-
+genius creative intelligent sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE+
+similar same such twin equal like alike related identical uniform SIMILARITY+
+good sunny light calm pleasant WEATHER+
+proud happy smily giddy glad gracious welcome merry cheerful content delighted peaceful HAPPINESS+
+fantastic false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable TRUTH-
+identical same similar such twin equal like alike related uniform SIMILARITY+
+fussy angry annoyed bitter cranky exasperated frustrated furious grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+inner near central inside middle center SPAT_CENTRALITY+
+functioning perfect ready able working running FUNCTIONALITY+
+concerned nervous worried scared afraid crazy fussy anxious jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+short quick brief swift fast TIME_DURATION-
+yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE+
+exposed clear obvious open plain seen VISIBILITY+
+fluffy light little slight delicate WEIGHT+
+furry soft fuzzy fluffy comfy comfortable smooth silky ROUGHNESS-
+crowded filled full packed overflowing complete jammed bursting FILLED+
+alone lonely only apart single individual one LONELINESS-
+double many much enough such extra whole several plenty entire most QUANTITY+
+previous above advanced ahead before beginning early first forward forwards front head lead new opening original primary starting top winner ORDER+
+solid together complete perfect whole WHOLENESS+
+behind after back backward backwards below bottom closing ending final finishing following future last late old tail ORDER-
+golden light shiny fair sunny bright flashing brilliant glowing clear shining white BRIGHTNESS+
+crisp cold cool frozen chilly polar frosty icy iced TEMPERATURE-
+head above advanced ahead before beginning early first forward forwards front lead new opening original previous primary starting top winner ORDER+
+stopped locked blocked covered closed OPENNESS-
+backward after back backwards behind below bottom closing ending final finishing following future last late old tail ORDER-
+winning blessed successful lucky top SUCCESS+
+upset angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy HAPPINESS-
+live alive living conscious awake LIVING+
+bursting filled full packed overflowing complete crowded jammed FILLED+
+mock fake pretend magical magic ridiculous impossible incredible imitation phony false REALITY-
+unnecessary bottom extra leftover limited minor other small spare IMPORTANCE-
+hurried fast quick swift flying SPEED+
+impressed obsessed delighted awake thrilled involved busy excited curious interested surprised ALERTNESS+
+under below low VERT_POSITION-
+separate away far free remote PROXIMITY-
+crawling jogging walking running flying shaky rolling moving MOVEMENT+
+wrong false ridiculous impossible incredible unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+wrinkled rough scratchy uncomfortable bumpy jagged sharp hairy ROUGHNESS+
+steamed cooked baked grilled burned toasted microwaved boiled roasted fried heated melted COOKEDNESS+
+first above advanced ahead before beginning early forward forwards front head lead new opening original previous primary starting top winner ORDER+
+creative intelligent genius sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE+
+delightful yummy fresh delicious tasty ripe scrumptious nice rich good pleasant super sweet TASTE+
+cheerful happy absurd fun funny goofy hilarious merry playful pleasant ridiculous silly HUMOR+
+dead asleep LIVING-
+straight flat level smooth SMOOTHNESS+
+okay safe secure protected snug good SAFETY+
+candied sweet sugary SWEETNESS+
+massive heavy WEIGHT-
+terrific good great better fine best favorite special wonderful excellent dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+safe secure protected okay snug good SAFETY+
+secure safe protected okay snug good SAFETY+
+steep expensive fancy premium COST-
+slack loose baggy relaxed free loosened TIGHTNESS-
+false ridiculous impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+adorable elegant lovely charming pretty cute beautiful handsome gorgeous neat pleasant hot BEAUTY+
+sturdy firm hard tough strong solid stiff tense HARDNESS+
+fake pretend magical magic ridiculous impossible incredible imitation phony mock false REALITY-
+chewy mushy soft mashed squishy CRUNCHINESS-
+enough many much such extra whole double several plenty entire most QUANTITY+
+terrible bad worse worst lousy crummy awful horrible frustrating EVALUATION-
+loud noisy rowdy VOLUME+
+sure true right correct certain positive TRUTH+
+unlike different contrary SIMILARITY-
+stuck connected tight snug caught TIGHTNESS+
+stinking smelly stinky foul ODOR+
+frosty cold cool frozen chilly polar crisp icy iced TEMPERATURE-
+old after back backward backwards behind below bottom closing ending final finishing following future last late tail ORDER-
+stiff mighty powerful strong able active big firm heavy steady tough hard solid STRENGTH+
+frightened nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted insane nuts AGITATION-
+curved sharp pointy bumpy funny crooked curvy round SMOOTHNESS-
+powerful mighty strong able active big firm heavy steady tough hard solid stiff STRENGTH+
+wicked nasty naughty evil mean greedy selfish dangerous rough ugly rowdy NICENESS-
+better good great fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+shining light shiny fair sunny bright golden flashing brilliant glowing clear white BRIGHTNESS+
+white plain black grey COLORED-
+central near inner inside middle center SPAT_CENTRALITY+
+juicy wet slippery soggy runny humid soaked dripping WETNESS+
+grumpy angry annoyed bitter cranky exasperated frustrated furious fussy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+tart sour SWEETNESS-
+sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+murky dirty yucky messy filthy icky disgusting gross sloppy dusty nasty stained foul grubby slimy CLEANLINESS-
+hurting sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised painful uncomfortable burning raw sensitive burned HEALTH-
+perfect together solid complete whole WHOLENESS+
+center near inner central inside middle SPAT_CENTRALITY+
+helpful decent fair faithful friendly generous gentle good holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+silly cheerful happy absurd fun funny goofy hilarious merry playful pleasant ridiculous HUMOR+
+primary above advanced ahead before beginning early first forward forwards front head lead new opening original previous starting top winner ORDER+
+touching close near together next nearby PROXIMITY+
+last after back backward backwards behind below bottom closing ending final finishing following future late old tail ORDER-
+dumb stupid bored foolish simple dense INTELIGENCE-
+remote away far separate free PROXIMITY-
+foul smelly stinky stinking ODOR+
+gracious happy smily giddy glad proud welcome merry cheerful content delighted peaceful HAPPINESS+
+square flat straight sharp level smooth CURVINESS-
+beyond outer outside surface far SPAT_CENTRALITY-
+infected sick allergic dizzy itchy sore stuffy frail suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+winner above advanced ahead before beginning early first forward forwards front head lead new opening original previous primary starting top ORDER+
+sour tart SWEETNESS-
+wacky false ridiculous impossible incredible wrong unsure absurd bizarre foolish unbelievable fantastic TRUTH-
+fancy expensive premium steep COST-
+entire many much enough such extra whole double several plenty most QUANTITY+
+whole together solid complete perfect WHOLENESS+
+least less partly little EXTREMETY-
+frustrating bad terrible worse worst lousy crummy awful horrible EVALUATION-
+anxious nervous worried scared afraid crazy fussy concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+irritated angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable jealous mad offended sad sorry unhappy upset HAPPINESS-
+fun cheerful happy absurd funny goofy hilarious merry playful pleasant ridiculous silly HUMOR+
+locked blocked covered closed stopped OPENNESS-
+charming elegant lovely pretty cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY+
+also quite very most more extra added fully extremely totally entirely much great EXTREMETY+
+slight light little fluffy delicate WEIGHT+
+looped crooked rounded curvy bent round curled curly curved twisted oval CURVINESS+
+nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+nude naked bare undressed bald exposed CLOTHED-
+particular limited single less whatever few medium small only half one lone QUANTITY-
+lovely good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand neat fabulous marvelous perfect EVALUATION+
+stable still MOVEMENT-
+principal big central great important key main major necessary primary serious top used IMPORTANCE+
+pretend fake magical magic ridiculous impossible incredible imitation phony mock false REALITY-
+quiet silent VOLUME-
+nearby touching close near together next PROXIMITY+
+level flat straight smooth SMOOTHNESS+
+floppy soft squishy mushy plastic flexible HARDNESS-
+crunchy hard crisp crusty CRUNCHINESS+
+collapsed broken cracked busted smashed WHOLENESS-
+strange unusual weird odd special unique bizarre peculiar TYPICALITY-
+heavy massive WEIGHT-
+sensitive sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw burned HEALTH-
+bottom after back backward backwards behind below closing ending final finishing following future last late old tail ORDER-
+marvelous good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous perfect EVALUATION+
+one limited single less whatever particular few medium small only half lone QUANTITY-
+harsh stale tough bitter rotten yucky nasty gross icky bad awful TASTE-
+bitter stale tough rotten yucky nasty gross icky bad awful harsh TASTE-
+delicate light little slight fluffy WEIGHT+
+starting above advanced ahead before beginning early first forward forwards front head lead new opening original previous primary top winner ORDER+
+leftover bottom extra limited minor other small spare unnecessary IMPORTANCE-
+burned sick allergic dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive HEALTH-
+modern fresh new novel recent latest current popular FASHIONABLENESS+
+frozen cold cool chilly polar frosty crisp icy iced TEMPERATURE-
+slim thin narrow skinny small lean shallow GIRTH+
+fast short quick brief swift TIME_DURATION-
+smart creative intelligent genius sharp quick brilliant bright clever wise careful curious interested serious INTELIGENCE+
+tremendous big huge large giant gigantic enormous massive SIZE+
+greasy slick smooth slippery sleep soapy STICKYNESS-
+special unusual strange weird odd unique bizarre peculiar TYPICALITY-
+alive living live conscious awake LIVING+
+calm sunny light pleasant good WEATHER+
+usual familiar normal typical common regular ordinary standard popular expected natural TYPICALITY+
+soggy wet slippery runny humid soaked juicy dripping WETNESS+
+pleasant sunny light calm good WEATHER+
+dirty yucky messy filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS-
+mini little tiny wee small itsy bitty teeny baby limited SIZE-
+pudgy thick fat wide deep chubby long massive husky heavy GIRTH-
+ugly nasty wicked naughty evil mean greedy selfish dangerous rough rowdy NICENESS-
+colorful rainbow colored COLORED+
+expensive fancy premium steep COST-
+oval crooked rounded curvy looped bent round curled curly curved twisted CURVINESS+
+active mighty powerful strong able big firm heavy steady tough hard solid stiff STRENGTH+
+windy rainy stormy wet snowy unpleasant dark foggy overcast WEATHER-
+intelligent creative genius sharp quick brilliant bright clever wise careful curious interested serious smart INTELIGENCE+
+irritable angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+unhappy boring bored serious dull stale stuffy stupid HUMOR-
+giant big huge large gigantic enormous massive tremendous SIZE+
+cheap free inexpensive bargain generic sale COST+
+spoiled raw rotten old stale moldy bad FRESHNESS-
+overcast windy rainy stormy wet snowy unpleasant dark foggy WEATHER-
+itsy little tiny wee small bitty mini teeny baby limited SIZE-
+full stuffed HUNGER+
+infant preschool young junior growing juvenile newborn AGE+
+open clear obvious exposed plain seen VISIBILITY+
+major big central great important key main necessary primary principal serious top used IMPORTANCE+
+wet slippery soggy runny humid soaked juicy dripping WETNESS+
+giddy happy smily glad gracious proud welcome merry cheerful content delighted peaceful HAPPINESS+
+stinky smelly stinking foul ODOR+
+very quite most more extra added also fully extremely totally entirely much great EXTREMETY+
+tired asleep sleepy bored dull ALERTNESS-
+other bottom extra leftover limited minor small spare unnecessary IMPORTANCE-
+super yummy fresh delicious tasty ripe scrumptious delightful nice rich good pleasant sweet TASTE+
+delighted happy smily giddy glad gracious proud welcome merry cheerful content peaceful HAPPINESS+
+excellent good great better fine best favorite special wonderful terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+gloomy dark dull cloudy black grey murky dreary BRIGHTNESS-
+boiled cooked baked grilled burned toasted microwaved roasted fried heated melted steamed COOKEDNESS+
+rounded crooked curvy looped bent round curled curly curved twisted oval CURVINESS+
+tiny little wee small itsy bitty mini teeny baby limited SIZE-
+stuffed full HUNGER+
+goofy cheerful happy absurd fun funny hilarious merry playful pleasant ridiculous silly HUMOR+
+confusing complex hard deep COMPLEXITY-
+beginning above advanced ahead before early first forward forwards front head lead new opening original previous primary starting top winner ORDER+
+plain clear obvious exposed open seen VISIBILITY+
+moldy raw rotten old stale spoiled bad FRESHNESS-
+routine boring dull INTERESTING-
+big mighty powerful strong able active firm heavy steady tough hard solid stiff STRENGTH+
+outer outside beyond surface far SPAT_CENTRALITY-
+final after back backward backwards behind below bottom closing ending finishing following future last late old tail ORDER-
+fully quite very most more extra added also extremely totally entirely much great EXTREMETY+
+mighty powerful strong able active big firm heavy steady tough hard solid stiff STRENGTH+
+expected usual familiar normal typical common regular ordinary standard popular natural TYPICALITY+
+thirsty hungry empty HUNGER-
+popular usual familiar normal typical common regular ordinary standard expected natural TYPICALITY+
+plastic soft floppy squishy mushy flexible HARDNESS-
+ruined broken busted wrecked FUNCTIONALITY-
+delicious yummy fresh tasty ripe scrumptious delightful nice rich good pleasant super sweet TASTE+
+chilly cold cool frozen polar frosty crisp icy iced TEMPERATURE-
+easy possible simple basic DIFFICULTY+
+hollow empty dry exhausted FILLED-
+less limited single whatever particular few medium small only half one lone QUANTITY-
+naked bare undressed bald nude exposed CLOTHED-
+unusual strange weird odd special unique bizarre peculiar TYPICALITY-
+half limited single less whatever particular few medium small only one lone QUANTITY-
+excited obsessed delighted awake thrilled involved busy curious impressed interested surprised ALERTNESS+
+flexible soft floppy squishy mushy plastic HARDNESS-
+tense firm sturdy hard tough strong solid stiff HARDNESS+
+basic easy possible simple DIFFICULTY+
+peaceful happy smily giddy glad gracious proud welcome merry cheerful content delighted HAPPINESS+
+thick fat wide deep chubby long massive husky pudgy heavy GIRTH-
+lucky blessed winning successful top SUCCESS+
+conscious alive living live awake LIVING+
+sleep slick smooth slippery greasy soapy STICKYNESS-
+several many much enough such extra whole double plenty entire most QUANTITY+
+fat thick wide deep chubby long massive husky pudgy heavy GIRTH-
+kind decent fair faithful friendly generous gentle good helpful holy honest nice okay perfect polite sweet willing pleasant behaved NICENESS+
+new above advanced ahead before beginning early first forward forwards front head lead opening original previous primary starting top winner ORDER+
+scary dangerous unsafe exposed threatening SAFETY-
+twin same similar such equal like alike related identical uniform SIMILARITY+
+late after back backward backwards behind below bottom closing ending final finishing following future last old tail ORDER-
+apart alone lonely only single individual one LONELINESS-
+sale free cheap inexpensive bargain generic COST+
+right true correct certain positive sure TRUTH+
+wonderful good great better fine best favorite special excellent terrific dear super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+clean neat pure clear tidy washed CLEANLINESS+
+totally quite very most more extra added also fully extremely entirely much great EXTREMETY+
+cute elegant lovely charming pretty beautiful handsome gorgeous neat pleasant adorable hot BEAUTY+
+bald naked bare undressed nude exposed CLOTHED-
+packed filled full overflowing complete crowded jammed bursting FILLED+
+away far separate free remote PROXIMITY-
+extremely quite very most more extra added also fully totally entirely much great EXTREMETY+
+baked dry dusty stale WETNESS-
+brilliant creative intelligent genius sharp quick bright clever wise careful curious interested serious smart INTELIGENCE+
+boiling hot warm tropical blazing baking burning stuffy smoking TEMPERATURE+
+current fresh new novel recent latest modern popular FASHIONABLENESS+
+over high above VERT_POSITION+
+same similar such twin equal like alike related identical uniform SIMILARITY+
+frustrated angry annoyed bitter cranky exasperated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+worst bad terrible worse lousy crummy awful horrible frustrating EVALUATION-
+silent quiet VOLUME-
+undressed naked bare bald nude exposed CLOTHED-
+hungry thirsty empty HUNGER-
+important big central great key main major necessary primary principal serious top used IMPORTANCE+
+blocked locked covered closed stopped OPENNESS-
+mean nasty wicked naughty evil greedy selfish dangerous rough ugly rowdy NICENESS-
+polar cold cool frozen chilly frosty crisp icy iced TEMPERATURE-
+busy obsessed delighted awake thrilled involved excited curious impressed interested surprised ALERTNESS+
+absurd false ridiculous impossible incredible wrong unsure bizarre foolish wacky unbelievable fantastic TRUTH-
+near inner central inside middle center SPAT_CENTRALITY+
+novel fresh new recent latest current modern popular FASHIONABLENESS+
+gross stale tough bitter rotten yucky nasty icky bad awful harsh TASTE-
+fabulous good great better fine best favorite special wonderful excellent terrific dear super amazing exciting fantastic awesome grand lovely neat marvelous perfect EVALUATION+
+upright right good honest proper appropriate true innocent pure MORALITY+
+mushy soft floppy squishy plastic flexible HARDNESS-
+rotten stale tough bitter yucky nasty gross icky bad awful harsh TASTE-
+shallow thin narrow skinny slim small lean GIRTH+
+present modern recent current ERA+
+tight connected stuck snug caught TIGHTNESS+
+contrary different unlike SIMILARITY-
+true right correct certain positive sure TRUTH+
+such same similar twin equal like alike related identical uniform SIMILARITY+
+confused unsure hazy BELIEF-
+familiar usual normal typical common regular ordinary standard popular expected natural TYPICALITY+
+equal same similar such twin like alike related identical uniform SIMILARITY+
+cranky angry annoyed bitter exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+distracted nervous worried scared afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset frightened insane nuts AGITATION-
+gorgeous elegant lovely charming pretty cute beautiful handsome neat pleasant adorable hot BEAUTY+
+seen clear obvious exposed open plain VISIBILITY+
+merry cheerful happy absurd fun funny goofy hilarious playful pleasant ridiculous silly HUMOR+
+flat straight level smooth SMOOTHNESS+
+empty thirsty hungry HUNGER-
+interested creative intelligent genius sharp quick brilliant bright clever wise careful curious serious smart INTELIGENCE+
+exhausted empty dry hollow FILLED-
+whatever limited single less particular few medium small only half one lone QUANTITY-
+phony fake pretend magical magic ridiculous impossible incredible imitation mock false REALITY-
+dear good great better fine best favorite special wonderful excellent terrific super amazing exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+common usual familiar normal typical regular ordinary standard popular expected natural TYPICALITY+
+far outer outside beyond surface SPAT_CENTRALITY-
+early above advanced ahead before beginning first forward forwards front head lead new opening original previous primary starting top winner ORDER+
+incredible false ridiculous impossible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+enormous big huge large giant gigantic massive tremendous SIZE+
+sore sick allergic dizzy itchy stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+filled full packed overflowing complete crowded jammed bursting FILLED+
+hot warm boiling tropical blazing baking burning stuffy smoking TEMPERATURE+
+baking hot warm boiling tropical blazing burning stuffy smoking TEMPERATURE+
+dizzy sick allergic itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+relaxed loose baggy free loosened slack TIGHTNESS-
+naughty nasty wicked evil mean greedy selfish dangerous rough ugly rowdy NICENESS-
+noisy loud rowdy VOLUME+
+brief short quick swift fast TIME_DURATION-
+lively healthy strong tough HEALTH+
+more quite very most extra added also fully extremely totally entirely much great EXTREMETY+
+stale dry dusty baked WETNESS-
+sorry angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad unhappy upset HAPPINESS-
+possible easy simple basic DIFFICULTY+
+lead above advanced ahead before beginning early first forward forwards front head new opening original previous primary starting top winner ORDER+
+secret invisible hidden VISIBILITY-
+loosened loose baggy relaxed free slack TIGHTNESS-
+soaked wet slippery soggy runny humid juicy dripping WETNESS+
+regular usual familiar normal typical common ordinary standard popular expected natural TYPICALITY+
+normal usual familiar typical common regular ordinary standard popular expected natural TYPICALITY+
+dangerous scary unsafe exposed threatening SAFETY-
+cracked broken busted smashed collapsed WHOLENESS-
+furious angry annoyed bitter cranky exasperated frustrated fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+walking crawling jogging running flying shaky rolling moving MOVEMENT+
+angry annoyed bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+annoyed angry bitter cranky exasperated frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+snug connected tight stuck caught TIGHTNESS+
+wide thick fat deep chubby long massive husky pudgy heavy GIRTH-
+dressed covered CLOTHED+
+brave peaceful slow still mild strong calm AGITATION+
+friendly decent fair faithful generous gentle good helpful holy honest kind nice okay perfect polite sweet willing pleasant behaved NICENESS+
+innocent right good honest proper appropriate true upright pure MORALITY+
+jammed filled full packed overflowing complete crowded bursting FILLED+
+afraid nervous worried scared crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+pure right good honest proper appropriate true innocent upright MORALITY+
+tricky impossible hard tough difficult complex DIFFICULTY-
+opening above advanced ahead before beginning early first forward forwards front head lead new original previous primary starting top winner ORDER+
+burning hot warm boiling tropical blazing baking stuffy smoking TEMPERATURE+
+natural usual familiar normal typical common regular ordinary standard popular expected TYPICALITY+
+yucky stale tough bitter rotten nasty gross icky bad awful harsh TASTE-
+standard usual familiar normal typical common regular ordinary popular expected natural TYPICALITY+
+inexpensive free cheap bargain generic sale COST+
+interesting neat delightful INTERESTING+
+finishing after back backward backwards behind below bottom closing ending final following future last late old tail ORDER-
+ridiculous false impossible incredible wrong unsure absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+mixed different ASSORTMENT-
+odd unusual strange weird special unique bizarre peculiar TYPICALITY-
+glowing light shiny fair sunny bright golden flashing brilliant clear shining white BRIGHTNESS+
+blessed winning successful lucky top SUCCESS+
+curvy sharp pointy bumpy funny crooked round curved SMOOTHNESS-
+spare bottom extra leftover limited minor other small unnecessary IMPORTANCE-
+medium limited single less whatever particular few small only half one lone QUANTITY-
+polite decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect sweet willing pleasant behaved NICENESS+
+loose baggy relaxed free loosened slack TIGHTNESS-
+sleepy tired asleep bored dull ALERTNESS-
+willing decent fair faithful friendly generous gentle good helpful holy honest kind nice okay perfect polite sweet pleasant behaved NICENESS+
+smashed broken cracked busted collapsed WHOLENESS-
+sloppy dirty yucky messy filthy icky disgusting gross dusty murky nasty stained foul grubby slimy CLEANLINESS-
+used big central great important key main major necessary primary principal serious top IMPORTANCE+
+evil nasty wicked naughty mean greedy selfish dangerous rough ugly rowdy NICENESS-
+peculiar unusual strange weird odd special unique bizarre TYPICALITY-
+clever creative intelligent genius sharp quick brilliant bright wise careful curious interested serious smart INTELIGENCE+
+grey plain black white COLORED-
+melted cooked baked grilled burned toasted microwaved boiled roasted fried heated steamed COOKEDNESS+
+hard mighty powerful strong able active big firm heavy steady tough solid stiff STRENGTH+
+gigantic big huge large giant enormous massive tremendous SIZE+
+tough stale bitter rotten yucky nasty gross icky bad awful harsh TASTE-
+unsure false ridiculous impossible incredible wrong absurd bizarre foolish wacky unbelievable fantastic TRUTH-
+bad stale tough bitter rotten yucky nasty gross icky awful harsh TASTE-
+concrete real natural actual true REALITY+
+sugary sweet candied SWEETNESS+
+slow long permanent TIME_DURATION+
+suffering sick allergic dizzy itchy sore stuffy frail infected shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+foolish false ridiculous impossible incredible wrong unsure absurd bizarre wacky unbelievable fantastic TRUTH-
+amazing good great better fine best favorite special wonderful excellent terrific dear super exciting fantastic awesome grand lovely neat fabulous marvelous perfect EVALUATION+
+deep thick fat wide chubby long massive husky pudgy heavy GIRTH-
+still stable MOVEMENT-
+happy cheerful absurd fun funny goofy hilarious merry playful pleasant ridiculous silly HUMOR+
+liked many popular favorite together loved married LONELINESS+
+much many enough such extra whole double several plenty entire most QUANTITY+
+front above advanced ahead before beginning early first forward forwards head lead new opening original previous primary starting top winner ORDER+
+icy cold cool frozen chilly polar frosty crisp iced TEMPERATURE-
+husky thick fat wide deep chubby long massive pudgy heavy GIRTH-
+alike same similar such twin equal like related identical uniform SIMILARITY+
+together solid complete perfect whole WHOLENESS+
+quick short brief swift fast TIME_DURATION-
+glad happy smily giddy gracious proud welcome merry cheerful content delighted peaceful HAPPINESS+
+fuzzy soft fluffy comfy comfortable smooth furry silky ROUGHNESS-
+rainbow colored colorful COLORED+
+messy dirty yucky filthy icky disgusting gross sloppy dusty murky nasty stained foul grubby slimy CLEANLINESS-
+stupid dumb bored foolish simple dense INTELIGENCE-
+tidy clean neat pure clear washed CLEANLINESS+
+allergic sick dizzy itchy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+rich successful loaded WEALTH+
+exasperated angry annoyed bitter cranky frustrated furious fussy grumpy heated irritable irritated jealous mad offended sad sorry unhappy upset HAPPINESS-
+most many much enough such extra whole double several plenty entire QUANTITY+
+following after back backward backwards behind below bottom closing ending final finishing future last late old tail ORDER-
+constant same uniform ASSORTMENT+
+scared nervous worried afraid crazy fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+after back backward backwards behind below bottom closing ending final finishing following future last late old tail ORDER-
+crazy nervous worried scared afraid fussy anxious concerned jumpy shaky tense weak annoyed shy bothered upset distracted frightened insane nuts AGITATION-
+low below under VERT_POSITION-
+crusty crunchy hard crisp CRUNCHINESS+
+magic fake pretend magical ridiculous impossible incredible imitation phony mock false REALITY-
+simple stupid dumb bored foolish dense INTELIGENCE-
+flashing light shiny fair sunny bright golden brilliant glowing clear shining white BRIGHTNESS+
+sharp pointy bumpy funny crooked curvy round curved SMOOTHNESS-
+careful creative intelligent genius sharp quick brilliant bright clever wise curious interested serious smart INTELIGENCE+
+few limited single less whatever particular medium small only half one lone QUANTITY-
+itchy sick allergic dizzy sore stuffy frail infected suffering shaky aching bruised hurting painful uncomfortable burning raw sensitive burned HEALTH-
+steady mighty powerful strong able active big firm heavy tough hard solid stiff STRENGTH+
+black plain white grey COLORED-
+elegant lovely charming pretty cute beautiful handsome gorgeous neat pleasant adorable hot BEAUTY+
+sticky tacky STICKYNESS+
+hazy confused unsure BELIEF-
+iced cold cool frozen chilly polar frosty crisp icy TEMPERATURE-
+free loose baggy relaxed loosened slack TIGHTNESS-
+able mighty powerful strong active big firm heavy steady tough hard solid stiff STRENGTH+
+correct true right certain positive sure TRUTH+
+stormy windy rainy wet snowy unpleasant dark foggy overcast WEATHER-
+successful rich loaded WEALTH+

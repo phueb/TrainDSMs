@@ -20,7 +20,8 @@ nlp = English()
 
 
 def preprocessing_job(num_vocab=None, skip_docs=False, local=False):
-    num_vocab = config.Corpus.num_vocab or num_vocab
+    num_vocab = num_vocab or config.Corpus.num_vocab
+    print('Preprocessing data using vocab_size={}'.format(num_vocab))
     #
     docs = []
     w2freq = Counter()
@@ -65,9 +66,8 @@ def preprocessing_job(num_vocab=None, skip_docs=False, local=False):
                 doc[n] = config.Corpus.UNK
                 numeric_doc.append(t2id[config.Corpus.UNK])
         numeric_docs.append(numeric_doc)
-    # save to file server
-    print('Sending results from corpus preprocessing to file-server...')
-    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, local)
+    # save
+    save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, num_vocab, local)
 
 
 def main_job(param2val):
@@ -95,9 +95,9 @@ def main_job(param2val):
     # process 2
     for architecture in [
         comparator,
-        aligner,
         classifier,
         extractor,
+        aligner,
     ]:
         for ev in [
             # Matching(architecture, 'cohyponyms', 'semantic'),
@@ -125,7 +125,7 @@ def main_job(param2val):
             #
             ev.pos_prob = ev.calc_pos_prob()
             #
-            ev.save_task_meta_data(ev.row_words, embedder.location, 'expert')
+            ev.save_task_meta_data(ev.row_words, embedder.location, 'expert')  # for plotting
             # check that required embeddings exist for eval
             for w in set(ev.row_words + ev.col_words):
                 if w not in embedder.w2e:

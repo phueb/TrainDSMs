@@ -29,21 +29,22 @@ def save_param2val(param2val, local=False):
             yaml.dump(param2val, f, default_flow_style=False, allow_unicode=True)
 
 
-def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, local):
+def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, num_vocab, local):
     #
     root = config.LocalDirs.root if local else config.RemoteDirs.root
+    print('Sending results from corpus preprocessing to {}'.format(root))
     # save w2freq
     p = root / '{}_w2freq.txt'.format(config.Corpus.name)
     with p.open('w') as f:
         for probe, freq in deterministic_w2f.items():
             f.write('{} {}\n'.format(probe, freq))
     # save vocab
-    p = root / '{}_{}_vocab.txt'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_vocab.txt'.format(config.Corpus.name, num_vocab)
     with p.open('w') as f:
         for v in vocab:
             f.write('{}\n'.format(v))
     # save numeric_docs
-    p = root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_numeric_docs.pkl'.format(config.Corpus.name, num_vocab)
     with p.open('wb') as f:
         pickle.dump(numeric_docs, f)
     # save docs
@@ -52,11 +53,11 @@ def save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, lo
     # save docs for each worker - otherwise multiple workers will open same files causing EOFError
     from ludwigcluster.config import SFTP
     for worker in SFTP.worker_names:
-        p = root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, config.Corpus.num_vocab)
+        p = root / '{}_{}_{}_docs.pkl'.format(worker, config.Corpus.name, num_vocab)
         with p.open('wb') as f:
             pickle.dump(docs, f)
 
-    p = root / '{}_{}_docs.pkl'.format(config.Corpus.name, config.Corpus.num_vocab)
+    p = root / '{}_{}_docs.pkl'.format(config.Corpus.name, num_vocab)
     with p.open('wb') as f:
         pickle.dump(docs, f)
 

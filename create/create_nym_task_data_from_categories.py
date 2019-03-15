@@ -32,7 +32,7 @@ if __name__ == '__main__':
         df_combined.reset_index(level=1, inplace=True)  # make index 'group' a column
         print(df_combined)
         # vocab
-        p = config.RemoteDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, vocab_size)
+        p = config.LocalDirs.root / '{}_{}_vocab.txt'.format(config.Corpus.name, vocab_size)
         if not p.exists():
             raise RuntimeError('{} does not exist'.format(p))
         vocab = np.loadtxt(p, 'str').tolist()
@@ -67,11 +67,11 @@ if __name__ == '__main__':
                 excluded_syns.append(probe)
                 probe2syns[probe] = [p for p in a if p != probe]
                 probe2ants[probe] = [p for p in b]
-                probe2cat[probe] = cat.upper() + '+'
+                probe2cat[probe] = cat.upper() + '-'
             for probe in b:
                 probe2syns[probe] = [p for p in b if p != probe]
                 probe2ants[probe] = [p for p in a]
-                probe2cat[probe] = cat.upper() + '-'
+                probe2cat[probe] = cat.upper() + '+'
             # check
             if VERBOSE:
                 print([(p, probe2syns[p]) for p in a + b])  # duplicates are allowed when duplicates are mirrored versions of existing pairs

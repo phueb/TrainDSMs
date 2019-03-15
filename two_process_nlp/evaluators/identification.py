@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import binom
-import pandas as pd
+import pickle
 
 from two_process_nlp import config
 from two_process_nlp.evaluators.base import EvalBase
@@ -84,23 +84,11 @@ class Identification(EvalBase):
         assert self.probe2relata is not None
         assert self.probe2lures is not None
         #
-        df = pd.DataFrame(data={'probe': row_words})
-
-        # TODO there are multiple cats - what's the best way to deal with this?
-
-        df['cat'] = [self.probe2cats[rw] for rw in row_words]
-
-
-        p = self.make_p(embedder_location, process, 'task_metadata.csv')
-        df.to_csv(p, index=False)
-
-        df = pd.read_csv(p)
-        print(df)
-        for n, row in df.iterrows():
-            print(row['probe'], row['cat'], type(row['cat']))  # TODO how to convert this to list?
-
-
-        raise SystemExit
+        metadata = [(rw, self.probe2cats[rw]) for rw in row_words]  # must be ordered like row_words
+        #
+        p = self.make_p(embedder_location, process, 'task_metadata.pkl')
+        with p.open('wb') as f:
+            pickle.dump(metadata, f)
 
     def check_negative_example(self, trial, p=None, c=None):
         assert p is not None

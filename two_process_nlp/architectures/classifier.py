@@ -43,10 +43,10 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
     num_row_words = len(evaluator.row_words)
     row_word_ids = np.arange(num_row_words)  # feed ids explicitly because .index() fails with duplicate row_words
     # test - always make test data first to populate test_pairs before making training data
-    row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
-    candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
+    test_row_words = np.array_split(evaluator.row_words, config.Eval.num_folds)[fold_id]
+    test_candidate_rows = np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds)[fold_id]
     row_word_ids_chunk = np.array_split(row_word_ids, config.Eval.num_folds)[fold_id]
-    for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
+    for probe, candidates, eval_sims_mat_row_id in zip(test_row_words, test_candidate_rows, row_word_ids_chunk):
         for p, c in product([probe], candidates):
             test_pairs.add((p, c))
             test_pairs.add((c, p))  # crucial to collect both orderings
@@ -56,12 +56,13 @@ def split_and_vectorize_eval_data(evaluator, trial, w2e, fold_id, shuffled):
         eval_sims_mat_row_ids_test.append(eval_sims_mat_row_id)
     # train
     num_skipped = 0
-    for n, (row_words, candidate_rows, row_word_ids_chunk) in enumerate(zip(
+    for n, (train_row_words, train_candidate_rows, row_word_ids_chunk) in enumerate(zip(
             np.array_split(evaluator.row_words, config.Eval.num_folds),
             np.array_split(evaluator.eval_candidates_mat, config.Eval.num_folds),
             np.array_split(row_word_ids, config.Eval.num_folds))):
         if n != fold_id:
-            for probe, candidates, eval_sims_mat_row_id in zip(row_words, candidate_rows, row_word_ids_chunk):
+            for probe, candidates, eval_sims_mat_row_id in zip(
+                    train_row_words, train_candidate_rows, row_word_ids_chunk):
                 for p, c in product([probe], candidates):
                     if (p, c) in test_pairs or (c, p) in test_pairs:
                         num_skipped += 1
@@ -127,8 +128,7 @@ def make_graph(evaluator, trial, w2e, embed_size):
                         # pairwise vector-dot-product: calc dot-product for each row in x1 and column in wy_cols
                         logits = tf.reduce_sum(tf.multiply(x1, tf.transpose(wy_cols)), axis=1)
                 #
-                o1 = x1
-                o2 = x1  # used to compute transformed word representations in other architectures
+                o = tf.transpose(wy_cols)  # used to compute transformed word representations in other architectures
                 # loss
                 pred_cos = tf.nn.sigmoid(logits)  # gives same ba as tanh
                 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y)
@@ -191,6 +191,7 @@ def train_expert_on_train_fold(evaluator, trial, w2e, graph, data, fold_id):
                 cosines.append(cos)
                 eval_sims_mat_row = cos
                 trial.results.eval_sims_mats[eval_id][eval_sims_mat_row_id, :] = eval_sims_mat_row
+            # console
             if config.Eval.verbose:
                 train_loss = graph.sess.run(graph.loss, feed_dict={graph.x1: x1_train,
                                                                    graph.x2: x2_train,
@@ -203,6 +204,9 @@ def train_expert_on_train_fold(evaluator, trial, w2e, graph, data, fold_id):
                     np.any(np.isnan(trial.results.eval_sims_mats[eval_id])),
                     np.mean(cosines)))
             start = time.time()
+            # save transformed word embeddings
+            # it is only possible to save wy which are representations of col_words - but not of row_words
+
         # train
         graph.sess.run([graph.step], feed_dict={graph.x1: x1_batch, graph.x2: x2_batch, graph.y: y_batch})
 
