@@ -110,6 +110,8 @@ class EvalBase(object):
 
     def make_p(self, embedder_location, process, fname):
         res = embedder_location / self.arch_name / self.name / self.data_name / process / fname
+        if not res.parent.exists():
+            res.parent.mkdir(parents=True)
         return res
 
     def calc_pos_prob(self):
