@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, MDS, Isomap
 from sklearn.decomposition import PCA
 from matplotlib import patheffects
 from matplotlib.animation import FuncAnimation
@@ -14,12 +14,13 @@ from analyze.utils import gen_param2vals_for_completed_jobs
 SAVE_ANIMATION = True
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
-LABELED_CAT = 'FILLED'
+LABELED_CAT = 'SIZE'
 
-METHOD = 'pca'
+METHOD = 'iso'
 FIT_ID = 0
 TSNE_PP = 30
-PC_NUMS = (1, 2)
+PC_NUMS = (1, 0)
+PLOT_SECONDARY = True
 
 TITLE_Y = 0.9
 TITLE_FONTSIZE = 8
@@ -29,7 +30,7 @@ LABEL_FONTSIZE = 8
 FIGSIZE = (8, 8)
 DPI = 300
 ANIM_INTERVAL = 1000  # ms
-EVAL_STEP_INTERVAL = 1
+NUM_EVAL_STEPS = 40
 
 
 def make_2d_fig(mat, meta_data):
@@ -40,11 +41,17 @@ def make_2d_fig(mat, meta_data):
     # fig
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
     if METHOD == 'pca':
-        xlim = 20
-        ylim = 20
+        xlim = 10
+        ylim = 10
     elif METHOD == 'tsne':
         xlim = 30
         ylim = 30
+    elif METHOD == 'mds':
+        xlim = 30
+        ylim = 30
+    elif METHOD == 'iso':
+        xlim = 10
+        ylim = 10
     else:
         raise AttributeError('Invalid arg to "METHOD".')
     ax.set(xlim=(-xlim, xlim), ylim=(-ylim, ylim))
@@ -77,11 +84,11 @@ def make_2d_fig(mat, meta_data):
             text_str = probe
             print('-', probe, probe_cats)
             secondary_cats_neg.update(probe_cats)
-        elif are_cats_secondary(probe_cats, secondary_cats_pos):  # probe shares secondary cat with + probe
+        elif PLOT_SECONDARY and are_cats_secondary(probe_cats, secondary_cats_pos):  # probe shares secondary cat with + probe
             color = 'green'
             text_str = probe
             print('+', probe, probe_cats)
-        elif are_cats_secondary(probe_cats, secondary_cats_neg):  # probe shares secondary cat with - probe
+        elif PLOT_SECONDARY and are_cats_secondary(probe_cats, secondary_cats_neg):  # probe shares secondary cat with - probe
             color = 'orange'
             text_str = probe
             print('-', probe, probe_cats)
@@ -119,7 +126,7 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
     runs_dir = config.LocalDirs.runs if LOCAL else config.RemoteDirs.runs
     for p in (runs_dir / param_name / job_name).rglob('process2_embed_mats.npy'):
         # load data + meta data
-        process2_embed_mats = np.load(p)[::EVAL_STEP_INTERVAL]
+        process2_embed_mats = np.load(p)[:NUM_EVAL_STEPS]
         with (p.parent / 'task_metadata.pkl').open('rb') as f:
             meta_data = pickle.load(f)  # is a list like [(row_word, cats), ...]
         # console
@@ -133,6 +140,12 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
         elif METHOD == 'pca':
             fitter = PCA().fit(process2_embed_mats[FIT_ID])
             col_ids = PC_NUMS
+        elif METHOD == 'mds':
+            fitter = MDS(n_components=2).fit(process2_embed_mats[FIT_ID])
+            col_ids = [0, 1]
+        elif METHOD == 'iso':
+            fitter = Isomap(n_components=2).fit(process2_embed_mats[FIT_ID])
+            col_ids = [0, 1]
         else:
             raise AttributeError('Invalid arg to "METHODS".')
         # plot initial eval_step

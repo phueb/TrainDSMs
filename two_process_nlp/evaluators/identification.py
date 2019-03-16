@@ -95,7 +95,12 @@ class Identification(EvalBase):
         assert c is not None
         #
         if c in self.probe2lures[p]:
-            return True
+            if trial.params.neg_pos_ratio == 1.0:
+                return True
+            elif trial.params.neg_pos_ratio == 0.0:
+                return False
+            else:
+                raise AttributeError('"neg_pos_ratio" for identification must be either 0 or 1.')
         else:
             raise RuntimeError('Example must be a lure but is not.')
 
