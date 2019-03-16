@@ -8,7 +8,7 @@ from two_process_nlp.embedders.random_control import RandomControlEmbedder
 from two_process_nlp.params import RandomControlParams
 from two_process_nlp.architectures import comparator
 from two_process_nlp.evaluators.matching import Matching
-from two_process_nlp.job_utils import w2e_to_sims
+from two_process_nlp.utils import w2e_to_sims
 from two_process_nlp.params import gen_combinations
 from two_process_nlp.embedders.base import EmbedderBase
 from two_process_nlp import config

@@ -5,7 +5,7 @@ from itertools import product
 import time
 
 from two_process_nlp import config
-from two_process_nlp.job_utils import w2e_to_sims
+from two_process_nlp.utils import w2e_to_sims
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 

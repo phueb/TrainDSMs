@@ -88,8 +88,8 @@ def make_graph(evaluator, trial, w2e, embed_size):
     assert evaluator is not None   # arbitrary usage of evaluator
     assert w2e is not None   # arbitrary usage of w2e
 
-    def siamese_leg(x, wy):
-        y = tf.matmul(x, wy)
+    def siamese_leg(x, w):
+        y = tf.matmul(x, w)
         return y
 
     def cosine_sim(left, right, eps=1e-12):
@@ -200,7 +200,7 @@ def train_expert_on_train_fold(evaluator, trial, w2e, graph, data, fold_id):
             start = time.time()
             # save transformed word embeddings
             if fold_id == 0:
-                x_all = np.vstack((w2e[p] for p in evaluator.row_words))
+                x_all = np.vstack((w2e[p] for p in evaluator.row_words + config.Eval.tertiary_probes))
                 process2_embeds_mat = graph.sess.run(graph.o1, feed_dict={graph.x1: x_all})
                 trial.results.process2_embed_mats[eval_id][:, :] = process2_embeds_mat
 

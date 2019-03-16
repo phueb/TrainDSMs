@@ -10,10 +10,10 @@ from two_process_nlp.aggregator import Aggregator
 from two_process_nlp.architectures import comparator, classifier, aligner, extractor
 from two_process_nlp.evaluators.matching import Matching
 from two_process_nlp.evaluators.identification import Identification
-from two_process_nlp.job_utils import init_embedder
-from two_process_nlp.job_utils import w2e_to_sims
-from two_process_nlp.job_utils import save_corpus_data
-from two_process_nlp.job_utils import move_scores_to_server, save_param2val
+from two_process_nlp.utils import init_embedder
+from two_process_nlp.utils import w2e_to_sims
+from two_process_nlp.utils import save_corpus_data
+from two_process_nlp.utils import move_scores_to_server, save_param2val
 
 
 nlp = English()
@@ -88,7 +88,7 @@ def main_job(param2val):
     if not config.Eval.debug:
         embedder.train()
     else:
-        embedder.load_w2e(remote=False)
+        embedder.load_w2e(local=True)
     embedder.save_w2e() if config.Embeddings.save_w2e else None
     # save param2val
     save_param2val(param2val, local=True if job_name == 'test' else False)

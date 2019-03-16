@@ -14,13 +14,14 @@ from analyze.utils import gen_param2vals_for_completed_jobs
 SAVE_ANIMATION = True
 LOCAL = True
 EMBEDDER_NAMES = ['ww']
-LABELED_CAT = 'SIZE'
+LABELED_CAT = 'QUANTITY'
 
-METHOD = 'iso'
+METHOD = 'pca'
 FIT_ID = 0
 TSNE_PP = 30
 PC_NUMS = (1, 0)
-PLOT_SECONDARY = True
+PLOT_SECONDARY = False
+PLOT_TERTIARY = False
 
 TITLE_Y = 0.9
 TITLE_FONTSIZE = 8
@@ -41,8 +42,8 @@ def make_2d_fig(mat, meta_data):
     # fig
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
     if METHOD == 'pca':
-        xlim = 10
-        ylim = 10
+        xlim = 30
+        ylim = 30
     elif METHOD == 'tsne':
         xlim = 30
         ylim = 30
@@ -74,7 +75,11 @@ def make_2d_fig(mat, meta_data):
     for row_id, (row, meta_d) in enumerate(zip(mat, meta_data)):
         # color
         probe, probe_cats = meta_d
-        if LABELED_CAT + '+' in probe_cats:
+        if PLOT_TERTIARY and probe_cats == ['TERTIARY']:
+            color = 'purple'
+            text_str = probe
+            print('TERTIARY', probe)
+        elif LABELED_CAT + '+' in probe_cats:
             color = 'blue'
             text_str = probe
             print('+', probe, probe_cats)
@@ -116,8 +121,8 @@ def make_2d_fig(mat, meta_data):
     return fig, ax, scatters, texts, labels
 
 
-job_name2plot_data = {}
 for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
+    # embedder
     embedder_name = to_embedder_name(param2val)
     param_name = param2val['param_name']
     job_name = param2val['job_name']
@@ -125,7 +130,7 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
     # plot
     runs_dir = config.LocalDirs.runs if LOCAL else config.RemoteDirs.runs
     for p in (runs_dir / param_name / job_name).rglob('process2_embed_mats.npy'):
-        # load data + meta data
+        # load process2_embed_mats + meta data
         process2_embed_mats = np.load(p)[:NUM_EVAL_STEPS]
         with (p.parent / 'task_metadata.pkl').open('rb') as f:
             meta_data = pickle.load(f)  # is a list like [(row_word, cats), ...]
@@ -133,7 +138,7 @@ for param2val in gen_param2vals_for_completed_jobs(local=LOCAL):
         print(set([i for md in meta_data for i in md[1]]))
         # fig
         make_fig = None
-        # fit model on last eval_step
+        # fit model
         if METHOD == 'tsne':
             fitter = TSNE(perplexity=TSNE_PP).fit(process2_embed_mats[FIT_ID])
             col_ids = [0, 1]

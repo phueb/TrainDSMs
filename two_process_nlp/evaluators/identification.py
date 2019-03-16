@@ -84,7 +84,13 @@ class Identification(EvalBase):
         assert self.probe2relata is not None
         assert self.probe2lures is not None
         #
-        metadata = [(rw, self.probe2cats[rw]) for rw in row_words]  # must be ordered like row_words
+        metadata = []  # must be ordered like row_words
+        for rw in row_words + config.Eval.tertiary_probes:
+            try:
+                cats = self.probe2cats[rw]
+            except KeyError:  # tertiary probe
+                cats = ['TERTIARY']
+            metadata.append((rw, cats))
         #
         p = self.make_p(embedder_location, process, 'task_metadata.pkl')
         with p.open('wb') as f:

@@ -33,6 +33,16 @@ class Eval:
     num_opt_steps = 5
     num_evals = 20
     matching_metric = 'BalAcc'
+
+    tertiary_probes = ['badger', 'bear', 'beaver', 'buffalo', 'bull', 'bunny', 'camel', 'cat',
+                       'chimpanzee', 'chipmunk', 'cow', 'deer', 'donkey',
+                       'elephant', 'giraffe', 'gorilla', 'groundhog', 'hamster', 'hare', 'hippo',
+                       'horse', 'kitten', 'mammoth', 'moose', 'mouse', 'opossum', 'panda',
+                       'pony', 'pup', 'rabbit', 'rat', 'rhino', 'squirrel', 'walrus', 'whale']
+
+    # tertiary_probes = ['one', 'two', 'three', 'four', 'five', 'ten', 'eleven', 'twelve', 'thirteen',
+    #                    'twenty', 'thirty', 'fifty', 'hundred', 'thousand', 'million']
+
     #
     assert num_epochs_matching % num_evals == 0
     assert num_epochs_identification % num_evals == 0

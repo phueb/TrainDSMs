@@ -8,7 +8,7 @@ from cytoolz import itertoolz
 import sys
 
 from two_process_nlp import config
-from two_process_nlp.job_utils import init_embedder
+from two_process_nlp.utils import init_embedder
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 

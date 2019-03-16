@@ -13,10 +13,7 @@ class ResultsData:
         self.params_id = params_id
         self.eval_sims_mats = [np.full_like(evaluator.eval_candidates_mat, np.nan, dtype=float)
                                for _ in range(config.Eval.num_evals)]
-
-        # TODO test
-
-        self.process2_embed_mats = [np.zeros((len(evaluator.row_words), embed_size))
+        self.process2_embed_mats = [np.zeros((len(evaluator.row_words + config.Eval.tertiary_probes), embed_size))
                         for _ in range(config.Eval.num_evals)]
 
 
