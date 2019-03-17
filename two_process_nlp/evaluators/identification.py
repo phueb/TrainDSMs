@@ -67,6 +67,12 @@ class Identification(EvalBase):
                 if verbose:
                     print()
                 continue
+            # check
+            for l in lures:
+                if l in self.probe2relata[probe]:
+                    raise RuntimeError('Found lure "{}" in "{}" relata {}.'.format(
+                        l, probe, self.probe2relata[probe]))   # TODO why?
+            # cndidates
             candidates = relata + lures  # relata must be first (because correct answers are assumed first)
             all_eval_probes.append(probe)
             all_eval_candidates_mat.append(candidates)

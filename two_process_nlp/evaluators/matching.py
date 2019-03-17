@@ -4,7 +4,6 @@ from functools import partial
 from two_process_nlp import config
 from two_process_nlp.scores import calc_cluster_score
 from two_process_nlp.evaluators.base import EvalBase
-from two_process_nlp.utils import make_gold
 
 
 class MatchingParams:
@@ -60,7 +59,16 @@ class Matching(EvalBase):
         if verbose:
             print('Mean of eval_sims_mat={:.4f}'.format(eval_sims_mat.mean()))
         # make gold (signal detection mask)
-        gold = make_gold(self.row_words, self.col_words, self.probe2relata)
+        num_rows = len(self.row_words)
+        num_cols = len(self.col_words)
+        res = np.zeros((num_rows, num_cols))
+        for i in range(num_rows):
+            relata1 = self.probe2relata[self.row_words[i]]
+            for j in range(num_cols):
+                relatum2 = self.col_words[j]
+                if relatum2 in relata1:
+                    res[i, j] = 1
+        gold = res.astype(np.bool)
 
         def calc_signals(probe_sims, gold, thr):  # vectorized algorithm is 20X faster
             predicted = np.zeros_like(probe_sims, int)

@@ -12,20 +12,6 @@ from two_process_nlp.embedders.w2vec import W2VecEmbedder
 from two_process_nlp import config
 
 
-def make_gold(row_words, col_words, probe2relata):
-    num_rows = len(row_words)
-    num_cols = len(col_words)
-    res = np.zeros((num_rows, num_cols))
-    for i in range(num_rows):
-        relata1 = probe2relata[row_words[i]]
-        for j in range(num_cols):
-            relatum2 = col_words[j]
-            if relatum2 in relata1:
-                res[i, j] = 1
-    res = res.astype(np.bool)
-    return res
-
-
 def move_scores_to_server(param2val, location):
     dst = config.RemoteDirs.runs / param2val['param_name']
     if not dst.exists():

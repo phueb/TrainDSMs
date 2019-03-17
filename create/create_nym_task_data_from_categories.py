@@ -61,6 +61,10 @@ if __name__ == '__main__':
             if VERBOSE:
                 print(a)
                 print(b)
+            # check
+            for probe in a:
+                if a in b:
+                    raise RuntimeError('Found "{}" on opposite loadings of category.')
             # get nyms for each probe
             excluded_syns = []
             for probe in a:

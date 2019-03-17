@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.cluster.hierarchy import linkage, dendrogram
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import pdist
 import numpy as np
 
 from two_process_nlp import config
-from two_process_nlp.utils import make_gold
 from two_process_nlp.architectures import comparator
 from two_process_nlp.evaluators.matching import Matching
 from two_process_nlp.evaluators.identification import Identification
@@ -93,6 +91,7 @@ def make_category_structure_fig(task_name, mat, original_ytick_labels, original_
     plt.setp(ax_dendtop.get_xticklabels() + ax_dendtop.get_yticklabels(),
              visible=False)
     fig.tight_layout()
+    return fig
 
 
 for param2val in gen_param2vals_for_completed_jobs(LOCAL):
@@ -113,16 +112,28 @@ for param2val in gen_param2vals_for_completed_jobs(LOCAL):
         ev.row_words, ev.col_words, ev.eval_candidates_mat = ev.downsample(
             all_eval_probes, all_eval_candidates_mat)
         # make gold
-        gold_mat = make_gold(ev.row_words, ev.col_words, ev.probe2relata)
-        print('Shape of gold_mat={}'.format(gold_mat.shape))
-        print(np.sum(gold_mat))
-        print(np.sum(gold_mat[0]))
-        print(np.sum(gold_mat[1]))
-        print(np.sum(gold_mat[2]))
-        print(ev.probe2relata[ev.row_words[0]])
-        print(ev.row_words[:3])
-        print(ev.col_words[:3])
-        print()
-        fig = make_category_structure_fig(ev.full_name, gold_mat, ev.row_words, ev.col_words)
+        if ev.name == 'identification':
+            num_rows = len(ev.row_words)
+            num_cols = len(ev.col_words)
+            gold_mat = np.zeros((num_rows, num_cols))
+            for i in range(num_rows):
+                candidates = ev.eval_candidates_mat[i]
+                row_word = ev.row_words[i]
+                for j in range(num_cols):
+                    col_word = ev.col_words[j]
+                    if col_word in candidates and col_word in ev.probe2relata[row_word]:
+                        gold_mat[i, j] = 1
+        elif ev.name == 'matching':
+            raise NotImplementedError
+        else:
+            raise AttributeError('Invalid arg to "name".')
 
-    # plt.show()
+        print('Shape of gold_mat={}'.format(gold_mat.shape))
+        print(np.sum(gold_mat, axis=1))
+        print(np.var(np.sum(gold_mat, axis=1)))
+        print(np.sum(gold_mat, axis=0))
+        print(np.var(np.sum(gold_mat, axis=0)))
+        print()
+        # fig
+        fig = make_category_structure_fig(ev.full_name, gold_mat, ev.row_words, ev.col_words)
+    plt.show()
