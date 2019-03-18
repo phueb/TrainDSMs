@@ -42,7 +42,7 @@ class Identification(EvalBase):
         """
 
         def sample_candidates(name, population, num):
-            np.random.seed(43)
+            np.random.seed(43)  # TODO
             try:
                 return np.random.choice(population, num, replace=False).tolist()
             except ValueError:
@@ -71,8 +71,8 @@ class Identification(EvalBase):
             for l in lures:
                 if l in self.probe2relata[probe]:
                     raise RuntimeError('Found lure "{}" in "{}" relata {}.'.format(
-                        l, probe, self.probe2relata[probe]))   # TODO why?
-            # cndidates
+                        l, probe, self.probe2relata[probe]))
+            # candidates
             candidates = relata + lures  # relata must be first (because correct answers are assumed first)
             all_eval_probes.append(probe)
             all_eval_candidates_mat.append(candidates)

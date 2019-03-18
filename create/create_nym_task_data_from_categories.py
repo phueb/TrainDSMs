@@ -8,7 +8,7 @@ from two_process_nlp import config
 VERBOSE = True
 
 SHUFFLE = False  # only for debugging
-REMOVE_DUPLICATES_IN_WORDS_COL = False  # only for debugging
+REMOVE_DUPLICATES_IN_WORDS_COL = True
 CORPUS_NAME = 'childes-20180319'
 GRAM_CAT = 'adj'
 
@@ -44,8 +44,8 @@ if __name__ == '__main__':
                 probes.append(word)
         print('Num words in vocab={}\n'.format(len(probes)))
         # get both syns and ants for probes
-        probe2syns = {p: [] for p in probes}
-        probe2ants = {p: [] for p in probes}
+        probe2syns = {}
+        probe2ants = {}
         probe2cat = {}
         for cat, group in df_combined.groupby('category'):
             if VERBOSE:
@@ -96,11 +96,12 @@ if __name__ == '__main__':
             with out_path.open('w') as f:
                 print('Writing {}'.format(out_path))
                 for probe, nyms in probe2nyms.items():
+                    cat = probe2cat[probe]
                     nyms = ' '.join([nym for nym in nyms
                                      if nym != probe and nym in vocab])
                     if not nyms:
                         continue
-                    cat = probe2cat[probe]
+
                     line = '{} {} {}\n'.format(probe, nyms, cat)
                     print(line.strip('\n'))
                     f.write(line)

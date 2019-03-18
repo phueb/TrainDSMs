@@ -1,0 +1,15 @@
+burning cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+boiling cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+stuffy cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+warm cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+baking cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+blazing cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+tropical cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+hot cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+smoking cold cool frozen chilly polar frosty crisp icy iced TEMPERATURE+
+elegant scary ugly plain gross BEAUTY+
+pretty scary ugly plain gross BEAUTY+
+gorgeous scary ugly plain gross BEAUTY+
+handsome scary ugly plain gross BEAUTY+
+adorable scary ugly plain gross BEAUTY+
+cute scary ugly plain gross BEAUTY+
