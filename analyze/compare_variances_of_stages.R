@@ -1,6 +1,6 @@
 
 
-dat = read.csv(file='/media/lab/2ProcessNLP/2process_data.csv', header=TRUE, sep=",")
+dat = read.csv(file='/media/research_data/2ProcessNLP/2process_data.csv', header=TRUE, sep=",")
 
 # drop levels
 dat = dat[dat$task != "cohyponyms_syntactic",]

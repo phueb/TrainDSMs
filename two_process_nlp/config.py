@@ -11,7 +11,7 @@ class LocalDirs:
 
 
 class RemoteDirs:
-    root = Path('/') / 'media' / 'lab' / '2ProcessNLP'
+    root = Path('/') / 'media' / 'research_data' / '2ProcessNLP'
     runs = root / 'runs'
 
 

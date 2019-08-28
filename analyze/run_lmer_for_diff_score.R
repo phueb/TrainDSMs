@@ -2,7 +2,7 @@
 
 library(lmerTest)
 
-dat = read.csv(file='/media/lab/2ProcessNLP/diff_scores.csv', header=TRUE, sep=",", row.names=1)
+dat = read.csv(file='/media/research_data/2ProcessNLP/diff_scores.csv', header=TRUE, sep=",", row.names=1)
 
 #///////////////////////////////////////////// all_probe_sim
 

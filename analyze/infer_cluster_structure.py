@@ -20,7 +20,7 @@ NUM_VOCAB = config.Corpus.num_vocab
 
 INCLUDE_ALL_RELATA = True  # if False, use only positive relations that are in eval_candidates_mat
 
-PLOT_NUM_ROWS = None
+PLOT_NUM_ROWS = 15
 FIGSIZE = (10, 16)
 DPI = None
 TICKLABEL_FONTSIZE = 20
@@ -46,7 +46,6 @@ def make_cluster_structure_fig(task_name, mat, original_row_words, original_col_
                      no_labels=True,
                      no_plot=True if PLOT_NUM_ROWS is not None else False)
     z = mat[dg0['leaves'], :]  # reorder rows
-    z = z[::-1]  # reverse to match orientation of dendrogram
     # top dendrogram
     print('Clustering along columns...')
     lnk1 = linkage(pdist(mat.T), metric='hamming')
@@ -55,7 +54,6 @@ def make_cluster_structure_fig(task_name, mat, original_row_words, original_col_
                      color_threshold=-1,
                      no_labels=True)
     z = z[:, dg1['leaves']]  # reorder cols to match leaves of dendrogram
-    z = z[::-1]  # reverse to match orientation of dendrogram
     # heatmap
     print('Plotting heatmap...')
     max_x_extent = ax_dendtop.get_xlim()[1]
@@ -65,6 +63,7 @@ def make_cluster_structure_fig(task_name, mat, original_row_words, original_col_
                       cmap=plt.get_cmap('jet'),
                       interpolation='nearest',
                       extent=(0, max_x_extent, 0, max_y_extent))
+    # setting extent changes how yticklabels are ordered: start from origin rather than top (default)
     # reordered labels
     col_labels = np.array(original_col_words)[dg1['leaves']]
     row_labels = np.array(original_row_words)[dg0['leaves']]
@@ -77,14 +76,14 @@ def make_cluster_structure_fig(task_name, mat, original_row_words, original_col_
     xticks = np.linspace(halfxw, max_x_extent - halfxw, num_cols) if PLOT_NUM_ROWS else []
     ax_heatmap.set_xticks(xticks)
     xtick_labels = col_labels if PLOT_NUM_ROWS else []  # no need to reverse col_labels
-    ax_heatmap.xaxis.set_ticklabels(xtick_labels, rotation=90, fontsize=TICKLABEL_FONTSIZE)
+    ax_heatmap.set_xticklabels(xtick_labels, rotation=90, fontsize=TICKLABEL_FONTSIZE)
     # yticks
-    num_rows = PLOT_NUM_ROWS or len(mat)
+    num_rows = len(mat)
     halfyw = 0.5 * max_y_extent / num_rows
     yticks = np.linspace(halfyw, max_y_extent - halfyw, num_rows) if PLOT_NUM_ROWS else []
     ax_heatmap.set_yticks(yticks)
     ytick_labels = row_labels[:PLOT_NUM_ROWS][::-1] if PLOT_NUM_ROWS else []  # only reverse row_labels
-    ax_heatmap.yaxis.set_ticklabels(ytick_labels, rotation=0, fontsize=TICKLABEL_FONTSIZE)
+    ax_heatmap.set_yticklabels(ytick_labels, rotation=0, fontsize=TICKLABEL_FONTSIZE)
     # title
     plt.title(title, fontsize=30)
     # remove dendrogram ticklines
@@ -124,14 +123,14 @@ for param2val in gen_param2vals_for_completed_jobs(LOCAL):
     #
     for ev in [
 
-        # Identification(comparator, 'nyms', 'syn', suffix='_test'),
+        Identification(comparator, 'nyms', 'syn', suffix='_test'),
         # Identification(comparator, 'nyms', 'ant', suffix='_test'),
 
         # Identification(comparator, 'nyms', 'syn', suffix='_jwunique'),
         # Identification(comparator, 'nyms', 'ant', suffix='_jwunique'),
 
-        Identification(comparator, 'nyms', 'syn', suffix='_jw'),
-        Identification(comparator, 'nyms', 'ant', suffix='_jw'),
+        # Identification(comparator, 'nyms', 'syn', suffix='_jw'),
+        # Identification(comparator, 'nyms', 'ant', suffix='_jw'),
     ]:
         # make eval data - row_words can contain duplicates
         vocab_sims_mat = None
@@ -177,7 +176,7 @@ for param2val in gen_param2vals_for_completed_jobs(LOCAL):
         print()
         # cluster gold
         # clusters are NOT categories, because a category can be split up into multiple clusters
-        # because some category members ocur in multiple clusters
+        # because some category members occur in multiple clusters
         cluster_mat, row_words, col_words = make_cluster_structure_fig(
             ev.full_name, gold_mat, ev.row_words, ev.col_words)
 
