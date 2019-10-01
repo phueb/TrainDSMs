@@ -70,7 +70,7 @@ def preprocessing_job(num_vocab=None, skip_docs=False, local=False):
     save_corpus_data(deterministic_w2f, vocab, docs, numeric_docs, skip_docs, num_vocab, local)
 
 
-def main_job(param2val):
+def main(param2val):
     """
     Train a single embedder once, and evaluate all novice and expert scores for each task once
     """
@@ -157,12 +157,15 @@ def main_job(param2val):
                 with scores_p.open('w') as f:
                     df.to_csv(f, index=False, na_rep='None')  # otherwise NoneTypes are converted to empty strings
         print('-')
+
     # move scores to file-server
     if not config.Eval.debug and job_name != 'test':
         move_scores_to_server(param2val, embedder.location)
 
+    aggregate_results(verbose=False)
 
-def aggregation_job(verbose=True):
+
+def aggregate_results(verbose=True):
     print('Aggregating runs data...')
     ag = Aggregator()
     df = ag.make_df(load_from_file=False, verbose=verbose)
