@@ -2,7 +2,10 @@
 
 ## Background
 
-Research code used to test theories of semantic development and processing. 
+Research code used to test the two-process theory of semantic development.
+The theory is outlined in a CogSci 2019 submission, available [here](https://osf.io/6jfkx/).
+
+The code herein can be used to compare the quality of word various word embedding models trained on a 5M corpus of child-directed speech on several semantic tasks. 
 
 ## Process-1 Word-Embedding Architectures
 
