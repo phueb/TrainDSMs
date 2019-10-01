@@ -5,7 +5,16 @@
 Research code used to test the two-process theory of semantic development.
 The theory is outlined in a CogSci 2019 submission, available [here](https://osf.io/6jfkx/).
 
-The code herein can be used to compare the quality of word various word embedding models trained on a 5M corpus of child-directed speech on several semantic tasks. 
+The code herein can be used to compare the quality of word various word embedding models trained on a 5M corpus of child-directed speech on several semantic tasks.
+
+## Running the code
+
+A complete experiment can be started by calling `two_process_nlp.job.main()`.
+The function takes as input a dictionary representing the parameters of the experiment.
+To run the default configuration, pass `two_process_nlp.params.param2default` to `two_process_nlp.job.main()`.
+  
+The code is designed to run on several machines in parallel, using [LudwigCluster](https://github.com/phueb/LudwigCluster), a command line interface for submitting Python jobs to machines owned by the [UIUC Learning & Language Lab](http://learninglanguagelab.org/).
+To use `LudwigCluster`, you must be a member of the lab. 
 
 ## Process-1 Word-Embedding Architectures
 
@@ -49,6 +58,6 @@ There are two different CHILDES corpora in the repository used as input to the w
 
 ## (Optional) Integration with LudwigCluster
 
-Make sure to do preprocessing job before executing job.main() - this applies when running job locally or on Ludwig.
-Make sure to submit tasks folder to shared drive when executing job.main() on Ludwig.
-Remove aggregated data before submitting jobs (`rm /media/research_data/2ProcessNLP/2process_data.csv`)
+* do preprocessing job before executing job.main() - this applies when running job locally or on Ludwig.
+* submit tasks folder to shared drive when executing job.main() on Ludwig.
+* remove aggregated data before submitting jobs (`rm /media/research_data/2ProcessNLP/2process_data.csv`)

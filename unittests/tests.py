@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 from two_process_nlp import config
-from two_process_nlp.jobs import preprocessing_job
+from two_process_nlp.job import preprocessing_job
 from two_process_nlp.params import CountParams
 from two_process_nlp.embedders.count import CountEmbedder
 
