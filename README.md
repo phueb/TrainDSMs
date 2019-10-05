@@ -1,4 +1,4 @@
-# Two Process NLP
+# Two Process model fo Semantic Development
 
 ## Background
 
