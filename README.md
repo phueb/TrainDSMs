@@ -13,8 +13,8 @@ A complete experiment can be started by calling `two_process_nlp.job.main()`.
 The function takes as input a dictionary representing the parameters of the experiment.
 To run the default configuration, pass `two_process_nlp.params.param2default` to `two_process_nlp.job.main()`.
   
-The code is designed to run on several machines in parallel, using [LudwigCluster](https://github.com/phueb/LudwigCluster), a command line interface for submitting Python jobs to machines owned by the [UIUC Learning & Language Lab](http://learninglanguagelab.org/).
-To use `LudwigCluster`, you must be a member of the lab. 
+The code is designed to run on several machines in parallel, using [Ludwig](https://github.com/phueb/Ludwig), a command line interface for submitting Python jobs to machines owned by the [UIUC Learning & Language Lab](http://learninglanguagelab.org/).
+To use `Ludwig`, you must be a member of the lab. 
 
 ## Process-1 Word-Embedding Architectures
 
@@ -56,7 +56,10 @@ There are two different CHILDES corpora in the repository used as input to the w
 2) all words tagged by the Python package spacy as referring to a person or organization were replaced by a single symbol ("NAME_B"if the word is the first in a span of words referring to a person or organization, and "NAME_I" if it is not the first word in a span of words referring to a person or organization)
 
 
-## (Optional) Integration with LudwigCluster
+## (Optional) Executing jobs in parallel
+
+The code is written to integrate with `Ludwig`. 
+Keep the following in mind:
 
 * do preprocessing job before executing job.main() - this applies when running job locally or on Ludwig.
 * submit tasks folder to shared drive when executing job.main() on Ludwig.
