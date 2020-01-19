@@ -32,7 +32,7 @@ EXCLUDED = ['do', 'is', 'be', 'been', 'wow', 'was', 'did', 'are', 'lou', 'in',
 
 
 async def get_nyms(w, nym_type):
-    with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
         html = await fetch(session, w)
     nyms = scrape_nyms(html, w, nym_type)
     return nyms
@@ -64,16 +64,13 @@ def scrape_nyms(page, w, nym_type, verbose=VERBOSE):
 
 def find_synonyms(soup):
     res = []
-    try:
-        section = soup.find_all('section', {'class': 'synonyms-container'})[0]  # TODO iterate over multiple sections?
-    except IndexError:
-        print('No synonyms found')
-        return []
-    else:
-        for li in section.find_all('li'):
-            if len(li.text.split()) == 1:
-                synonym = li.text.strip()
+    for span in soup.find_all('span'):
+
+        for link in span.find_all('a'):
+            if len(link.text.split()) == 1:
+                synonym = link.text.strip()
                 res.append(synonym)
+
     return res
 
 
