@@ -1,4 +1,4 @@
-# Two Process model fo Semantic Development
+# Two Process model of Semantic Development
 
 ## Background
 
