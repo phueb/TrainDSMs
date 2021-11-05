@@ -4,12 +4,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.distance import pdist
 import numpy as np
 
-from two_process_nlp import config
-from two_process_nlp.architectures import comparator
-from two_process_nlp.evaluators.matching import Matching
-from two_process_nlp.evaluators.identification import Identification
-from two_process_nlp.utils import init_embedder
-from two_process_nlp.params import to_embedder_name
+from traindsms import config
+from traindsms.architectures import comparator
+from traindsms.evaluators.matching import Matching
+from traindsms.evaluators.identification import Identification
+from traindsms.utils import init_embedder
+from traindsms.params import to_embedder_name
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 

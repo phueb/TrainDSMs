@@ -1,12 +1,12 @@
 from itertools import product
 from collections import Counter
 
-from two_process_nlp import config
-from two_process_nlp.aggregator import Aggregator
+from traindsms import config
+from traindsms.aggregator import Aggregator
 
 
 def gen_param2vals_for_completed_jobs(local=False):
-    locations = config.LocalDirs.runs.glob('test/test') if local else config.RemoteDirs.runs.glob('**/*num*')
+    locations = config.Dirs.runs.glob('test/test') if local else config.RemoteDirs.runs.glob('**/*num*')
     for location in locations:
         param_name, job_name = location.parts[-2:]
         param2val = Aggregator.load_param2val(param_name, local)
@@ -48,7 +48,7 @@ def to_diff_df(df):
 
 
 def check_duplicate_pairs(corpus_name, num_vocab):
-    for p in config.LocalDirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
+    for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
         with p.open('r') as f:
             lines = f.read().splitlines()  # removes '\n' newline character
         unique_pairs = set()
@@ -61,7 +61,7 @@ def check_duplicate_pairs(corpus_name, num_vocab):
             all_pairs.extend(pairs_in_line)
         # check
         print()
-        print(p.relative_to(config.LocalDirs.tasks))
+        print(p.relative_to(config.Dirs.tasks))
         c = Counter(all_pairs)
         for pair, num in c.items():
             if num > 1:
@@ -70,7 +70,7 @@ def check_duplicate_pairs(corpus_name, num_vocab):
 
 def make_task_name2_probe_data(corpus_name, num_vocab):
     res = {}
-    for p in config.LocalDirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
+    for p in config.Dirs.tasks.rglob('{}_{}*.txt'.format(corpus_name, num_vocab)):
         with p.open('r') as f:
             lines = f.read().splitlines()  # removes '\n' newline character
         unique_pairs = set()
@@ -88,10 +88,10 @@ def make_task_name2_probe_data(corpus_name, num_vocab):
                 print('WARNING: Duplicate relata in line.')
         # task_name
         try:
-            suffix = str(p.relative_to(config.LocalDirs.tasks).stem).split('_')[2]
+            suffix = str(p.relative_to(config.Dirs.tasks).stem).split('_')[2]
         except IndexError:
             suffix = ''
-        task_name = '{}{}'.format(str(p.relative_to(config.LocalDirs.tasks).parent).replace('/', '_'),
+        task_name = '{}{}'.format(str(p.relative_to(config.Dirs.tasks).parent).replace('/', '_'),
                                   '_' + suffix if suffix else '')
         #
         num_row_words = len(lines)

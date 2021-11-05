@@ -1,6 +1,6 @@
 from scipy import stats
 
-from two_process_nlp.aggregator import Aggregator
+from traindsms.aggregator import Aggregator
 
 ag = Aggregator()
 df = ag.make_df(load_from_file=True, verbose=True)

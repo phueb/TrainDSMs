@@ -1,5 +1,5 @@
 
-from two_process_nlp import config
+from traindsms import config
 from analyze.utils import make_task_name2_probe_data
 from analyze.utils import check_duplicate_pairs
 

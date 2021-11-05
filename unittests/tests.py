@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
 
-from two_process_nlp import config
-from two_process_nlp.job import preprocessing_job
-from two_process_nlp.params import CountParams
-from two_process_nlp.embedders.count import CountEmbedder
+from traindsms import config
+from traindsms.job import preprocessing_job
+from traindsms.params import CountParams
+from traindsms.embedders.count import CountEmbedder
 
 from ludwigcluster.utils import list_all_param2vals
 

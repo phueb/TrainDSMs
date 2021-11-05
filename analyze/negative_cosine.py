@@ -1,8 +1,8 @@
 import numpy as np
 
-from two_process_nlp.utils import init_embedder
-from two_process_nlp.utils import w2e_to_sims
-from two_process_nlp.params import to_embedder_name
+from traindsms.utils import init_embedder
+from traindsms.utils import w2e_to_sims
+from traindsms.params import to_embedder_name
 
 from analyze.utils import gen_param2vals_for_completed_jobs
 

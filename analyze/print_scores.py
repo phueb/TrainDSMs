@@ -1,4 +1,4 @@
-from two_process_nlp.aggregator import Aggregator
+from traindsms.aggregator import Aggregator
 
 DF_FROM_FILE = True
 
