@@ -1,25 +1,25 @@
+from dataclasses import dataclass
+from typing import Tuple, Optional
 
 
-
-
-
-
-
-
-
+@dataclass
 class CountParams:
-    count_type = [
-        ['ww', 'concatenated',  7,  'linear'],
-        ['wd', None, None, None],
-    ]
-    # norm_type = [None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi']
-    norm_type = ['ppmi']
-    reduce_type = [
-        # ['svd', 30],
-        ['svd', 200],
-        # ['svd', 500],
-        # [None, None]  # TODO this makes expert training last too long
-    ]
+    count_type: Tuple[str, Optional[str], Optional[int], Optional[str]]
+    # ('ww', 'concatenated',  7,  'linear')
+    # ('wd', None, None, None)
+    norm_type: Optional[str]  # e.g. None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi'
+    reduce_type: Tuple[Optional[str], Optional[int]]  # e.g. ('svd', 200) or (None, None)
+
+    @classmethod
+    def from_param2val(cls, param2val):
+        """
+        instantiate class.
+        exclude keys from param2val which are added by Ludwig.
+        they are relevant to job submission only.
+        """
+        kwargs = {k: v for k, v in param2val.items()
+                  if k not in ['job_name', 'param_name', 'save_path', 'project_path']}
+        return cls(**kwargs)
 
 
 class RNNParams:
@@ -60,8 +60,4 @@ class RandomControlParams:
 
 # TODO
 # create all possible hyperparameter configurations
-update_d = {'corpus_name': config.Corpus.name, 'num_vocab': config.Corpus.num_vocab}
-param2val_list = list_all_param2vals(RandomControlParams, update_d) + \
-                 list_all_param2vals(CountParams, update_d) + \
-                 list_all_param2vals(RNNParams, update_d) + \
-                 list_all_param2vals(Word2VecParams, update_d)
+

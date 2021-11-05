@@ -1,29 +1,29 @@
 import unittest
 import numpy as np
 
-from traindsms import config
-from traindsms.job import preprocessing_job
 from traindsms.params import CountParams
-from traindsms.embedders.count import CountEmbedder
-
-from ludwigcluster.utils import list_all_param2vals
+from traindsms.dsms.count import CountDSM
 
 
 class MyTest(unittest.TestCase):
     def test_update_matrix(self):
-        #
-        config.Corpus.name = 'ww_test'
-        config.Corpus.num_vocab = None
-        preprocessing_job()
-        # embedder
-        embedder = list(CountEmbedder(param2val)
-                        for param2val in list_all_param2vals(CountParams))[0]
-        embedder.name = 'ww'
-        embedder.count_type = ['ww', 'backward', 5, 'linear']
-        embedder.norm_type = None
-        embedder.reduce_type = [None, None]
-        #
-        reduced_mat = embedder.train()
+
+        doc0 = 'the horse raced past the barn fell'.split()
+        vocab = sorted(set(doc0))
+        token2id = {t: n for n, t in enumerate(vocab)}
+        numeric_docs = []
+        for doc in [doc0]:
+            numeric_docs.append([token2id[token] for token in doc])
+
+        param2val = {
+            'count_type': ['ww', 'backward', 5, 'linear'],
+            'norm_type': None,
+            'reduce_type': [None, None],
+        }
+        params = CountParams.from_param2val(param2val)
+        dsm = CountDSM(params, numeric_docs)
+
+        reduced_mat = dsm.train()
         correct = np.array([[0, 0, 2, 4, 3, 6],
                             [5, 0, 1, 3, 2, 4],
                             [0, 0, 0, 0, 0, 5],

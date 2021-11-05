@@ -5,34 +5,35 @@ import sys
 import time
 from scipy.sparse import linalg as slinalg
 from scipy import sparse
+from typing import List
 
-from traindsms.embedders.base import EmbedderBase
-from traindsms import config
+from traindsms.params import CountParams
 
 PAD = '*PAD*'
 VERBOSE = False
 
 
-class CountEmbedder(EmbedderBase):
-    def __init__(self, param2val):
-        super().__init__(param2val['param_name'], param2val['job_name'])
-        self.count_type = param2val['count_type']
-        self.norm_type = param2val['norm_type']
-        self.reduce_type = param2val['reduce_type']
-        #
-        self.name = self.count_type[0]
+class CountDSM:
+    def __init__(self,
+                 params: CountParams,
+                 numeric_docs: List[List[int]],
+                 ):
+        self.params = params
+
+        self.numeric_docs = numeric_docs
+        self.vocab_size = np.array(self.numeric_docs).max().item() + 1
 
     # ////////////////////////////////////////////////// word-by-word
 
     def create_ww_matrix_fast(self):  # no function call overhead - twice as fast
-        window_type = self.count_type[1]
-        window_size = self.count_type[2]
-        window_weight = self.count_type[3]
+        window_type = self.params.count_type[1]
+        window_size = self.params.count_type[2]
+        window_weight = self.params.count_type[3]
+
         # count
         num_docs = len(self.numeric_docs)
-        num_vocab = len(self.vocab)
         pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
-        count_matrix = np.zeros([num_vocab, num_vocab], int)
+        count_matrix = np.zeros([self.vocab_size, self.vocab_size], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
         for token_ids in self.numeric_docs:
             token_ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
@@ -47,6 +48,9 @@ class CountEmbedder(EmbedderBase):
                     if t1_id == PAD or t2_id == PAD:
                         continue
                     if window_weight == "linear":
+                        print(count_matrix.shape)
+                        print(t1_id)
+                        print(t2_id)
                         count_matrix[t1_id, t2_id] += window_size - dist
                     elif window_weight == "flat":
                         count_matrix[t1_id, t2_id] += 1
@@ -55,6 +59,7 @@ class CountEmbedder(EmbedderBase):
             if VERBOSE:
                 print()
             pbar.update()
+
         # window_type
         if window_type == 'forward':
             final_matrix = count_matrix
@@ -75,7 +80,7 @@ class CountEmbedder(EmbedderBase):
         # count
         num_docs = len(self.numeric_docs)
         pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
-        count_matrix = np.zeros([config.Corpus.num_vocab, num_docs], int)
+        count_matrix = np.zeros([self.vocab_size, num_docs], int)
         print('\nCounting word occurrences in {} documents'.format(num_docs))
         for i in range(num_docs):
             for j in self.numeric_docs[i]:
@@ -88,18 +93,18 @@ class CountEmbedder(EmbedderBase):
     def train(self):
         # count
         start = time.time()
-        if self.count_type[0] == 'ww':
+        if self.params.count_type[0] == 'ww':
             count_matrix = self.create_ww_matrix_fast()
-        elif self.count_type[0] == 'wd':
+        elif self.params.count_type[0] == 'wd':
             count_matrix = self.create_wd_matrix()
         else:
             raise AttributeError('Invalid arg to "count_type".')
         print('Completed count in {}'.format(time.time() - start))
+
         # normalize + reduce
-        norm_matrix, dimensions = self.normalize(count_matrix, self.norm_type)
-        reduced_matrix, dimensions = self.reduce(norm_matrix, self.reduce_type[0], self.reduce_type[1])
-        # to w2e
-        self.w2e = self.embeds_to_w2e(reduced_matrix, self.vocab)
+        norm_matrix, dimensions = self.normalize(count_matrix, self.params.norm_type)
+        reduced_matrix, dimensions = self.reduce(norm_matrix, self.params.reduce_type[0], self.params.reduce_type[1])
+
         return reduced_matrix  # for unittest
 
     # ////////////////////////////////////////////////// normalizations
@@ -131,7 +136,7 @@ class CountEmbedder(EmbedderBase):
         pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             if input_matrix[i,:].sum() == 0:
-                print('    Warning: Row {} ({}) had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+                print('    Warning: Row {} had sum of zero. Setting prob to 0'.format(i))
             else:
                 output_matrix[i,:] = input_matrix[i,:] / input_matrix[i,:].sum()
             pbar.update()
@@ -145,7 +150,7 @@ class CountEmbedder(EmbedderBase):
         pbar = pyprind.ProgBar(num_cols, stream=sys.stdout)
         for i in range(num_cols):
             if input_matrix[:,i].sum() == 0:
-                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i))
             else:
                 output_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
             pbar.update()
@@ -160,7 +165,7 @@ class CountEmbedder(EmbedderBase):
         colprob_matrix = np.zeros([num_rows, num_cols], float)
         for i in range(num_cols):
             if input_matrix[:,i].sum() == 0:
-                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+                print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i))
             else:
                 colprob_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
             pbar.update()
@@ -214,7 +219,7 @@ class CountEmbedder(EmbedderBase):
         pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
         for i in range(num_rows):
             if input_matrix[i,:].sum() == 0:
-                print('    Warning: Row {} ({}) had sum of zero. Setting prob to 0'.format(i, self.vocab[i]))
+                print('    Warning: Row {} had sum of zero. Setting prob to 0'.format(i))
             else:
                 row_prob_matrix[i,:] = input_matrix[i,:] / input_matrix[i,:].sum()
             pbar.update()

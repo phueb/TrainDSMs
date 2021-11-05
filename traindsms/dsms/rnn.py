@@ -4,15 +4,15 @@ import pyprind
 import numpy as np
 import sys
 
-from traindsms.embedders.base import EmbedderBase
+
 from traindsms import config
 
 
 # TODO  is torch.utils.data useful here?
 
-class RNNEmbedder(EmbedderBase):
+class RNN():
     def __init__(self, param2val):
-        super().__init__(param2val['param_name'], param2val['job_name'])
+
         self.rnn_type = param2val['rnn_type']
         self.embed_size = param2val['embed_size']
         self.train_percent = param2val['train_percent']
@@ -169,7 +169,7 @@ class TorchRNN(torch.nn.Module):
         self.batch_size = batch_size
         self.embed_init_range = embed_init_range
         #
-        self.wx = torch.nn.Embedding(config.Corpus.num_vocab, self.embed_size)
+        self.wx = torch.nn.Embedding(config.Corpus.vocab_size, self.embed_size)
         if self.rnn_type == 'lstm':
             self.cell = torch.nn.LSTM
         elif self.rnn_type == 'srn':
@@ -181,7 +181,7 @@ class TorchRNN(torch.nn.Module):
                              num_layers=self.num_layers,
                              dropout=self.dropout_prob if self.num_layers > 1 else 0)
         self.wy = torch.nn.Linear(in_features=self.embed_size,
-                                  out_features=config.Corpus.num_vocab)
+                                  out_features=config.Corpus.vocab_size)
         self.init_weights()
 
     def init_weights(self):
