@@ -73,6 +73,8 @@ param2default = {
 
     'dsm': None,
 
+    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word predic5tion with rnn
+
 }
 
 param2default.update(param2default_dsm)
@@ -170,6 +172,7 @@ class Params:
     corpus_params: CorpusParams
     dsm: str
     dsm_params: CountParams
+    composition_fn: str
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -194,6 +197,7 @@ class Params:
 
         corpus_params = CorpusParams.from_param2val(tmp)
         return cls(dsm=param2val['dsm'],
+                   composition_fn=param2val['composition_fn'],
                    corpus_params=corpus_params,
                    dsm_params=dsm_params,
                    )

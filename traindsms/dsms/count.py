@@ -20,7 +20,6 @@ class CountDSM:
                  vocab: Tuple[str],
                  ):
         self.params = params
-
         self.sequences_numeric = sequences_numeric
         self.vocab_size = len(vocab)
 
@@ -49,9 +48,6 @@ class CountDSM:
                     if t1_id == PAD or t2_id == PAD:
                         continue
                     if window_weight == "linear":
-                        print(count_matrix.shape)
-                        print(t1_id)
-                        print(t2_id)
                         count_matrix[t1_id, t2_id] += window_size - dist
                     elif window_weight == "flat":
                         count_matrix[t1_id, t2_id] += 1

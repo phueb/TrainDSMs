@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 from missingadjunct.corpus import Corpus
+from missingadjunct.utils import make_blank_sr_df
 
 from traindsms.params import Params
 from traindsms.dsms.count import CountDSM
@@ -22,7 +23,6 @@ def main(param2val):
     params = Params.from_param2val(param2val)
     print(params)
 
-    project_path = Path(param2val['project_path'])
     save_path = Path(param2val['save_path'])
 
     # in case job is run locally, we must create save_path
@@ -34,7 +34,6 @@ def main(param2val):
                     num_epochs=params.corpus_params.num_epochs,
                     seed=params.corpus_params.seed,
                     )
-    corpus.print_counts()
 
     # convert tokens to IDs
     token2id = {t: n for n, t in enumerate(corpus.vocab)}
@@ -57,21 +56,35 @@ def main(param2val):
         raise NotImplementedError
 
     # train
-    co_mat = dsm.train()
+    embeddings = dsm.train()
+    t2e = {t: e for t, e in zip(corpus.vocab, embeddings)}
 
-    # show that similarity between "preserve pepper" is identical to "vinegar" and "dehydrator"
-    v1 = co_mat[token2id['preserve']]
-    v2 = co_mat[token2id['pepper']]
-    vt = co_mat[token2id['vinegar']]
-    vd = co_mat[token2id['dehydrator']]
-    # v3 = v1 + v2
-    v_norm = np.sqrt(sum(v2 ** 2))
-    v3 = (np.dot(v1, v2) / v_norm ** 2) * v2  # project v1 on v2
-    print(cosine_similarity(v3[np.newaxis, :], vt[np.newaxis, :]))
-    print(cosine_similarity(v3[np.newaxis, :], vd[np.newaxis, :]))
+    # load evaluation df
+    df_blank = make_blank_sr_df()
+    df_results = df_blank.copy()
+    instruments = df_blank.columns[3:]
+    assert set(instruments).issubset(corpus.vocab)
 
+    if params.composition_fn == 'multiplication':
+        composition_fn = lambda a, b: a * b
+    else:
+        raise NotImplementedError
 
-    # todo fill in blank sr df and save to shared drive
+    # fill in blank data frame with semantic-relatedness scores
+    for verb_phrase, row in df_blank.iterrows():
+        verb, theme = verb_phrase.split()
+        scores = []
+        for instrument in instruments:  # instrument columns start after the 3rd column
+            vp_e = composition_fn(t2e[verb], t2e[theme])
+            sr = cosine_similarity(vp_e[np.newaxis, :], t2e[instrument][np.newaxis, :]).item()
+            scores.append(sr)
 
+        # collect sr scores in new df
+        df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+
+    print(df_results.round(3))
+
+    df_results.to_csv(save_path / 'df_blank.csv')
 
     return []
+
