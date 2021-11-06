@@ -6,8 +6,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 from missingadjunct.corpus import Corpus
 
 from traindsms.params import Params
-from traindsms.dsms.rnn import RNN
 from traindsms.dsms.count import CountDSM
+from traindsms.dsms.random_control import RandomControlDSM
+from traindsms.dsms.w2vec import Word2Vec
+from traindsms.dsms.glove import GloVe
+from traindsms.dsms.rnn import RNN
 
 
 def main(param2val):
@@ -41,13 +44,17 @@ def main(param2val):
         sequences_numeric.append([token2id[token] for token in tokens])
 
     if params.dsm == 'count':
-        dsm = CountDSM(params.count_params, sequences_numeric, corpus.vocab)
+        dsm = CountDSM(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'random':
+        dsm = RandomControlDSM(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'w2v':
+        dsm = Word2Vec(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'glove':
+        dsm = GloVe(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'rnn':
+        dsm = RNN(params.dsm_params, sequences_numeric, corpus.vocab)
     else:
         raise NotImplementedError
-
-    # initialize dictionary for collecting performance data
-    performance = {}
-    eval_steps = 0  # TODO
 
     # train
     co_mat = dsm.train()
@@ -63,13 +70,8 @@ def main(param2val):
     print(cosine_similarity(v3[np.newaxis, :], vt[np.newaxis, :]))
     print(cosine_similarity(v3[np.newaxis, :], vd[np.newaxis, :]))
 
-    # collect performance in list of pandas series
-    res = []
-    for k, v in performance.items():
-        if not v:
-            continue
-        df = pd.Series(v, index=eval_steps)
-        df.name = k
-        res.append(df)
 
-    return res
+    # todo fill in blank sr df and save to shared drive
+
+
+    return []

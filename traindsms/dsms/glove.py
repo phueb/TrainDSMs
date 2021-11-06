@@ -2,7 +2,7 @@
 
 
 
-class GloveEmbedder():
+class GloVe():
     def __init__(self, param2val):
 
         self.embed_size = param2val['embed_size']
