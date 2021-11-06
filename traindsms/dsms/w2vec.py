@@ -3,8 +3,6 @@ from gensim.models import Word2Vec
 import numpy as np
 
 
-
-
 class W2Vec():
     def __init__(self, param2val):
 

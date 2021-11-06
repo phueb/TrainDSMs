@@ -9,11 +9,11 @@ class MyTest(unittest.TestCase):
     def test_update_matrix(self):
 
         doc0 = 'the horse raced past the barn fell'.split()
-        vocab = sorted(set(doc0))
+        vocab = tuple(sorted(set(doc0)))
         token2id = {t: n for n, t in enumerate(vocab)}
-        numeric_docs = []
+        sequences_numeric = []
         for doc in [doc0]:
-            numeric_docs.append([token2id[token] for token in doc])
+            sequences_numeric.append([token2id[token] for token in doc])
 
         param2val = {
             'count_type': ['ww', 'backward', 5, 'linear'],
@@ -21,7 +21,7 @@ class MyTest(unittest.TestCase):
             'reduce_type': [None, None],
         }
         params = CountParams.from_param2val(param2val)
-        dsm = CountDSM(params, numeric_docs)
+        dsm = CountDSM(params, sequences_numeric, vocab)
 
         reduced_mat = dsm.train()
         correct = np.array([[0, 0, 2, 4, 3, 6],

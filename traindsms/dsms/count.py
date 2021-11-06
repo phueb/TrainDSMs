@@ -5,7 +5,7 @@ import sys
 import time
 from scipy.sparse import linalg as slinalg
 from scipy import sparse
-from typing import List
+from typing import List, Tuple
 
 from traindsms.params import CountParams
 
@@ -16,12 +16,13 @@ VERBOSE = False
 class CountDSM:
     def __init__(self,
                  params: CountParams,
-                 numeric_docs: List[List[int]],
+                 sequences_numeric: List[List[int]],
+                 vocab: Tuple[str],
                  ):
         self.params = params
 
-        self.numeric_docs = numeric_docs
-        self.vocab_size = np.array(self.numeric_docs).max().item() + 1
+        self.sequences_numeric = sequences_numeric
+        self.vocab_size = len(vocab)
 
     # ////////////////////////////////////////////////// word-by-word
 
@@ -31,11 +32,11 @@ class CountDSM:
         window_weight = self.params.count_type[3]
 
         # count
-        num_docs = len(self.numeric_docs)
+        num_docs = len(self.sequences_numeric)
         pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
         count_matrix = np.zeros([self.vocab_size, self.vocab_size], int)
         print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
-        for token_ids in self.numeric_docs:
+        for token_ids in self.sequences_numeric:
             token_ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
             if VERBOSE:
                 print(token_ids)
@@ -78,12 +79,12 @@ class CountDSM:
 
     def create_wd_matrix(self):
         # count
-        num_docs = len(self.numeric_docs)
+        num_docs = len(self.sequences_numeric)
         pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
         count_matrix = np.zeros([self.vocab_size, num_docs], int)
         print('\nCounting word occurrences in {} documents'.format(num_docs))
         for i in range(num_docs):
-            for j in self.numeric_docs[i]:
+            for j in self.sequences_numeric[i]:
                 count_matrix[j, i] += 1
             pbar.update()
         return count_matrix
