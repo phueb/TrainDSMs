@@ -12,6 +12,8 @@ from traindsms.dsms.random_control import RandomControlDSM
 from traindsms.dsms.w2vec import Word2Vec
 from traindsms.dsms.glove import GloVe
 from traindsms.dsms.rnn import RNN
+from traindsms.dsms.ctn import CTN
+from traindsms.dsms.lon import LON
 
 
 def main(param2val):
@@ -52,6 +54,10 @@ def main(param2val):
         dsm = GloVe(params.dsm_params, sequences_numeric, corpus.vocab)
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'ctn':
+        dsm = CTN(params.dsm_params, sequences_numeric, corpus.vocab)
+    elif params.dsm == 'lon':
+        dsm = LON(params.dsm_params, sequences_numeric, corpus.vocab)
     else:
         raise NotImplementedError
 
@@ -82,7 +88,7 @@ def main(param2val):
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
 
-    print(df_results.round(3))
+    print(df_results.loc['preserve pepper'].round(3))
 
     df_results.to_csv(save_path / 'df_blank.csv')
 
