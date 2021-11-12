@@ -6,7 +6,9 @@ import numpy as np
 import pandas
 
 from traindsms.dsms.network import NetworkBaseClass
-
+from networkx.drawing.nx_agraph import graphviz_layout
+from missingadjunct.corpus import Corpus
+from missingadjunct.utils import make_blank_sr_df
 
 VERBOSE = False
 
@@ -20,11 +22,7 @@ class CTN(NetworkBaseClass):
     def __init__(self, parsed_corpus):
         NetworkBaseClass.__init__(self, parsed_corpus)
         self.freq_threshold = 1
-        self.node_list = []
-        self.word_dict = []
         self.diamond_list = []
-        self.freq_dict = []
-        self.word_list = []
         self.network_type = 'ctn'
         self.lexical_network = None
 
@@ -168,7 +166,11 @@ class CTN(NetworkBaseClass):
         if VERBOSE:
             print(len(final_freq_dict))
         self.word_list = [word for word in self.word_dict]
+        self.get_adjacency_matrix()
         self.get_constituent_net()
+        self.path_distance_dict = {node:{} for node in self.node_list}
+        self.undirected_network = self.network.to_undirected()
+        self.diameter = nx.algorithms.distance_measures.diameter(self.undirected_network)
 
 
 
@@ -349,7 +351,7 @@ class CTN(NetworkBaseClass):
     # the lengths of all paths between the word pair
 
     def compute_distance_matrix(self, word_list1, word_list2):
-        G = self.constituent_net
+        G = self.lexical_network
         l1 = len(word_list1)
         l2 = len(word_list2)
         distance_matrix = np.zeros((l1, l2), float)
@@ -392,3 +394,91 @@ class CTN(NetworkBaseClass):
 
         table = pandas.DataFrame(similarity_matrix, word_list, word_list)
         return table, similarity_matrix
+
+
+def test_model():
+
+    test_corpus = Corpus(include_location=False,
+                    include_location_specific_agents=False,
+                    num_epochs=1000,
+                    seed=1,
+                    )
+    trees = []
+    for t in test_corpus.get_trees():  # a sentence is a tree
+        trees.append(t)
+
+    dsm = CTN(trees)
+    dsm.train()
+
+
+
+    df_blank = make_blank_sr_df()
+    df_results = df_blank.copy()
+    instruments = df_blank.columns[3:]
+    assert set(instruments).issubset(test_corpus.vocab)
+
+
+
+
+    # fill in blank data frame with semantic-relatedness scores
+    for verb_phrase, row in df_blank.iterrows():
+        verb, theme = verb_phrase.split()
+        scores = []
+
+        if (verb, theme) in dsm.node_list:
+            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, avoid = [((verb,theme),theme)])
+            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, avoid=[((verb, theme), verb)])
+        else:
+            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, avoid=[])
+            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, avoid=[])
+
+        for instrument in instruments:  # instrument columns start after the 3rd column
+            sr = math.log(sr_verb[instrument] * sr_theme[instrument])
+            scores.append(sr)
+
+        # collect sr scores in new df
+        df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+
+    print(df_results.loc['preserve pepper'].round(3))
+    df_results.to_csv('df_test_ctn.csv')
+
+
+test_model()
+
+# This is an attempt to get access to activation-spreading distance for all paths. It failed as number of possible paths
+# could be very large basing on the graph structure, and time complexity could be exponential
+'''''''''
+def test_activation():
+    test_corpus = Corpus(include_location=False,
+                         include_location_specific_agents=False,
+                         num_epochs=1,
+                         seed=1,
+                         )
+    trees = []
+    for t in test_corpus.get_trees():  # a sentence is a tree
+        trees.append(t)
+
+    dsm = CTN(trees)
+    dsm.train()
+    diameter = nx.algorithms.distance_measures.diameter(dsm.undirected_network)
+    print(diameter)
+
+    for node in dsm.node_list:
+        start_time = time.time()
+        dsm.get_path_distance(node, 1, [])
+        end_time = time.time()
+        time_getting_paths = end_time - start_time
+        print()
+        print('{} used to get paths from {}'.format(time_getting_paths, node))
+        print()
+        # node_paths = dsm.path_distance_dict[node]
+        # for target_node in node_paths:
+        # print(node, target_node)
+        # print(node_paths[target_node])
+
+
+
+#test_activation()
+'''''''''
+
+

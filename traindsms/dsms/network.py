@@ -22,6 +22,8 @@ class NetworkBaseClass:
         self.network_type = None
         self.freq_threshold = None # filter out word with low frequency
         self.network = None
+        self.undirected_network = None
+        self.diameter = None
         self.node_list = []
         self.word_list = []
         self.word_dict = {}
@@ -29,6 +31,9 @@ class NetworkBaseClass:
         self.pos_list = ['n', 'v', 'a', 'r', None]
         self.badwords = set(stopwords.words('english'))
         self.lexical_network = None
+        self.adjacency_matrix = None
+        self.path_distance_dict = {node:{} for node in self.node_list}# activation distances for all paths in the graph
+        # keys are nodes, values are distances from the key node to all other nodes in the graph.
 
     ###########################################################################################
     # corpus pre-processing
@@ -73,6 +78,7 @@ class NetworkBaseClass:
     # general graph functions
     ###########################################################################################
 
+
     # This is a function that returns a neighbor (consisting of nodes) of a specified node with an assigned size.
     # For example, given a graph G, and a node u in G, and let size be 2, it returns all nodes in G which are up to
     # 2 edges away from u.
@@ -111,14 +117,8 @@ class NetworkBaseClass:
     # spreading activation measure of semantic relatedness on network models (forming networks)
     ###########################################################################################
 
-
-
-    def activation_spreading_analysis(self, source, target):
-        # Spreading activation to measure the functional distance from source to target
-        # where source is one item, and target is a list(of items)
-        # returns a sr_dictionary consisting of sr from the source to all targets
-
-        W = nx.adjacency_matrix(self.network, nodelist = self.node_list)
+    def get_adjacency_matrix(self):
+        W = nx.adjacency_matrix(self.network, nodelist=self.node_list)
         W.todense()
         length = W.shape[0]
         W = W + np.transpose(W)
@@ -132,20 +132,49 @@ class NetworkBaseClass:
                 else:
                     W[i, j] = W[i, j] / normalizer[i][0, 0]
 
+        self.adjacency_matrix = W
+
+
+
+    def activation_spreading_analysis(self, source, target, avoid):
+        # Spreading activation to measure the functional distance from source to target
+        # where source is one item, target is a list(of items), avoid is a list of directed edges (in the form of:(a,b)
+        # indicating the edge from a to b) nodes that source need to avoid, in other words, not allowing spreading
+        # activation from the source pass through the edge
+        # returns a sr_dictionary consisting of sr from the source to all targets
+
+        W = self.adjacency_matrix.copy()
+        length = W.shape[0]
+        #print('Measuring semantic relatedness from '+ source)
+
         activation = np.zeros((1, length), float)
         fired = np.ones((1, length), float)
         activation[0, self.node_list.index(source)] = 1  # source is activated
         fired[0, self.node_list.index(source)] = 0  # source has fired
+        for edge in avoid:
+            from_id = self.node_list.index(edge[0])
+            to_id = self.node_list.index(edge[1])
+            W[from_id, to_id] = 0
+            fired[0, to_id] = 0 # avoided node is considered as fired
         activation_recorder = activation
+        last_fired = np.zeros((1, length), float)
 
-        while fired.any():
+        while fired.any() or last_fired.any():
             activation = activation * W
-            activation_recorder = activation_recorder + np.multiply(fired, activation)  # record the first time arrived
+            activation_recorder = activation_recorder + np.multiply(fired, activation)+ \
+                                  np.multiply(last_fired,activation)
+            # record the first time arrived
             # activation, which stands for the semantic relatedness from the source to the activated node
+            last_fired = np.zeros((1,length),float)
             for i in range(length):
                 # a node which has not fired get activated, automatically updated to fired
                 if fired[0, i] == 1 and activation[0, i] != 0:
                     fired[0, i] = 0
+                    last_fired[0, i] = 1
+
+
+
+
 
         sorted_activation = activation_recorder.tolist()[0]
         sorted_activation.sort(reverse=True)
@@ -166,6 +195,32 @@ class NetworkBaseClass:
             semantic_relatedness_dict[word] = activation_recorder[0, self.node_list.index(word)]
 
         return semantic_relatedness_dict
+
+
+
+    def get_path_distance(self, source, source_activation, visited):
+        # for a given node (source) get the activation-spreading distance to all other nodes in the graph through all
+        # paths
+
+
+        if len(visited) == 0:
+            print('Getting activation from ' + str(source))
+
+        visited.append(source)
+        #print(len(visited), visited)
+        original_source = visited[0]
+        if source not in self.path_distance_dict[original_source]:
+            self.path_distance_dict[original_source][source]={tuple(visited) : source_activation} # create the dict for
+            # all paths from the original source to the node focusing on
+        else:
+            self.path_distance_dict[original_source][source][tuple(visited)] = source_activation
+        if len(visited) < 2*self.diameter:
+            for node in self.undirected_network.neighbors(source):
+                if node not in visited:
+                    node_activation = source_activation * \
+                                      self.adjacency_matrix[self.node_list.index(source), self.node_list.index(node)]
+                    self.get_path_distance(node, node_activation, visited.copy())
+
 
 
     # plot the lexical network, where all nodes are words
@@ -189,3 +244,18 @@ class NetworkBaseClass:
         sm._A = []
         plt.colorbar(sm)
         plt.show()
+
+'''''''''
+visitedList = [[]]
+
+def depthFirst(graph, currentVertex, visited):
+    visited.append(currentVertex)
+    for vertex in graph[currentVertex]:
+        if vertex not in visited:
+            depthFirst(graph, vertex, visited.copy())
+    visitedList.append(visited)
+
+depthFirst(graph, 0, [])
+
+print(visitedList)
+'''''''''
