@@ -6,7 +6,7 @@ from typing import Tuple, Optional
 DSM_NAME = ['count',     # 0
             'rnn',       # 1
             'glove',     # 2
-            'w2vec',     # 3
+            'w2v',     # 3
             ][0]
 
 param2requests = {
@@ -15,7 +15,7 @@ param2requests = {
 
 if DSM_NAME == 'count':
     param2default_dsm = {
-        'count_type': ('ww', 'concatenated', 4, 'linear'),  # Todo how to respect sequence boundary?
+        'count_type': ('ww', 'summed', 4, 'flat'),  # Todo how to respect sequence boundary?
         'norm_type': None,
         'reduce_type': (None, None),
     }
@@ -164,6 +164,16 @@ class RandomControlParams:
     def from_param2val(cls, param2val):
         field_names = set(f.name for f in fields(cls))
         return cls(**{k: v for k, v in param2val.items() if k in field_names})
+
+
+@dataclass
+class CTNParams:
+    pass
+
+
+@dataclass
+class LONParams:
+    pass
 
 
 @dataclass

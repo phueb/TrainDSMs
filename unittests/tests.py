@@ -11,9 +11,9 @@ class MyTest(unittest.TestCase):
         doc0 = 'the horse raced past the barn fell'.split()
         vocab = tuple(sorted(set(doc0)))
         token2id = {t: n for n, t in enumerate(vocab)}
-        sequences_numeric = []
+        seq_num = []
         for doc in [doc0]:
-            sequences_numeric.append([token2id[token] for token in doc])
+            seq_num.append([token2id[token] for token in doc])
 
         param2val = {
             'count_type': ['ww', 'backward', 5, 'linear'],
@@ -21,7 +21,7 @@ class MyTest(unittest.TestCase):
             'reduce_type': [None, None],
         }
         params = CountParams.from_param2val(param2val)
-        dsm = CountDSM(params, sequences_numeric, vocab)
+        dsm = CountDSM(params, vocab, seq_num)
 
         reduced_mat = dsm.train()
         correct = np.array([[0, 0, 2, 4, 3, 6],

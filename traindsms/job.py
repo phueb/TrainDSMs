@@ -1,15 +1,16 @@
 from pathlib import Path
-import pandas as pd
+from typing import List
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
 
+from traindsms.utils import compose
 from traindsms.params import Params
 from traindsms.dsms.count import CountDSM
 from traindsms.dsms.random_control import RandomControlDSM
-from traindsms.dsms.w2vec import Word2Vec
+from traindsms.dsms.w2vec import W2Vec
 from traindsms.dsms.glove import GloVe
 from traindsms.dsms.rnn import RNN
 from traindsms.dsms.ctn import CTN
@@ -37,33 +38,39 @@ def main(param2val):
                     seed=params.corpus_params.seed,
                     )
 
-    # convert tokens to IDs
-    token2id = {t: n for n, t in enumerate(corpus.vocab)}
-    sequences_numeric = []
+    # collect corpus data
+    seq_num: List[List[int]] = []  # sequences of Ids
+    seq_tok: List[List[str]] = []  # sequences of tokens
     for s in corpus.get_sentences():  # a sentence is a string
         tokens = s.split()
-        sequences_numeric.append([token2id[token] for token in tokens])
+        seq_num.append([corpus.token2id[token] for token in tokens])
+        seq_tok.append([token for token in tokens])
+    trees = []
+    for tree in corpus.get_trees():
+        trees.append(tree)
 
     if params.dsm == 'count':
-        dsm = CountDSM(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = CountDSM(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'random':
-        dsm = RandomControlDSM(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = RandomControlDSM(params.dsm_params, corpus.vocab)
     elif params.dsm == 'w2v':
-        dsm = Word2Vec(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = W2Vec(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'glove':
-        dsm = GloVe(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = GloVe(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'rnn':
-        dsm = RNN(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = RNN(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'ctn':
-        dsm = CTN(params.dsm_params, sequences_numeric, corpus.vocab)
+        dsm = CTN(params.dsm_params, trees)
     elif params.dsm == 'lon':
-        dsm = LON(params.dsm_params, sequences_numeric, corpus.vocab)
+
+        # TODO the LON does not need to inherit from network - no network code needed - only spreading_activation_analysis
+
+        dsm = LON(params.dsm_params, seq_tok)  # TODO this requires adjacency matrix only (which is the co-mat)
     else:
         raise NotImplementedError
 
     # train
-    embeddings = dsm.train()
-    t2e = {t: e for t, e in zip(corpus.vocab, embeddings)}
+    dsm.train()
 
     # load evaluation df
     df_blank = make_blank_sr_df()
@@ -71,24 +78,29 @@ def main(param2val):
     instruments = df_blank.columns[3:]
     assert set(instruments).issubset(corpus.vocab)
 
-    if params.composition_fn == 'multiplication':
-        composition_fn = lambda a, b: a * b
-    else:
-        raise NotImplementedError
-
     # fill in blank data frame with semantic-relatedness scores
     for verb_phrase, row in df_blank.iterrows():
         verb, theme = verb_phrase.split()
         scores = []
         for instrument in instruments:  # instrument columns start after the 3rd column
-            vp_e = composition_fn(t2e[verb], t2e[theme])
-            sr = cosine_similarity(vp_e[np.newaxis, :], t2e[instrument][np.newaxis, :]).item()
+
+            # score spatial model
+            if (not isinstance(dsm, CTN)) and not (isinstance(dsm, LON)):
+                vp_e = compose(params.composition_fn, dsm.t2e[verb], dsm.t2e[theme])
+                sr = cosine_similarity(vp_e[np.newaxis, :], dsm.t2e[instrument][np.newaxis, :]).item()
+
+            # score graphical model
+            else:
+                raise NotImplementedError  # TOdo
+
             scores.append(sr)
 
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
 
-    print(df_results.loc['preserve pepper'].round(3))
+    print(df_results.loc['preserve pepper'])
+    print(df_results.loc['preserve pepper'].loc['vinegar'].round(4))
+    print(df_results.loc['preserve pepper'].loc['dehydrator'].round(4))
 
     df_results.to_csv(save_path / 'df_blank.csv')
 

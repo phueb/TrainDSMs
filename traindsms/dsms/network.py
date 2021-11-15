@@ -1,4 +1,3 @@
-# This module define class Dnetwork (Distributional Networks)
 import nltk
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -17,8 +16,7 @@ class NetworkBaseClass:
     abstract class inherited by CTN (constituent-tree network) and LON (liner-order network)
     """
 
-    def __init__(self, corpus):
-        self.corpus = corpus
+    def __init__(self):
         self.network_type = None
         self.freq_threshold = None # filter out word with low frequency
         self.network = None
@@ -29,7 +27,7 @@ class NetworkBaseClass:
         self.word_dict = {}
         self.freq_dict = {}
         self.pos_list = ['n', 'v', 'a', 'r', None]
-        self.badwords = set(stopwords.words('english'))
+        self.badwords = set(stopwords.words('english'))  # TODO we need to be aware of this
         self.lexical_network = None
         self.adjacency_matrix = None
         self.path_distance_dict = {node:{} for node in self.node_list}# activation distances for all paths in the graph
@@ -100,9 +98,10 @@ class NetworkBaseClass:
 
         return neighbor_node_list
 
-    # showing the sized neighborhood of a given node
-
     def get_sized_neighbor(self, node, size):
+        """
+        showing the sized neighborhood of a given node
+        """
         G = self.network[2].to_undirected()
         choice_neighbor = self.get_sized_neighbor_node(G, node, size)
         choice_net = G.subgraph(choice_neighbor)
@@ -178,17 +177,15 @@ class NetworkBaseClass:
 
         sorted_activation = activation_recorder.tolist()[0]
         sorted_activation.sort(reverse=True)
-        node_dict = {}
-        sorted_dict = {}
 
-        '''''''''
-        if dg == 'constituent':
-            for node in node_list:
-                node_dict[node] = activation_recorder[0,node_list.index(node)]
-                sorted_dict = {k: v for k, v in sorted(node_dict.items(), key=lambda item: item[1], reverse=True)}
-            for node in sorted_dict:
-                print((node, sorted_dict[node]))
-        '''''''''
+        # node_dict = {}
+        # sorted_dict = {}
+        # if dg == 'constituent':
+        #     for node in node_list:
+        #         node_dict[node] = activation_recorder[0,node_list.index(node)]
+        #         sorted_dict = {k: v for k, v in sorted(node_dict.items(), key=lambda item: item[1], reverse=True)}
+        #     for node in sorted_dict:
+        #         print((node, sorted_dict[node]))
 
         semantic_relatedness_dict = {}
         for word in target:
@@ -222,10 +219,10 @@ class NetworkBaseClass:
                     self.get_path_distance(node, node_activation, visited.copy())
 
 
-
-    # plot the lexical network, where all nodes are words
-
     def plot_activation(self, activation_recorder):
+        """
+        plot the lexical network, where all nodes are words
+        """
         if self.network_type == 'Co-occurrence':
             lexical_net = self.network
         else:
@@ -244,18 +241,3 @@ class NetworkBaseClass:
         sm._A = []
         plt.colorbar(sm)
         plt.show()
-
-'''''''''
-visitedList = [[]]
-
-def depthFirst(graph, currentVertex, visited):
-    visited.append(currentVertex)
-    for vertex in graph[currentVertex]:
-        if vertex not in visited:
-            depthFirst(graph, vertex, visited.copy())
-    visitedList.append(visited)
-
-depthFirst(graph, 0, [])
-
-print(visitedList)
-'''''''''

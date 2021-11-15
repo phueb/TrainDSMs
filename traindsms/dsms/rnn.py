@@ -63,14 +63,14 @@ class RNN():
                 yield batch_id, x_b, y_b[:, -1]
                 batch_id += 1
 
-    def calc_pp(self, sequences_numeric, verbose):
+    def calc_pp(self, seq_num, verbose):
         if verbose:
             print('Calculating perplexity...')
         self.model.eval()
         self.model.batch_size = 1  # TODO find batch size that excludes least samples
         errors = 0
         batch_id = 0
-        token_ids = np.hstack(sequences_numeric)
+        token_ids = np.hstack(seq_num)
         num_windows = len(token_ids)
         pbar = pyprind.ProgBar(num_windows, stream=sys.stdout)
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose=False):
@@ -86,14 +86,14 @@ class RNN():
         res = np.exp(errors / batch_id + 1)
         return res
 
-    def train_epoch(self, sequences_numeric, lr, verbose):
+    def train_epoch(self, seq_num, lr, verbose):
         start_time = time.time()
         self.model.train()
         self.model.batch_size = self.batch_size
         # shuffle and flatten
         if self.shuffle_per_epoch:
-            np.random.shuffle(sequences_numeric)
-        token_ids = np.hstack(sequences_numeric)
+            np.random.shuffle(seq_num)
+        token_ids = np.hstack(seq_num)
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose):
             # forward step
             inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
@@ -124,19 +124,19 @@ class RNN():
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.learning_rate[0])
         # split data
-        train_sequences_numeric = []
-        valid_sequences_numeric = []
-        test_sequences_numeric = []
-        for doc in self.sequences_numeric:
+        train_seq_num = []
+        valid_seq_num = []
+        test_seq_num = []
+        for doc in self.seq_num:
             if np.random.binomial(1, self.train_percent):
-                train_sequences_numeric.append(doc)
+                train_seq_num.append(doc)
             else:
                 if np.random.binomial(1, 0.5):  # split valid and test docs evenly
-                    valid_sequences_numeric.append(doc)
+                    valid_seq_num.append(doc)
                 else:
-                    test_sequences_numeric.append(doc)
+                    test_seq_num.append(doc)
         print('Num docs in train {} valid {} test {}'.format(
-            len(train_sequences_numeric), len(valid_sequences_numeric), len(test_sequences_numeric)))
+            len(train_seq_num), len(valid_seq_num), len(test_seq_num)))
         print('Training rnn...')
         # train loop
         lr = self.learning_rate[0]  # initial
@@ -148,16 +148,17 @@ class RNN():
                 print('/Starting epoch {} with lr={}'.format(epoch, lr))
             lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
             lr = lr * lr_decay  # decay lr if it is time
-            self.train_epoch(train_sequences_numeric, lr, verbose)
+            self.train_epoch(train_seq_num, lr, verbose)
             if verbose:
                 print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
-                    epoch, self.calc_pp(valid_sequences_numeric, verbose)))
+                    epoch, self.calc_pp(valid_seq_num, verbose)))
             else:
                 pbar.update()
         if verbose:
-            print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_sequences_numeric, verbose)))
+            print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_seq_num, verbose)))
         wx = self.model.wx.weight.detach().cpu().numpy()
-        self.w2e = self.embeds_to_w2e(wx, self.vocab)
+
+        self.t2e = {t: embedding for t, embedding in zip(self.vocab, wx)}
 
 
 class TorchRNN(torch.nn.Module):
