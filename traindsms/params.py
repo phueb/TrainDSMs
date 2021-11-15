@@ -6,8 +6,8 @@ from typing import Tuple, Optional
 DSM_NAME = ['count',     # 0
             'rnn',       # 1
             'glove',     # 2
-            'w2v',     # 3
-            ][0]
+            'w2v',       # 3
+            ][1]
 
 param2requests = {
 
@@ -15,7 +15,8 @@ param2requests = {
 
 if DSM_NAME == 'count':
     param2default_dsm = {
-        'count_type': ('ww', 'summed', 4, 'flat'),  # Todo how to respect sequence boundary?
+        # window size means how many neighbors are considered in forward direction
+        'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
         'norm_type': None,
         'reduce_type': (None, None),
     }
@@ -45,17 +46,17 @@ elif DSM_NAME == 'glove':
 elif DSM_NAME == 'rnn':
     param2default_dsm = {
         'rnn_type': 'srn',
-        'embed_size': 200,
-        'train_percent': 0.9,
-        'num_eval_steps': 1000,
+        'embed_size': 8,
+        'train_percent': 1.0,
+        'num_eval_steps': 1,
         'shuffle_per_epoch': True,
         'embed_init_range': 0.1,
         'dropout_prob': 0,
         'num_layers': 1,
-        'num_steps': 7,
-        'batch_size': 64,
-        'num_epochs': 20,  # 20 is only slightly better than 10
-        'learning_rate': [0.01, 1.0, 10],  # initial, decay, num_epochs_without_decay
+        'seq_len': 4,
+        'batch_size': 1,  # TODO batch size 1 does not work
+        'num_epochs': 1,
+        'learning_rate': (0.01, 1.0, 10),  # initial, decay, num_epochs_without_decay
         'grad_clip': None,
     }
 
@@ -110,18 +111,18 @@ class CountParams:
 @dataclass
 class RNNParams:
     rnn_type: str
-    embed_size = [200]
-    train_percent = [0.9]
-    num_eval_steps = [1000]
-    shuffle_per_epoch = [True]
-    embed_init_range = [0.1]
-    dropout_prob = [0]
-    num_layers = [1]
-    num_steps = [7]
-    batch_size = [64]
-    num_epochs = [20]  # 20 is only slightly better than 10
-    learning_rate = [[0.01, 1.0, 10]]  # initial, decay, num_epochs_without_decay
-    grad_clip = [None]
+    embed_size: int
+    train_percent: float
+    num_eval_steps: int
+    shuffle_per_epoch: bool
+    embed_init_range: float
+    dropout_prob: float
+    num_layers: int
+    seq_len: int
+    batch_size: int
+    num_epochs: int
+    learning_rate: Tuple[float, float, float]
+    grad_clip: Optional[float]
 
     @classmethod
     def from_param2val(cls, param2val):

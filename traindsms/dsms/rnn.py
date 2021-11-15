@@ -3,48 +3,54 @@ import torch
 import pyprind
 import numpy as np
 import sys
+from typing import List, Tuple
 
 
-from traindsms import config
+from traindsms.params import RNNParams
 
 
-# TODO  is torch.utils.data useful here?
+class RNN:
+    def __init__(self,
+                 params: RNNParams,
+                 vocab: Tuple[str],
+                 seq_num: List[List[int]],
+                 ):
+        self.params = params
+        self.vocab = vocab
+        self.seq_num = seq_num
+        self.vocab_size = len(vocab)
 
-class RNN():
-    def __init__(self, param2val):
+        self.model = TorchRNN(self.params.rnn_type,
+                              self.params.num_layers,
+                              self.params.embed_size,
+                              self.params.batch_size,
+                              self.params.embed_init_range,
+                              self.vocab_size)
+        self.model.cuda()  # call this before constructing optimizer
+        self.criterion = torch.nn.CrossEntropyLoss()
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.params.learning_rate[0])
 
-        self.rnn_type = param2val['rnn_type']
-        self.embed_size = param2val['embed_size']
-        self.train_percent = param2val['train_percent']
-        self.num_eval_steps = param2val['num_eval_steps']
-        self.shuffle_per_epoch = param2val['shuffle_per_epoch']
-        self.embed_init_range = param2val['embed_init_range']
-        self.dropout_prob = param2val['dropout_prob']
-        self.num_layers = param2val['num_layers']
-        self.num_steps = param2val['num_steps']
-        self.batch_size = param2val['batch_size']
-        self.num_epochs = param2val['num_epochs']
-        self.learning_rate = param2val['learning_rate']
-        self.grad_clip = param2val['grad_clip']
-        #
-        self.name = self.rnn_type
-        self.model = None
-        self.criterion = None
-        self.optimizer = None
+        self.t2e = None
 
     def gen_windows(self, token_ids):
-        # yield num_steps matrices where each matrix contains windows of size num_steps
-        remainder = len(token_ids) % self.num_steps
-        for i in range(self.num_steps):
+        """
+        yield seq_len matrices where each matrix contains windows of size seq_len
+        """
+        remainder = len(token_ids) % self.params.seq_len
+        for i in range(self.params.seq_len):
             seq = np.roll(token_ids, i)  # rightward
             seq = seq[:-remainder] if remainder != 0 else seq
-            x = np.reshape(seq, (-1, self.num_steps))
+            x = np.reshape(seq, (-1, self.params.seq_len))
             y = np.roll(x, -1)
             yield i, x, y
 
     def gen_batches(self, token_ids, batch_size, verbose):
         batch_id = 0
         for step_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
+
+            print(x.shape)
+            print(y.shape)
+
             # exclude some rows to split x and y evenly by batch size
             shape0 = len(x)
             num_excluded = shape0 % batch_size
@@ -52,12 +58,18 @@ class RNN():
                 x = x[:-num_excluded]
                 y = y[:-num_excluded]
             shape0_adj = shape0 - num_excluded
+
+            print(x.shape)
+            print(y.shape)
+            print(shape0_adj // batch_size)
+            raise SystemExit
+
             # split into batches
             num_batches = shape0_adj // batch_size
             if verbose:
-                print('Excluding {} windows due to fixed batch size'.format(num_excluded))
-                print('{}/{} Generating {:,} batches with size {}...'.format(
-                    step_id + 1, self.num_steps, num_batches, batch_size))
+                print(f'Excluding {num_excluded} windows due to fixed batch size')
+                print(f'Generating batches with step id={step_id + 1}/{self.params.seq_len}')
+                print(f'num batches={num_batches:,}')
             for x_b, y_b in zip(np.vsplit(x, num_batches),
                                 np.vsplit(y, num_batches)):
                 yield batch_id, x_b, y_b[:, -1]
@@ -75,8 +87,8 @@ class RNN():
         pbar = pyprind.ProgBar(num_windows, stream=sys.stdout)
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose=False):
             pbar.update()
-            inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
-            targets = torch.cuda.LongTensor(y_b)
+            inputs = torch.LongTensor(x_b.T).cuda()  # requires [seq_len, mb_size]
+            targets = torch.LongTensor(y_b).cuda()
             hidden = self.model.init_hidden()  # this must be here to re-init graph
             logits = self.model(inputs, hidden)
             #
@@ -89,46 +101,47 @@ class RNN():
     def train_epoch(self, seq_num, lr, verbose):
         start_time = time.time()
         self.model.train()
-        self.model.batch_size = self.batch_size
+        self.model.batch_size = self.params.batch_size
+
         # shuffle and flatten
-        if self.shuffle_per_epoch:
+        if self.params.shuffle_per_epoch:
             np.random.shuffle(seq_num)
-        token_ids = np.hstack(seq_num)
+
+        token_ids = np.hstack(seq_num)  # a single vector of all token IDs
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.model.batch_size, verbose):
+
             # forward step
-            inputs = torch.cuda.LongTensor(x_b.T)  # requires [num_steps, mb_size]
-            targets = torch.cuda.LongTensor(y_b)
+            inputs = torch.LongTensor(x_b.T).cuda()  # requires [seq_len, mb_size]
+            targets = torch.LongTensor(y_b).cuda()
             hidden = self.model.init_hidden()  # this must be here to re-init graph
             logits = self.model(inputs, hidden)
+
             # backward step
-            self.optimizer.zero_grad()  # sets all gradients to zero  # TODO why put this here?
+            self.optimizer.zero_grad()  # sets all gradients to zero
             loss = self.criterion(logits, targets)
             loss.backward()
-            if self.grad_clip is not None:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
+            if self.params.grad_clip is not None:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.params.grad_clip)
                 for p in self.model.parameters():
                     p.data.add_(-lr, p.grad.data)  # TODO lr decay only happens with grad clipping
             else:
                 self.optimizer.step()
+
             # console
-            if batch_id % self.num_eval_steps == 0 and verbose:
+            if batch_id % self.params.num_eval_steps == 0 and verbose:
                 xent_error = loss.item()
                 pp = np.exp(xent_error)
                 secs = time.time() - start_time
-                print("batch {:,} perplexity: {:8.2f} | seconds elapsed in epoch: {:,.0f} ".format(batch_id, pp, secs))
+                print(f"batch {batch_id:>9,} perplexity: {pp:8.2f} | seconds elapsed in epoch: {secs:,.0f} ")
 
     def train(self, verbose=True):
-        # init
-        self.model = TorchRNN(self.rnn_type, self.num_layers, self.embed_size, self.batch_size, self.embed_init_range)
-        self.model.cuda()  # call this before constructing optimizer
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.learning_rate[0])
+
         # split data
         train_seq_num = []
         valid_seq_num = []
         test_seq_num = []
         for doc in self.seq_num:
-            if np.random.binomial(1, self.train_percent):
+            if np.random.binomial(1, self.params.train_percent):
                 train_seq_num.append(doc)
             else:
                 if np.random.binomial(1, 0.5):  # split valid and test docs evenly
@@ -137,40 +150,56 @@ class RNN():
                     test_seq_num.append(doc)
         print('Num docs in train {} valid {} test {}'.format(
             len(train_seq_num), len(valid_seq_num), len(test_seq_num)))
-        print('Training rnn...')
+
         # train loop
-        lr = self.learning_rate[0]  # initial
-        decay = self.learning_rate[1]
-        num_epochs_without_decay = self.learning_rate[2]
-        pbar = pyprind.ProgBar(self.num_epochs, stream=sys.stdout)
-        for epoch in range(self.num_epochs):
+        lr = self.params.learning_rate[0]  # initial
+        decay = self.params.learning_rate[1]
+        num_epochs_without_decay = self.params.learning_rate[2]
+        pbar = pyprind.ProgBar(self.params.num_epochs, stream=sys.stdout)
+        for epoch in range(self.params.num_epochs):
             if verbose:
-                print('/Starting epoch {} with lr={}'.format(epoch, lr))
+                print()
+                print(f'Starting epoch {epoch} with lr={lr}')
             lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
             lr = lr * lr_decay  # decay lr if it is time
+
+            # train on one epoch
             self.train_epoch(train_seq_num, lr, verbose)
-            if verbose:
-                print('\nValidation perplexity at epoch {}: {:8.2f}'.format(
-                    epoch, self.calc_pp(valid_seq_num, verbose)))
+
+            if self.params.train_percent < 1.0:
+                pp_val = self.calc_pp(valid_seq_num, verbose)
+                if verbose:
+                    print('\nValidation perplexity at epoch {}: {:8.2f}'.format(epoch, pp_val))
             else:
                 pbar.update()
-        if verbose:
-            print('Test Perplexity: {:8.2f}'.format(self.calc_pp(test_seq_num, verbose)))
+
+        if self.params.train_percent < 1.0:
+            pp_val = self.calc_pp(valid_seq_num, verbose)
+            if verbose:
+                print('\nValidation perplexity after training: {:8.2f}'.format(pp_val))
+
         wx = self.model.wx.weight.detach().cpu().numpy()
 
         self.t2e = {t: embedding for t, embedding in zip(self.vocab, wx)}
 
 
 class TorchRNN(torch.nn.Module):
-    def __init__(self, rnn_type, num_layers, embed_size, batch_size, embed_init_range):
+    def __init__(self,
+                 rnn_type: str,
+                 num_layers: int,
+                 embed_size: int,
+                 batch_size: int,
+                 embed_init_range: float,
+                 vocab_size: int,
+                 ):
         super().__init__()
         self.rnn_type = rnn_type
         self.num_layers = num_layers
         self.embed_size = embed_size
         self.batch_size = batch_size
         self.embed_init_range = embed_init_range
-        #
-        self.wx = torch.nn.Embedding(config.Corpus.vocab_size, self.embed_size)
+
+        self.wx = torch.nn.Embedding(vocab_size, self.embed_size)
         if self.rnn_type == 'lstm':
             self.cell = torch.nn.LSTM
         elif self.rnn_type == 'srn':
@@ -182,7 +211,7 @@ class TorchRNN(torch.nn.Module):
                              num_layers=self.num_layers,
                              dropout=self.dropout_prob if self.num_layers > 1 else 0)
         self.wy = torch.nn.Linear(in_features=self.embed_size,
-                                  out_features=config.Corpus.vocab_size)
+                                  out_features=vocab_size)
         self.init_weights()
 
     def init_weights(self):
@@ -205,7 +234,7 @@ class TorchRNN(torch.nn.Module):
                                                      self.embed_size).zero_())
         return res
 
-    def forward(self, inputs, hidden):  # expects [num_steps, mb_size] tensor
+    def forward(self, inputs, hidden):  # expects [seq_len, mb_size] tensor
         embeds = self.wx(inputs)
         outputs, hidden = self.rnn(embeds, hidden)  # this returns all time steps
         final_outputs = torch.squeeze(outputs[-1])

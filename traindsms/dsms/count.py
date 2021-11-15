@@ -44,7 +44,8 @@ class CountDSM:
                 print(token_ids)
             windows = itertoolz.sliding_window(window_size + 1, token_ids)  # + 1 because window consists of t2s only
             for w in windows:
-                print([self.vocab[i] if isinstance(i, int) else PAD for i in w])
+                if VERBOSE:
+                    print([self.vocab[i] if isinstance(i, int) else PAD for i in w])
                 for t1_id, t2_id, dist in zip([w[0]] * window_size,
                                               w[1:],
                                               range(window_size)):

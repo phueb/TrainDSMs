@@ -49,6 +49,8 @@ def main(param2val):
     for tree in corpus.get_trees():
         trees.append(tree)
 
+    print(f'Number of sequences in corpus={len(seq_tok):,}')
+
     if params.dsm == 'count':
         dsm = CountDSM(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'random':
@@ -56,7 +58,7 @@ def main(param2val):
     elif params.dsm == 'w2v':
         dsm = W2Vec(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'glove':
-        dsm = GloVe(params.dsm_params, corpus.vocab, seq_num)
+        dsm = GloVe(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'ctn':
@@ -98,9 +100,8 @@ def main(param2val):
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
 
-    print(df_results.loc['preserve pepper'])
-    print(df_results.loc['preserve pepper'].loc['vinegar'].round(4))
-    print(df_results.loc['preserve pepper'].loc['dehydrator'].round(4))
+    print(df_results.loc['preserve pepper'].loc['vinegar'])
+    print(df_results.loc['preserve pepper'].loc['dehydrator'])
 
     df_results.to_csv(save_path / 'df_blank.csv')
 

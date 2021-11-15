@@ -1,14 +1,24 @@
 
 
+from typing import List, Tuple
+
+from traindsms.params import GloveParams
 
 
-class GloVe():
-    def __init__(self, param2val):
+class GloVe:
+    def __init__(self,
+                 params: GloveParams,
+                 vocab: Tuple[str],
+                 seq_tok: List[List[str]],
+                 ):
 
-        self.embed_size = param2val['embed_size']
-        self.lr = param2val['lr']
-        self.num_epochs = param2val['num_epochs']
-        self.window_size = param2val['window_size']
+        self.params = params
+        self.vocab = vocab
+        self.seq_tok = seq_tok
+
+        self.t2e = None
 
     def train(self):
         return NotImplementedError('Use original implementation')
+
+        # todo https://github.com/pengyan510/nlp-paper-implementation/blob/master/glove/src/train.py
