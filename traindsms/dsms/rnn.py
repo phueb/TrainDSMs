@@ -34,22 +34,28 @@ class RNN:
 
     def gen_windows(self, token_ids):
         """
-        yield seq_len matrices where each matrix contains windows of size seq_len
+        yield x, y, collections of input and output sequences.
+
+        x and y are matrices of shape (num sequences, seq_len)
         """
         remainder = len(token_ids) % self.params.seq_len
         for i in range(self.params.seq_len):
             seq = np.roll(token_ids, i)  # rightward
+            # make divisible so that we can reshape
             seq = seq[:-remainder] if remainder != 0 else seq
             x = np.reshape(seq, (-1, self.params.seq_len))
+            # get next-token for each token in x
             y = np.roll(x, -1)
+
+            # the last x, y pair must be excluded because rolling results in last y = first x which is not correct
+            x = x[:-1]
+            y = y[:-1]
+
             yield i, x, y
 
     def gen_batches(self, token_ids, batch_size, verbose):
         batch_id = 0
         for step_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
-
-            print(x.shape)
-            print(y.shape)
 
             # exclude some rows to split x and y evenly by batch size
             shape0 = len(x)
@@ -59,10 +65,10 @@ class RNN:
                 y = y[:-num_excluded]
             shape0_adj = shape0 - num_excluded
 
-            print(x.shape)
-            print(y.shape)
-            print(shape0_adj // batch_size)
-            raise SystemExit
+            # print(x.shape)
+            # print(y.shape)
+            # print(shape0_adj // batch_size)
+            # raise SystemExit
 
             # split into batches
             num_batches = shape0_adj // batch_size
@@ -118,6 +124,8 @@ class RNN:
 
             # backward step
             self.optimizer.zero_grad()  # sets all gradients to zero
+            if self.params.batch_size == 1:
+                logits = torch.unsqueeze(logits, 0)
             loss = self.criterion(logits, targets)
             loss.backward()
             if self.params.grad_clip is not None:
