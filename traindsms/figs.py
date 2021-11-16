@@ -8,7 +8,7 @@ from traindsms import config
 
 
 def make_summary_fig(gn2accuracies: Dict[str, List[float]],
-                     figsize: Tuple[int, int] = (10, 6),
+                     figsize: Tuple[int, int] = (8, 4),
                      title: str = '',
                      xlabel: str = 'Model',
                      ylabel: str = 'Accuracy',
@@ -30,16 +30,17 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
     else:
         ax.set_ylim([0.0, 1.0])
 
+    num_groups = len(gn2accuracies)
+    edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
+    x = np.arange(1)
+
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
+    ax.set_xticks(edges)
     ax.set_xticklabels(gn2accuracies)
 
     # y axis
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
-
-    num_groups = len(gn2accuracies)
-    edges = [width * i for i in range(num_groups)]  # distances between x-ticks and bar-center
-    x = np.arange(1)
 
     # colors
     palette = np.asarray(sns.color_palette('hls', num_groups))

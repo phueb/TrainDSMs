@@ -7,7 +7,7 @@ DSM_NAME = ['count',     # 0
             'rnn',       # 1
             'glove',     # 2
             'w2v',       # 3
-            ][3]
+            ][1]
 
 param2requests = {
     'num_epochs': [2, 4, 6, 8]
@@ -48,7 +48,6 @@ elif DSM_NAME == 'rnn':
         'rnn_type': 'srn',
         'embed_size': 8,
         'train_percent': 1.0,
-        'num_eval_steps': 1,
         'shuffle_per_epoch': True,
         'embed_init_range': 0.1,
         'dropout_prob': 0,
@@ -113,7 +112,6 @@ class RNNParams:
     rnn_type: str
     embed_size: int
     train_percent: float
-    num_eval_steps: int
     shuffle_per_epoch: bool
     embed_init_range: float
     dropout_prob: float

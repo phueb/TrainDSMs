@@ -45,9 +45,6 @@ for param_path, label in gen_param_paths(project_name,
                       (df['phrase-type'] == 'observed')]
         hits = 0
         for verb_phrase, row in df_exp2b.iterrows():
-            print(verb_phrase)
-            print(row)
-            print()
             if verb_phrase == 'preserve pepper':
                 hits += int(row['vinegar'] > row['dehydrator'])
             elif verb_phrase == 'preserve orange':
