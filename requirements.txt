@@ -1,5 +1,6 @@
 numpy~=1.21.4
 pandas
+seaborn
 matplotlib
 networkx
 scikit-learn
@@ -9,5 +10,5 @@ pyprind~=2.11.3
 cytoolz~=0.11.0
 scipy~=1.7.1
 torch~=1.6
-https://github.com/phueb/Ludwig/archive/v4.0.2.tar.gz
+https://github.com/phueb/Ludwig/archive/v4.0.5.tar.gz
 https://github.com/phueb/MissingAdjunct/archive/v1.0.1.tar.gz

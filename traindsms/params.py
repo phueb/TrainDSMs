@@ -7,10 +7,10 @@ DSM_NAME = ['count',     # 0
             'rnn',       # 1
             'glove',     # 2
             'w2v',       # 3
-            ][1]
+            ][3]
 
 param2requests = {
-
+    'num_epochs': [2, 4, 6, 8]
 }
 
 if DSM_NAME == 'count':
@@ -23,21 +23,21 @@ if DSM_NAME == 'count':
 
 elif DSM_NAME == 'random':
     param2default_dsm = {
-        'embed_size': 200,
+        'embed_size': 8,
         'random_type': 'normal',
     }
 
 elif DSM_NAME == 'w2v':
     param2default_dsm = {
         'w2vec_type': 'sg',  # or 'cbow'
-        'embed_size': 200,
-        'window_size': 7,
+        'embed_size': 8,
+        'window_size': 4,
         'num_epochs': 20,
     }
 
 elif DSM_NAME == 'glove':
     param2default_dsm = {
-        'embed_size': 200,
+        'embed_size': 8,
         'window_size': 7,
         'num_epochs': 20,
         'lr': 0.05,
@@ -54,9 +54,9 @@ elif DSM_NAME == 'rnn':
         'dropout_prob': 0,
         'num_layers': 1,
         'seq_len': 4,
-        'batch_size': 1,  # TODO batch size 1 does not work
-        'num_epochs': 1,
-        'learning_rate': (0.01, 1.0, 10),  # initial, decay, num_epochs_without_decay
+        'batch_size': 2,
+        'num_epochs': 10,
+        'learning_rate': (0.1, 0.95, 1),  # initial, decay, num_epochs_without_decay
         'grad_clip': None,
     }
 
