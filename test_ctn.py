@@ -6,17 +6,19 @@ from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
 
 from traindsms.dsms.ctn import CTN
+from traindsms.params import CTNParams
 
-test_corpus = Corpus(include_location=False,
-                         include_location_specific_agents=False,
-                         num_epochs=1,
-                         seed=1,
-                         )
-trees = []
-for t in test_corpus.get_trees():  # a sentence is a tree
-    trees.append(t)
+corpus = Corpus(include_location=False,
+                include_location_specific_agents=False,
+                num_epochs=1,
+                seed=1,
+                )
+seq_parsed = []
+for t in corpus.get_trees():  # a sentence is a tree
+    seq_parsed.append(t)
 
-dsm = CTN(trees)
+params = CTNParams.from_default()
+dsm = CTN(params, corpus.vocab, seq_parsed)
 dsm.train()
 
 
@@ -25,7 +27,7 @@ def test_model(dsm):
     df_blank = make_blank_sr_df()
     df_results = df_blank.copy()
     instruments = df_blank.columns[3:]
-    assert set(instruments).issubset(test_corpus.vocab)
+    assert set(instruments).issubset(corpus.vocab)
 
     # fill in blank data frame with semantic-relatedness scores
     for verb_phrase, row in df_blank.iterrows():
@@ -33,11 +35,11 @@ def test_model(dsm):
         scores = []
 
         if (verb, theme) in dsm.node_list:
-            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, avoid = [((verb,theme),theme)])
-            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, avoid=[((verb, theme), verb)])
+            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, excluded_edges= [((verb, theme), theme)])
+            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, excluded_edges=[((verb, theme), verb)])
         else:
-            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, avoid=[])
-            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, avoid=[])
+            sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, excluded_edges=[])
+            sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, excluded_edges=[])
 
         for instrument in instruments:  # instrument columns start after the 3rd column
             sr = math.log(sr_verb[instrument] * sr_theme[instrument])

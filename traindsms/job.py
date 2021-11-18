@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+import math
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
@@ -41,13 +42,13 @@ def main(param2val):
     # collect corpus data
     seq_num: List[List[int]] = []  # sequences of Ids
     seq_tok: List[List[str]] = []  # sequences of tokens
+    seq_parsed: List[Tuple] = []  # sequences that are constituent-parsed
     for s in corpus.get_sentences():  # a sentence is a string
         tokens = s.split()
         seq_num.append([corpus.token2id[token] for token in tokens])
         seq_tok.append([token for token in tokens])
-    trees = []
     for tree in corpus.get_trees():
-        trees.append(tree)
+        seq_parsed.append(tree)
 
     print(f'Number of sequences in corpus={len(seq_tok):,}')
 
@@ -62,7 +63,7 @@ def main(param2val):
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'ctn':
-        dsm = CTN(params.dsm_params, trees)
+        dsm = CTN(params.dsm_params, corpus.vocab, seq_parsed)
     elif params.dsm == 'lon':
 
         # TODO the LON does not need to inherit from network - no network code needed - only spreading_activation_analysis
@@ -91,7 +92,19 @@ def main(param2val):
                 vp_e = compose(params.composition_fn, dsm.t2e[verb], dsm.t2e[theme])
                 sr = cosine_similarity(vp_e[np.newaxis, :], dsm.t2e[instrument][np.newaxis, :]).item()
 
-            # score graphical model
+            # score CTN
+            elif isinstance(dsm, CTN):
+                if (verb, theme) in dsm.node_list:
+                    sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list,
+                                                                excluded_edges=[((verb, theme), theme)])
+                    sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list,
+                                                                 excluded_edges=[((verb, theme), verb)])
+                else:
+                    sr_verb = dsm.activation_spreading_analysis(verb, dsm.node_list, excluded_edges=[])
+                    sr_theme = dsm.activation_spreading_analysis(theme, dsm.node_list, excluded_edges=[])
+                sr = math.log(sr_verb[instrument] * sr_theme[instrument])
+
+
             else:
                 raise NotImplementedError  # TOdo
 
