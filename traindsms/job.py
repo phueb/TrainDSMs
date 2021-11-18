@@ -63,7 +63,7 @@ def main(param2val):
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.vocab, seq_num)
     elif params.dsm == 'ctn':
-        dsm = CTN(params.dsm_params, corpus.vocab, seq_parsed)
+        dsm = CTN(params.dsm_params, corpus.token2id, seq_parsed)
     elif params.dsm == 'lon':
 
         # TODO the LON does not need to inherit from network - no network code needed - only spreading_activation_analysis
@@ -74,6 +74,7 @@ def main(param2val):
 
     # train
     dsm.train()
+    print(f'Completed training the DSM', flush=True)
 
     # load evaluation df
     df_blank = make_blank_sr_df()
@@ -109,6 +110,8 @@ def main(param2val):
                 raise NotImplementedError  # TOdo
 
             scores.append(sr)
+
+            print(f'Relatedness between {verb_phrase:>22} and {instrument:>12} is {sr:.4f}', flush=True)
 
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores

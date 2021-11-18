@@ -6,7 +6,7 @@ from collections import defaultdict
 from traindsms.dsms.network import NetworkBaseClass
 from traindsms.params import LONParams
 
-VERBOSE = False
+VERBOSE = True
 
 
 class LON(NetworkBaseClass):
@@ -37,15 +37,13 @@ class LON(NetworkBaseClass):
             for i in range(len(tokens) - 1):
                 edges.append((tokens[i],tokens[i+1]))
             for token in tokens:
-                if token not in self.word_dict:
-                    self.word_dict[token] = len(self.word_dict)
+                if token not in self.freq_dict:
                     self.freq_dict[token] = 1
                 else:
                     self.freq_dict[token] = self.freq_dict[token] + 1
             network_edges.extend(edges)
             network_nodes.extend(tokens)
 
-        self.network = nx.Graph()
         self.node_list = list(set(network_nodes))
 
         network_edge_dict = {}
@@ -66,9 +64,7 @@ class LON(NetworkBaseClass):
                 print(self.node_list.index(edge[0]), self.node_list.index(edge[1]), edge)
             print()
 
+        # make network
+        self.network = nx.Graph()
         self.network.add_weighted_edges_from(weighted_network_edge)
 
-        self.get_adjacency_matrix()
-        self.path_distance_dict = {node: {} for node in self.node_list}
-        self.undirected_network = self.network.to_undirected()
-        self.diameter = nx.algorithms.distance_measures.diameter(self.undirected_network)

@@ -2,15 +2,14 @@ import math
 import time
 import networkx as nx
 import numpy as np
-import pandas
-from typing import List, Tuple
+from typing import List, Dict
 from collections import defaultdict
 
 from traindsms.params import CTNParams
 from traindsms.dsms.network import NetworkBaseClass
 
 
-VERBOSE = False
+VERBOSE = True
 
 
 class CTN(NetworkBaseClass):
@@ -21,30 +20,27 @@ class CTN(NetworkBaseClass):
 
     def __init__(self,
                  params: CTNParams,
-                 vocab: Tuple[str],
+                 token2id: Dict[str, int],
                  seq_parsed,
                  ):
         NetworkBaseClass.__init__(self)
 
         self.params = params
-        self.vocab = vocab
-        self.num_vocab = len(vocab)
+        self.token2id = token2id
+        self.num_vocab = len(token2id)
         self.seq_parsed = seq_parsed
 
         self.freq_dict = defaultdict(int)
         self.diamond_list = []
         self.lexical_network = None
 
-    #########################################################################################
-
-    # Given a nested list, return the corresponding tree data structure: including the
-    # node set and the edge set of the tree. where the nodes are all constituents in the
-    # nested list, and the edges are subconstituent relations.\
-
-    # the complete_tree function just makes sure that it works for the trivial cases
-    # where the tree is just a word.
-
     def extract_edges_and_nodes(self, x):
+        """
+        Given a nested list, return the corresponding tree data structure:
+        nodes and edges of the tree
+
+        nodes are all constituents in the nested list, and  edges are sub-constituent relations.
+        """
         if type(x) == str:
             return [], [x]
         else:
@@ -68,6 +64,9 @@ class CTN(NetworkBaseClass):
     def complete_tree(self,
                       x,
                       ):
+        """
+        get edges and nodes when the tree is just a word.
+        """
         edges, nodes = self.extract_edges_and_nodes(x)
         if type(x) == list:
             x = convert_to_tuple(x)
@@ -79,23 +78,24 @@ class CTN(NetworkBaseClass):
         create the network by joining the trees of the corpus.
         """
 
-        network_edge = []
-        network_node = []
+        network_edges = []
+        network_nodes = []
         for seq_parsed_i in self.seq_parsed:
             edges, nodes = self.complete_tree(seq_parsed_i)
 
             self.diamond_list.append((edges, nodes))
             for node in nodes:
-                if type(node) == str:
-                    self.freq_dict[node] += 1
-            network_edge.extend(edges)
-            network_node.extend(nodes)
+                if node not in self.freq_dict:
+                    self.freq_dict[node] = 1
+                else:
+                    self.freq_dict[node] = self.freq_dict[node] + 1
+            network_edges.extend(edges)
+            network_nodes.extend(nodes)
 
-        self.network = nx.DiGraph()
-        self.node_list = list(set(network_node))
+        self.node_list = list(set(network_nodes))
 
         network_edge_dict = {}
-        for edge in network_edge:
+        for edge in network_edges:
             if edge in network_edge_dict:
                 network_edge_dict[edge] = network_edge_dict[edge] + 1
             else:
@@ -112,22 +112,16 @@ class CTN(NetworkBaseClass):
                 print(self.node_list.index(edge[0]), self.node_list.index(edge[1]), edge)
             print()
 
-        self.network.add_weighted_edges_from(weighted_network_edge)
-
         if VERBOSE:
             print()
             print('Nodes in the network:')
             for node in self.node_list:
                 print(self.node_list.index(node), node)
-            print()
-            print(len(self.word_dict),self.word_dict)
-            print()
 
-        self.get_adjacency_matrix()
-        self.get_constituent_net()
-        self.path_distance_dict = {node:{} for node in self.node_list}
-        self.undirected_network = self.network.to_undirected()
-        self.diameter = nx.algorithms.distance_measures.diameter(self.undirected_network)
+        # make network
+        self.network = nx.DiGraph()
+        self.network.add_weighted_edges_from(weighted_network_edge)
+        self.get_constituent_net()  # this populates self.lexical_network
 
     def get_neighbor_node(self, node):
         """
@@ -181,10 +175,8 @@ class CTN(NetworkBaseClass):
         weight_matrix = np.zeros((self.num_vocab, self.num_vocab), float)
         count_matrix = np.zeros((self.num_vocab, self.num_vocab), float)
 
-        count = 0
-        epoch = 0
         start_time = time.time()
-
+        count = 0
         for tree_info in self.diamond_list:
             sent_node = tree_info[1]
             sent_edge = tree_info[0]
@@ -196,27 +188,19 @@ class CTN(NetworkBaseClass):
                     sent_words.append(node)
 
             for word1 in sent_words:
-                id1 = self.word_dict[word1]
                 for word2 in sent_words:
-                    id2 = self.word_dict[word2]
+                    id1 = self.token2id[word1]
+                    id2 = self.token2id[word2]
                     if id1 != id2:
                         weight_matrix[id1][id2] = weight_matrix[id1][id2] + .5 ** (
                                     nx.shortest_path_length(tree, word1, word2) - 1)
                         # count_matrix[id1][id2] = count_matrix[id1][id2] + 1
 
-            count = count + 1
-            if count >= 100:
-                count = 0
-                epoch = epoch + 100
-                if VERBOSE:
-                    print("{} weights added to the weight matrix.".format(epoch))
+            count += 1
 
-        end_time = time.time()
-        time_get_w_matrix = end_time - start_time
         if VERBOSE:
-            print()
-            print('{} used to get the weight matrix.'.format(time_get_w_matrix))
-            print()
+            print(f'Added {count} weights to the weight matrix.')
+            print(f'Built weight matrix in {time.time() - start_time} secs.')
 
         return weight_matrix, count_matrix
 
@@ -230,52 +214,25 @@ class CTN(NetworkBaseClass):
         self.lexical_network = nx.Graph()
         weight_matrix, count_matrix = self.get_constituent_edge_weight()
 
-        start_time = time.time()
-
         weight_normalizer = weight_matrix.sum(0)
         # count_normalizer = count_matrix.sum(0)
 
-        for k in range(len(self.word_dict)):
+        for k in range(self.num_vocab):
             if weight_normalizer[k] == 0:
                 # count_normalizer[k] = count_normalizer[k] + 1
                 weight_normalizer[k] = weight_normalizer[k] + 1
 
-        for node_i in self.vocab:
-            for node_j in self.vocab:
-                w = weight_matrix[node_i][node_j] / (weight_normalizer[node_i] * weight_normalizer[node_j]) ** .5
+        for token_i, i in self.token2id.items():
+            for token_j, j in self.token2id.items():
+                w = weight_matrix[i][j] / (weight_normalizer[i] * weight_normalizer[j]) ** .5
                 if w > 0:
-                    self.lexical_network.add_edge(node_i, node_j)
+                    self.lexical_network.add_edge(token_i, token_j)
 
-        end_time = time.time()
-        time_get_C_net = end_time - start_time
-        if VERBOSE:
-            print()
-            print('{} used to get the constituent net.'.format(time_get_C_net))
-            print()
-
-    ###########################################################################################
-
-    # showing the neighborhood of a given node
-
-    def get_neighbor(self, node):
-        choice_neighbor = list(self.get_neighbor_node(node))
-        choice_net = self.network.subgraph(choice_neighbor)
-        return choice_net
-
-    def show_neighbor(self, word):
-        word_neighbor = self.get_neighbor(word)
-
-        nx.draw(word_neighbor, with_labels=True)
-
-
-
-    ###########################################################################################
-
-    # for every word pair, compute the constituent distance between the pair
-    # the lengths of all paths between the word pair
-
-    def compute_distance_matrix(self, word_list1, word_list2):
-        G = self.lexical_network
+    def compute_distance_matrix(self, word_list1, word_list2):  # TODO unused
+        """
+        for every word pair, compute the constituent distance between
+        the lengths of all paths between the word pair
+        """
         l1 = len(word_list1)
         l2 = len(word_list2)
         distance_matrix = np.zeros((l1, l2), float)
@@ -285,8 +242,8 @@ class CTN(NetworkBaseClass):
         for i in range(l1):
             for j in range(l2):
                 pair = [word_list1[i], word_list2[j]]
-                if nx.has_path(G, pair[0], pair[1]):
-                    distance = nx.shortest_path_length(G, pair[0], pair[1])
+                if nx.has_path(self.lexical_network, pair[0], pair[1]):
+                    distance = nx.shortest_path_length(self.lexical_network, pair[0], pair[1])
                 else:
                     distance = np.inf
                 distance_matrix[i][j] = round(distance, 3)
@@ -295,15 +252,16 @@ class CTN(NetworkBaseClass):
                 if count >= 5:
                     count = 0
                     epoch = epoch + 5
-                    print("{} pairs of distance caculated".format(epoch))
+                    print("{} pairs of distance calculated".format(epoch))
 
-        table = pandas.DataFrame(distance_matrix, word_list1, word_list2)
-        return table, distance_matrix
+        return distance_matrix
 
     def compute_similarity_matrix(self,
                                   word_list: List[str],
                                   neighbor_size: int,
                                   ):
+
+        # TODO unused
 
         graph_list = []
         for word in word_list:

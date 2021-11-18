@@ -1,5 +1,5 @@
 from dataclasses import dataclass, fields
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 
 # submit jobs for one dsm at a time
@@ -7,10 +7,12 @@ DSM_NAME = ['count',     # 0
             'rnn',       # 1
             'glove',     # 2
             'w2v',       # 3
-            ][1]
+            'lon',       # 4
+            'ctn',       # 5
+            ][5]
 
 param2requests = {
-    'num_epochs': [2, 4, 6, 8]
+    'seed': [0, 1, 2, 3, 4, 5],
 }
 
 if DSM_NAME == 'count':
@@ -57,6 +59,19 @@ elif DSM_NAME == 'rnn':
         'num_epochs': 10,
         'learning_rate': (0.1, 0.95, 1),  # initial, decay, num_epochs_without_decay
         'grad_clip': None,
+    }
+
+elif DSM_NAME == 'lon':
+    param2default_dsm = {
+        # window size means how many neighbors are considered in forward direction
+        'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
+        'norm_type': None,
+        'excluded_tokens': None,
+    }
+
+elif DSM_NAME == 'ctn':
+    param2default_dsm = {
+        'excluded_tokens': None,
     }
 
 else:
@@ -167,12 +182,25 @@ class RandomControlParams:
 
 @dataclass
 class CTNParams:
-    pass
+    excluded_tokens: Optional[Tuple[str]]
+
+    @classmethod
+    def from_param2val(cls, param2val):
+        field_names = set(f.name for f in fields(cls))
+        return cls(**{k: v for k, v in param2val.items() if k in field_names})
 
 
 @dataclass
 class LONParams:
-    pass
+    excluded_tokens: Optional[Tuple[str]]
+
+    count_type: Tuple[str, Optional[str], Optional[int], Optional[str]]
+    norm_type: Optional[str]  # e.g. None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi'
+
+    @classmethod
+    def from_param2val(cls, param2val):
+        field_names = set(f.name for f in fields(cls))
+        return cls(**{k: v for k, v in param2val.items() if k in field_names})
 
 
 @dataclass
@@ -201,6 +229,10 @@ class Params:
             dsm_params = GloveParams.from_param2val(tmp)
         elif param2val['dsm'] == 'rnn':
             dsm_params = RNNParams.from_param2val(tmp)
+        elif param2val['dsm'] == 'lon':
+            dsm_params = LONParams.from_param2val(tmp)
+        elif param2val['dsm'] == 'ctn':
+            dsm_params = CTNParams.from_param2val(tmp)
         else:
             raise AttributeError('Invalid arg to "dsm".')
 

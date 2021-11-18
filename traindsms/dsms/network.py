@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 from scipy.sparse import lil_matrix
 from typing import List, Dict
+from cached_property import cached_property
 
 VERBOSE = False
 
@@ -13,13 +14,24 @@ class NetworkBaseClass:
 
     def __init__(self):
         self.network = None
-        self.undirected_network = None
-        self.diameter = None
         self.node_list = []
-        self.word_dict = {}
-        self.adjacency_matrix = None
+
         self.path_distance_dict = {node: {} for node in self.node_list}
         # keys are nodes, values are distances from the key node to all other nodes in the graph.
+
+        print('Initialized NetworkBaseClass')
+
+    @cached_property
+    def adjacency_matrix(self) -> np.array:
+        return self.get_adjacency_matrix()
+
+    @cached_property
+    def undirected_network(self):
+        return self.network.to_undirected()
+
+    @cached_property
+    def diameter(self):
+        return nx.algorithms.distance_measures.diameter(self.undirected_network)
 
     def get_sized_neighbor_node(self, graph, node, size):
         """
@@ -43,7 +55,7 @@ class NetworkBaseClass:
 
     def get_sized_neighbor(self, node, size):
         """
-        showing the sized neighborhood of a given node
+        return the sized neighborhood of a given node
         """
         net = self.network[2].to_undirected()
         choice_neighbor = self.get_sized_neighbor_node(net, node, size)
@@ -65,7 +77,7 @@ class NetworkBaseClass:
                 else:
                     adj_mat[i, j] = adj_mat[i, j] / normalizer[i][0, 0]
 
-        self.adjacency_matrix = adj_mat
+        return adj_mat
 
     def activation_spreading_analysis(self,
                                       source: str,
@@ -124,7 +136,7 @@ class NetworkBaseClass:
 
         return semantic_relatedness_dict
 
-    def get_path_distance(self, source, source_activation, visited):
+    def get_path_distance(self, source, source_activation, visited):  # TODO is this needed?
         """
         for a given node, get the activation-spreading distance to all other nodes in the graph through all paths
         """
