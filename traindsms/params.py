@@ -9,7 +9,7 @@ DSM_NAME = ['count',     # 0
             'w2v',       # 3
             'lon',       # 4
             'ctn',       # 5
-            ][5]
+            ][4]
 
 param2requests = {
     'seed': [0, 1, 2, 3, 4, 5],
@@ -63,7 +63,9 @@ elif DSM_NAME == 'rnn':
 
 elif DSM_NAME == 'lon':
     param2default_dsm = {
-        # window size means how many neighbors are considered in forward direction
+
+        # TODO the LON is currently built from corpus directly rather than co-mat
+
         'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
         'norm_type': None,
         'excluded_tokens': None,

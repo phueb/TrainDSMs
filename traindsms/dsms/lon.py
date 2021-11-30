@@ -1,5 +1,5 @@
 import math
-from typing import Tuple, List
+from typing import List
 import networkx as nx
 from collections import defaultdict
 
@@ -16,17 +16,18 @@ class LON(NetworkBaseClass):
 
     def __init__(self,
                  params: LONParams,
-                 vocab: Tuple[str],
                  seq_tok: List[List[str]],
                  ):
         NetworkBaseClass.__init__(self)
 
         self.params = params
-        self.vocab = vocab
         self.seq_tok = seq_tok
 
         self.freq_dict = defaultdict(int)
-        self.co_mat = None
+
+        self.co_mat = None  # TODO is this network supposed to be built from the co-occ matrix?
+
+        self.sr_bank = {}  # for caching sr scores
 
     def train(self):
 
@@ -68,3 +69,17 @@ class LON(NetworkBaseClass):
         self.network = nx.Graph()
         self.network.add_weighted_edges_from(weighted_network_edge)
 
+    def calc_sr_scores(self, verb, theme, instruments):
+        """compute sr scores for a single row in the blank sr data frame."""
+
+        if verb not in self.sr_bank:
+            self.sr_bank[verb] = self.activation_spreading_analysis(verb, instruments, [])
+        if theme not in self.sr_bank:
+            self.sr_bank[theme] = self.activation_spreading_analysis(theme, instruments, [])
+
+        scores = []
+        for instrument in instruments:  # instrument columns start after the 3rd column
+            sr = math.log(self.sr_bank[verb][instrument] * self.sr_bank[theme][instrument])
+            scores.append(sr)
+
+        return scores

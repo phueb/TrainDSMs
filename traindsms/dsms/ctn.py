@@ -10,6 +10,7 @@ from traindsms.dsms.network import NetworkBaseClass
 
 
 VERBOSE = True
+WS = ' '
 
 
 class CTN(NetworkBaseClass):
@@ -193,7 +194,7 @@ class CTN(NetworkBaseClass):
                     id2 = self.token2id[word2]
                     if id1 != id2:
                         weight_matrix[id1][id2] = weight_matrix[id1][id2] + .5 ** (
-                                    nx.shortest_path_length(tree, word1, word2) - 1)
+                                nx.shortest_path_length(tree, word1, word2) - 1)
                         # count_matrix[id1][id2] = count_matrix[id1][id2] + 1
 
             count += 1
@@ -277,6 +278,22 @@ class CTN(NetworkBaseClass):
                 # print(word_list[i],word_list[j],similarity_matrix[i][j])
 
         return similarity_matrix
+
+    def calc_sr_scores(self, verb, theme, instruments):
+        if (verb, theme) in self.node_list:
+            sr_verb = self.activation_spreading_analysis(verb, self.node_list,
+                                                         excluded_edges=[((verb, theme), theme)])
+            sr_theme = self.activation_spreading_analysis(theme, self.node_list,
+                                                          excluded_edges=[((verb, theme), verb)])
+        else:
+            sr_verb = self.activation_spreading_analysis(verb, self.node_list, excluded_edges=[])
+            sr_theme = self.activation_spreading_analysis(theme, self.node_list, excluded_edges=[])
+
+        scores = []
+        for instrument in instruments:
+            sr = math.log(sr_verb[instrument] * sr_theme[instrument])
+            print(f'Relatedness between {verb + WS + theme:>22} and {instrument:>12} is {sr:.4f}', flush=True)
+            scores.append(sr)
 
 
 def convert_to_tuple(iterable):
