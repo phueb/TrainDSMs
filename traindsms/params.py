@@ -3,16 +3,17 @@ from typing import Tuple, Optional, List
 
 
 # submit jobs for one dsm at a time
-DSM_NAME = ['count',     # 0
-            'rnn',       # 1
-            'glove',     # 2
-            'w2v',       # 3
-            'lon',       # 4
-            'ctn',       # 5
-            ][4]
+DSM_NAME = ['count',        # 0
+            'rnn',          # 1
+            'transformer',  # 2
+            'glove',        # 3
+            'w2v',          # 4
+            'lon',          # 5
+            'ctn',          # 6
+            ][2]
 
 param2requests = {
-    'seed': [0, 1, 2, 3, 4, 5],
+    'seed': [0],
 }
 
 if DSM_NAME == 'count':
@@ -61,10 +62,26 @@ elif DSM_NAME == 'rnn':
         'grad_clip': None,
     }
 
+elif DSM_NAME == 'transformer':
+    param2default_dsm = {
+        'transformer_type': 'gpt2',
+        'embed_size': 8,
+        'inner_size': 32,  # must be divisible by embed_size
+        'dropout_prob': 0,
+        'num_layers': 1,
+        'num_heads': 4,
+        'seq_len': 32,  # this must be larger than the largest sentence in the corpus
+        'batch_size': 1,
+        'num_epochs': 10,
+        'learning_rate': 0.1,
+    }
+
 elif DSM_NAME == 'lon':
     param2default_dsm = {
 
         # TODO the LON is currently built from corpus directly rather than co-mat
+
+        # todo: the co-occurrence matrix will be it's adjacency matrix, and the spreading activation functions on the adjacency matrix
 
         'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
         'norm_type': None,
@@ -90,7 +107,7 @@ param2default = {
 
     'dsm': None,
 
-    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word predic5tion with rnn
+    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word prediction with rnn
 
 }
 
@@ -138,6 +155,25 @@ class RNNParams:
     num_epochs: int
     learning_rate: Tuple[float, float, float]
     grad_clip: Optional[float]
+
+    @classmethod
+    def from_param2val(cls, param2val):
+        field_names = set(f.name for f in fields(cls))
+        return cls(**{k: v for k, v in param2val.items() if k in field_names})
+
+
+@dataclass
+class TransformerParams:
+    transformer_type: str
+    embed_size: int
+    inner_size: int  # usually 4x larger than embed_size
+    dropout_prob: float
+    num_layers: int
+    num_heads: int
+    seq_len: int
+    batch_size: int
+    num_epochs: int
+    learning_rate: float
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -231,6 +267,8 @@ class Params:
             dsm_params = GloveParams.from_param2val(tmp)
         elif param2val['dsm'] == 'rnn':
             dsm_params = RNNParams.from_param2val(tmp)
+        elif param2val['dsm'] == 'transformer':
+            dsm_params = TransformerParams.from_param2val(tmp)
         elif param2val['dsm'] == 'lon':
             dsm_params = LONParams.from_param2val(tmp)
         elif param2val['dsm'] == 'ctn':

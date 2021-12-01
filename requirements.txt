@@ -10,5 +10,7 @@ pyprind~=2.11.3
 cytoolz~=0.11.0
 scipy~=1.7.1
 torch~=1.6
+transformers~=4.12.5
+datasets~=1.16.1
 https://github.com/phueb/Ludwig/archive/v4.0.5.tar.gz
 https://github.com/phueb/MissingAdjunct/archive/v1.0.1.tar.gz

@@ -19,4 +19,5 @@ def calc_sr_cores_from_spatial_model(dsm, verb, theme, instruments, composition_
         vp_e = compose(composition_fn, dsm.t2e[verb], dsm.t2e[theme])
         sr = cosine_similarity(vp_e[np.newaxis, :], dsm.t2e[instrument][np.newaxis, :]).item()
         scores.append(sr)
+
     return scores
