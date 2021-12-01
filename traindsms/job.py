@@ -39,6 +39,13 @@ def main(param2val):
                     seed=params.corpus_params.seed,
                     )
 
+    # load evaluation df
+    df_blank = make_blank_sr_df()
+    df_results = df_blank.copy()
+    instruments = df_blank.columns[3:]  # instrument columns start after the 3rd column
+    if not set(instruments).issubset(corpus.vocab):
+        raise RuntimeError('Not all instruments in corpus. Add more blocks or set complete_block=True')
+
     # collect corpus data
     seq_num: List[List[int]] = []  # sequences of Ids
     seq_tok: List[List[str]] = []  # sequences of tokens
@@ -74,12 +81,6 @@ def main(param2val):
     # train
     dsm.train()
     print(f'Completed training the DSM', flush=True)
-
-    # load evaluation df
-    df_blank = make_blank_sr_df()
-    df_results = df_blank.copy()
-    instruments = df_blank.columns[3:]  # instrument columns start after the 3rd column
-    assert set(instruments).issubset(corpus.vocab)
 
     # fill in blank data frame with semantic-relatedness scores
     for verb_phrase, row in df_blank.iterrows():

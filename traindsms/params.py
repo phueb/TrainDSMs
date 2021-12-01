@@ -1,9 +1,9 @@
 """
 Performance of input embeddings of Transformer of type='gpt2' on task exp2b:
-    acc=0.8 with lr=0.1 and epoch=100 and embed_size=8 and num_heads=4 and inner_size=16
-    acc=0.6 with lr=0.1 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=8
-    acc=0.5 with lr=0.5 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=16
-    acc=0.5 with lr=0.2 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=8
+    acc=0.8 lr=0.1 epoch=100 embed_size=8 num_heads=4  inner_size=16 num_blocks=100 complete_block=T
+    acc=0.6 lr=0.1 epoch=100 embed_size=8 num_heads=4  inner_size=8  num_blocks=0   complete_block=T
+    acc=0.5 lr=0.1 epoch=200 embed_size=8 num_heads=4  inner_size=8  num_blocks=0   complete_block=T
+
 
 
 
@@ -27,9 +27,13 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
     'seed': [0],
-    # 'num_blocks': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    'num_epochs': [10],
     'complete_block': [True],
+    'num_blocks': [100, 200, 300, 400],
     'learning_rate': [0.1],
+
+    # TODO inner_size 64 instead of 8
+
 }
 
 if DSM_NAME == 'count':

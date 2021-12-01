@@ -22,7 +22,7 @@ FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
 CONFIDENCE: float = 0.95
 TITLE = ''
 
-# collect summaries
+# collect accuracies
 gn2exp2b_accuracies = defaultdict(list)
 project_name = __name__
 for param_path, label in gen_param_paths(project_name,
@@ -83,7 +83,15 @@ for param_path, label in gen_param_paths(project_name,
 
     # save_summary_to_txt(summary, pattern)
 
-print(gn2exp2b_accuracies)
+
+# sort
+gn2exp2b_accuracies = {k: v for k, v in sorted(gn2exp2b_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
+
+
+for k, v in gn2exp2b_accuracies.items():
+    print(k)
+    print(v)
+    print('-' * 32)
 
 fig = make_summary_fig(gn2exp2b_accuracies)
 fig.show()
