@@ -13,7 +13,7 @@ DSM_NAME = ['count',        # 0
             ][2]
 
 param2requests = {
-    'seed': [0],
+    'seed': [0, 1, 2, 3, 4, 5],
 }
 
 if DSM_NAME == 'count':

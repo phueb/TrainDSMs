@@ -51,15 +51,15 @@ class TransformerDSM:
 
         self.t2e = None
 
-    def train(self):
-
         training_args = TrainingArguments(output_dir=self.output_dir,
                                           per_device_train_batch_size=self.params.batch_size,
+                                          per_device_eval_batch_size=self.params.batch_size,
                                           learning_rate=self.params.learning_rate,
                                           weight_decay=0.0,
                                           max_grad_norm=1.0,
                                           num_train_epochs=self.params.num_epochs,
                                           save_strategy='no',
+                                          evaluation_strategy='epoch',
                                           do_train=True,
                                           )
 
@@ -78,14 +78,17 @@ class TransformerDSM:
                         }
         train_dataset = Dataset.from_dict(data_in_dict)
 
-        trainer = Trainer(self.model,
-                          args=training_args,
-                          train_dataset=train_dataset,
-                          eval_dataset=None,
-                          tokenizer=None,
-                          data_collator=None,
-                          )
-        trainer.train()
+        self.trainer = Trainer(self.model,
+                               args=training_args,
+                               train_dataset=train_dataset,
+                               eval_dataset=train_dataset,
+                               tokenizer=None,
+                               data_collator=None,
+                               )
+
+    def train(self):
+
+        self.trainer.train()
 
         # evaluate predictions
         id2token = {i: token for token, i in self.token2id.items()}
@@ -96,3 +99,20 @@ class TransformerDSM:
 
         self.t2e = {token: row for token, row in zip(self.token2id,
                                                      self.model.get_input_embeddings().weight.detach().cpu())}
+
+    def get_performance(self) -> Dict[str, List[float]]:
+        """get train_loss from log_history saved in trainer.state after training"""
+
+        res = {'epoch': [],
+               'eval_loss': []}
+
+        log_history: List[Dict[str, float]] = self.trainer.state.log_history
+        for log_i in log_history:
+            try:
+                res['eval_loss'].append(log_i['eval_loss'])
+            except KeyError: # some logs only contain "loss" instead of "train_loss"
+                continue
+            else:
+                res['epoch'].append(log_i['epoch'])
+
+        return res

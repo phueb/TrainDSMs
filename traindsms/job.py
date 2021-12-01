@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import List, Tuple
-import math
+import pandas as pd
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
@@ -100,5 +100,11 @@ def main(param2val):
 
     df_results.to_csv(save_path / 'df_sr.csv')
 
-    return []
+    # prepare collected data for returning to Ludwig
+    performance = dsm.get_performance()
+    s = pd.Series(performance['eval_loss'], index=performance['epoch'])
+    s.name = 'eval_loss'
+    print(s)
+
+    return [s]
 

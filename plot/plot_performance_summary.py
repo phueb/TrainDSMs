@@ -11,7 +11,7 @@ from traindsms.summary import save_summary_to_txt
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = Path('/media/ludwig_data')
-RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
+RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 LABEL_N: bool = True  # add information about number of replications to legend
 PLOT_MAX_LINE: bool = False  # plot horizontal line at best performance for each param
