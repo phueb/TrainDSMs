@@ -27,12 +27,12 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
     'seed': [0],
-    'num_epochs': [10],
+    'num_epochs': [10, 50, 100],
     'complete_block': [True],
-    'num_blocks': [100, 200, 300, 400],
+    'num_blocks': [100],
     'learning_rate': [0.1],
+    'inner_size': [32],
 
-    # TODO inner_size 64 instead of 8
 
 }
 
