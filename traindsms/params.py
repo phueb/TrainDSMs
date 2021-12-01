@@ -1,3 +1,16 @@
+"""
+Performance of input embeddings of Transformer of type='gpt2' on task exp2b:
+    acc=0.8 with lr=0.1 and epoch=100 and embed_size=8 and num_heads=4 and inner_size=16
+    acc=0.6 with lr=0.1 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=8
+    acc=0.5 with lr=0.5 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=16
+    acc=0.5 with lr=0.2 and epoch=10  and embed_size=8 and num_heads=4 and inner_size=8
+
+
+
+
+
+"""
+
 from dataclasses import dataclass, fields
 from typing import Tuple, Optional, List
 
@@ -13,7 +26,10 @@ DSM_NAME = ['count',        # 0
             ][2]
 
 param2requests = {
-    'seed': [0, 1, 2, 3, 4, 5],
+    'seed': [0],
+    # 'num_blocks': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    'complete_block': [True],
+    'learning_rate': [0.1],
 }
 
 if DSM_NAME == 'count':
@@ -62,11 +78,12 @@ elif DSM_NAME == 'rnn':
         'grad_clip': None,
     }
 
+
 elif DSM_NAME == 'transformer':
     param2default_dsm = {
         'transformer_type': 'gpt2',
         'embed_size': 8,
-        'inner_size': 32,  # must be divisible by embed_size
+        'inner_size': 8,  # must be divisible by embed_size
         'dropout_prob': 0,
         'num_layers': 1,
         'num_heads': 4,
@@ -99,18 +116,22 @@ else:
 param2requests['dsm'] = [DSM_NAME]
 
 param2default = {
-    # corpus
+    'dsm': None,
+    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word prediction with rnn
+}
+
+param2default_corpus = {
     'include_location': False,
     'include_location_specific_agents': False,
     'seed': 0,
-    'num_epochs': 1,
-
-    'dsm': None,
-
-    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word prediction with rnn
-
+    'num_blocks': 0,
+    'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
 }
 
+# avoid keys with the same name
+for k in param2default_corpus:
+    assert k not in param2default_dsm
+param2default.update(param2default_corpus)
 param2default.update(param2default_dsm)
 
 
@@ -119,7 +140,8 @@ class CorpusParams:
     include_location: bool
     include_location_specific_agents: bool
     seed: int
-    num_epochs: int
+    num_blocks: int
+    complete_block: bool
 
     @classmethod
     def from_param2val(cls, param2val):

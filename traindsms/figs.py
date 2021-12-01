@@ -37,7 +37,7 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    ax.set_xticklabels(gn2accuracies)
+    ax.set_xticklabels(gn2accuracies, fontsize=6)
 
     # y axis
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)

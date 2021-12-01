@@ -58,12 +58,11 @@ class TransformerDSM:
                                           weight_decay=0.0,
                                           max_grad_norm=1.0,
                                           num_train_epochs=self.params.num_epochs,
-                                          save_strategy='no',
-                                          evaluation_strategy='epoch',
+                                          save_strategy='no',  # do not save checkpoints
+                                          evaluation_strategy='epoch',  # compute loss on eval dataset every epoch
                                           do_train=True,
+                                          disable_tqdm=True,
                                           )
-
-        # TODO use a simple  tokenizer to do padding
 
         # https://huggingface.co/transformers/_modules/transformers/models/gpt2/modeling_gpt2.html#GPT2Model.forward
 
@@ -74,7 +73,7 @@ class TransformerDSM:
         # make dataset for Trainer
         data_in_dict = {'input_ids': [torch.LongTensor(seq_num_i).cuda() for seq_num_i in self.seq_num],
                         'labels': [torch.LongTensor(seq_num_i).cuda() for seq_num_i in self.seq_num],
-                        'attention_mask': [[1] * len(seq_num_i) for seq_num_i in self.seq_num],
+                        # 'attention_mask': [[1] * len(seq_num_i) for seq_num_i in self.seq_num],
                         }
         train_dataset = Dataset.from_dict(data_in_dict)
 
@@ -92,9 +91,12 @@ class TransformerDSM:
 
         # evaluate predictions
         id2token = {i: token for token, i in self.token2id.items()}
-        for seq_num_i in self.seq_num[:10]:
-            logits = self.model(input_ids=torch.LongTensor(seq_num_i).cuda())['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
+        for seq_num_i in self.seq_num[::100]:
+            outputs = self.model(input_ids=torch.LongTensor(seq_num_i).cuda())
+            logits = outputs['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
+            print('Input:')
             print([id2token[i] for i in seq_num_i])
+            print('Output:')
             print([id2token[i] for i in np.argmax(logits, axis=1)])
 
         self.t2e = {token: row for token, row in zip(self.token2id,

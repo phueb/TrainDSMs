@@ -34,7 +34,8 @@ def main(param2val):
 
     corpus = Corpus(include_location=params.corpus_params.include_location,
                     include_location_specific_agents=params.corpus_params.include_location_specific_agents,
-                    num_epochs=params.corpus_params.num_epochs,
+                    num_epochs=params.corpus_params.num_blocks,
+                    complete_epoch=params.corpus_params.complete_block,
                     seed=params.corpus_params.seed,
                     )
 
@@ -49,7 +50,7 @@ def main(param2val):
     for tree in corpus.get_trees():
         seq_parsed.append(tree)
 
-    print(f'Number of sequences in corpus={len(seq_tok):,}')
+    print(f'Number of sequences in corpus={len(seq_tok):,}', flush=True)
 
     if params.dsm == 'count':
         dsm = CountDSM(params.dsm_params, corpus.vocab, seq_num)
@@ -95,16 +96,14 @@ def main(param2val):
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
 
-    print(df_results.loc['preserve pepper'].loc['vinegar'])
-    print(df_results.loc['preserve pepper'].loc['dehydrator'])
-
     df_results.to_csv(save_path / 'df_sr.csv')
 
     # prepare collected data for returning to Ludwig
     performance = dsm.get_performance()
     s = pd.Series(performance['eval_loss'], index=performance['epoch'])
     s.name = 'eval_loss'
-    print(s)
+
+    print('Completed main.job.', flush=True)
 
     return [s]
 
