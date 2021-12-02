@@ -88,37 +88,53 @@ for param_path, label in gen_param_paths(project_name,
             else:  # strong evaluation requires that instruments be ranked correctly (1st and 2nd rank)
 
                 if verb_phrase == 'preserve pepper':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['vinegar', 'dehydrator'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['vinegar', 'dehydrator']
+                                and row['vinegar'] > row['dehydrator'])
                 elif verb_phrase == 'preserve orange':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['dehydrator', 'vinegar'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['dehydrator', 'vinegar']
+                                and row['dehydrator'] > row['vinegar'])
                 elif verb_phrase == 'repair blender':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['wrench', 'glue'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['wrench', 'glue']
+                                and row['wrench'] > row['glue'])
                 elif verb_phrase == 'repair bowl':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['glue', 'wrench'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['glue', 'wrench']
+                                and row['glue'] > row['wrench'])
                 elif verb_phrase == 'pour tomato-juice':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['pitcher', 'canister'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['pitcher', 'canister']
+                                and row['pitcher'] > row['canister'])
                 elif verb_phrase == 'decorate cookie':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['icing', 'paint'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['icing', 'paint']
+                                and row['icing'] > row['paint'])
                 elif verb_phrase == 'carve turkey':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['knife', 'chisel'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['knife', 'chisel']
+                                and row['knife'] > row['chisel'])
                 elif verb_phrase == 'heat tilapia':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['oven', 'furnace'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['oven', 'furnace']
+                                and row['oven'] > row['furnace'])
                 elif verb_phrase == 'cut sock':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['scissors', 'saw'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['scissors', 'saw']
+                                and row['scissors'] > row['saw'])
                 elif verb_phrase == 'cut ash':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['saw', 'scissors'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['saw', 'scissors']
+                                and row['saw'] > row['scissors'])
                 elif verb_phrase == 'clean faceshield':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['towel', 'vacuum'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['towel', 'vacuum']
+                                and row['towel'] > row['vacuum'])
                 elif verb_phrase == 'clean workstation':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['vacuum', 'towel'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['vacuum', 'towel']
+                                and row['vacuum'] > row['towel'])
                 elif verb_phrase == 'pour brake-fluid':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['canister', 'pitcher'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['canister', 'pitcher']
+                                and row['canister'] > row['pitcher'])
                 elif verb_phrase == 'decorate motorcycle':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['paint', 'icing'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['paint', 'icing']
+                                and row['paint'] > row['icing'])
                 elif verb_phrase == 'carve marble':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['chisel', 'knife'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['chisel', 'knife']
+                                and row['chisel'] > row['knife'])
                 elif verb_phrase == 'heat copper':
-                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['furnace', 'oven'])
+                    hits += int(pd.to_numeric(row[3:]).nlargest(n=2).index.tolist() == ['furnace', 'oven']
+                                and row['furnace'] > row['oven'])
                 else:
                     raise RuntimeError(f'Did not recognize verb-phrase "{verb_phrase}".')
 
