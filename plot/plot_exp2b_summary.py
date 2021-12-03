@@ -22,7 +22,7 @@ FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
 CONFIDENCE: float = 0.95
 TITLE = ''
 
-WEAK_EVALUATION = False
+WEAK_EVALUATION = 0
 
 # collect accuracies
 gn2exp2b_accuracies = defaultdict(list)

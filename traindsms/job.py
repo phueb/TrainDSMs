@@ -68,7 +68,7 @@ def main(param2val):
     elif params.dsm == 'glove':
         dsm = GloVe(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'rnn':
-        dsm = RNN(params.dsm_params, corpus.vocab, seq_num)
+        dsm = RNN(params.dsm_params, corpus.token2id, seq_num)
     elif params.dsm == 'transformer':
         dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, output_dir=str(save_path))
     elif params.dsm == 'ctn':
@@ -92,7 +92,10 @@ def main(param2val):
 
         # score spatial models
         else:
-            scores = calc_sr_cores_from_spatial_model(dsm, verb, theme, instruments, params.composition_fn)
+            if params.composition_fn == 'native':  # use next-word prediction to compute sr scores
+                scores = dsm.calc_native_sr_scores(verb, theme, instruments)
+            else:
+                scores = calc_sr_cores_from_spatial_model(dsm, verb, theme, instruments, params.composition_fn)
 
         # collect sr scores in new df
         df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
@@ -103,6 +106,10 @@ def main(param2val):
     performance = dsm.get_performance()
     s = pd.Series(performance['eval_loss'], index=performance['epoch'])
     s.name = 'eval_loss'
+
+    # save model
+    if isinstance(dsm, TransformerDSM):
+        dsm.model.save_pretrained(str(save_path))
 
     print('Completed main.job.', flush=True)
 

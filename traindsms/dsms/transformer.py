@@ -7,6 +7,9 @@ from datasets import Dataset
 
 from traindsms.params import TransformerParams
 
+EOS = '<eos>'
+PAD = '<pad>'
+
 
 class TransformerDSM:
     def __init__(self,
@@ -20,6 +23,8 @@ class TransformerDSM:
         self.seq_num = seq_num
         self.output_dir = output_dir
 
+        self.token2id[EOS] = len(self.token2id)
+        self.token2id[PAD] = len(self.token2id)
         self.vocab_size = len(self.token2id)
 
         # no gpt2 tokenizer needed because vocab is defined by corpus
@@ -41,7 +46,7 @@ class TransformerDSM:
                                 scale_attn_weights=True,
                                 use_cache=True,
                                 bos_token_id=None,
-                                eos_token_id=None,
+                                eos_token_id=self.token2id[EOS],
                                 scale_attn_by_inverse_layer_idx=False,
                                 reorder_and_upcast_attn=False,
                                 )
@@ -64,16 +69,25 @@ class TransformerDSM:
                                           disable_tqdm=True,
                                           )
 
-        # https://huggingface.co/transformers/_modules/transformers/models/gpt2/modeling_gpt2.html#GPT2Model.forward
-
         # https://github.com/huggingface/transformers/blob/master/examples/pytorch/language-modeling/run_clm.py
 
-        # TODO how to do batching?
-
         # make dataset for Trainer
-        data_in_dict = {'input_ids': [torch.LongTensor(seq_num_i).cuda() for seq_num_i in self.seq_num],
-                        'labels': [torch.LongTensor(seq_num_i).cuda() for seq_num_i in self.seq_num],
-                        # 'attention_mask': [[1] * len(seq_num_i) for seq_num_i in self.seq_num],
+        input_ids_all = []
+        labels_all = []
+        attention_mask_all = []
+        for seq_num_i in self.seq_num:
+            padded = np.full(self.params.seq_len, self.token2id[PAD], dtype=np.int32)
+            padded[:len(seq_num_i) + 1] = seq_num_i + [self.token2id[EOS]]
+            input_ids = padded
+            attention_mask = np.array(input_ids != self.token2id[PAD], dtype=np.int32)
+            # collect
+            input_ids_all.append(torch.LongTensor(input_ids).cuda())
+            labels_all.append(torch.LongTensor(input_ids).cuda())
+            attention_mask_all.append(torch.LongTensor(attention_mask).cuda())
+
+        data_in_dict = {'input_ids': input_ids_all,
+                        'labels': labels_all,
+                        'attention_mask': attention_mask_all,
                         }
         train_dataset = Dataset.from_dict(data_in_dict)
 
@@ -89,21 +103,40 @@ class TransformerDSM:
 
         self.trainer.train()
 
+        seq_tok_eval = [
+            'John preserve pepper with'.split(),
+            'John preserve orange with'.split(),
+            'John repair blender with'.split(),
+            'John repair bowl with'.split(),
+            'John pour tomato-juice with'.split(),
+            'John decorate cookie with'.split(),
+            'John carve turkey with'.split(),
+            'John heat tilapia with'.split(),
+
+
+        ]
+
         # evaluate predictions
         id2token = {i: token for token, i in self.token2id.items()}
-        for seq_num_i in self.seq_num[::100]:
-            outputs = self.model(input_ids=torch.LongTensor(seq_num_i).cuda())
+        for tokens in seq_tok_eval:
+            token_ids = [self.token2id[t] for t in tokens]
+            token_ids.append(self.token2id[EOS])
+            outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
             logits = outputs['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
-            print('Input:')
-            print([id2token[i] for i in seq_num_i])
-            print('Output:')
-            print([id2token[i] for i in np.argmax(logits, axis=1)])
+            print([f'{id2token[i]:>12}' for i in token_ids])
+            print([f'{" ":>12}'] + [f'{id2token[i]:>12}' for i in np.argmax(logits, axis=1)])
+            print([f'{" ":>12}'] + [f'{logits[n, i]}'[:12] for n, i in enumerate(np.argmax(logits, axis=1))])
+            print()
 
         self.t2e = {token: row for token, row in zip(self.token2id,
                                                      self.model.get_input_embeddings().weight.detach().cpu())}
 
     def get_performance(self) -> Dict[str, List[float]]:
-        """get train_loss from log_history saved in trainer.state after training"""
+        """
+        get eval_loss from log_history saved in trainer.state after training
+
+        Note: eval_loss is on the training data. there is no distinct eval dataset
+        """
 
         res = {'epoch': [],
                'eval_loss': []}
@@ -112,9 +145,57 @@ class TransformerDSM:
         for log_i in log_history:
             try:
                 res['eval_loss'].append(log_i['eval_loss'])
-            except KeyError: # some logs only contain "loss" instead of "train_loss"
+            except KeyError:  # some logs only contain "loss" instead of "train_loss"
                 continue
             else:
                 res['epoch'].append(log_i['epoch'])
 
         return res
+
+    def calc_native_sr_scores(self,
+                              verb: str,
+                              theme: str,
+                              instruments: List[str],
+                              ) -> List[float]:
+        """
+        use language modeling based prediction task to calculate "native" sr scores
+        """
+
+        # prepare input
+        token_ids = [self.token2id['John'], self.token2id[verb], self.token2id[theme]]
+        if 'with' in self.token2id:
+            token_ids.append(self.token2id['with'])
+        token_ids.append(self.token2id[EOS])
+
+        # get logits
+        with torch.no_grad():
+            outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
+        logits = outputs['logits']  # (seq_len, vocab_size)
+        logits_at_with = logits[-2].cpu().numpy()  # logits at position where "with" occurs, before EOS
+
+        scores = []
+        for instrument in instruments:
+
+            token_id = self.token2id[instrument]
+            sr = logits_at_with[token_id].item()
+
+            # TODO debug
+            exp_vps = {'preserve pepper',
+                       'preserve orange',
+                       'repair blender',
+                       'repair bowl',
+                       'pour tomato-juice',
+                       'decorate cookie',
+                       'carve turkey',
+                       'heat tilapia',
+                       }
+            if verb + ' ' + theme in exp_vps:
+                print(f'{verb} {theme} {instrument:>12} : {sr:.4f}')
+
+            # todo does the model need an agent in the input?
+
+            scores.append(sr)
+
+        # raise SystemExit
+
+        return scores

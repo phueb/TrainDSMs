@@ -1,14 +1,5 @@
 """
-Performance of input embeddings of Transformer of type='gpt2' on task exp2b:
-    acc=0.8 lr=0.1 epoch=100 embed_size=8 num_heads=4  inner_size=16 num_blocks=100 complete_block=T
-    acc=0.6 lr=0.1 epoch=100 embed_size=8 num_heads=4  inner_size=8  num_blocks=0   complete_block=T
-    acc=0.5 lr=0.1 epoch=200 embed_size=8 num_heads=4  inner_size=8  num_blocks=0   complete_block=T
-
-
-
-
-
-
+This is where a user specifies which model to train on which data
 """
 
 from dataclasses import dataclass, fields
@@ -26,12 +17,12 @@ DSM_NAME = ['count',        # 0
             ][2]
 
 param2requests = {
-    'seed': [0],
-    'num_epochs': [10, 50, 100],
+    # 'seed': [0],
     'complete_block': [True],
-    'num_blocks': [100],
-    'learning_rate': [0.1],
-    'inner_size': [32],
+    'num_blocks': [0],
+    'num_epochs': [300, 350, 400, 450, 500, 550, 600],
+    'composition_fn': ['native'],
+    'batch_size': [576],
 
 
 }
@@ -93,8 +84,8 @@ elif DSM_NAME == 'transformer':
         'num_heads': 4,
         'seq_len': 32,  # this must be larger than the largest sentence in the corpus
         'batch_size': 1,
-        'num_epochs': 10,
-        'learning_rate': 0.1,
+        'num_epochs': 100,
+        'learning_rate': 0.1,  # is decayed during training with Adam optimizer
     }
 
 elif DSM_NAME == 'lon':
@@ -121,14 +112,14 @@ param2requests['dsm'] = [DSM_NAME]
 
 param2default = {
     'dsm': None,
-    'composition_fn': 'multiplication',  # todo when "native" the function should be native to the model, e.g. next-word prediction with rnn
+    'composition_fn': 'multiplication',
 }
 
 param2default_corpus = {
     'include_location': False,
     'include_location_specific_agents': False,
     'seed': 0,
-    'num_blocks': 0,
+    'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
     'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
 }
 
@@ -137,6 +128,15 @@ for k in param2default_corpus:
     assert k not in param2default_dsm
 param2default.update(param2default_corpus)
 param2default.update(param2default_dsm)
+
+param2debug = {
+    'complete_block': True,
+    'num_blocks': 0,
+    'dsm': 'transformer',
+    'num_epochs': 200,
+    'composition_fn': 'native',
+    'batch_size': 576,
+}
 
 
 @dataclass
@@ -300,7 +300,7 @@ class Params:
         elif param2val['dsm'] == 'ctn':
             dsm_params = CTNParams.from_param2val(tmp)
         else:
-            raise AttributeError('Invalid arg to "dsm".')
+            raise AttributeError(f'Invalid arg to "dsm" "{param2val["dsm"]}".')
 
         corpus_params = CorpusParams.from_param2val(tmp)
         return cls(dsm=param2val['dsm'],

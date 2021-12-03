@@ -1,10 +1,8 @@
-import time
 import torch
 import pyprind
 import numpy as np
 import sys
-from typing import List, Tuple
-
+from typing import List, Dict
 
 from traindsms.params import RNNParams
 
@@ -12,13 +10,13 @@ from traindsms.params import RNNParams
 class RNN:
     def __init__(self,
                  params: RNNParams,
-                 vocab: Tuple[str],
+                 token2id: Dict[str, int],
                  seq_num: List[List[int]],
                  ):
         self.params = params
-        self.vocab = vocab
+        self.token2id = token2id
         self.seq_num = seq_num
-        self.vocab_size = len(vocab)
+        self.vocab_size = len(token2id)
 
         self.model = TorchRNN(self.params.rnn_type,
                               self.params.num_layers,
@@ -104,15 +102,17 @@ class RNN:
         res = np.exp(loss_total / batch_id + 1)
         return res
 
-    def train_epoch(self, seq_num, lr, verbose):
-        start_time = time.time()
+    def train_epoch(self,
+                    seq_num: List[List[int]],
+                    lr: float,
+                    ) -> None:
         self.model.train()
 
         # shuffle and flatten
         if self.params.shuffle_per_epoch:
             np.random.shuffle(seq_num)
-
         token_ids = np.hstack(seq_num)  # a single vector of all token IDs
+
         for batch_id, x_b, y_b in self.gen_batches(token_ids, self.params.batch_size):
 
             # forward step
@@ -165,7 +165,7 @@ class RNN:
             lr = lr * lr_decay  # decay lr if it is time
 
             # train on one epoch
-            self.train_epoch(train_seq_num, lr, verbose)
+            self.train_epoch(train_seq_num, lr)
 
             if self.params.train_percent < 1.0:
                 pp_val = self.calc_pp(valid_seq_num, verbose)
@@ -185,7 +185,31 @@ class RNN:
             print(f'\nTrain perplexity after training: {pp_train:8.2f}')
 
         wx = self.model.wx.weight.detach().cpu().numpy()
-        self.t2e = {t: embedding for t, embedding in zip(self.vocab, wx)}
+        self.t2e = {t: embedding for t, embedding in zip(self.token2id, wx)}
+
+    def calc_native_sr_scores(self,
+                              verb: str,
+                              theme: str,
+                              instruments: List[str],
+                              ) -> List[float]:
+        """
+        use language modeling based prediction task to calculate "native" sr scores
+        """
+
+        raise NotImplementedError
+
+        # get logits
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+        logits_for_instruments = outputs['logits'][-1].cpu().numpy()  # logits at last position in input
+
+        scores = []
+        for instrument in instruments:
+            token_id = self.token2id[instrument]
+            sr = logits_for_instruments[token_id].item()
+            scores.append(sr)
+
+        return scores
 
 
 class TorchRNN(torch.nn.Module):
