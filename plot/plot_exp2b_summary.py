@@ -199,5 +199,6 @@ for k, v in gn2exp2b_accuracies.items():
     print(v)
     print('-' * 32)
 
-fig = make_summary_fig(gn2exp2b_accuracies)
+fig = make_summary_fig(gn2exp2b_accuracies,
+                       h_line=0.5 if WEAK_EVALUATION else None)
 fig.show()

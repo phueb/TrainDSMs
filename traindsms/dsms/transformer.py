@@ -1,3 +1,9 @@
+"""
+A transformer based language model.
+
+Based on https://github.com/huggingface/transformers/blob/master/examples/pytorch/language-modeling/run_clm.py
+
+"""
 from transformers import GPT2LMHeadModel, GPT2Config
 from transformers import Trainer, TrainingArguments
 from typing import List, Dict
@@ -7,7 +13,6 @@ from datasets import Dataset
 
 from traindsms.params import TransformerParams
 
-EOS = '<eos>'
 PAD = '<pad>'
 
 
@@ -16,16 +21,19 @@ class TransformerDSM:
                  params: TransformerParams,
                  token2id: Dict[str, int],
                  seq_num: List[List[int]],
+                 eos: str,
                  output_dir: str
                  ):
         self.params = params
         self.token2id = token2id
         self.seq_num = seq_num
+        self.eos = eos
         self.output_dir = output_dir
 
-        self.token2id[EOS] = len(self.token2id)
         self.token2id[PAD] = len(self.token2id)
         self.vocab_size = len(self.token2id)
+
+        self.id2token = {i: token for token, i in self.token2id.items()}
 
         # no gpt2 tokenizer needed because vocab is defined by corpus
 
@@ -38,7 +46,7 @@ class TransformerDSM:
                                 n_head=params.num_heads,
                                 n_inner=params.inner_size,  # dimensionality of the inner feed-forward layers
                                 activation_function="gelu_new",
-                                resid_pdrop=params.dropout_prob,  # dropout probability for fully connected layers
+                                resid_pdrop=params.resid_pdrop,  # dropout probability for fully connected layers
                                 embd_pdrop=0.1,
                                 attn_pdrop=0.1,
                                 layer_norm_epsilon=1e-5,
@@ -46,7 +54,7 @@ class TransformerDSM:
                                 scale_attn_weights=True,
                                 use_cache=True,
                                 bos_token_id=None,
-                                eos_token_id=self.token2id[EOS],
+                                eos_token_id=self.token2id[eos],
                                 scale_attn_by_inverse_layer_idx=False,
                                 reorder_and_upcast_attn=False,
                                 )
@@ -60,7 +68,9 @@ class TransformerDSM:
                                           per_device_train_batch_size=self.params.batch_size,
                                           per_device_eval_batch_size=self.params.batch_size,
                                           learning_rate=self.params.learning_rate,
-                                          weight_decay=0.0,
+                                          weight_decay=self.params.weight_decay,
+                                          adam_beta2=self.params.adam_beta2,
+                                          adam_epsilon=self.params.adam_epsilon,
                                           max_grad_norm=1.0,
                                           num_train_epochs=self.params.num_epochs,
                                           save_strategy='no',  # do not save checkpoints
@@ -69,15 +79,15 @@ class TransformerDSM:
                                           disable_tqdm=True,
                                           )
 
-        # https://github.com/huggingface/transformers/blob/master/examples/pytorch/language-modeling/run_clm.py
-
-        # make dataset for Trainer
+        # padding and attention mask
         input_ids_all = []
         labels_all = []
         attention_mask_all = []
         for seq_num_i in self.seq_num:
+            if self.params.seq_len < len(seq_num_i):
+                raise ValueError('"seq_len" must be larger than largest number of tokens in input.')
             padded = np.full(self.params.seq_len, self.token2id[PAD], dtype=np.int32)
-            padded[:len(seq_num_i) + 1] = seq_num_i + [self.token2id[EOS]]
+            padded[:len(seq_num_i)] = seq_num_i
             input_ids = padded
             attention_mask = np.array(input_ids != self.token2id[PAD], dtype=np.int32)
             # collect
@@ -85,6 +95,7 @@ class TransformerDSM:
             labels_all.append(torch.LongTensor(input_ids).cuda())
             attention_mask_all.append(torch.LongTensor(attention_mask).cuda())
 
+        # make dataset for Trainer
         data_in_dict = {'input_ids': input_ids_all,
                         'labels': labels_all,
                         'attention_mask': attention_mask_all,
@@ -117,14 +128,12 @@ class TransformerDSM:
         ]
 
         # evaluate predictions
-        id2token = {i: token for token, i in self.token2id.items()}
         for tokens in seq_tok_eval:
             token_ids = [self.token2id[t] for t in tokens]
-            token_ids.append(self.token2id[EOS])
             outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
             logits = outputs['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
-            print([f'{id2token[i]:>12}' for i in token_ids])
-            print([f'{" ":>12}'] + [f'{id2token[i]:>12}' for i in np.argmax(logits, axis=1)])
+            print([f'{self.id2token[i]:>12}' for i in token_ids])
+            print([f'{" ":>12}'] + [f'{self.id2token[i]:>12}' for i in np.argmax(logits, axis=1)])
             print([f'{" ":>12}'] + [f'{logits[n, i]}'[:12] for n, i in enumerate(np.argmax(logits, axis=1))])
             print()
 
@@ -156,22 +165,25 @@ class TransformerDSM:
                               verb: str,
                               theme: str,
                               instruments: List[str],
+                              verbose: bool = False,
                               ) -> List[float]:
         """
         use language modeling based prediction task to calculate "native" sr scores
         """
 
+        # todo does the model need an agent in the input?
+
         # prepare input
         token_ids = [self.token2id['John'], self.token2id[verb], self.token2id[theme]]
         if 'with' in self.token2id:
             token_ids.append(self.token2id['with'])
-        token_ids.append(self.token2id[EOS])
 
         # get logits
         with torch.no_grad():
             outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
         logits = outputs['logits']  # (seq_len, vocab_size)
-        logits_at_with = logits[-2].cpu().numpy()  # logits at position where "with" occurs, before EOS
+        eval_position = token_ids.index(self.token2id['with'])
+        logits_at_with = logits[eval_position].cpu().numpy()  # logits at position where "with" occurs, before EOS
 
         scores = []
         for instrument in instruments:
@@ -179,7 +191,6 @@ class TransformerDSM:
             token_id = self.token2id[instrument]
             sr = logits_at_with[token_id].item()
 
-            # TODO debug
             exp_vps = {'preserve pepper',
                        'preserve orange',
                        'repair blender',
@@ -189,13 +200,9 @@ class TransformerDSM:
                        'carve turkey',
                        'heat tilapia',
                        }
-            if verb + ' ' + theme in exp_vps:
+            if verbose and verb + ' ' + theme in exp_vps:
                 print(f'{verb} {theme} {instrument:>12} : {sr:.4f}')
 
-            # todo does the model need an agent in the input?
-
             scores.append(sr)
-
-        # raise SystemExit
 
         return scores

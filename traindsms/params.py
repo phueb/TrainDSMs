@@ -17,15 +17,21 @@ DSM_NAME = ['count',        # 0
             ][2]
 
 param2requests = {
-    # 'seed': [0],
+    'seed': [1],
     'complete_block': [True],
-    'num_blocks': [0],
-    'num_epochs': [300, 350, 400, 450, 500, 550, 600],
+    'num_blocks': [400],
+    'num_epochs': [20],
     'composition_fn': ['native'],
-    'batch_size': [576],
+    'learning_rate': [0.1],
 
+
+    'batch_size': [1024],
+
+    'label_smoothing': [0.5],  # TODO
 
 }
+
+# ################################################## End of user-editable settings
 
 if DSM_NAME == 'count':
     param2default_dsm = {
@@ -62,7 +68,6 @@ elif DSM_NAME == 'rnn':
         'rnn_type': 'srn',
         'embed_size': 8,
         'train_percent': 1.0,
-        'shuffle_per_epoch': True,
         'embed_init_range': 0.1,
         'dropout_prob': 0,
         'num_layers': 1,
@@ -76,16 +81,23 @@ elif DSM_NAME == 'rnn':
 
 elif DSM_NAME == 'transformer':
     param2default_dsm = {
+        # architecture
         'transformer_type': 'gpt2',
-        'embed_size': 8,
-        'inner_size': 8,  # must be divisible by embed_size
-        'dropout_prob': 0,
-        'num_layers': 1,
-        'num_heads': 4,
-        'seq_len': 32,  # this must be larger than the largest sentence in the corpus
-        'batch_size': 1,
-        'num_epochs': 100,
-        'learning_rate': 0.1,  # is decayed during training with Adam optimizer
+        'embed_size': 8,            # no larger than 8
+        'inner_size': 8,            # must be divisible by embed_size
+        'resid_pdrop': 0.0,         # 0 is best with lr=0.09
+        'num_layers': 1,            # 1 layer is better than multiple
+        'num_heads': 1,             # 1 is best
+        'seq_len': 8,               # this must be larger than the largest sentence in the corpus
+        # optimization
+        'batch_size': 1024,         # 1024 is best with lr=0.1
+        'num_epochs': 20,           # 20 is best with num_blocks=400
+        'learning_rate': 0.1,       # 0.1 is best, and is decayed during training with Adam optimizer
+        'weight_decay': 0.0,        # 0.0 is best
+        'adam_beta2': 0.999,        # default, robust to small changes
+        'adam_epsilon': 1e-08,      # default, robust to small changes
+        'label_smoothing': 0.5,     # above 0.4 to get 100% accuracy
+
     }
 
 elif DSM_NAME == 'lon':
@@ -132,12 +144,14 @@ param2default.update(param2default_dsm)
 param2debug = {
     'complete_block': True,
     'num_blocks': 0,
-    'dsm': 'transformer',
-    'num_epochs': 200,
+    'dsm': 'rnn',
+    'num_epochs': 100,
     'composition_fn': 'native',
     'batch_size': 576,
 }
 
+
+# ################################################## End of default-settings
 
 @dataclass
 class CorpusParams:
@@ -172,7 +186,6 @@ class RNNParams:
     rnn_type: str
     embed_size: int
     train_percent: float
-    shuffle_per_epoch: bool
     embed_init_range: float
     dropout_prob: float
     num_layers: int
@@ -190,16 +203,22 @@ class RNNParams:
 
 @dataclass
 class TransformerParams:
+    # architecture
     transformer_type: str
     embed_size: int
-    inner_size: int  # usually 4x larger than embed_size
-    dropout_prob: float
+    inner_size: int
+    resid_pdrop: float
     num_layers: int
     num_heads: int
     seq_len: int
+    # optimization
     batch_size: int
     num_epochs: int
     learning_rate: float
+    weight_decay: float
+    adam_beta2: float
+    adam_epsilon: float
+    label_smoothing: float
 
     @classmethod
     def from_param2val(cls, param2val):

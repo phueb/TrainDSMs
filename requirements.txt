@@ -13,4 +13,4 @@ torch~=1.6
 transformers~=4.12.5
 datasets~=1.16.1
 https://github.com/phueb/Ludwig/archive/v4.0.5.tar.gz
-https://github.com/phueb/MissingAdjunct/archive/v1.2.1.tar.gz
+https://github.com/phueb/MissingAdjunct/archive/v1.3.0.tar.gz

@@ -70,7 +70,7 @@ def main(param2val):
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.token2id, seq_num)
     elif params.dsm == 'transformer':
-        dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, output_dir=str(save_path))
+        dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, eos=corpus.eos, output_dir=str(save_path))
     elif params.dsm == 'ctn':
         dsm = CTN(params.dsm_params, corpus.token2id, seq_parsed)
     elif params.dsm == 'lon':
@@ -104,8 +104,11 @@ def main(param2val):
 
     # prepare collected data for returning to Ludwig
     performance = dsm.get_performance()
-    s = pd.Series(performance['eval_loss'], index=performance['epoch'])
-    s.name = 'eval_loss'
+    series_list = []
+    for k, v in performance.items():
+        s = pd.Series(v, index=performance['epoch'])
+        s.name = k
+        series_list.append(s)
 
     # save model
     if isinstance(dsm, TransformerDSM):
@@ -113,5 +116,5 @@ def main(param2val):
 
     print('Completed main.job.', flush=True)
 
-    return [s]
+    return series_list
 

@@ -16,6 +16,7 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
                      confidence: float = 0.95,
                      y_grid: bool = False,
                      ylims: Optional[List[float]] = None,
+                     h_line: Optional[float] = None,
                      ):
     # fig
     fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
@@ -37,7 +38,12 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    ax.set_xticklabels(gn2accuracies, fontsize=6)
+    if len(gn2accuracies) > 6:
+        x_tick_labels = [gn if n == 0 or n == len(gn2accuracies) -1 else ''
+                         for n, gn in enumerate(gn2accuracies)]
+    else:
+        x_tick_labels = gn2accuracies
+    ax.set_xticklabels(x_tick_labels, fontsize=6)
 
     # y axis
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
@@ -46,7 +52,8 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
     palette = np.asarray(sns.color_palette('hls', num_groups))
     colors = iter(palette)
 
-    ax.axhline(y=0.5, color='grey', linestyle=':', zorder=1)
+    if h_line is not None:
+        ax.axhline(y=h_line, color='grey', linestyle=':', zorder=1)
 
     # plot
     for edge, color, group_name in zip(edges, colors, gn2accuracies):
