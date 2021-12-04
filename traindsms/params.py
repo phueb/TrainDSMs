@@ -20,11 +20,9 @@ param2requests = {
     'seed': [1],
     'composition_fn': ['native'],
 
-    'embed_size': [8],
-    'num_epochs': [100],
-    'num_blocks': [0],
+    'num_epochs': [10]
 
-    'embed_init_range': [0.1, 0.2, 0.3, 0.4],
+    # TODO lstm?
 
 
 }
@@ -65,17 +63,17 @@ elif DSM_NAME == 'rnn':
     param2default_dsm = {
         # architecture
         'rnn_type': 'srn',
-        'embed_size': 8,
+        'embed_size': 8,            # 8 is best
         'num_layers': 1,
         'train_percent': 1.0,
         # optimization
-        'embed_init_range': 0.1,    # not clear
-        'dropout_prob': 0.0,
+        'embed_init_range': 0.1,    # 0.1 is good
+        'dropout_prob': 0.0,        # must be 0.0 with num_layers=1
         'batch_size': 64,           # 64 is good
         'num_epochs': 10,           # no more than 10 needed with batch_size=64
         'learning_rate': 0.1,       # 0.1 with batch_size=64
         'grad_clip': 1.0,
-        'lr_decay': 0.0,            # 0.001 but no larger
+        'lr_decay': 0.001,          # 0.001 but no larger
         'weight_decay': 0.0,        # keep at 0
     }
 

@@ -123,7 +123,7 @@ def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epo
     for color, group_name in zip(colors, gn2accuracy_mat):
         mat = gn2accuracy_mat[group_name]
         y_mean = np.mean(mat, axis=0)
-        x = np.arange(len(y_mean))
+        x = np.arange(len(y_mean)) + 1  # + 1 because data is not saved for epoch=0
 
         # margin of error (across paradigms, not replications)
         n = len(mat)
@@ -142,7 +142,7 @@ def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epo
 
         if len(x) > max_num_epochs:
             ax.set_xticks(x)
-            ax.set_xticklabels(['' if n % 10 != 0 else xi for xi in x])
+            ax.set_xticklabels(['' if xi % 10 != 0 else xi for xi in x])
             max_num_epochs = len(x)
 
     plt.tight_layout()

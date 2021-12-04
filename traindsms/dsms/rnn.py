@@ -57,28 +57,33 @@ class RNN:
         this function does not return moving windows.
         """
 
+        print(f'Generating batches for {len(seq_num)} sequences', flush=True)
+
         if batch_size is None:
             batch_size = self.params.batch_size
 
         # shuffle and flatten
         np.random.shuffle(seq_num)
 
-        # get seq lengths
-        seq_lengths = set([len(s) for s in seq_num])
+        # separate sequences by length to avoid padding batches
+        length2seq_group = defaultdict(list)
+        for s in seq_num:
+            length2seq_group[len(s)].append(s)
+        for k, v in length2seq_group.items():
+            print(f'Found {len(v):>12,} sequences with length={k:>6}', flush=True)
 
-        # batch by sequence length to avoid padding
-        for seq_len in seq_lengths:
-            seq_sized = (s for s in seq_num if len(s) == seq_len)
+        # collect sequences of same length into batches
+        for seq_len, seq_group in length2seq_group.items():
 
-            # collect sequences into batch
-            seq_b = []
-            while len(seq_b) < batch_size:
-                try:
-                    seq_b.append(next(seq_sized))
-                except StopIteration:
-                    break
+            is_leftover_batch = len(seq_group) % batch_size != 0
+            num_batches = len(seq_group) // batch_size + int(is_leftover_batch)
+            for i in range(num_batches):
+                start = batch_size * i
+                seq_b = seq_group[start:start + batch_size]  # if end index is too large, small batch is created
+                if len(seq_b) != batch_size:
+                    print(f'Found abnormal batch_size={len(seq_b)}')  # this is by design
 
-            yield seq_b
+                yield seq_b
 
     def calc_pp(self,
                 seq_num: List[List[int]],  # sequences of token IDs
@@ -114,6 +119,7 @@ class RNN:
                     ) -> None:
         self.model.train()
 
+        num_batches = 0
         for seq_b in self.gen_batches(seq_num):  # generates batches of complete sequences
 
             # forward step
@@ -134,6 +140,10 @@ class RNN:
                                                max_norm=self.params.grad_clip,
                                                norm_type=2)
             self.optimizer.step()
+
+            num_batches += 1
+
+        print(f'Trained on {num_batches} batches (={num_batches * self.params.batch_size} sequences)', flush=True)
 
     def train(self,
               verbose: bool = True,
@@ -177,6 +187,7 @@ class RNN:
             self.performance['epoch'].append(epoch)
 
             if verbose:
+                print()
                 print(f'Epoch {epoch:>6}', flush=True)
 
             # train on one epoch
