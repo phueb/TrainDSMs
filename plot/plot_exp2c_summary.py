@@ -6,7 +6,7 @@ from collections import defaultdict
 from ludwig.results import gen_param_paths
 
 from traindsms import __name__, config
-from traindsms.figs import make_summary_fig
+from traindsms.figs import make_bar_plot
 from traindsms.summary import save_summary_to_txt
 from traindsms.params import param2default, param2requests
 
@@ -107,5 +107,5 @@ for k, v in gn2exp2c_accuracies.items():
     print(v)
     print('-' * 32)
 
-fig = make_summary_fig(gn2exp2c_accuracies)
+fig = make_bar_plot(gn2exp2c_accuracies)
 fig.show()

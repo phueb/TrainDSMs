@@ -10,6 +10,8 @@ from typing import List, Dict
 import torch
 import numpy as np
 from datasets import Dataset
+import pandas as pd
+from pathlib import Path
 
 from traindsms.params import TransformerParams
 
@@ -21,14 +23,18 @@ class TransformerDSM:
                  params: TransformerParams,
                  token2id: Dict[str, int],
                  seq_num: List[List[int]],
+                 df_blank: pd.DataFrame,
+                 instruments: List[str],
+                 save_path: Path,
                  eos: str,
-                 output_dir: str
                  ):
         self.params = params
         self.token2id = token2id
         self.seq_num = seq_num
+        self.df_blank = df_blank
+        self.instruments = instruments
+        self.save_path = save_path
         self.eos = eos
-        self.output_dir = output_dir
 
         self.token2id[PAD] = len(self.token2id)
         self.vocab_size = len(self.token2id)
@@ -50,7 +56,7 @@ class TransformerDSM:
                                 embd_pdrop=0.1,
                                 attn_pdrop=0.1,
                                 layer_norm_epsilon=1e-5,
-                                initializer_range=0.02,
+                                initializer_range=params.initializer_range,
                                 scale_attn_weights=True,
                                 use_cache=True,
                                 bos_token_id=None,
@@ -64,7 +70,7 @@ class TransformerDSM:
 
         self.t2e = None
 
-        training_args = TrainingArguments(output_dir=self.output_dir,
+        training_args = TrainingArguments(output_dir=str(self.save_path),
                                           per_device_train_batch_size=self.params.batch_size,
                                           per_device_eval_batch_size=self.params.batch_size,
                                           learning_rate=self.params.learning_rate,
@@ -165,7 +171,6 @@ class TransformerDSM:
                               verb: str,
                               theme: str,
                               instruments: List[str],
-                              verbose: bool = False,
                               ) -> List[float]:
         """
         use language modeling based prediction task to calculate "native" sr scores
@@ -190,19 +195,23 @@ class TransformerDSM:
 
             token_id = self.token2id[instrument]
             sr = logits_at_with[token_id].item()
-
-            exp_vps = {'preserve pepper',
-                       'preserve orange',
-                       'repair blender',
-                       'repair bowl',
-                       'pour tomato-juice',
-                       'decorate cookie',
-                       'carve turkey',
-                       'heat tilapia',
-                       }
-            if verbose and verb + ' ' + theme in exp_vps:
-                print(f'{verb} {theme} {instrument:>12} : {sr:.4f}')
-
             scores.append(sr)
 
         return scores
+
+    def fill_in_blank_df_and_save(self, epoch: int):
+        """
+        fill in blank data frame with semantic-relatedness scores
+        """
+
+        # TODO add this to train loop (get rid of huggingface Trainer?)
+        # todo https://github.com/huggingface/transformers/blob/master/src/transformers/trainer.py#L1017
+
+        df_results = self.df_blank.copy()
+
+        for verb_phrase, row in self.df_blank.iterrows():
+            verb, theme = verb_phrase.split()
+            scores = self.calc_native_sr_scores(verb, theme, self.instruments)
+            df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+
+        df_results.to_csv(self.save_path / f'df_sr_{epoch:06}.csv')

@@ -39,7 +39,7 @@ def main(param2val):
                     seed=params.corpus_params.seed,
                     )
 
-    # load evaluation df
+    # load blank df for evaluating sr scores
     df_blank = make_blank_sr_df()
     df_results = df_blank.copy()
     instruments = df_blank.columns[3:]  # instrument columns start after the 3rd column
@@ -68,9 +68,9 @@ def main(param2val):
     elif params.dsm == 'glove':
         dsm = GloVe(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'rnn':
-        dsm = RNN(params.dsm_params, corpus.token2id, seq_num)
+        dsm = RNN(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path)
     elif params.dsm == 'transformer':
-        dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, eos=corpus.eos, output_dir=str(save_path))
+        dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path, corpus.eos)
     elif params.dsm == 'ctn':
         dsm = CTN(params.dsm_params, corpus.token2id, seq_parsed)
     elif params.dsm == 'lon':
@@ -106,6 +106,8 @@ def main(param2val):
     performance = dsm.get_performance()
     series_list = []
     for k, v in performance.items():
+        if k == 'epoch':
+            continue
         s = pd.Series(v, index=performance['epoch'])
         s.name = k
         series_list.append(s)

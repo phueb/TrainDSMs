@@ -14,20 +14,18 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][2]
+            ][1]
 
 param2requests = {
     'seed': [1],
-    'complete_block': [True],
-    'num_blocks': [400],
-    'num_epochs': [20],
     'composition_fn': ['native'],
-    'learning_rate': [0.1],
 
+    'embed_size': [8],
+    'num_epochs': [100],
+    'num_blocks': [0],
 
-    'batch_size': [1024],
+    'embed_init_range': [0.1, 0.2, 0.3, 0.4],
 
-    'label_smoothing': [0.5],  # TODO
 
 }
 
@@ -65,17 +63,20 @@ elif DSM_NAME == 'glove':
 
 elif DSM_NAME == 'rnn':
     param2default_dsm = {
+        # architecture
         'rnn_type': 'srn',
         'embed_size': 8,
-        'train_percent': 1.0,
-        'embed_init_range': 0.1,
-        'dropout_prob': 0,
         'num_layers': 1,
-        'seq_len': 4,
-        'batch_size': 2,
-        'num_epochs': 10,
-        'learning_rate': (0.1, 0.95, 1),  # initial, decay, num_epochs_without_decay
-        'grad_clip': None,
+        'train_percent': 1.0,
+        # optimization
+        'embed_init_range': 0.1,    # not clear
+        'dropout_prob': 0.0,
+        'batch_size': 64,           # 64 is good
+        'num_epochs': 10,           # no more than 10 needed with batch_size=64
+        'learning_rate': 0.1,       # 0.1 with batch_size=64
+        'grad_clip': 1.0,
+        'lr_decay': 0.0,            # 0.001 but no larger
+        'weight_decay': 0.0,        # keep at 0
     }
 
 
@@ -83,20 +84,21 @@ elif DSM_NAME == 'transformer':
     param2default_dsm = {
         # architecture
         'transformer_type': 'gpt2',
-        'embed_size': 8,            # no larger than 8
-        'inner_size': 8,            # must be divisible by embed_size
-        'resid_pdrop': 0.0,         # 0 is best with lr=0.09
-        'num_layers': 1,            # 1 layer is better than multiple
-        'num_heads': 1,             # 1 is best
-        'seq_len': 8,               # this must be larger than the largest sentence in the corpus
+        'embed_size': 8,                # no larger than 8
+        'inner_size': 4,                # must be divisible by embed_size
+        'resid_pdrop': 0.0,             # 0 is best with lr=0.09
+        'num_layers': 1,                # 1 layer is better than multiple
+        'num_heads': 1,                 # 1 is best
+        'seq_len': 8,                   # this must be larger than the largest sentence in the corpus
         # optimization
-        'batch_size': 1024,         # 1024 is best with lr=0.1
-        'num_epochs': 20,           # 20 is best with num_blocks=400
-        'learning_rate': 0.1,       # 0.1 is best, and is decayed during training with Adam optimizer
-        'weight_decay': 0.0,        # 0.0 is best
-        'adam_beta2': 0.999,        # default, robust to small changes
-        'adam_epsilon': 1e-08,      # default, robust to small changes
-        'label_smoothing': 0.5,     # above 0.4 to get 100% accuracy
+        'batch_size': 128,              # should be smaller than 576 (size of complete block)
+        'num_epochs': 20,               # 20 is best with num_blocks=400, less or more hurts exp2b accuracy
+        'learning_rate': 0.01,          # is decayed during training with Adam optimizer
+        'weight_decay': 0.0,            # 0.0 is best
+        'adam_beta2': 0.999,            # default, robust to small changes
+        'adam_epsilon': 1e-08,          # default, robust to small changes
+        'label_smoothing': 0.0,         # default, robust to small changes
+        'initializer_range': 0.003,     # 0.003 is better than default 0.002
 
     }
 
@@ -128,11 +130,11 @@ param2default = {
 }
 
 param2default_corpus = {
+    'seed': 0,
+    'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
+    'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
     'include_location': False,
     'include_location_specific_agents': False,
-    'seed': 0,
-    'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
-    'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
 }
 
 # avoid keys with the same name
@@ -145,11 +147,19 @@ param2debug = {
     'complete_block': True,
     'num_blocks': 0,
     'dsm': 'rnn',
-    'num_epochs': 100,
-    'composition_fn': 'native',
-    'batch_size': 576,
+    'num_epochs': 10,
 }
 
+
+if 'dropout_prob' in param2requests:
+    for dp in param2requests['dropout_prob']:
+        if dp > 0.0:
+            if 'num_layers' in param2requests:
+                if param2requests['num_layers'] == 1:
+                    raise ValueError('Cannot use non-zero dropout when num_layers=1')
+            else:
+                if param2default['num_layers'] == 1:
+                    raise ValueError('Cannot use non-zero dropout when num_layers=1')
 
 # ################################################## End of default-settings
 
@@ -183,17 +193,20 @@ class CountParams:
 
 @dataclass
 class RNNParams:
+    # architecture
     rnn_type: str
     embed_size: int
+    num_layers: int
     train_percent: float
+    # optimization
     embed_init_range: float
     dropout_prob: float
-    num_layers: int
-    seq_len: int
     batch_size: int
     num_epochs: int
-    learning_rate: Tuple[float, float, float]
+    learning_rate: float
     grad_clip: Optional[float]
+    lr_decay: float
+    weight_decay: float
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -219,6 +232,7 @@ class TransformerParams:
     adam_beta2: float
     adam_epsilon: float
     label_smoothing: float
+    initializer_range: float
 
     @classmethod
     def from_param2val(cls, param2val):

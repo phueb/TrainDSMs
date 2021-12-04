@@ -6,7 +6,7 @@ from collections import defaultdict
 from ludwig.results import gen_param_paths
 
 from traindsms import __name__, config
-from traindsms.figs import make_summary_fig
+from traindsms.figs import make_bar_plot
 from traindsms.summary import save_summary_to_txt
 from traindsms.params import param2default, param2requests
 
@@ -22,7 +22,7 @@ FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
 CONFIDENCE: float = 0.95
 TITLE = ''
 
-WEAK_EVALUATION = 0
+WEAK_EVALUATION = 1
 
 # collect accuracies
 gn2exp2b_accuracies = defaultdict(list)
@@ -47,6 +47,8 @@ for param_path, label in gen_param_paths(project_name,
                       (df['phrase-type'] == 'observed')]
         hits = 0
         for verb_phrase, row in df_exp2b.iterrows():
+            
+            verb, theme = verb_phrase.split()
 
             if WEAK_EVALUATION:  # a hit only requires that one instrument is scored greater than another
 
@@ -87,10 +89,8 @@ for param_path, label in gen_param_paths(project_name,
 
             else:  # strong evaluation requires that instruments be ranked correctly (1st and 2nd rank)
 
-                verb_phrase = verb_phrase.split()
-
-                if verb_phrase[0] == 'preserve':
-                    if verb_phrase[1] == 'pepper':
+                if verb == 'preserve':
+                    if theme == 'pepper':
                         top1 = 'vinegar'
                         top2 = 'dehydrator'
                     else:
@@ -100,9 +100,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-
-                elif verb_phrase[0] == 'repair':
-                    if verb_phrase[1] == 'blender':
+                elif verb == 'repair':
+                    if theme == 'blender':
                         top1 = 'wrench'
                         top2 = 'glue'
                     else:
@@ -112,10 +111,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-
-
-                elif verb_phrase[0] == 'pour':
-                    if verb_phrase[1] == 'tomato-juice':
+                elif verb == 'pour':
+                    if theme == 'tomato-juice':
                         top1 = 'pitcher'
                         top2 = 'canister'
                     else:
@@ -125,9 +122,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-
-                elif verb_phrase[0] == 'decorate':
-                    if verb_phrase[1] == 'cookie':
+                elif verb == 'decorate':
+                    if theme == 'cookie':
                         top1 = 'icing'
                         top2 = 'paint'
                     else:
@@ -137,9 +133,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-
-                elif verb_phrase[0] == 'carve':
-                    if verb_phrase[1] == 'turkey':
+                elif verb == 'carve':
+                    if theme == 'turkey':
                         top1 = 'knife'
                         top2 = 'chisel'
                     else:
@@ -149,8 +144,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-                elif verb_phrase[0] == 'heat':
-                    if verb_phrase[1] == 'tilapia':
+                elif verb == 'heat':
+                    if theme == 'tilapia':
                         top1 = 'oven'
                         top2 = 'furnace'
                     else:
@@ -160,8 +155,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-                elif verb_phrase[0] == 'cut':
-                    if verb_phrase[1] == 'sock':
+                elif verb == 'cut':
+                    if theme == 'sock':
                         top1 = 'scissors'
                         top2 = 'saw'
                     else:
@@ -171,8 +166,8 @@ for param_path, label in gen_param_paths(project_name,
                     other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                     hits += int(other_max < row[top2] and row[top2] < row[top1])
 
-                elif verb_phrase[0] == 'clean':
-                    if verb_phrase[1] == 'faceshield':
+                elif verb == 'clean':
+                    if theme == 'faceshield':
                         top1 = 'towel'
                         top2 = 'vacuum'
                     else:
@@ -199,6 +194,6 @@ for k, v in gn2exp2b_accuracies.items():
     print(v)
     print('-' * 32)
 
-fig = make_summary_fig(gn2exp2b_accuracies,
-                       h_line=0.5 if WEAK_EVALUATION else None)
+fig = make_bar_plot(gn2exp2b_accuracies,
+                    h_line=0.5 if WEAK_EVALUATION else None)
 fig.show()

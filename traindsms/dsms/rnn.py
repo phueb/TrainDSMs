@@ -2,7 +2,10 @@ import torch
 import pyprind
 import numpy as np
 import sys
-from typing import List, Dict
+from typing import List, Dict, Optional
+from collections import defaultdict
+import pandas as pd
+from pathlib import Path
 
 from traindsms.params import RNNParams
 
@@ -11,74 +14,75 @@ class RNN:
     def __init__(self,
                  params: RNNParams,
                  token2id: Dict[str, int],
-                 seq_num: List[List[int]],
+                 seq_num: List[List[int]],  # sequences of token IDs, "numeric sequences"
+                 df_blank: pd.DataFrame,
+                 instruments: List[str],
+                 save_path: Path,
                  ):
         self.params = params
         self.token2id = token2id
         self.seq_num = seq_num
+        self.df_blank = df_blank
+        self.instruments = instruments
+        self.save_path = save_path
+
         self.vocab_size = len(token2id)
+        self.id2token = {i: token for token, i in self.token2id.items()}
 
         self.model = TorchRNN(self.params.rnn_type,
                               self.params.num_layers,
                               self.params.embed_size,
-                              self.params.batch_size,
                               self.params.embed_init_range,
+                              self.params.dropout_prob,
                               self.vocab_size)
         self.model.cuda()  # call this before constructing optimizer
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adagrad(self.model.parameters(), lr=self.params.learning_rate[0])
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(),
+                                             lr=self.params.learning_rate,
+                                             lr_decay=self.params.lr_decay,
+                                             weight_decay=self.params.weight_decay)
 
         self.t2e = None
+        self.performance = defaultdict(list)
 
-    def gen_windows(self, token_ids):
+    def gen_batches(self,
+                    seq_num: List[List[int]],  # sequences of token IDs
+                    batch_size: Optional[int] = None,
+                    ):
         """
-        yield collections of input and output sequences (x, and y).
+        generate sequences for predicting next-tokens.
 
-        x and y are matrices of shape (num sequences, seq_len)
+        Note:
+        each token in each sequence must be predicted during training.
+        this function does not return moving windows.
         """
-        remainder = len(token_ids) % self.params.seq_len
-        for i in range(self.params.seq_len):
-            seq = np.roll(token_ids, i)  # rightward
-            # make divisible so that we can reshape
-            seq = seq[:-remainder] if remainder != 0 else seq
-            x = np.reshape(seq, (-1, self.params.seq_len))
-            # get next-token for each token in x
-            y = np.roll(x, -1)
 
-            # the last x, y pair must be excluded because rolling results in last y = first x which is not correct
-            x = x[:-1]
-            y = y[:-1]
+        if batch_size is None:
+            batch_size = self.params.batch_size
 
-            yield i, x, y
+        # shuffle and flatten
+        np.random.shuffle(seq_num)
 
-    def gen_batches(self, token_ids, batch_size):
-        batch_id = 0
-        for step_id, x, y in self.gen_windows(token_ids):  # more memory efficient not to create all windows in data
+        # get seq lengths
+        seq_lengths = set([len(s) for s in seq_num])
 
-            # exclude some rows to split x and y evenly by batch size
-            shape0 = len(x)
-            num_excluded = shape0 % batch_size
-            if num_excluded > 0:  # in case mb_size = 1
-                x = x[:-num_excluded]
-                y = y[:-num_excluded]
-            shape0_adj = shape0 - num_excluded
+        # batch by sequence length to avoid padding
+        for seq_len in seq_lengths:
+            seq_sized = (s for s in seq_num if len(s) == seq_len)
 
-            # yield excluded x,y pairs (when they do not evenly fit into a batch)
-            if num_excluded > 0:
-                yield batch_id, x[-num_excluded:, :], y[-num_excluded:, -1]  # todo test
-                batch_id += 1
+            # collect sequences into batch
+            seq_b = []
+            while len(seq_b) < batch_size:
+                try:
+                    seq_b.append(next(seq_sized))
+                except StopIteration:
+                    break
 
-            # split into batches
-            num_batches = shape0_adj // batch_size
-            for x_b, y_b in zip(np.vsplit(x, num_batches),
-                                np.vsplit(y, num_batches)):
-                yield batch_id, x_b, y_b[:, -1]
-                batch_id += 1
+            yield seq_b
 
     def calc_pp(self,
                 seq_num: List[List[int]],  # sequences of token IDs
                 verbose: bool,
-                batch_size_eval=1,
                 ):
         if verbose:
             print('Calculating perplexity...')
@@ -86,52 +90,57 @@ class RNN:
         self.model.eval()
 
         loss_total = 0
-        batch_id = 0
-        token_ids = np.hstack(seq_num)
-        for batch_id, x_b, y_b in self.gen_batches(token_ids, batch_size_eval):
-            # feed-forward
-            inputs = torch.LongTensor(x_b).cuda()
-            targets = torch.LongTensor(y_b).cuda()
-            logits = self.model(inputs)
-
-            # compute loss
-            self.optimizer.zero_grad()  # sets all gradients to zero
-            loss = self.criterion(logits, targets)
-            loss_total += loss.item()
-
-        res = np.exp(loss_total / batch_id + 1)
-        return res
-
-    def train_epoch(self,
-                    seq_num: List[List[int]],
-                    lr: float,
-                    ) -> None:
-        self.model.train()
-
-        # shuffle and flatten
-        if self.params.shuffle_per_epoch:
-            np.random.shuffle(seq_num)
-        token_ids = np.hstack(seq_num)  # a single vector of all token IDs
-
-        for batch_id, x_b, y_b in self.gen_batches(token_ids, self.params.batch_size):
+        num_loss = 0
+        for seq_b in self.gen_batches(seq_num):
 
             # forward step
-            inputs = torch.LongTensor(x_b).cuda()  # batch_first=True
-            targets = torch.LongTensor(y_b).cuda()
-            logits = self.model(inputs)
+            input_ids = torch.LongTensor(seq_b).cuda()[:, :-1]  # batch_first=True
+            logits = self.model(input_ids)  # logits at all time steps [batch_size * seq_len, vocab_size]
 
             # backward step
             self.optimizer.zero_grad()  # sets all gradients to zero
-            loss = self.criterion(logits, targets)
-            loss.backward()
-            if self.params.grad_clip is not None:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.params.grad_clip)
-                for p in self.model.parameters():
-                    p.data.add_(-lr, p.grad.data)  # TODO lr decay only happens with grad clipping
-            else:
-                self.optimizer.step()
+            labels = torch.LongTensor(seq_b).cuda()[:, 1:]
+            labels = torch.flatten(labels)
+            loss = self.criterion(logits,  # [batch_size * seq_len, vocab_size]
+                                  labels)  # [batch_size * seq_len]
+            loss_total += loss.item()
+            num_loss += 1
 
-    def train(self, verbose=True, calc_pp_train=True):
+        res = np.exp(loss_total / num_loss)
+        return res
+
+    def train_epoch(self,
+                    seq_num: List[List[int]],  # sequences of token IDs
+                    ) -> None:
+        self.model.train()
+
+        for seq_b in self.gen_batches(seq_num):  # generates batches of complete sequences
+
+            # forward step
+            input_ids = torch.LongTensor(seq_b).cuda()[:, :-1]  # batch_first=True
+            logits = self.model(input_ids)  # logits at all time steps [batch_size * seq_len, vocab_size]
+
+            # backward step
+            self.optimizer.zero_grad()  # sets all gradients to zero
+            labels = torch.LongTensor(seq_b).cuda()[:, 1:]
+            labels = torch.flatten(labels)
+            loss = self.criterion(logits,  # [batch_size * seq_len, vocab_size]
+                                  labels)  # [batch_size * seq_len]
+            loss.backward()
+
+            # gradient clipping + update weights
+            if self.params.grad_clip is not None:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(),
+                                               max_norm=self.params.grad_clip,
+                                               norm_type=2)
+            self.optimizer.step()
+
+    def train(self,
+              verbose: bool = True,
+              calc_pp_train_during_training: bool = True,
+              calc_pp_train_after_training: bool = False,
+              score_exp2b: bool = True,
+              ):
 
         # split data
         train_seq_num = []
@@ -145,32 +154,48 @@ class RNN:
                     valid_seq_num.append(seq_num_i)
                 else:
                     test_seq_num.append(seq_num_i)
-        print('Num docs in train {} valid {} test {}'.format(
-            len(train_seq_num), len(valid_seq_num), len(test_seq_num)))
+        print(f'Num sequences in train={len(train_seq_num):,}')
+        print(f'Num sequences in valid={len(valid_seq_num):,}')
+        print(f'Num sequences in test ={len(test_seq_num):,}')
 
-        if calc_pp_train:
-            pp_train = self.calc_pp(train_seq_num, verbose)
-            print(f'\nTrain perplexity before training: {pp_train:8.2f}')
+        # get unique sequences in train data for evaluating train_pp
+        train_seq_num_unique = []
+        for s in train_seq_num:
+            if s not in train_seq_num_unique:
+                train_seq_num_unique.append(s)
+        print(f'Num unique sequences in train ={len(train_seq_num_unique):,}')
+
+        if calc_pp_train_during_training:
+            pp_train = self.calc_pp(train_seq_num_unique, verbose)
+            self.performance['epoch'].append(0)
+            self.performance['pp_train'].append(pp_train)
+            print(f'Train perplexity at epoch {0}: {pp_train:8.2f}')
 
         # train loop
-        lr = self.params.learning_rate[0]  # initial
-        decay = self.params.learning_rate[1]
-        num_epochs_without_decay = self.params.learning_rate[2]
         pbar = pyprind.ProgBar(self.params.num_epochs, stream=sys.stdout)
-        for epoch in range(self.params.num_epochs):
+        for epoch in range(1, self.params.num_epochs + 1):
+            self.performance['epoch'].append(epoch)
+
             if verbose:
-                print()
-                print(f'Starting epoch {epoch} with lr={lr:.6f}')
-            lr_decay = decay ** max(epoch - num_epochs_without_decay, 0)
-            lr = lr * lr_decay  # decay lr if it is time
+                print(f'Epoch {epoch:>6}', flush=True)
 
             # train on one epoch
-            self.train_epoch(train_seq_num, lr)
+            self.train_epoch(train_seq_num)
+
+            # evaluate on experiment 2b
+            if score_exp2b:
+                self.fill_in_blank_df_and_save(epoch)
 
             if self.params.train_percent < 1.0:
                 pp_val = self.calc_pp(valid_seq_num, verbose)
+                self.performance['pp_val'].append(pp_val)
                 if verbose:
-                    print('\nValidation perplexity at epoch {}: {:8.2f}'.format(epoch, pp_val))
+                    print(f'Validation perplexity at epoch {epoch}: {pp_val:8.2f}')
+
+            if calc_pp_train_during_training:
+                pp_train = self.calc_pp(train_seq_num_unique, verbose)
+                self.performance['pp_train'].append(pp_train)
+                print(f'Train perplexity at epoch {epoch}: {pp_train:8.2f}')
 
             if not verbose:
                 pbar.update()
@@ -178,38 +203,108 @@ class RNN:
         if self.params.train_percent < 1.0:
             pp_val = self.calc_pp(valid_seq_num, verbose)
             if verbose:
-                print('\nValidation perplexity after training: {:8.2f}'.format(pp_val))
+                print(f'Validation perplexity after training: {pp_val:8.2f}')
 
-        if calc_pp_train:
+        if calc_pp_train_after_training:
             pp_train = self.calc_pp(train_seq_num, verbose)
-            print(f'\nTrain perplexity after training: {pp_train:8.2f}')
+            self.performance['pp_train'].append(pp_train)
+            self.performance['epoch'].append(self.performance['epoch'][-1] + 1)
+            print(f'Train perplexity after training: {pp_train:8.2f}')
 
+        # evaluate predictions
+        seq_tok_eval = [
+            'John preserve pepper with'.split(),
+            'John preserve orange with'.split(),
+            'John repair blender with'.split(),
+            'John repair bowl with'.split(),
+            'John pour tomato-juice with'.split(),
+            'John decorate cookie with'.split(),
+            'John carve turkey with'.split(),
+            'John heat tilapia with'.split(),
+
+        ]
+        with torch.no_grad():
+            x_b = [[self.token2id[t] for t in tokens] for tokens in seq_tok_eval]
+            logits = self.model.predict_next_token(input_ids=torch.LongTensor(x_b).cuda())
+            logits_batch = logits.cpu().numpy()  # logits at last time step, [batch_size=8, vocab_size]
+
+        for tokens, logits in zip(seq_tok_eval, logits_batch):
+            predicted_token_id = np.argmax(logits, axis=0)
+            print([f'{t:>12}' for t in tokens])
+            print([f'{" ":>12}'] * (len(tokens)) + [f'{self.id2token[predicted_token_id]:>12}'])
+            print()
+
+        # save token embeddings
         wx = self.model.wx.weight.detach().cpu().numpy()
         self.t2e = {t: embedding for t, embedding in zip(self.token2id, wx)}
+
+    def get_performance(self) -> Dict[str, List[float]]:
+        return self.performance
 
     def calc_native_sr_scores(self,
                               verb: str,
                               theme: str,
                               instruments: List[str],
+                              verbose: bool = True,
                               ) -> List[float]:
         """
         use language modeling based prediction task to calculate "native" sr scores
         """
 
-        raise NotImplementedError
+        # TODO does Agent need to be in input to perform well on exp2b?
 
-        # get logits
+        # prepare input
+        token_ids = [self.token2id['John'], self.token2id[verb], self.token2id[theme]]
+        if 'with' in self.token2id:
+            token_ids.append(self.token2id['with'])
+
+        # get logits (at last time step)
         with torch.no_grad():
-            outputs = self.model(**inputs)
-        logits_for_instruments = outputs['logits'][-1].cpu().numpy()  # logits at last position in input
+            x_b = [token_ids]
+            logits_at_last_step = self.model.predict_next_token(torch.LongTensor(x_b).cuda())  # [1, vocab_size]
+            logits_at_last_step = logits_at_last_step.squeeze()  # [vocab_size]
 
+        # these are printed to console
+        exp_vps = {'preserve pepper',
+                   # 'preserve orange',
+                   # 'repair blender',
+                   # 'repair bowl',
+                   # 'pour tomato-juice',
+                   # 'decorate cookie',
+                   # 'carve turkey',
+                   # 'heat tilapia',
+                   }
+
+        # get scores
         scores = []
         for instrument in instruments:
             token_id = self.token2id[instrument]
-            sr = logits_for_instruments[token_id].item()
+            sr = logits_at_last_step[token_id].item()
             scores.append(sr)
 
+            if verbose and verb + ' ' + theme in exp_vps:
+                print(f'{verb} {theme} {instrument:>12} : {sr: .4f}')
+
+        if verbose and verb + ' ' + theme in exp_vps:
+            print()
+
         return scores
+
+    def fill_in_blank_df_and_save(self, epoch: int):
+        """
+        fill in blank data frame with semantic-relatedness scores
+        """
+        self.model.eval()
+
+        df_results = self.df_blank.copy()
+
+        for verb_phrase, row in self.df_blank.iterrows():
+            verb_phrase: str
+            verb, theme = verb_phrase.split()
+            scores = self.calc_native_sr_scores(verb, theme, self.instruments)
+            df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+
+        df_results.to_csv(self.save_path / f'df_sr_{epoch:06}.csv')
 
 
 class TorchRNN(torch.nn.Module):
@@ -217,16 +312,14 @@ class TorchRNN(torch.nn.Module):
                  rnn_type: str,
                  num_layers: int,
                  embed_size: int,
-                 batch_size: int,
                  embed_init_range: float,
+                 dropout_prob: float,
                  vocab_size: int,
                  ):
         super().__init__()
         self.rnn_type = rnn_type
-        self.num_layers = num_layers
         self.embed_size = embed_size
-        self.batch_size = batch_size
-        self.embed_init_range = embed_init_range
+        self.vocab_size = vocab_size
 
         self.wx = torch.nn.Embedding(vocab_size, self.embed_size)
         if self.rnn_type == 'lstm':
@@ -235,28 +328,39 @@ class TorchRNN(torch.nn.Module):
             self.cell = torch.nn.RNN
         else:
             raise AttributeError('Invalid arg to "rnn_type".')
-        self.rnn = self.cell(input_size=self.embed_size,
-                             hidden_size=self.embed_size,
-                             num_layers=self.num_layers,
+        self.rnn = self.cell(input_size=embed_size,
+                             hidden_size=embed_size,
+                             num_layers=num_layers,
                              batch_first=True,
-                             dropout=self.dropout_prob if self.num_layers > 1 else 0)
-        self.wy = torch.nn.Linear(in_features=self.embed_size,
+                             dropout=dropout_prob)
+        self.wy = torch.nn.Linear(in_features=embed_size,
                                   out_features=vocab_size)
-        self.init_weights()
 
-    def init_weights(self):
-        self.wx.weight.data.uniform_(-self.embed_init_range, self.embed_init_range)
+        # init weights
+        self.wx.weight.data.uniform_(-embed_init_range, embed_init_range)
+        max_w = np.sqrt(1 / self.embed_size)
+        self.wy.weight.data.uniform_(-max_w, max_w)
         self.wy.bias.data.fill_(0.0)
-        self.wy.weight.data.uniform_(-self.embed_init_range, self.embed_init_range)
 
-    def forward(self, inputs):
-        embeds = self.wx(inputs)
+    def predict_next_token(self, input_ids):
+        embeds = self.wx(input_ids)
         outputs, hidden = self.rnn(embeds)  # this returns all time steps
         final_outputs = torch.squeeze(outputs[:, -1])
         logits = self.wy(final_outputs)
 
         # keep first dim
-        if len(inputs) == 1:
+        if len(input_ids) == 1:
+            logits = torch.unsqueeze(logits, 0)
+
+        return logits
+
+    def forward(self, input_ids):
+        embeds = self.wx(input_ids)
+        outputs, hidden = self.rnn(embeds)  # this returns all time steps
+        logits = self.wy(outputs.reshape(-1, self.embed_size))
+
+        # keep first dim
+        if len(input_ids) == 1:
             logits = torch.unsqueeze(logits, 0)
 
         return logits
