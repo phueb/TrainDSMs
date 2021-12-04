@@ -7,18 +7,21 @@ from typing import List, Tuple, Dict, Optional
 from traindsms import config
 
 
-def make_summary_fig(gn2accuracies: Dict[str, List[float]],
-                     figsize: Tuple[int, int] = (8, 4),
-                     title: str = '',
-                     xlabel: str = 'Model',
-                     ylabel: str = 'Accuracy',
-                     width: float = 0.2,
-                     confidence: float = 0.95,
-                     y_grid: bool = False,
-                     ylims: Optional[List[float]] = None,
-                     h_line: Optional[float] = None,
-                     ):
-    # fig
+def make_bar_plot(gn2accuracies: Dict[str, List[float]],
+                  figsize: Tuple[int, int] = (8, 4),
+                  title: str = '',
+                  xlabel: str = 'Model',
+                  ylabel: str = 'Accuracy',
+                  width: float = 0.2,
+                  confidence: float = 0.95,
+                  y_grid: bool = False,
+                  ylims: Optional[List[float]] = None,
+                  h_line: Optional[float] = None,
+                  ):
+    """
+    plot average accuracy by group (job) at end of training.
+    """
+
     fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
     plt.title(title)
     ax.spines['right'].set_visible(False)
@@ -72,6 +75,75 @@ def make_summary_fig(gn2accuracies: Dict[str, List[float]],
                color=color,
                zorder=3,
                )
+
+    plt.tight_layout()
+    return fig
+
+
+def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epochs]
+                   figsize: Tuple[int, int] = (8, 4),
+                   title: str = '',
+                   xlabel: str = 'Epoch',
+                   ylabel: str = 'Accuracy',
+                   confidence: float = 0.95,
+                   y_grid: bool = False,
+                   ylims: Optional[List[float]] = None,
+                   h_line: Optional[float] = None,
+                   ):
+    """
+    plot average accuracy by group across training.
+    """
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
+    plt.title(title)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.tick_params(axis='both', which='both', top=False, right=False)
+    if y_grid:
+        ax.yaxis.grid(True)
+    if ylims is not None:
+        ax.set_ylim(ylims)
+    else:
+        ax.set_ylim([0.0, 1.0])
+
+    # axes
+    ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
+    ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
+
+    # colors
+    num_groups = len(gn2accuracy_mat)
+    palette = np.asarray(sns.color_palette('hls', num_groups))
+    colors = iter(palette)
+
+    if h_line is not None:
+        ax.axhline(y=h_line, color='grey', linestyle=':', zorder=1)
+
+    # plot
+    max_num_epochs = 1
+    for color, group_name in zip(colors, gn2accuracy_mat):
+        mat = gn2accuracy_mat[group_name]
+        y_mean = np.mean(mat, axis=0)
+        x = np.arange(len(y_mean))
+
+        # margin of error (across paradigms, not replications)
+        n = len(mat)
+        h = sem(mat, axis=0) * t.ppf((1 + confidence) / 2, n - 1)  # margin of error
+
+        # plot
+        ax.plot(x, y_mean, '-',
+                color=color,
+                label=group_name,
+                )
+        ax.fill_between(x,
+                        y_mean + h,
+                        y_mean - h,
+                        alpha=0.2,
+                        color=color)
+
+        if len(x) > max_num_epochs:
+            ax.set_xticks(x)
+            ax.set_xticklabels(['' if n % 10 != 0 else xi for xi in x])
+            max_num_epochs = len(x)
 
     plt.tight_layout()
     return fig
