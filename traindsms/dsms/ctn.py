@@ -2,7 +2,7 @@ import math
 import time
 import networkx as nx
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from collections import defaultdict
 
 from traindsms.params import CTNParams
@@ -22,7 +22,7 @@ class CTN(NetworkBaseClass):
     def __init__(self,
                  params: CTNParams,
                  token2id: Dict[str, int],
-                 seq_parsed,
+                 seq_parsed: List[Tuple],
                  ):
         NetworkBaseClass.__init__(self)
 

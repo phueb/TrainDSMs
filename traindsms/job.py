@@ -12,7 +12,7 @@ from traindsms.dsms.random_control import RandomControlDSM
 from traindsms.dsms.w2vec import W2Vec
 from traindsms.dsms.glove import GloVe
 from traindsms.dsms.rnn import RNN
-from traindsms.dsms.transformer import TransformerDSM
+from traindsms.dsms.transformer import Transformer
 from traindsms.dsms.ctn import CTN
 from traindsms.dsms.lon import LON
 
@@ -70,7 +70,7 @@ def main(param2val):
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path)
     elif params.dsm == 'transformer':
-        dsm = TransformerDSM(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path, corpus.eos)
+        dsm = Transformer(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path, corpus.eos)
     elif params.dsm == 'ctn':
         dsm = CTN(params.dsm_params, corpus.token2id, seq_parsed)
     elif params.dsm == 'lon':
@@ -113,7 +113,7 @@ def main(param2val):
         series_list.append(s)
 
     # save model
-    if isinstance(dsm, TransformerDSM):
+    if isinstance(dsm, Transformer):
         dsm.model.save_pretrained(str(save_path))
 
     print('Completed main.job.', flush=True)

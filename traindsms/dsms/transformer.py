@@ -18,7 +18,7 @@ from traindsms.params import TransformerParams
 PAD = '<pad>'
 
 
-class TransformerDSM:
+class Transformer:
     def __init__(self,
                  params: TransformerParams,
                  token2id: Dict[str, int],

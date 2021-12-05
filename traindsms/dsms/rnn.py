@@ -2,22 +2,65 @@ import torch
 import pyprind
 import numpy as np
 import sys
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from collections import defaultdict
 import pandas as pd
 from pathlib import Path
+import random
+import torch
+import yaml
 
-from traindsms.params import RNNParams
+from missingadjunct.corpus import Corpus
+
+from traindsms.params import RNNParams, Params
 
 
 class RNN:
+
+    @classmethod
+    def from_pretrained(cls,
+                        param_path: Path,
+                        ):
+        """Load RNN from saved state_dict"""
+
+        # get params
+        with (param_path / 'param2val.yaml').open('r') as f:
+            param2val = yaml.load(f, Loader=yaml.FullLoader)
+        params = Params.from_param2val(param2val)
+
+        # load corpus to get vocab
+        corpus = Corpus(include_location=params.corpus_params.include_location,
+                        include_location_specific_agents=params.corpus_params.include_location_specific_agents,
+                        num_epochs=params.corpus_params.num_blocks,
+                        complete_epoch=params.corpus_params.complete_block,
+                        seed=params.corpus_params.seed,
+                        )
+
+        # get instance
+        dsm = cls(params.dsm_params, corpus.token2id, seq_num=[])
+
+        # load saved state_dict
+        print(f'Looking for saved models in {param_path}')
+        model_files = list(param_path.rglob('**/saves/model.pt'))
+        print(f'Found {len(model_files)} saved models')
+        path_cpt = random.choice(model_files)
+        state_dict = torch.load(path_cpt)
+
+        # load state_dict into instance
+        dsm.model.load_state_dict(state_dict)
+        dsm.model.cpu()
+        print(f'Loaded model from {path_cpt}')
+
+        return dsm
+
     def __init__(self,
                  params: RNNParams,
                  token2id: Dict[str, int],
                  seq_num: List[List[int]],  # sequences of token IDs, "numeric sequences"
-                 df_blank: pd.DataFrame,
-                 instruments: List[str],
-                 save_path: Path,
+                 # exp2b specific arguments:
+                 df_blank: Optional[pd.DataFrame] = None,
+                 instruments: Optional[List[str]] = None,
+                 save_path: Optional[Path] = None,
                  ):
         self.params = params
         self.token2id = token2id
@@ -245,9 +288,12 @@ class RNN:
             print([f'{" ":>12}'] * (len(tokens)) + [f'{self.id2token[predicted_token_id]:>12}'])
             print()
 
-        # save token embeddings
+        # get token embeddings
         wx = self.model.wx.weight.detach().cpu().numpy()
         self.t2e = {t: embedding for t, embedding in zip(self.token2id, wx)}
+
+        # save model to disk
+        torch.save(self.model.state_dict(), self.save_path / 'model.pt')
 
     def get_performance(self) -> Dict[str, List[float]]:
         return self.performance
@@ -306,6 +352,10 @@ class RNN:
         fill in blank data frame with semantic-relatedness scores
         """
         self.model.eval()
+
+        if (self.df_blank is None) or (self.instruments is None) or (self.save_path is None):
+            raise RuntimeError('To fill in blank sr dataframe,'
+                               ' RNN must be provided with blank df, instruments, and save path.')
 
         df_results = self.df_blank.copy()
 
