@@ -128,7 +128,8 @@ for param_path, label in gen_param_paths(project_name,
 
         gn2exp2a_accuracies[label].append(hits / len(df_exp2a))
 
-
+if not gn2exp2a_accuracies:
+    raise SystemExit('Did not find results')
 
 gn2exp2a_accuracies = {k: v for k, v in sorted(gn2exp2a_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
 

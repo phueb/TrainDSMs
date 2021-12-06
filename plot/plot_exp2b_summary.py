@@ -184,6 +184,8 @@ for param_path, label in gen_param_paths(project_name,
 
     # save_summary_to_txt(summary, pattern)
 
+if not gn2exp2b_accuracies:
+    raise SystemExit('Did not find results')
 
 # sort
 gn2exp2b_accuracies = {k: v for k, v in sorted(gn2exp2b_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
