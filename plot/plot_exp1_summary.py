@@ -23,6 +23,7 @@ CONFIDENCE: float = 0.95
 TITLE = ''
 
 WEAK_EVALUATION = False
+EXPERIMENT = '1a'  # 1a, 1b, or 1c
 
 # collect accuracies
 gn2exp1a_accuracies = defaultdict(list)
@@ -41,21 +42,23 @@ for param_path, label in gen_param_paths(project_name,
         # read data
         df = pd.read_csv(p, index_col=0, squeeze=True)
 
-        # exp 1a
-        df_exp1a = df[(df['verb-type'] == 2) &
-                      (df['theme-type'] == 'control') &
-                      (df['phrase-type'] == 'observed')]
-
-        #df_exp1b = df[(df['verb-type'] == 2) &
-        #              (df['theme-type'] == 'experimental') &
-        #              (df['phrase-type'] == 'unobserved')]
-        #df_exp1c = df[(df['verb-type'] == 2) &
-        #              (df['theme-type'] == 'experimental') &
-        #              (df['phrase-type'] == 'unobserved')]
-
+        if EXPERIMENT == '1a':
+            df_exp1 = df[(df['verb-type'] == 2) &
+                          (df['theme-type'] == 'control') &
+                          (df['phrase-type'] == 'observed')]
+        elif EXPERIMENT == '1b':
+            df_exp1 = df[(df['verb-type'] == 2) &
+                         (df['theme-type'] == 'experimental') &
+                         (df['phrase-type'] == 'unobserved')]
+        elif EXPERIMENT == '1c':
+            df_exp1 = df[(df['verb-type'] == 2) &
+                         (df['theme-type'] == 'experimental') &
+                         (df['phrase-type'] == 'unobserved')]
+        else:
+            raise AttributeError('Invalid arg to EXPERIMENT')
 
         hits = 0
-        for verb_phrase, row in df_exp1a.iterrows():
+        for verb_phrase, row in df_exp1.iterrows():
             verb_phrase = verb_phrase.split()
 
             if verb_phrase[0] == 'grow':
@@ -88,7 +91,7 @@ for param_path, label in gen_param_paths(project_name,
                 other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['utensil'])
 
-            elif verb_phrase[0] == 'bake':
+            elif verb_phrase[0] == 'grill':
                 row_drop = row.drop(['bbq'])
                 other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['bbq'])
@@ -142,7 +145,7 @@ for param_path, label in gen_param_paths(project_name,
             else:
                 raise RuntimeError(f'Did not recognize verb-phrase "{verb_phrase}".')
 
-        gn2exp1a_accuracies['test'].append(hits / len(df_exp1a))
+        gn2exp1a_accuracies['test'].append(hits / len(df_exp1))
 
 
 

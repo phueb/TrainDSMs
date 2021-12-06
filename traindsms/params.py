@@ -17,7 +17,7 @@ DSM_NAME = ['count',        # 0
             ][6]
 
 param2requests = {
-    'composition_fn': ['multiplicative'],
+    # 'composition_fn': ['multiplicative'],
 
     # TODO lstm?
 

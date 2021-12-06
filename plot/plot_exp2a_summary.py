@@ -95,7 +95,6 @@ for param_path, label in gen_param_paths(project_name,
                 other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row[to_drop])
 
-
             elif verb_phrase[0] == 'heat':
                 if verb_phrase[1] == 'salmon' or verb_phrase[1] == 'trout':
                     to_drop = 'oven'
@@ -104,7 +103,6 @@ for param_path, label in gen_param_paths(project_name,
                 row_drop = row.drop(to_drop)
                 other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row[to_drop])
-
 
             elif verb_phrase[0] == 'cut':
                 if verb_phrase[1] == 'shirt' or verb_phrase[1] == 'pants':
