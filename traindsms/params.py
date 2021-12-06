@@ -14,13 +14,10 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][1]
+            ][6]
 
 param2requests = {
-    #'seed': [0, 1, 2, 3, 4, 5],
-    #'composition_fn': ['native'],
-
-
+    'composition_fn': ['multiplicative'],
 
     # TODO lstm?
 
@@ -128,7 +125,6 @@ param2default = {
 }
 
 param2default_corpus = {
-    'seed': 1,
     'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
     'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
     'include_location': False,
@@ -151,6 +147,7 @@ param2debug = {
 
 if 'dropout_prob' in param2requests:
     for dp in param2requests['dropout_prob']:
+        dp: float
         if dp > 0.0:
             if 'num_layers' in param2requests:
                 if param2requests['num_layers'] == 1:
@@ -159,13 +156,20 @@ if 'dropout_prob' in param2requests:
                 if param2default['num_layers'] == 1:
                     raise ValueError('Cannot use non-zero dropout when num_layers=1')
 
+
+if DSM_NAME == 'ctn':
+    if 'composition_fn' in param2requests:
+        for comp_fn in param2requests['composition_fn']:
+            comp_fn: str
+            if comp_fn != 'native':
+                raise ValueError('CTN requires composition_fn=native')
+
 # ################################################## End of default-settings
 
 @dataclass
 class CorpusParams:
     include_location: bool
     include_location_specific_agents: bool
-    seed: int
     num_blocks: int
     complete_block: bool
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 import pandas as pd
+import random
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
@@ -36,7 +37,7 @@ def main(param2val):
                     include_location_specific_agents=params.corpus_params.include_location_specific_agents,
                     num_epochs=params.corpus_params.num_blocks,
                     complete_epoch=params.corpus_params.complete_block,
-                    seed=params.corpus_params.seed,
+                    seed=random.randint(0, 1000),
                     )
 
     # load blank df for evaluating sr scores
