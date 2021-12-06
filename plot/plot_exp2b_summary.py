@@ -195,5 +195,6 @@ for k, v in gn2exp2b_accuracies.items():
     print('-' * 32)
 
 fig = make_bar_plot(gn2exp2b_accuracies,
+                    ylabel='Exp2b Accuracy',
                     h_line=0.5 if WEAK_EVALUATION else None)
 fig.show()

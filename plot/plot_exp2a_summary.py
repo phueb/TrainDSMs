@@ -138,5 +138,6 @@ for k, v in gn2exp2a_accuracies.items():
     print(v)
     print('-' * 32)
 
-fig = make_bar_plot(gn2exp2a_accuracies)
+fig = make_bar_plot(gn2exp2a_accuracies,
+                    ylabel='Exp2a Accuracy',)
 fig.show()

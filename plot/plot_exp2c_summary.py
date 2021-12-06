@@ -107,5 +107,6 @@ for k, v in gn2exp2c_accuracies.items():
     print(v)
     print('-' * 32)
 
-fig = make_bar_plot(gn2exp2c_accuracies)
+fig = make_bar_plot(gn2exp2c_accuracies,
+                    ylabel='Exp2c Accuracy',)
 fig.show()

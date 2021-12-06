@@ -14,11 +14,13 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][4]
+            ][6]
 
 param2requests = {
     # 'rnn_type': ['srn', 'lstm'],
-    'composition_fn': ['multiplication', 'addition'],
+    # 'composition_fn': ['multiplication', 'addition'],
+
+    'add_with': [True, False]
 
 
 }
@@ -128,6 +130,7 @@ param2default_corpus = {
     'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
     'include_location': False,
     'include_location_specific_agents': False,
+    'add_with': True,
 }
 
 # avoid keys with the same name
@@ -182,6 +185,7 @@ class CorpusParams:
     include_location_specific_agents: bool
     num_blocks: int
     complete_block: bool
+    add_with: bool
 
     @classmethod
     def from_param2val(cls, param2val):

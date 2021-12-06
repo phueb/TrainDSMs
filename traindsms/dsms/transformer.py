@@ -129,12 +129,12 @@ class Transformer:
             'John decorate cookie with'.split(),
             'John carve turkey with'.split(),
             'John heat tilapia with'.split(),
-
-
         ]
 
         # evaluate predictions
         for tokens in seq_tok_eval:
+            if 'with' not in self.token2id:
+                tokens = tokens[:-1]
             token_ids = [self.token2id[t] for t in tokens]
             outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
             logits = outputs['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
@@ -187,8 +187,7 @@ class Transformer:
         with torch.no_grad():
             outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
         logits = outputs['logits']  # (seq_len, vocab_size)
-        eval_position = token_ids.index(self.token2id['with'])
-        logits_at_with = logits[eval_position].cpu().numpy()  # logits at position where "with" occurs, before EOS
+        logits_at_with = logits[-1].cpu().numpy()
 
         scores = []
         for instrument in instruments:

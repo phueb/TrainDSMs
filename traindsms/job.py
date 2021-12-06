@@ -38,6 +38,7 @@ def main(param2val):
                     num_epochs=params.corpus_params.num_blocks,
                     complete_epoch=params.corpus_params.complete_block,
                     seed=random.randint(0, 1000),
+                    add_with=params.corpus_params.add_with,
                     )
 
     # load blank df for evaluating sr scores
