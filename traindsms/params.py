@@ -20,7 +20,7 @@ param2requests = {
     'seed': [1],
     'composition_fn': ['native'],
 
-    'num_epochs': [10]
+    'num_epochs': [3000000]
 
     # TODO lstm?
 
