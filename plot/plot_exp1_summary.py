@@ -145,7 +145,7 @@ for param_path, label in gen_param_paths(project_name,
             else:
                 raise RuntimeError(f'Did not recognize verb-phrase "{verb_phrase}".')
 
-        gn2exp1a_accuracies['test'].append(hits / len(df_exp1))
+        gn2exp1a_accuracies[label].append(hits / len(df_exp1))
 
 
 

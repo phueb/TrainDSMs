@@ -14,10 +14,10 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][6]
+            ][1]
 
 param2requests = {
-    # 'composition_fn': ['multiplicative'],
+    'rnn_type': ['srn', 'lstm'],
 
     # TODO lstm?
 
