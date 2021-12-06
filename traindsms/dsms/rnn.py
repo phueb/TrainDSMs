@@ -276,8 +276,11 @@ class RNN:
             'John decorate cookie with'.split(),
             'John carve turkey with'.split(),
             'John heat tilapia with'.split(),
-
         ]
+
+        if 'with' not in self.token2id:
+            seq_tok_eval = [s[:-1] for s in seq_tok_eval]
+
         with torch.no_grad():
             x_b = [[self.token2id[t] for t in tokens] for tokens in seq_tok_eval]
             logits = self.model.predict_next_token(input_ids=torch.LongTensor(x_b).cuda())

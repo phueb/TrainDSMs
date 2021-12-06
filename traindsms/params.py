@@ -14,7 +14,7 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][6]
+            ][1]
 
 param2requests = {
     # 'rnn_type': ['srn', 'lstm'],

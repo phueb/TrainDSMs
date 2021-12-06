@@ -131,10 +131,11 @@ class Transformer:
             'John heat tilapia with'.split(),
         ]
 
+        if 'with' not in self.token2id:
+            seq_tok_eval = [s[:-1] for s in seq_tok_eval]
+
         # evaluate predictions
         for tokens in seq_tok_eval:
-            if 'with' not in self.token2id:
-                tokens = tokens[:-1]
             token_ids = [self.token2id[t] for t in tokens]
             outputs = self.model(input_ids=torch.LongTensor(token_ids).cuda())
             logits = outputs['logits'].detach().cpu().numpy()  # [seq_len, vocab_size]
