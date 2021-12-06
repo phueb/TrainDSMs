@@ -83,3 +83,6 @@ class LON(NetworkBaseClass):
             scores.append(sr)
 
         return scores
+
+    def get_performance(self):
+        return  {}

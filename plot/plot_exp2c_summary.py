@@ -32,7 +32,7 @@ for param_path, label in gen_param_paths(project_name,
                                          param2default,
                                          isolated=True if RUNS_PATH is not None else False,
                                          runs_path=RUNS_PATH,
-                                         ludwig_data_path=LUDWIG_DATA_PATH,
+                                         #ludwig_data_path=LUDWIG_DATA_PATH,
                                          label_n=LABEL_N,
                                          require_all_found=False,
                                          ):

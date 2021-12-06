@@ -17,10 +17,10 @@ DSM_NAME = ['count',        # 0
             ][1]
 
 param2requests = {
-    'seed': [1],
-    'composition_fn': ['native'],
+    #'seed': [0, 1, 2, 3, 4, 5],
+    #'composition_fn': ['native'],
 
-    'num_epochs': [3000000]
+
 
     # TODO lstm?
 
@@ -124,11 +124,11 @@ param2requests['dsm'] = [DSM_NAME]
 
 param2default = {
     'dsm': None,
-    'composition_fn': 'multiplication',
+    'composition_fn': 'native',
 }
 
 param2default_corpus = {
-    'seed': 0,
+    'seed': 1,
     'complete_block': True,  # generate all possible samples, in addition to num_blocks, e.g. 576 for exp2
     'num_blocks': 400,  # 400 produces better loss in transformer than fewer blocks
     'include_location': False,

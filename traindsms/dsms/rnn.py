@@ -44,7 +44,7 @@ class RNN:
         model_files = list(param_path.rglob('**/saves/model.pt'))
         print(f'Found {len(model_files)} saved models')
         path_cpt = random.choice(model_files)
-        state_dict = torch.load(path_cpt)
+        state_dict = torch.load(path_cpt, map_location=torch.device('cpu'))
 
         # load state_dict into instance
         dsm.model.load_state_dict(state_dict)
@@ -78,12 +78,7 @@ class RNN:
                               self.params.embed_init_range,
                               self.params.dropout_prob,
                               self.vocab_size)
-        self.model.cuda()  # call this before constructing optimizer
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adagrad(self.model.parameters(),
-                                             lr=self.params.learning_rate,
-                                             lr_decay=self.params.lr_decay,
-                                             weight_decay=self.params.weight_decay)
+
 
         self.t2e = None
         self.performance = defaultdict(list)
@@ -195,6 +190,12 @@ class RNN:
               score_exp2b: bool = True,
               ):
 
+        self.model.cuda()  # call this before constructing optimizer
+        self.criterion = torch.nn.CrossEntropyLoss()
+        self.optimizer = torch.optim.Adagrad(self.model.parameters(),
+                                             lr=self.params.learning_rate,
+                                             lr_decay=self.params.lr_decay,
+                                             weight_decay=self.params.weight_decay)
         # split data
         train_seq_num = []
         valid_seq_num = []

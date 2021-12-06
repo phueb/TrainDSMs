@@ -295,6 +295,10 @@ class CTN(NetworkBaseClass):
             print(f'Relatedness between {verb + WS + theme:>22} and {instrument:>12} is {sr:.4f}', flush=True)
             scores.append(sr)
 
+        return scores
+
+    def get_performance(self):
+        return  {}
 
 def convert_to_tuple(iterable):
     """

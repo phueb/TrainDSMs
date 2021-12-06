@@ -22,7 +22,7 @@ FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
 CONFIDENCE: float = 0.95
 TITLE = ''
 
-WEAK_EVALUATION = 1
+WEAK_EVALUATION = 0
 
 # collect accuracies
 gn2exp2b_accuracies = defaultdict(list)
@@ -32,7 +32,7 @@ for param_path, label in gen_param_paths(project_name,
                                          param2default,
                                          isolated=True if RUNS_PATH is not None else False,
                                          runs_path=RUNS_PATH,
-                                         ludwig_data_path=LUDWIG_DATA_PATH,
+                                         #ludwig_data_path=LUDWIG_DATA_PATH,
                                          label_n=LABEL_N,
                                          require_all_found=False,
                                          ):
