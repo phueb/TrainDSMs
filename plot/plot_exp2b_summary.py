@@ -10,7 +10,7 @@ from traindsms.figs import make_bar_plot
 from traindsms.summary import save_summary_to_txt
 from traindsms.params import param2default, param2requests
 
-LUDWIG_DATA_PATH: Optional[Path] = Path('/media/ludwig_data')
+LUDWIG_DATA_PATH: Optional[Path] = None
 RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 LABEL_N: bool = True  # add information about number of replications to legend
@@ -32,7 +32,7 @@ for param_path, label in gen_param_paths(project_name,
                                          param2default,
                                          isolated=True if RUNS_PATH is not None else False,
                                          runs_path=RUNS_PATH,
-                                         #ludwig_data_path=LUDWIG_DATA_PATH,
+                                         ludwig_data_path=LUDWIG_DATA_PATH,
                                          label_n=LABEL_N,
                                          require_all_found=False,
                                          ):

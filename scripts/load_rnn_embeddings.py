@@ -9,7 +9,7 @@ from traindsms.params import param2default, param2requests
 from traindsms.dsms.rnn import RNN
 
 
-LUDWIG_DATA_PATH: Optional[Path] = Path('/media/ludwig_data')
+LUDWIG_DATA_PATH: Optional[Path] = None
 RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 project_name = __name__
