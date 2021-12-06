@@ -9,6 +9,8 @@ def compose(fn: str,
 
     if fn == 'multiplication':
         return vector1 * vector2
+    elif fn == 'addition':
+        return vector1 * vector2
     else:
         raise NotImplementedError
 

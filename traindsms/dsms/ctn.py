@@ -298,7 +298,7 @@ class CTN(NetworkBaseClass):
         return scores
 
     def get_performance(self):
-        return  {}
+        return {}
 
 def convert_to_tuple(iterable):
     """

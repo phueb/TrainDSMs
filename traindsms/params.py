@@ -14,12 +14,11 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][1]
+            ][4]
 
 param2requests = {
-    'rnn_type': ['srn', 'lstm'],
-
-    # TODO lstm?
+    # 'rnn_type': ['srn', 'lstm'],
+    'composition_fn': ['multiplication', 'addition'],
 
 
 }
@@ -144,6 +143,7 @@ param2debug = {
     'num_epochs': 10,
 }
 
+# ################################################## Checks
 
 if 'dropout_prob' in param2requests:
     for dp in param2requests['dropout_prob']:
@@ -164,7 +164,17 @@ if DSM_NAME == 'ctn':
             if comp_fn != 'native':
                 raise ValueError('CTN requires composition_fn=native')
 
-# ################################################## End of default-settings
+if DSM_NAME == 'w2v':
+    if 'composition_fn' in param2requests:
+        for comp_fn in param2requests['composition_fn']:
+            comp_fn: str
+            if comp_fn == 'native':
+                raise ValueError('Word2vec does not implement composition_fn=native')
+    elif 'composition_fn' in param2default:
+        if param2default['composition_fn'] == 'native':
+            raise ValueError('Word2vec does not implement composition_fn=native')
+
+# ################################################## End of checks
 
 @dataclass
 class CorpusParams:

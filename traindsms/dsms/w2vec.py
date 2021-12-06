@@ -31,3 +31,6 @@ class W2Vec:
                       hs=1)
 
         self.t2e = {t: np.asarray(sg.wv[t]) for t in self.vocab}
+
+    def get_performance(self):
+        return {}
