@@ -14,14 +14,33 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][1]
+            ][0]
 
 param2requests = {
     # 'rnn_type': ['srn', 'lstm'],
-    # 'composition_fn': ['multiplication', 'addition'],
 
-    'add_with': [True, False]
+    'composition_fn': ['multiplication', 'addition'],
 
+    'add_with': [True, False],
+
+    'count_type': [
+        ('ww', 'backward', 1, 'flat'),
+        ('ww', 'backward', 2, 'flat'),
+        ('ww', 'backward', 3, 'flat'),
+        ('ww', 'backward', 4, 'flat'),
+        ('ww', 'forward', 1, 'flat'),
+        ('ww', 'forward', 2, 'flat'),
+        ('ww', 'forward', 3, 'flat'),
+        ('ww', 'forward', 4, 'flat'),
+        ('ww', 'summed', 1, 'flat'),
+        ('ww', 'summed', 2, 'flat'),
+        ('ww', 'summed', 3, 'flat'),
+        ('ww', 'summed', 4, 'flat'),
+        ('ww', 'concatenated', 1, 'flat'),
+        ('ww', 'concatenated', 2, 'flat'),
+        ('ww', 'concatenated', 3, 'flat'),
+        ('ww', 'concatenated', 4, 'flat'),
+    ]
 
 }
 
@@ -176,6 +195,15 @@ if DSM_NAME == 'w2v':
     elif 'composition_fn' in param2default:
         if param2default['composition_fn'] == 'native':
             raise ValueError('Word2vec does not implement composition_fn=native')
+
+if DSM_NAME == 'count':
+    if 'composition_fn' in param2requests:
+        for comp_fn in param2requests['composition_fn']:
+            comp_fn: str
+            if comp_fn == 'native':
+                raise ValueError('Count models are not compatible with composition_fn=native')
+    elif param2default['composition_fn'] == 'native':
+        raise ValueError('Count models are not compatible with composition_fn=native')
 
 # ################################################## End of checks
 

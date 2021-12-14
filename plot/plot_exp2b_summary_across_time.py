@@ -198,7 +198,7 @@ for param_path, label in gen_param_paths(__name__,
                 gn2exp2b_accuracy_mat[label] = np.zeros((num_reps, num_epochs))
             gn2exp2b_accuracy_mat[label][rep_id, epoch - 1] = acc_i  # -1 because epoch starts at 1
 
-    # save_summary_to_txt(summary, pattern)
+
 
 if not gn2exp2b_accuracy_mat:
     raise SystemExit('Did not find results')

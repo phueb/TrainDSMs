@@ -33,22 +33,29 @@ class CountDSM:
         window_size = self.params.count_type[2]
         window_weight = self.params.count_type[3]
 
+        print('Counting word-word co-occurrences in {}-word moving window'.format(window_size))
+
         # count
         num_docs = len(self.seq_num)
         pbar = pyprind.ProgBar(num_docs, stream=sys.stdout)
         count_matrix = np.zeros([self.vocab_size, self.vocab_size], int)
-        print('\nCounting word-word co-occurrences in {}-word moving window'.format(window_size))
         for token_ids in self.seq_num:
             token_ids += [PAD] * window_size  # add padding such that all co-occurrences in last window are captured
+
             if VERBOSE:
                 print(token_ids)
-            windows = itertoolz.sliding_window(window_size + 1, token_ids)  # + 1 because window consists of t2s only
-            for w in windows:
+
+            for w in itertoolz.sliding_window(window_size + 1, token_ids):  # + 1 because window consists of t2s only
+
                 if VERBOSE:
                     print([self.vocab[i] if isinstance(i, int) else PAD for i in w])
-                for t1_id, t2_id, dist in zip([w[0]] * window_size,
-                                              w[1:],
-                                              range(window_size)):
+
+                # in a window, we count all co-occurrences between first token and all others.
+                # a co-occurrence is between a t1_id and a t2_id, each corresponds to the ID of a token in the vocab.
+
+                t1_id = w[0]
+                for dist, t2_id in enumerate(w[1:]):
+
                     # increment
                     if t1_id == PAD or t2_id == PAD:
                         continue
@@ -58,6 +65,7 @@ class CountDSM:
                         count_matrix[t1_id, t2_id] += 1
                     if VERBOSE:
                         print('row {:>3} col {:>3} set to {}'.format(t1_id, t2_id, count_matrix[t1_id, t2_id]))
+
             if VERBOSE:
                 print()
             pbar.update()
@@ -73,7 +81,9 @@ class CountDSM:
             final_matrix = np.concatenate((count_matrix, count_matrix.transpose()), axis=1)
         else:
             raise AttributeError('Invalid arg to "window_type".')
+
         print('Shape of normalized matrix={}'.format(final_matrix.shape))
+
         return final_matrix
 
     # ////////////////////////////////////////////////// word-by-document
@@ -109,6 +119,9 @@ class CountDSM:
         self.t2e = {t: e for t, e in zip(self.vocab, reduced_matrix)}
 
         return reduced_matrix  # for unittest
+
+    def get_performance(self):
+        return {}
 
 # ////////////////////////////////////////////////// normalizations
 
