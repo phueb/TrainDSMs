@@ -23,23 +23,18 @@ param2requests = {
 
     'add_with': [True, False],
 
-    'count_type': [
-        ('ww', 'backward', 1, 'flat'),
-        ('ww', 'backward', 2, 'flat'),
-        ('ww', 'backward', 3, 'flat'),
-        ('ww', 'backward', 4, 'flat'),
-        ('ww', 'forward', 1, 'flat'),
-        ('ww', 'forward', 2, 'flat'),
-        ('ww', 'forward', 3, 'flat'),
-        ('ww', 'forward', 4, 'flat'),
-        ('ww', 'summed', 1, 'flat'),
-        ('ww', 'summed', 2, 'flat'),
-        ('ww', 'summed', 3, 'flat'),
-        ('ww', 'summed', 4, 'flat'),
-        ('ww', 'concatenated', 1, 'flat'),
-        ('ww', 'concatenated', 2, 'flat'),
-        ('ww', 'concatenated', 3, 'flat'),
-        ('ww', 'concatenated', 4, 'flat'),
+    'reduce_type': [
+        ('svd', 32),
+    ],
+
+    # todo normalization doesn't work properly. it results in 1d array rather than 2d
+
+    'norm_type': [
+        'row_sum',
+        'col_sum',
+        'tf_idf',
+        'row_logentropy',
+        'ppmi',
     ]
 
 }
@@ -49,9 +44,9 @@ param2requests = {
 if DSM_NAME == 'count':
     param2default_dsm = {
         # window size means how many neighbors are considered in forward direction
-        'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
+        'count_type': ('ww', 'summed', 4, 'linear'),  # currently, sentence-boundary is respected automatically
         'norm_type': None,
-        'reduce_type': (None, None),
+        'reduce_type': ('svd', 32),
     }
 
 elif DSM_NAME == 'random':

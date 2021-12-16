@@ -268,18 +268,17 @@ def reduce(input_matrix, reduce_type, reduce_size):
         reduced_matrix = reduce_rva(input_matrix, reduce_size)
     elif reduce_type is None:
         reduced_matrix = input_matrix
-        dimensions = input_matrix.shape[1]
     else:
         raise AttributeError("Improper matrix reduction type '{}'. "
-                             "Must be 'svd', 'rva', or 'none'".format(reduce_type))
+                             "Must be 'svd', 'rva', or None".format(reduce_type))
     return reduced_matrix
 
 
 def reduce_svd(input_matrix, reduce_size):
     print('\nReducing matrix using SVD to {} singular values'.format(reduce_size))
-    # u, s, v = np.linalg.svd(input_matrix)
-    sparse_cooc_mat = sparse.csr_matrix(input_matrix).asfptype()
-    u, s, v = slinalg.svds(sparse_cooc_mat, k=reduce_size)
+    u, s, v = np.linalg.svd(input_matrix)
+    # sparse_cooc_mat = sparse.csr_matrix(input_matrix).asfptype()
+    # u, s, v = slinalg.svds(cooc_mat, k=reduce_size)
 
     reduced_matrix = u[:, 0:reduce_size]
     return reduced_matrix

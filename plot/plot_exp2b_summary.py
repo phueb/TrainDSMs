@@ -34,7 +34,7 @@ for param_path, label in gen_param_paths(project_name,
                                          runs_path=RUNS_PATH,
                                          ludwig_data_path=LUDWIG_DATA_PATH,
                                          label_n=LABEL_N,
-                                         require_all_found=False,
+                                         require_all_found=True,
                                          ):
 
     for p in param_path.rglob('df_sr.csv'):
