@@ -7,7 +7,7 @@ from ludwig.results import gen_param_paths
 
 from traindsms import __name__, config
 from traindsms.figs import make_bar_plot
-from traindsms.summary import save_summary_to_txt
+from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
@@ -49,7 +49,7 @@ for param_path, label in gen_param_paths(project_name,
         elif EXPERIMENT == '1b':
             df_exp1 = df[(df['verb-type'] == 2) &
                          (df['theme-type'] == 'experimental') &
-                         (df['phrase-type'] == 'unobserved')]
+                         (df['phrase-type'] == 'observed')]
         elif EXPERIMENT == '1c':
             df_exp1 = df[(df['verb-type'] == 2) &
                          (df['theme-type'] == 'experimental') &
