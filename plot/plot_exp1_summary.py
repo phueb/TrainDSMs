@@ -23,7 +23,7 @@ CONFIDENCE: float = 0.95
 TITLE = ''
 
 WEAK_EVALUATION = False
-EXPERIMENT = '1a'  # 1a, 1b, or 1c
+EXPERIMENT = '1b'  # 1a, 1b, or 1c
 
 # collect accuracies
 gn2exp1a_accuracies = defaultdict(list)
@@ -62,84 +62,84 @@ for param_path, label in gen_param_paths(project_name,
             verb_phrase = verb_phrase.split()
 
             if verb_phrase[0] == 'grow':
-                row_drop = row.drop(['fertilizer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['fertilizer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['fertilizer'])
 
             elif verb_phrase[0] == 'spray':
-                row_drop = row.drop(['insecticide'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['insecticide'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['insecticide'])
 
             elif verb_phrase[0] == 'fill':
-                row_drop = row.drop(['food'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['food'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['food'])
 
             elif verb_phrase[0] == 'organize':
-                row_drop = row.drop(['organizer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['organizer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['organizer'])
 
             elif verb_phrase[0] == 'freeze':
-                row_drop = row.drop(['freezer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['freezer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['freezer'])
 
             elif verb_phrase[0] == 'consume':
-                row_drop = row.drop(['utensil'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['utensil'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['utensil'])
 
             elif verb_phrase[0] == 'grill':
-                row_drop = row.drop(['bbq'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['bbq'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['bbq'])
 
             elif verb_phrase[0] == 'catch':
-                row_drop = row.drop(['net'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['net'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['net'])
 
             elif verb_phrase[0] == 'dry':
-                row_drop = row.drop(['dryer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['dryer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['dryer'])
 
             elif verb_phrase[0] == 'dust':
-                row_drop = row.drop(['duster'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['duster'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['duster'])
 
             elif verb_phrase[0] == 'lubricate':
-                row_drop = row.drop(['lubricant'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['lubricant'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['lubricant'])
 
             elif verb_phrase[0] == 'seal':
-                row_drop = row.drop(['lacquer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['lacquer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['lacquer'])
 
             elif verb_phrase[0] == 'transfer':
-                row_drop = row.drop(['pump'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['pump'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['pump'])
 
 
             elif verb_phrase[0] == 'polish':
-                row_drop = row.drop(['polisher'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['polisher'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['polisher'])
 
             elif verb_phrase[0] == 'shoot':
-                row_drop = row.drop(['slingshot'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['slingshot'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['slingshot'])
 
             elif verb_phrase[0] == 'harden':
-                row_drop = row.drop(['hammer'])
-                other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+                row_no_target = row.drop(['hammer'])
+                other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
                 hits += int(other_max < row['hammer'])
 
             else:
@@ -152,11 +152,8 @@ if not gn2exp1a_accuracies:
 
 gn2exp1a_accuracies = {k: v for k, v in sorted(gn2exp1a_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
 
+print_summaries(gn2exp1a_accuracies)
 
-for k, v in gn2exp1a_accuracies.items():
-    print(k)
-    print(v)
-    print('-' * 32)
-
-fig = make_bar_plot(gn2exp1a_accuracies)
+fig = make_bar_plot(gn2exp1a_accuracies,
+                    ylabel=f'Exp {EXPERIMENT} Accuracy',)
 fig.show()

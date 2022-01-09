@@ -1,13 +1,21 @@
 from pathlib import Path
 import numpy as np
-from typing import Tuple, Optional, Union, List
+from typing import Tuple, Dict, Union, Any
 import pandas as pd
 from scipy.stats import sem, t
 
 from traindsms import config
 
 
-def save_summary_to_txt(summary: Tuple[np.ndarray, np.ndarray, np.ndarray, str, Union[int, None]],
+def print_summaries(d: Dict[str, Any]):
+    for label, accuracies in d.items():
+        print(label)
+        print(accuracies)
+        print(f'{np.mean(accuracies).round(2)} ({np.std(accuracies).round(2)})')
+        print('-' * 32)
+
+
+def save_summary_to_txt(summary: Tuple[np.ndarray, np.ndarray, np.ndarray, str, Union[int, None]],  # TODO unused
                         performance_name: str,
                         ) -> None:
     """

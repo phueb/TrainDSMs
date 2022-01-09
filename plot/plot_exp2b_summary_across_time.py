@@ -7,7 +7,7 @@ from ludwig.results import gen_param_paths
 
 from traindsms import __name__, config
 from traindsms.figs import make_line_plot
-from traindsms.summary import save_summary_to_txt
+from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None

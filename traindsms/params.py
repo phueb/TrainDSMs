@@ -19,9 +19,9 @@ DSM_NAME = ['count',        # 0
 param2requests = {
     # 'rnn_type': ['srn', 'lstm'],
 
-    'composition_fn': ['multiplication', 'addition'],
+    'composition_fn': ['multiplication'],
 
-    'add_with': [True, False],
+    'add_with': [True],
 
     'reduce_type': [
         ('svd', 32),
@@ -29,13 +29,13 @@ param2requests = {
 
     # todo normalization doesn't work properly. it results in 1d array rather than 2d
 
-    'norm_type': [
-        'row_sum',
-        'col_sum',
-        'tf_idf',
-        'row_logentropy',
-        'ppmi',
-    ]
+    # 'norm_type': [
+    #     'row_sum',
+    #     'col_sum',
+    #     'tf_idf',
+    #     'row_logentropy',
+    #     'ppmi',
+    # ]
 
 }
 
