@@ -7,7 +7,7 @@ from ludwig.results import gen_param_paths
 
 from traindsms import __name__, config
 from traindsms.figs import make_line_plot
-from traindsms.summary import print_summaries
+from traindsms.score import score_vp_exp2b
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
@@ -99,96 +99,7 @@ for param_path, label in gen_param_paths(__name__,
 
                 else:  # strong evaluation requires that instruments be ranked correctly (1st and 2nd rank)
 
-                    if verb == 'preserve':
-                        if theme == 'pepper':
-                            top1 = 'vinegar'
-                            top2 = 'dehydrator'
-                        else:
-                            top1 = 'dehydrator'
-                            top2 = 'vinegar'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'repair':
-                        if theme == 'blender':
-                            top1 = 'wrench'
-                            top2 = 'glue'
-                        else:
-                            top1 = 'glue'
-                            top2 = 'wrench'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'pour':
-                        if theme == 'tomato-juice':
-                            top1 = 'pitcher'
-                            top2 = 'canister'
-                        else:
-                            top1 = 'canister'
-                            top2 = 'pitcher'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'decorate':
-                        if theme == 'cookie':
-                            top1 = 'icing'
-                            top2 = 'paint'
-                        else:
-                            top1 = 'paint'
-                            top2 = 'icing'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'carve':
-                        if theme == 'turkey':
-                            top1 = 'knife'
-                            top2 = 'chisel'
-                        else:
-                            top1 = 'chisel'
-                            top2 = 'knife'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'heat':
-                        if theme == 'tilapia':
-                            top1 = 'oven'
-                            top2 = 'furnace'
-                        else:
-                            top1 = 'furnace'
-                            top2 = 'oven'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'cut':
-                        if theme == 'sock':
-                            top1 = 'scissors'
-                            top2 = 'saw'
-                        else:
-                            top1 = 'saw'
-                            top2 = 'scissors'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    elif verb == 'clean':
-                        if theme == 'faceshield':
-                            top1 = 'towel'
-                            top2 = 'vacuum'
-                        else:
-                            top1 = 'vacuum'
-                            top2 = 'towel'
-                        row_drop = row.drop([top1, top2])
-                        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
-                        hits += int(other_max < row[top2] and row[top2] < row[top1])
-
-                    else:
-                        raise RuntimeError(f'Did not recognize verb-phrase "{verb_phrase}".')
+                    hits += score_vp_exp2b(row, verb, theme)
 
             # collect accuracy
             acc_i = hits / len(df_exp2b)

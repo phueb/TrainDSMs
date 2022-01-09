@@ -1,6 +1,95 @@
 import pandas as pd
 
 
+def score_vp_exp1(row: pd.Series,
+                  verb: str,
+                  theme: str,
+                  ):
+    if verb == 'grow':
+        row_no_target = row.drop(['fertilizer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['fertilizer'])
+
+    elif verb == 'spray':
+        row_no_target = row.drop(['insecticide'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['insecticide'])
+
+    elif verb == 'fill':
+        row_no_target = row.drop(['food'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['food'])
+
+    elif verb == 'organize':
+        row_no_target = row.drop(['organizer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['organizer'])
+
+    elif verb == 'freeze':
+        row_no_target = row.drop(['freezer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['freezer'])
+
+    elif verb == 'consume':
+        row_no_target = row.drop(['utensil'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['utensil'])
+
+    elif verb == 'grill':
+        row_no_target = row.drop(['bbq'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['bbq'])
+
+    elif verb == 'catch':
+        row_no_target = row.drop(['net'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['net'])
+
+    elif verb == 'dry':
+        row_no_target = row.drop(['dryer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['dryer'])
+
+    elif verb == 'dust':
+        row_no_target = row.drop(['duster'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['duster'])
+
+    elif verb == 'lubricate':
+        row_no_target = row.drop(['lubricant'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['lubricant'])
+
+    elif verb == 'seal':
+        row_no_target = row.drop(['lacquer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['lacquer'])
+
+    elif verb == 'transfer':
+        row_no_target = row.drop(['pump'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['pump'])
+
+
+    elif verb == 'polish':
+        row_no_target = row.drop(['polisher'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['polisher'])
+
+    elif verb == 'shoot':
+        row_no_target = row.drop(['slingshot'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['slingshot'])
+
+    elif verb == 'harden':
+        row_no_target = row.drop(['hammer'])
+        other_max = pd.to_numeric(row_no_target[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['hammer'])
+
+    else:
+        raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
+
+
 def score_vp_exp2a(row: pd.Series,
                    verb: str,
                    theme: str,
@@ -177,3 +266,49 @@ def score_vp_exp2b(row: pd.Series,
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
+def score_vp_exp2c(row: pd.Series,
+                   verb: str,
+                   theme: str, ):
+
+    if verb == 'preserve':
+        row_drop = row.drop(['vinegar', 'dehydrator'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['vinegar'] and other_max < row['dehydrator'])
+
+    elif verb == 'repair':
+        row_drop = row.drop(['wrench', 'glue'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['wrench'] and other_max < row['glue'])
+
+    elif verb == 'pour':
+        row_drop = row.drop(['pitcher', 'canister'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['pitcher'] and other_max < row['canister'])
+
+    elif verb == 'decorate':
+        row_drop = row.drop(['icing', 'paint'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['icing'] and other_max < row['paint'])
+
+    elif verb == 'carve':
+        row_drop = row.drop(['knife', 'chisel'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['knife'] and other_max < row['chisel'])
+
+    elif verb == 'heat':
+        row_drop = row.drop(['oven', 'furnace'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['oven'] and other_max < row['furnace'])
+
+    elif verb == 'cut':
+        row_drop = row.drop(['saw', 'scissors'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['saw'] and other_max < row['scissors'])
+
+    elif verb == 'clean':
+        row_drop = row.drop(['towel', 'vacuum'])
+        other_max = pd.to_numeric(row_drop[3:]).nlargest(n=1).to_list()[0]
+        return int(other_max < row['towel'] and other_max < row['vacuum'])
+
+    else:
+        raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')

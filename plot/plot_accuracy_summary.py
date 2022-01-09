@@ -7,8 +7,10 @@ from ludwig.results import gen_param_paths
 
 from traindsms import __name__
 from traindsms.figs import make_bar_plot
+from traindsms.score import score_vp_exp1
 from traindsms.score import score_vp_exp2a
 from traindsms.score import score_vp_exp2b
+from traindsms.score import score_vp_exp2c
 from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
@@ -24,10 +26,10 @@ FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
 CONFIDENCE: float = 0.95
 TITLE = ''
 
-EXPERIMENT = '2a'  # 2a, 2b
+EXPERIMENT = '1b'  # 1a, 1b, 1c, 2a, 2b, 2c
 
 # collect accuracies
-gn2exp2_accuracies = defaultdict(list)
+gn2exp_accuracies = defaultdict(list)
 project_name = __name__
 
 for param_path, label in gen_param_paths(project_name,
@@ -44,40 +46,61 @@ for param_path, label in gen_param_paths(project_name,
         # read data
         df = pd.read_csv(p, index_col=0, squeeze=True)
 
-        if EXPERIMENT == '2a':
-            df_exp2 = df[(df['verb-type'] == 3) &
-                         (df['theme-type'] == 'control') &
-                         (df['phrase-type'] == 'observed')]
+        if EXPERIMENT == '1a':
+            df_exp = df[(df['verb-type'] == 2) &
+                        (df['theme-type'] == 'control') &
+                        (df['phrase-type'] == 'observed')]
+        elif EXPERIMENT == '1b':
+            df_exp = df[(df['verb-type'] == 2) &
+                        (df['theme-type'] == 'experimental') &
+                        (df['phrase-type'] == 'observed')]
+        elif EXPERIMENT == '1c':
+            df_exp = df[(df['verb-type'] == 2) &
+                        (df['theme-type'] == 'experimental') &
+                        (df['phrase-type'] == 'unobserved')]
+
+        elif EXPERIMENT == '2a':
+            df_exp = df[(df['verb-type'] == 3) &
+                        (df['theme-type'] == 'control') &
+                        (df['phrase-type'] == 'observed')]
         elif EXPERIMENT == '2b':
-            df_exp2 = df[(df['verb-type'] == 3) &
-                         (df['theme-type'] == 'experimental') &
-                         (df['phrase-type'] == 'observed')]
+            df_exp = df[(df['verb-type'] == 3) &
+                        (df['theme-type'] == 'experimental') &
+                        (df['phrase-type'] == 'observed')]
+        elif EXPERIMENT == '2c':
+            df_exp = df[(df['verb-type'] == 3) &
+                        (df['theme-type'] == 'experimental') &
+                        (df['phrase-type'] == 'unobserved')]
         else:
             raise AttributeError('Invalid arg to EXPERIMENT')
 
         hits = 0
-        for verb_phrase, row in df_exp2.iterrows():
+        for verb_phrase, row in df_exp.iterrows():
 
             verb, theme = verb_phrase.split()
 
-            if EXPERIMENT == '2a':
+            if EXPERIMENT in {'1a', '1b', '1c'}:
+                hits += score_vp_exp1(row, verb, theme)
+            elif EXPERIMENT == '2a':
                 hits += score_vp_exp2a(row, verb, theme)
             elif EXPERIMENT == '2b':
                 hits += score_vp_exp2b(row, verb, theme)
+            elif EXPERIMENT == '2c':
+                hits += score_vp_exp2c(row, verb, theme)
             else:
                 raise AttributeError('Invalid arg to EXPERIMENT')
 
-        gn2exp2_accuracies[label].append(hits / len(df_exp2))
+        gn2exp_accuracies[label].append(hits / len(df_exp))
 
-if not gn2exp2_accuracies:
+if not gn2exp_accuracies:
     raise SystemExit('Did not find results')
 
 # sort
-gn2exp2_accuracies = {k: v for k, v in sorted(gn2exp2_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
+gn2exp2_accuracies = {k: v for k, v in sorted(gn2exp_accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
 
-print_summaries(gn2exp2_accuracies)
+print_summaries(gn2exp_accuracies)
 
-fig = make_bar_plot(gn2exp2_accuracies,
+fig = make_bar_plot(gn2exp_accuracies,
                     ylabel=f'Exp {EXPERIMENT} Accuracy',
                     )
 fig.show()
