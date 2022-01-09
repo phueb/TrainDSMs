@@ -10,15 +10,15 @@ from typing import Tuple, Optional, List
 DSM_NAME = ['count',        # 0
             'rnn',          # 1
             'transformer',  # 2
-            'glove',        # 3
+            'glove',        # 3  # TODO not implemented
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][2]
+            ][4]
 
 param2requests = {
 
-    # 'composition_fn': ['multiplication'],
+    'composition_fn': ['multiplication'],
 
     'add_with': [True],
 
@@ -52,10 +52,11 @@ elif DSM_NAME == 'random':
 
 elif DSM_NAME == 'w2v':
     param2default_dsm = {
-        'w2vec_type': 'sg',  # or 'cbow'
-        'embed_size': 8,
+        'w2vec_type': 'sg',                 # 'sg' performs better than 'cbow'
+        'embed_size': 32,                   # 32 is best
         'window_size': 4,
-        'num_epochs': 20,
+        'num_epochs': 2,                    # is best
+        'initial_learning_rate': 0.02,      # 0.02 is best
     }
 
 elif DSM_NAME == 'glove':
@@ -280,6 +281,7 @@ class Word2VecParams:
     embed_size: int
     window_size: int
     num_epochs: int
+    initial_learning_rate: int
 
     @classmethod
     def from_param2val(cls, param2val):

@@ -26,9 +26,10 @@ class W2Vec:
                       vector_size=self.params.embed_size,
                       window=self.params.window_size,
                       epochs=self.params.num_epochs,
+                      alpha=self.params.initial_learning_rate,  # originally 0.025
                       min_count=1,
-                      workers=1,
-                      hs=1)
+                      hs=1,  # better accuracy when hs=1
+                      )
 
         self.t2e = {t: np.asarray(sg.wv[t]) for t in self.vocab}
 
