@@ -25,7 +25,7 @@ TITLE = ''
 WEAK_EVALUATION = 1
 
 # collect accuracies
-gn2exp2b_accuracy_mat = {}
+label2exp2b_accuracy_mat = {}
 for param_path, label in gen_param_paths(__name__,
                                          param2requests,
                                          param2default,
@@ -103,28 +103,28 @@ for param_path, label in gen_param_paths(__name__,
 
             # collect accuracy
             acc_i = hits / len(df_exp2b)
-            if label not in gn2exp2b_accuracy_mat:
+            if label not in label2exp2b_accuracy_mat:
                 num_epochs = len(epoch2dfs)
                 num_reps = len(dfs)
-                gn2exp2b_accuracy_mat[label] = np.zeros((num_reps, num_epochs))
-            gn2exp2b_accuracy_mat[label][rep_id, epoch - 1] = acc_i  # -1 because epoch starts at 1
+                label2exp2b_accuracy_mat[label] = np.zeros((num_reps, num_epochs))
+            label2exp2b_accuracy_mat[label][rep_id, epoch - 1] = acc_i  # -1 because epoch starts at 1
 
 
 
-if not gn2exp2b_accuracy_mat:
+if not label2exp2b_accuracy_mat:
     raise SystemExit('Did not find results')
 
 # sort
-gn2exp2b_accuracy_mat = {k: v for k, v in sorted(gn2exp2b_accuracy_mat.items(), key=lambda i: np.mean(i[1][:, -1]))}
+label2exp2b_accuracy_mat = {k: v for k, v in sorted(label2exp2b_accuracy_mat.items(), key=lambda i: np.mean(i[1][:, -1]))}
 
 
-for k, v in gn2exp2b_accuracy_mat.items():
+for k, v in label2exp2b_accuracy_mat.items():
     print(k)
     print(v[:, -1])
     print('-' * 32)
 
 
-fig = make_line_plot(gn2exp2b_accuracy_mat,
+fig = make_line_plot(label2exp2b_accuracy_mat,
                      ylabel='Exp2b Accuracy',
                      h_line=0.5 if WEAK_EVALUATION else None)
 fig.show()

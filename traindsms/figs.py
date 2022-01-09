@@ -7,7 +7,7 @@ from typing import List, Tuple, Dict, Optional
 from traindsms import config
 
 
-def make_bar_plot(gn2accuracies: Dict[str, List[float]],
+def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   figsize: Tuple[int, int] = (8, 4),
                   title: str = '',
                   xlabel: str = 'Model',
@@ -34,18 +34,18 @@ def make_bar_plot(gn2accuracies: Dict[str, List[float]],
     else:
         ax.set_ylim([0.0, 1.0])
 
-    num_groups = len(gn2accuracies)
+    num_groups = len(label2accuracies)
     edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
     x = np.arange(1)
 
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    if len(gn2accuracies) > 6:
-        x_tick_labels = [gn if n == 0 or n == len(gn2accuracies) -1 else ''
-                         for n, gn in enumerate(gn2accuracies)]
+    if len(label2accuracies) > 6:
+        x_tick_labels = [gn if n == 0 or n == len(label2accuracies) -1 else ''
+                         for n, gn in enumerate(label2accuracies)]
     else:
-        x_tick_labels = gn2accuracies
+        x_tick_labels = label2accuracies
     ax.set_xticklabels(x_tick_labels, fontsize=6)
 
     # y axis
@@ -59,8 +59,8 @@ def make_bar_plot(gn2accuracies: Dict[str, List[float]],
         ax.axhline(y=h_line, color='grey', linestyle=':', zorder=1)
 
     # plot
-    for edge, color, group_name in zip(edges, colors, gn2accuracies):
-        accuracies = gn2accuracies[group_name]
+    for edge, color, group_name in zip(edges, colors, label2accuracies):
+        accuracies = label2accuracies[group_name]
         y = np.mean(accuracies)
 
         # margin of error (across paradigms, not replications)
@@ -80,7 +80,7 @@ def make_bar_plot(gn2accuracies: Dict[str, List[float]],
     return fig
 
 
-def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epochs]
+def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num epochs]
                    figsize: Tuple[int, int] = (8, 4),
                    title: str = '',
                    xlabel: str = 'Epoch',
@@ -111,7 +111,7 @@ def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epo
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
 
     # colors
-    num_groups = len(gn2accuracy_mat)
+    num_groups = len(label2accuracy_mat)
     palette = np.asarray(sns.color_palette('hls', num_groups))
     colors = iter(palette)
 
@@ -120,8 +120,8 @@ def make_line_plot(gn2accuracy_mat: Dict[str, np.array],  # [num groups, num epo
 
     # plot
     max_num_epochs = 1
-    for color, group_name in zip(colors, gn2accuracy_mat):
-        mat = gn2accuracy_mat[group_name]
+    for color, group_name in zip(colors, label2accuracy_mat):
+        mat = label2accuracy_mat[group_name]
         y_mean = np.mean(mat, axis=0)
         x = np.arange(len(y_mean)) + 1  # + 1 because data is not saved for epoch=0
 

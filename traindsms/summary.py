@@ -7,10 +7,13 @@ from scipy.stats import sem, t
 from traindsms import config
 
 
-def print_summaries(d: Dict[str, Any]):
+def print_summaries(d: Dict[str, Any],
+                    exp: str,
+                    ):
     for label, accuracies in d.items():
         print(label)
         print(accuracies)
+        print(f'experiment {exp} accuracy (std)')
         print(f'{np.mean(accuracies).round(2)} ({np.std(accuracies).round(2)})')
         print('-' * 32)
 
