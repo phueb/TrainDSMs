@@ -267,15 +267,26 @@ class RNN:
             print(f'Train perplexity after training: {pp_train:8.2f}')
 
         # evaluate predictions
+        # seq_tok_eval = [
+        #     'John preserve pepper with'.split(),
+        #     'John preserve orange with'.split(),
+        #     'John repair blender with'.split(),
+        #     'John repair bowl with'.split(),
+        #     'John pour tomato-juice with'.split(),
+        #     'John decorate cookie with'.split(),
+        #     'John carve turkey with'.split(),
+        #     'John heat tilapia with'.split(),
+        # ]
+
         seq_tok_eval = [
-            'John preserve pepper with'.split(),
-            'John preserve orange with'.split(),
-            'John repair blender with'.split(),
-            'John repair bowl with'.split(),
-            'John pour tomato-juice with'.split(),
-            'John decorate cookie with'.split(),
-            'John carve turkey with'.split(),
-            'John heat tilapia with'.split(),
+            'John grow potato with'.split(),
+            'John spray strawberry with'.split(),
+            'John fill fridge with'.split(),
+            'John organize plate with'.split(),
+            'John freeze orange-juice with'.split(),
+            'John consume pudding with'.split(),
+            'John grill chicken with'.split(),
+            'John catch salmon with'.split(),
         ]
 
         if 'with' not in self.token2id:
@@ -335,18 +346,22 @@ class RNN:
                    # 'carve turkey',
                    # 'heat tilapia',
                    }
+        vps = {'grow potato',
+               }
 
         # get scores
         scores = []
+        instrument2sr = {}
         for instrument in instruments:
             token_id = self.token2id[instrument]
             sr = logits_at_last_step[token_id].item()
             scores.append(sr)
+            instrument2sr[instrument] = sr
 
-            if verbose and verb + ' ' + theme in exp_vps:
+        for instrument, sr in sorted(instrument2sr.items(), key=lambda i: i[1]):
+            if verbose and verb + ' ' + theme in vps:
                 print(f'{verb} {theme} {instrument:>12} : {sr: .4f}')
-
-        if verbose and verb + ' ' + theme in exp_vps:
+        if verbose and verb + ' ' + theme in vps:
             print()
 
         return scores

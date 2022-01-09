@@ -14,18 +14,13 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][0]
+            ][2]
 
 param2requests = {
-    # 'rnn_type': ['srn', 'lstm'],
 
-    'composition_fn': ['multiplication'],
+    # 'composition_fn': ['multiplication'],
 
     'add_with': [True],
-
-    'reduce_type': [
-        ('svd', 32),
-    ],
 
     # todo normalization doesn't work properly. it results in 1d array rather than 2d
 
@@ -75,7 +70,7 @@ elif DSM_NAME == 'rnn':
     param2default_dsm = {
         # architecture
         'rnn_type': 'srn',
-        'embed_size': 8,            # 8 is best
+        'embed_size': 64,            # 64 is better than any lower
         'num_layers': 1,
         'train_percent': 1.0,
         # optimization
@@ -94,7 +89,7 @@ elif DSM_NAME == 'transformer':
     param2default_dsm = {
         # architecture
         'transformer_type': 'gpt2',
-        'embed_size': 8,                # no larger than 8
+        'embed_size': 32,               # 32 is best (but 8 improves performance only in exp2b)
         'inner_size': 4,                # must be divisible by embed_size
         'resid_pdrop': 0.0,             # 0 is best with lr=0.09
         'num_layers': 1,                # 1 layer is better than multiple

@@ -132,7 +132,7 @@ for exp, label2accuracies in zip(experiments,
         raise SystemExit('Did not find results')
 
     # sort
-    label2exp2_accuracies = {k: v for k, v in sorted(label2accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
+    label2accuracies = {k: v for k, v in sorted(label2accuracies.items(), key=lambda i: sum(i[1]) / len(i[1]))}
 
     print_summaries(label2accuracies, exp)
 

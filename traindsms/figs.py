@@ -145,5 +145,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
             ax.set_xticklabels(['' if xi % 10 != 0 else xi for xi in x])
             max_num_epochs = len(x)
 
+    plt.legend(frameon=False, fontsize=6)
+
     plt.tight_layout()
     return fig
