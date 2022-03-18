@@ -3,7 +3,7 @@ This is where a user specifies which model to train on which data
 """
 
 from dataclasses import dataclass, fields
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional
 
 
 # submit jobs for one dsm at a time
@@ -14,13 +14,16 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][4]
+            ][6]
 
 param2requests = {
 
-    'composition_fn': ['multiplication'],
+    'include_location': [True, False],
+    'add_with': [True, False],
+    'add_in': [True, False],
 
-    'add_with': [True],
+    # 'composition_fn': ['multiplication'],
+
 
     # todo normalization doesn't work properly. it results in 1d array rather than 2d
 
@@ -55,7 +58,7 @@ elif DSM_NAME == 'w2v':
         'w2vec_type': 'sg',                 # 'sg' performs better than 'cbow'
         'embed_size': 32,                   # 32 is best
         'window_size': 4,
-        'num_epochs': 2,                    # is best
+        'num_epochs': 2,                    # 2 is best
         'initial_learning_rate': 0.02,      # 0.02 is best
     }
 
@@ -111,12 +114,13 @@ elif DSM_NAME == 'transformer':
 elif DSM_NAME == 'lon':
     param2default_dsm = {
 
-        # TODO the LON is currently built from corpus directly rather than co-mat
+        # TODO the LON is currently built from corpus - consecutive words are connected
 
-        # todo: the co-occurrence matrix will be it's adjacency matrix, and the spreading activation functions on the adjacency matrix
+        # todo: the co-occurrence matrix will be it's adjacency matrix,
+        #  and the spreading activation functions on the adjacency matrix
 
-        'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
-        'norm_type': None,
+        # 'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
+        # 'norm_type': None,
         'excluded_tokens': None,
     }
 
@@ -141,6 +145,7 @@ param2default_corpus = {
     'include_location': False,
     'include_location_specific_agents': False,
     'add_with': True,
+    'add_in': True,
 }
 
 # avoid keys with the same name
@@ -198,6 +203,7 @@ if DSM_NAME == 'count':
 
 # ################################################## End of checks
 
+
 @dataclass
 class CorpusParams:
     include_location: bool
@@ -205,6 +211,7 @@ class CorpusParams:
     num_blocks: int
     complete_block: bool
     add_with: bool
+    add_in: bool
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -327,8 +334,8 @@ class CTNParams:
 class LONParams:
     excluded_tokens: Optional[Tuple[str]]
 
-    count_type: Tuple[str, Optional[str], Optional[int], Optional[str]]
-    norm_type: Optional[str]  # e.g. None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi'
+    # count_type: Tuple[str, Optional[str], Optional[int], Optional[str]]
+    # norm_type: Optional[str]  # e.g. None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi'
 
     @classmethod
     def from_param2val(cls, param2val):

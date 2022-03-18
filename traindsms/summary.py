@@ -11,11 +11,12 @@ def print_summaries(d: Dict[str, Any],
                     exp: str,
                     ):
     for label, accuracies in d.items():
+        print('-' * 32)
+        print(f'experiment {exp} accuracy (std)')
+        print('-' * 32)
         print(label)
         print(accuracies)
-        print(f'experiment {exp} accuracy (std)')
         print(f'{np.mean(accuracies).round(2)} ({np.std(accuracies).round(2)})')
-        print('-' * 32)
 
 
 def save_summary_to_txt(summary: Tuple[np.ndarray, np.ndarray, np.ndarray, str, Union[int, None]],  # TODO unused
@@ -28,6 +29,8 @@ def save_summary_to_txt(summary: Tuple[np.ndarray, np.ndarray, np.ndarray, str, 
     notes:
         1. latex does not like spaces in file name
     """
+
+    # TODO unused function
 
     x, y_mean, h, label, job_id = summary
 

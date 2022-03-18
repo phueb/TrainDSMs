@@ -39,12 +39,13 @@ def main(param2val):
                     complete_epoch=params.corpus_params.complete_block,
                     seed=random.randint(0, 1000),
                     add_with=params.corpus_params.add_with,
+                    add_in=params.corpus_params.add_in,
                     )
 
     # load blank df for evaluating sr scores
     df_blank = make_blank_sr_df()
     df_results = df_blank.copy()
-    instruments = df_blank.columns[3:]  # instrument columns start after the 3rd column
+    instruments = df_blank.columns[4:]  # instrument columns start after the 4th column
     if not set(instruments).issubset(corpus.vocab):
         raise RuntimeError('Not all instruments in corpus. Add more blocks or set complete_block=True')
 
@@ -100,7 +101,11 @@ def main(param2val):
                 scores = calc_sr_cores_from_spatial_model(dsm, verb, theme, instruments, params.composition_fn)
 
         # collect sr scores in new df
-        df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+        df_results.loc[verb_phrase] = [row['verb-type'],
+                                       row['theme-type'],
+                                       row['phrase-type'],
+                                       row['location-type']
+                                       ] + scores
 
     df_results.to_csv(save_path / 'df_sr.csv')
 

@@ -9,7 +9,7 @@ from traindsms.params import CTNParams
 from traindsms.dsms.network import NetworkBaseClass
 
 
-VERBOSE = True
+VERBOSE = False
 WS = ' '
 
 
@@ -280,6 +280,9 @@ class CTN(NetworkBaseClass):
         return similarity_matrix
 
     def calc_sr_scores(self, verb, theme, instruments):
+
+        print(f'Computing relatedness between {verb + WS + theme:>22} and instruments...', flush=True)
+
         if (verb, theme) in self.node_list:
             sr_verb = self.activation_spreading_analysis(verb, self.node_list,
                                                          excluded_edges=[((verb, theme), theme)])
@@ -292,13 +295,15 @@ class CTN(NetworkBaseClass):
         scores = []
         for instrument in instruments:
             sr = math.log(sr_verb[instrument] * sr_theme[instrument])
-            print(f'Relatedness between {verb + WS + theme:>22} and {instrument:>12} is {sr:.4f}', flush=True)
+            if VERBOSE:
+                print(f'Relatedness between {verb + WS + theme:>22} and {instrument:>12} is {sr:.4f}', flush=True)
             scores.append(sr)
 
         return scores
 
     def get_performance(self):
         return {}
+
 
 def convert_to_tuple(iterable):
     """
