@@ -212,6 +212,6 @@ class Transformer:
         for verb_phrase, row in self.df_blank.iterrows():
             verb, theme = verb_phrase.split()
             scores = self.calc_native_sr_scores(verb, theme, self.instruments)
-            df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type']] + scores
+            df_results.loc[verb_phrase] = [row['verb-type'], row['theme-type'], row['phrase-type'], row['location-type']] + scores
 
         df_results.to_csv(self.save_path / f'df_sr_{epoch:06}.csv')
