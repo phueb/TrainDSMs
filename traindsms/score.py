@@ -174,6 +174,22 @@ def score_vp_exp2a(row: pd.Series,
 def score_vp_exp2b(row: pd.Series,
                    verb: str,
                    theme: str, ):
+    """
+    example (location-type=1):
+    'preserve pepper' -> 'vinegar' (1) > 'dehydrator' (2) > others
+    (1): 'cucumber'  is the SIBLING of 'pepper', and 'cucumber'  is preserved with 'vinegar'
+    (2): 'raspberry' is the COUSIN  of 'pepper', and 'raspberry' is preserved with 'dehydrator'
+
+    example (location-type=2):
+    'pour tomato-juice' -> 'pitcher' (1) > 'canister' (2a) or 'freezer (2b) > others
+    (1) : 'apple-juice' is the SIBLING of 'tomato-juice', and 'apple-juice' is poured with 'pitcher'
+    (2a): 'coolant'     co-occurs with 'pour'             and 'coolant'     is poured with 'canister'
+    (2b): 'freezer'     is the COUSIN  of 'tomato-juice', and 'freezer'     is frozen with 'freezer'
+
+    when include_location=False, CTN slightly prefers (2a) over (2b)
+    when include_location=True,  CTN slightly prefers (2b) over (2a) due to 'kitchen'
+    """
+
     if verb == 'preserve':
         if theme == 'pepper':
             top1 = 'vinegar'
