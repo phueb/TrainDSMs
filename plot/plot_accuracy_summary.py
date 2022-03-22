@@ -9,6 +9,7 @@ from ludwig.results import gen_param_paths
 from traindsms import __name__
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
+from traindsms.score import exp2chance_accuracy
 from traindsms.score import score_vp_exp1
 from traindsms.score import score_vp_exp2a
 from traindsms.score import score_vp_exp2b1
@@ -219,5 +220,6 @@ for exp in experiments:
 
     fig = make_bar_plot(label2accuracies,
                         ylabel=f'Experiment {exp} Accuracy',
+                        h_line=exp2chance_accuracy[exp],
                         )
     fig.show()

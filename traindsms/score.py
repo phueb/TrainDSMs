@@ -1,6 +1,25 @@
 import pandas as pd
 
 
+# chance-level was computed using the random-control dsm (producing random relatedness scores)
+exp2chance_accuracy = {
+    '1a':  0.0294,
+    '1b':  0.0238,
+    '1c':  0.0200,
+    '2a':  0.0312,
+    '2b1': 0.0000,
+    '2b2': 0.0000,
+    '2c1': 0.0036,
+    '2c2': 0.0027,
+    '3a1': 0.0362,
+    '3a2': 0.0250,
+    '3b1': 0.0025,
+    '3b2': 0.0000,
+    '3c1': 0.0011,
+    '3c2': 0.0023,
+}
+
+
 def score_vp_exp1(predictions: pd.Series,
                   verb: str,
                   theme: str,
@@ -295,8 +314,8 @@ def score_vp_exp2b2(predictions: pd.Series,
             raise SystemExit
         row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2a] < predictions[top1] and
-                   other_max < predictions[top2b] < predictions[top1])
+        return int(other_max < predictions[top2b] < predictions[top2a] < predictions[top1] or
+                   other_max < predictions[top2a] < predictions[top2b] < predictions[top1])
 
     elif verb == 'carve':
         if theme == 'turkey':
@@ -311,8 +330,8 @@ def score_vp_exp2b2(predictions: pd.Series,
             raise SystemExit
         row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2a] < predictions[top1] and
-                   other_max < predictions[top2b] < predictions[top1])
+        return int(other_max < predictions[top2b] < predictions[top2a] < predictions[top1] or
+                   other_max < predictions[top2a] < predictions[top2b] < predictions[top1])
 
     elif verb == 'heat':
         if theme == 'tilapia':
@@ -327,8 +346,8 @@ def score_vp_exp2b2(predictions: pd.Series,
             raise SystemExit
         row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2a] < predictions[top1] and
-                   other_max < predictions[top2b] < predictions[top1])
+        return int(other_max < predictions[top2b] < predictions[top2a] < predictions[top1] or
+                   other_max < predictions[top2a] < predictions[top2b] < predictions[top1])
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
@@ -424,6 +443,10 @@ def score_vp_exp3b2(predictions: pd.Series,
     (2) : 'freezer'     is the COUSIN  of 'tomato-juice', and 'freezer'     is frozen with 'freezer'
 
     when include_location=True, the ranking is unambiguous (there is a preferred 2nd rank that is location-specific)
+
+    WARNING:
+        the accuracies in exp 2b2 and 3b2 are NOT comparable because a different target ranking is used
+
     """
 
     if verb == 'pour':

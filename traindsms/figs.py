@@ -17,6 +17,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   y_grid: bool = False,
                   ylims: Optional[List[float]] = None,
                   h_line: Optional[float] = None,
+                  x_label_threshold: int = 10,
                   ):
     """
     plot average accuracy by group (job) at end of training.
@@ -41,7 +42,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    if len(label2accuracies) > 6:
+    if len(label2accuracies) > x_label_threshold:
         x_tick_labels = [gn if n == 0 or n == len(label2accuracies) -1 else ''
                          for n, gn in enumerate(label2accuracies)]
     else:
@@ -56,7 +57,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     colors = iter(palette)
 
     if h_line is not None:
-        ax.axhline(y=h_line, color='grey', linestyle=':', zorder=1)
+        ax.axhline(y=h_line, color='grey', linestyle=':', zorder=3)
 
     # plot
     for edge, color, group_name in zip(edges, colors, label2accuracies):
@@ -89,6 +90,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
                    y_grid: bool = False,
                    ylims: Optional[List[float]] = None,
                    h_line: Optional[float] = None,
+                   shrink_xtick_labels: bool = False,
                    ):
     """
     plot average accuracy by group across training.
@@ -142,7 +144,11 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
 
         if len(x) > max_num_epochs:
             ax.set_xticks(x)
-            ax.set_xticklabels(['' if xi % 10 != 0 else xi for xi in x])
+            if shrink_xtick_labels:
+                xtick_labels = ['' if xi % 10 != 0 else xi for xi in x]
+            else:
+                xtick_labels = x
+            ax.set_xticklabels(xtick_labels)
             max_num_epochs = len(x)
 
     plt.legend(frameon=False, fontsize=6)

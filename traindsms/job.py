@@ -11,7 +11,6 @@ from traindsms.params import Params
 from traindsms.dsms.count import CountDSM
 from traindsms.dsms.random_control import RandomControlDSM
 from traindsms.dsms.w2vec import W2Vec
-from traindsms.dsms.glove import GloVe
 from traindsms.dsms.rnn import RNN
 from traindsms.dsms.transformer import Transformer
 from traindsms.dsms.ctn import CTN
@@ -68,8 +67,6 @@ def main(param2val):
         dsm = RandomControlDSM(params.dsm_params, corpus.vocab)
     elif params.dsm == 'w2v':
         dsm = W2Vec(params.dsm_params, corpus.vocab, seq_tok)
-    elif params.dsm == 'glove':
-        dsm = GloVe(params.dsm_params, corpus.vocab, seq_tok)
     elif params.dsm == 'rnn':
         dsm = RNN(params.dsm_params, corpus.token2id, seq_num, df_blank, instruments, save_path)
     elif params.dsm == 'transformer':

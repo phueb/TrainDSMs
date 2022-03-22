@@ -10,7 +10,7 @@ from typing import Tuple, Optional
 DSM_NAME = ['count',        # 0
             'rnn',          # 1
             'transformer',  # 2
-            'glove',        # 3  # TODO not implemented
+            'random',       # 3
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
@@ -19,8 +19,8 @@ DSM_NAME = ['count',        # 0
 param2requests = {
 
     'include_location': [True, False],
-    'add_with': [True, False],
-    'add_in': [True, False],
+    'add_with': [True],
+    'add_in': [True],
 
     # 'composition_fn': ['multiplication'],
 
@@ -49,8 +49,8 @@ if DSM_NAME == 'count':
 
 elif DSM_NAME == 'random':
     param2default_dsm = {
-        'embed_size': 8,
-        'random_type': 'normal',
+        'embed_size': 32,
+        'distribution': 'normal',
     }
 
 elif DSM_NAME == 'w2v':
@@ -60,14 +60,6 @@ elif DSM_NAME == 'w2v':
         'window_size': 4,
         'num_epochs': 2,                    # 2 is best
         'initial_learning_rate': 0.02,      # 0.02 is best
-    }
-
-elif DSM_NAME == 'glove':
-    param2default_dsm = {
-        'embed_size': 8,
-        'window_size': 7,
-        'num_epochs': 20,
-        'lr': 0.05,
     }
 
 elif DSM_NAME == 'rnn':
@@ -87,7 +79,6 @@ elif DSM_NAME == 'rnn':
         'lr_decay': 0.001,          # 0.001 but no larger
         'weight_decay': 0.0,        # keep at 0
     }
-
 
 elif DSM_NAME == 'transformer':
     param2default_dsm = {
@@ -297,22 +288,9 @@ class Word2VecParams:
 
 
 @dataclass
-class GloveParams:
-    embed_size: int
-    window_size: int
-    num_epochs: int
-    lr: float
-
-    @classmethod
-    def from_param2val(cls, param2val):
-        field_names = set(f.name for f in fields(cls))
-        return cls(**{k: v for k, v in param2val.items() if k in field_names})
-
-
-@dataclass
 class RandomControlParams:
     embed_size: int
-    random_type: str
+    distribution: str
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -362,11 +340,9 @@ class Params:
         if param2val['dsm'] == 'count':
             dsm_params = CountParams.from_param2val(tmp)
         elif param2val['dsm'] == 'random':
-            dsm_params = CountParams.from_param2val(tmp)
+            dsm_params = RandomControlParams.from_param2val(tmp)
         elif param2val['dsm'] == 'w2v':
             dsm_params = Word2VecParams.from_param2val(tmp)
-        elif param2val['dsm'] == 'glove':
-            dsm_params = GloveParams.from_param2val(tmp)
         elif param2val['dsm'] == 'rnn':
             dsm_params = RNNParams.from_param2val(tmp)
         elif param2val['dsm'] == 'transformer':

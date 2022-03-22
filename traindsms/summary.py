@@ -16,7 +16,7 @@ def print_summaries(d: Dict[str, Any],
         print('-' * 32)
         print(label)
         print(accuracies)
-        print(f'{np.mean(accuracies).round(2)} ({np.std(accuracies).round(2)})')
+        print(f'{np.mean(accuracies).round(4)} ({np.std(accuracies).round(2)})')
 
 
 def save_summary_to_txt(summary: Tuple[np.ndarray, np.ndarray, np.ndarray, str, Union[int, None]],  # TODO unused
