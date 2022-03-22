@@ -274,7 +274,7 @@ def score_vp_exp2b2(predictions: pd.Series,
         elif theme == 'brake-fluid':
             top1 = 'canister'
             top2a = 'pitcher'
-            top2b = 'pitcher'
+            top2b = 'pump'
         else:
             raise SystemExit
         row_drop = predictions.drop([top1, top2a, top2b])
@@ -334,10 +334,29 @@ def score_vp_exp2b2(predictions: pd.Series,
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
-def score_vp_exp2c(predictions: pd.Series,
-                   verb: str,
-                   theme: str,
-                   ) -> int:
+def score_vp_exp2c1(predictions: pd.Series,
+                    verb: str,
+                    theme: str,
+                    ) -> int:
+
+    return score_vp_exp_c_base_(predictions, verb, theme)
+
+
+def score_vp_exp2c2(predictions: pd.Series,
+                    verb: str,
+                    theme: str,
+                    ) -> int:
+
+    return score_vp_exp_c_base_(predictions, verb, theme)
+
+
+def score_vp_exp_c_base_(predictions: pd.Series,
+                         verb: str,
+                         theme: str,
+                         ) -> int:
+    """
+    how well does a model infer the correct instrument when the only useful information is the verb?
+    """
 
     if verb == 'preserve':
         row_drop = predictions.drop(['vinegar', 'dehydrator'])
@@ -461,3 +480,19 @@ def score_vp_exp3b2(predictions: pd.Series,
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
+
+
+def score_vp_exp3c1(predictions: pd.Series,
+                    verb: str,
+                    theme: str,
+                    ) -> int:
+
+    return score_vp_exp_c_base_(predictions, verb, theme)
+
+
+def score_vp_exp3c2(predictions: pd.Series,
+                    verb: str,
+                    theme: str,
+                    ) -> int:
+
+    return score_vp_exp_c_base_(predictions, verb, theme)

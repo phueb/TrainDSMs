@@ -13,9 +13,12 @@ from traindsms.score import score_vp_exp1
 from traindsms.score import score_vp_exp2a
 from traindsms.score import score_vp_exp2b1
 from traindsms.score import score_vp_exp2b2
-from traindsms.score import score_vp_exp2c
+from traindsms.score import score_vp_exp2c1
+from traindsms.score import score_vp_exp2c2
 from traindsms.score import score_vp_exp3b1
 from traindsms.score import score_vp_exp3b2
+from traindsms.score import score_vp_exp3c1
+from traindsms.score import score_vp_exp3c2
 from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
@@ -38,7 +41,8 @@ experiments = [
     '2a',
     '2b1',
     '2b2',
-    '2c',
+    '2c1',
+    '2c2',
     '3a1',
     '3a2',
     '3b1',
@@ -66,6 +70,7 @@ for param_path, label in gen_param_paths(project_name,
     params = Params.from_param2val(param2val)
 
     for p in param_path.rglob('df_sr.csv'):
+
         # read data
         df = pd.read_csv(p, index_col=0, squeeze=True)
 
@@ -106,10 +111,17 @@ for param_path, label in gen_param_paths(project_name,
                             (df['theme-type'] == 'experimental') &
                             (df['phrase-type'] == 'observed') &
                             (df['location-type'] == 2)]
-            elif exp == '2c':
+            elif exp == '2c1':
                 df_exp = df[(df['verb-type'] == 3) &
                             (df['theme-type'] == 'experimental') &
-                            (df['phrase-type'] == 'unobserved')]
+                            (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
+                            (df['location-type'] == 1)]
+            elif exp == '2c2':
+                df_exp = df[(df['verb-type'] == 3) &
+                            (df['theme-type'] == 'experimental') &
+                            (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
+                            (df['location-type'] == 2)]
+
             elif exp == '3a1':
                 df_exp = df[(df['verb-type'] == 3) &
                             (df['theme-type'] == 'control') &
@@ -133,12 +145,12 @@ for param_path, label in gen_param_paths(project_name,
             elif exp == '3c1':
                 df_exp = df[(df['verb-type'] == 3) &
                             (df['theme-type'] == 'experimental') &
-                            (df['phrase-type'] == 'unobserved') &
+                            (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
                             (df['location-type'] == 1)]
             elif exp == '3c2':
                 df_exp = df[(df['verb-type'] == 3) &
                             (df['theme-type'] == 'experimental') &
-                            (df['phrase-type'] == 'unobserved') &
+                            (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
                             (df['location-type'] == 2)]
             else:
                 raise AttributeError(exp)
@@ -159,6 +171,7 @@ for param_path, label in gen_param_paths(project_name,
                     hits += score_vp_exp1(predictions, verb, theme)
                 elif exp == '1c':
                     hits += score_vp_exp1(predictions, verb, theme)
+
                 # exp2 uses a different evaluation as exp1 but the training corpus is the same
                 elif exp == '2a':
                     hits += score_vp_exp2a(predictions, verb, theme)
@@ -166,8 +179,11 @@ for param_path, label in gen_param_paths(project_name,
                     hits += score_vp_exp2b1(predictions, verb, theme)
                 elif exp == '2b2':
                     hits += score_vp_exp2b2(predictions, verb, theme)
-                elif exp == '2c':
-                    hits += score_vp_exp2c(predictions, verb, theme)
+                elif exp == '2c1':
+                    hits += score_vp_exp2c1(predictions, verb, theme)
+                elif exp == '2c2':
+                    hits += score_vp_exp2c2(predictions, verb, theme)
+
                 # exp3 uses different evaluation as exp2b and a different training corpus
                 elif exp == '3a1':
                     hits += score_vp_exp2a(predictions, verb, theme)
@@ -178,9 +194,9 @@ for param_path, label in gen_param_paths(project_name,
                 elif exp == '3b2':
                     hits += score_vp_exp3b2(predictions, verb, theme)
                 elif exp == '3c1':
-                    hits += score_vp_exp2c(predictions, verb, theme)
+                    hits += score_vp_exp3c1(predictions, verb, theme)
                 elif exp == '3c2':
-                    hits += score_vp_exp2c(predictions, verb, theme)
+                    hits += score_vp_exp3c2(predictions, verb, theme)
                 else:
                     raise AttributeError(exp)
 
