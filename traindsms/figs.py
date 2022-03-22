@@ -125,7 +125,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
     for color, group_name in zip(colors, label2accuracy_mat):
         mat = label2accuracy_mat[group_name]
         y_mean = np.mean(mat, axis=0)
-        x = np.arange(len(y_mean)) + 1  # + 1 because data is not saved for epoch=0
+        x = np.arange(len(y_mean))
 
         # margin of error (across paradigms, not replications)
         n = len(mat)

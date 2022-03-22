@@ -67,7 +67,7 @@ def update_accuracy_mat(label_: str,
     if label_ not in label2mat:
         label2mat[label_] = np.zeros((num_reps, num_epochs))
 
-    label2mat[label_][i, j - 1] = val  # -1 because epoch starts at 1
+    label2mat[label_][i, j] = val
 
     return label2mat
 

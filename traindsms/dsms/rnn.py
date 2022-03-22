@@ -187,7 +187,7 @@ class RNN:
               verbose: bool = True,
               calc_pp_train_during_training: bool = True,
               calc_pp_train_after_training: bool = False,
-              score_during_training: bool = True,
+              save_inferences_during_training: bool = True,
               ):
 
         self.model.cuda()  # call this before constructing optimizer
@@ -226,7 +226,7 @@ class RNN:
             print(f'Train perplexity at epoch {0}: {pp_train:8.2f}')
 
         # save during-training results to disk (for plotting learning curves)
-        if score_during_training:
+        if save_inferences_during_training:
             self.fill_in_blank_df_and_save(0)
 
         # train loop
@@ -242,7 +242,7 @@ class RNN:
             self.train_epoch(train_seq_num)
 
             # save during-training results to disk (for plotting learning curves)
-            if score_during_training:
+            if save_inferences_during_training:
                 self.fill_in_blank_df_and_save(epoch)
 
             if self.params.train_percent < 1.0:
