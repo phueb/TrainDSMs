@@ -52,7 +52,7 @@ experiments = [
 ]
 
 
-exp2label2accuracies = defaultdict(dict)
+exp2label2accuracy_mat = defaultdict(dict)
 project_name = __name__
 
 
@@ -233,12 +233,12 @@ for param_path, label in gen_param_paths(project_name,
                 acc_i = hits / len(df_exp)
                 num_epochs = len(epoch2dfs)
                 num_reps = len(dfs)
-                update_accuracy_mat(label, label2exp1a_accuracy_mat, acc_i, rep_id, epoch)  # TODO need to return mat?
+                update_accuracy_mat(label, exp2label2accuracy_mat[exp], acc_i, rep_id, epoch)
 
 for exp in experiments:
 
     try:
-        label2accuracies = exp2label2accuracies[exp]
+        label2accuracy_mat = exp2label2accuracy_mat[exp]
     except KeyError:
         raise KeyError(f'Did not find accuracies for experiment {exp}')
 
