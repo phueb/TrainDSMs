@@ -3,8 +3,6 @@ from cytoolz import itertoolz
 import pyprind
 import sys
 import time
-from scipy.sparse import linalg as slinalg
-from scipy import sparse
 from typing import List, Tuple
 
 from traindsms.params import CountParams
@@ -115,7 +113,7 @@ class CountDSM:
         # normalize + reduce
         norm_matrix = normalize(count_matrix, self.params.norm_type)
         reduced_matrix = reduce(norm_matrix, self.params.reduce_type[0], self.params.reduce_type[1])
-        
+
         self.t2e = {t: e for t, e in zip(self.vocab, reduced_matrix)}
 
         return reduced_matrix  # for unittest
@@ -126,142 +124,131 @@ class CountDSM:
 # ////////////////////////////////////////////////// normalizations
 
 
-def normalize(input_matrix, norm_type):
+def normalize(input_matrix: np.array,
+              norm_type: str,
+              ) -> np.array:
     if norm_type == 'row_sum':
         norm_matrix = norm_rowsum(input_matrix)
     elif norm_type == 'col_sum':
-        norm_matrix = norm_colsum(input_matrix)
+        norm_matrix = norm_col_sum(input_matrix)
     elif norm_type == 'tf_idf':
         norm_matrix = norm_tfidf(input_matrix)
     elif norm_type == 'row_logentropy':
-        norm_matrix = row_logentropy(input_matrix)
+        norm_matrix = row_log_entropy(input_matrix)
     elif norm_type == 'ppmi':
         norm_matrix = norm_ppmi(input_matrix)
     elif norm_type is None:
         norm_matrix = input_matrix
     else:
-        raise AttributeError("Improper matrix normalization type '{}'. "
-                             "Must be 'row_sum', 'col_sum', 'row_logentropy', 'tf-idf', 'ppmi', or 'none'".format(norm_type))
+        raise AttributeError(f"Improper matrix normalization type '{norm_type}'. "
+                             "Must be 'row_sum', 'col_sum', 'row_logentropy', 'tf-idf', 'ppmi', or 'none'")
     return norm_matrix
 
 
-def norm_rowsum(input_matrix):
-    print('\nNormalizing matrix by row sums...')
-    num_rows = len(input_matrix[:,0])
-    num_cols = len(input_matrix[0,:])
-    output_matrix = np.zeros([num_rows, num_cols], float)
-    pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
+def norm_rowsum(input_matrix: np.array,
+                ) -> np.array:
+    print('Normalizing matrix by row sums...')
+
+    num_rows = input_matrix.shape[0]
+    res = np.zeros_like(input_matrix, float)
     for i in range(num_rows):
-        if input_matrix[i,:].sum() == 0:
+        if input_matrix[i, :].sum() == 0:
             print('    Warning: Row {} had sum of zero. Setting prob to 0'.format(i))
         else:
-            output_matrix[i,:] = input_matrix[i,:] / input_matrix[i,:].sum()
-        pbar.update()
-    return output_matrix, num_cols
+            res[i, :] = input_matrix[i, :] / input_matrix[i, :].sum()
+    return res
 
 
-def norm_colsum(input_matrix):
-    print('\nNormalizing matrix by column sums...')
-    num_rows = len(input_matrix[:,0])
-    num_cols = len(input_matrix[0,:])
-    output_matrix = np.zeros([num_rows, num_cols], float)
-    pbar = pyprind.ProgBar(num_cols, stream=sys.stdout)
+def norm_col_sum(input_matrix: np.array,
+                 ) -> np.array:
+    print('Normalizing matrix by column sums...')
+
+    num_cols = input_matrix.shape[1]
+    res = np.zeros_like(input_matrix, float)
     for i in range(num_cols):
-        if input_matrix[:,i].sum() == 0:
+        if input_matrix[:, i].sum() == 0:
             print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i))
         else:
-            output_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
-        pbar.update()
-    return output_matrix, num_cols
+            res[:, i] = input_matrix[:, i] / input_matrix[:, i].sum()
+    return res
 
 
-def norm_tfidf(input_matrix):
-    print('\nNormalizing matrix by tf-idf...')
-    num_rows = len(input_matrix[:,0])
-    num_cols = len(input_matrix[0,:])
-    print('Calculating column probs')
-    pbar = pyprind.ProgBar(num_cols, stream=sys.stdout)
-    colprob_matrix = np.zeros([num_rows, num_cols], float)
-    for i in range(num_cols):
-        if input_matrix[:,i].sum() == 0:
-            print('    Warning: Column {} had sum of zero. Setting prob to 0'.format(i))
-        else:
-            colprob_matrix[:,i] = input_matrix[:,i] / input_matrix[:,i].sum()
-        pbar.update()
-    print('Calculating tf-idf scores')
-    output_matrix = np.zeros([num_rows, num_cols], float)
-    pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
+def norm_tfidf(input_matrix: np.array,
+               ) -> np.array:
+    print('Normalizing matrix by tf-idf...')
+    
+    num_rows = input_matrix.shape[0]
+    num_cols = nd = input_matrix.shape[1]
+
+    res = np.zeros_like(input_matrix, float)
     for i in range(num_rows):
-        col_occ_count = np.count_nonzero(input_matrix[i,:]) + 1
-        row_idf = float(num_cols) / col_occ_count
+        df = np.count_nonzero(input_matrix[i, :])  # num documents/columns in which word (in row) occurs
+        idf = np.log((nd + 1) / (df + 1)) + 1
         for j in range(num_cols):
-            output_matrix[i,j] = colprob_matrix[i,j] / row_idf
-        pbar.update()
-    return output_matrix, num_cols
+            tf = np.log(1 + res[i, j])
+            res[i, j] = tf * idf
+    return res
 
 
-def norm_ppmi(input_matrix):
-    print('\nNormalizing matrix by ppmi')
-    num_rows = len(input_matrix[:,0])
-    num_cols = len(input_matrix[0,:])
+def norm_ppmi(input_matrix: np.array,
+              ) -> np.array:
+    print('Normalizing matrix by ppmi')
+
+    num_rows = input_matrix.shape[0]
+    num_cols = input_matrix.shape[1]
 
     row_sums = input_matrix.sum(1)
     col_sums = input_matrix.sum(0)
     matrix_sum = row_sums.sum()
 
-    output_matrix = np.zeros([num_rows, num_cols], float)
-    pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
+    res = np.zeros_like(input_matrix, float)
     for i in range(num_rows):
         for j in range(num_cols):
             if input_matrix[i, j] == 0:
-                output_matrix[i, j] = 0
+                res[i, j] = 0
             elif (row_sums[i] == 0) or (col_sums[j] == 0):
-                output_matrix[i, j] = 0
+                res[i, j] = 0
             else:
                 top = input_matrix[i, j] / matrix_sum
                 bottom = (row_sums[i] / matrix_sum) * (col_sums[j] / matrix_sum)
                 div = top/bottom
                 if div <= 1:
-                    output_matrix[i, j] = 0
+                    res[i, j] = 0
                 else:
-                    output_matrix[i, j] = np.log(div)
-        pbar.update()
-    return output_matrix, num_cols
+                    res[i, j] = np.log(div)
+    return res
 
 
-def row_logentropy(input_matrix):
-    print('\nNormalizing matrix by log entropy')
-    num_rows = len(input_matrix[:,0])
-    num_cols = len(input_matrix[0,:])
-    output_matrix = np.zeros([num_rows, num_cols], float)
+def row_log_entropy(input_matrix: np.array,
+                    ) -> np.array:
+    print('Normalizing matrix by log entropy')
 
-    print('Computing row probabilities')
-    row_prob_matrix = np.zeros([num_rows, num_cols], float)
-    pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
+    num_rows = input_matrix.shape[0]
+    res = np.zeros_like(input_matrix, float)
+
+    # row probabilities
+    row_prob_matrix = np.zeros_like(input_matrix, float)
     for i in range(num_rows):
-        if input_matrix[i,:].sum() == 0:
+        if input_matrix[i, :].sum() == 0:
             print('    Warning: Row {} had sum of zero. Setting prob to 0'.format(i))
         else:
-            row_prob_matrix[i,:] = input_matrix[i,:] / input_matrix[i,:].sum()
-        pbar.update()
+            row_prob_matrix[i, :] = input_matrix[i, :] / input_matrix[i, :].sum()
 
-    print('Computing entropy scores')
-    log_freqs = np.log(input_matrix + 1)
-    pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
+    log_frequencies = np.log(input_matrix + 1)
     for i in range(num_rows):
-        row_entropy = np.dot(row_prob_matrix[i, :], np.log(row_prob_matrix[i, :] + 1))
-        global_weight = 1 + (row_entropy / np.log(num_cols + 1))
+        # entropy = sigma[p(x) * log(1/p(x))]
+        row_entropy = np.dot(row_prob_matrix[i, :], np.log(1 / (row_prob_matrix[i, :])))
+        res[i, :] = log_frequencies[i, :] * row_entropy
 
-        for j in range(num_cols):
-            output_matrix[i, j] = log_freqs[i, j] * global_weight
-        pbar.update()
-
-    return output_matrix, num_cols
+    return res
 
 # ////////////////////////////////////////////////// reductions
 
 
-def reduce(input_matrix, reduce_type, reduce_size):
+def reduce(input_matrix: np.array,
+           reduce_type: str,
+           reduce_size: int,
+           ) -> np.array:
     if reduce_type == 'svd':
         reduced_matrix = reduce_svd(input_matrix, reduce_size)
     elif reduce_type == 'rva':
@@ -269,13 +256,15 @@ def reduce(input_matrix, reduce_type, reduce_size):
     elif reduce_type is None:
         reduced_matrix = input_matrix
     else:
-        raise AttributeError("Improper matrix reduction type '{}'. "
-                             "Must be 'svd', 'rva', or None".format(reduce_type))
+        raise AttributeError(f"Improper matrix reduction type '{reduce_type}'. "
+                             "Must be 'svd', 'rva', or None")
     return reduced_matrix
 
 
-def reduce_svd(input_matrix, reduce_size):
-    print('\nReducing matrix using SVD to {} singular values'.format(reduce_size))
+def reduce_svd(input_matrix: np.array,
+               reduce_size: int,
+               ) -> np.array:
+    print('Reducing matrix using SVD to {} singular values'.format(reduce_size))
     u, s, v = np.linalg.svd(input_matrix)
     # sparse_cooc_mat = sparse.csr_matrix(input_matrix).asfptype()
     # u, s, v = slinalg.svds(cooc_mat, k=reduce_size)
@@ -284,15 +273,19 @@ def reduce_svd(input_matrix, reduce_size):
     return reduced_matrix
 
 
-def reduce_rva(input_matrix, reduce_size, mean=0, stdev=1):
-    print('\nReducing matrix using RVA')
-    num_rows = len(input_matrix[:, 0])
-    random_vectors = np.random.normal(mean, stdev, [num_rows, reduce_size])
+def reduce_rva(input_matrix: np.array,
+               reduce_size,
+               mean: float = 0.0,
+               std_dev: float = 1.0,
+               ) -> np.array:
+    print('Reducing matrix using RVA')
+    num_rows = input_matrix.shape[0]
+    random_vectors = np.random.normal(mean, std_dev, [num_rows, reduce_size])
     rva_matrix = np.zeros([num_rows, reduce_size], float)
     pbar = pyprind.ProgBar(num_rows, stream=sys.stdout)
     for i in range(num_rows):
         for j in range(num_rows):
-            rva_matrix[i,:] += (input_matrix[i,j]*random_vectors[j,:])
+            rva_matrix[i, :] += (input_matrix[i, j]*random_vectors[j, :])
         pbar.update()
 
     return rva_matrix
