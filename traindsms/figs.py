@@ -18,10 +18,14 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   ylims: Optional[List[float]] = None,
                   h_line: Optional[float] = None,
                   x_label_threshold: int = 10,
+                  label2color_id: Dict[str, int] = None,
                   ):
     """
     plot average accuracy by group (job) at end of training.
     """
+
+    if label2color_id is None:
+        label2color_id = {label: n for n, label in enumerate(label2accuracies)}
 
     fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
     plt.title(title)
@@ -33,7 +37,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     if ylims is not None:
         ax.set_ylim(ylims)
     else:
-        ax.set_ylim([0.0, 1.0])
+        ax.set_ylim([0.0, 1.05])
 
     num_groups = len(label2accuracies)
     edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
@@ -54,14 +58,13 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
 
     # colors
     palette = np.asarray(sns.color_palette('hls', num_groups))
-    colors = iter(palette)
 
     if h_line is not None:
         ax.axhline(y=h_line, color='grey', linestyle=':', zorder=3)
 
     # plot
-    for edge, color, group_name in zip(edges, colors, label2accuracies):
-        accuracies = label2accuracies[group_name]
+    for edge, label in zip(edges, label2accuracies):
+        accuracies = label2accuracies[label]
         y = np.mean(accuracies)
 
         # margin of error (across paradigms, not replications)
@@ -73,7 +76,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                y,
                width,
                yerr=h,
-               color=color,
+               color=palette[label2color_id[label]],
                zorder=3,
                )
 
@@ -91,10 +94,14 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
                    ylims: Optional[List[float]] = None,
                    h_line: Optional[float] = None,
                    shrink_xtick_labels: bool = False,
+                   label2color_id: Dict[str, int] = None,
                    ):
     """
     plot average accuracy by group across training.
     """
+
+    if label2color_id is None:
+        label2color_id = {label: n for n, label in enumerate(label2accuracy_mat)}
 
     fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
     plt.title(title)
@@ -106,7 +113,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
     if ylims is not None:
         ax.set_ylim(ylims)
     else:
-        ax.set_ylim([0.0, 1.0])
+        ax.set_ylim([0.0, 1.05])
 
     # axes
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
@@ -115,15 +122,14 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
     # colors
     num_groups = len(label2accuracy_mat)
     palette = np.asarray(sns.color_palette('hls', num_groups))
-    colors = iter(palette)
 
     if h_line is not None:
         ax.axhline(y=h_line, color='grey', linestyle=':', zorder=1)
 
     # plot
     max_num_epochs = 1
-    for color, group_name in zip(colors, label2accuracy_mat):
-        mat = label2accuracy_mat[group_name]
+    for label in label2accuracy_mat:
+        mat = label2accuracy_mat[label]
         y_mean = np.mean(mat, axis=0)
         x = np.arange(len(y_mean))
 
@@ -133,14 +139,15 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
 
         # plot
         ax.plot(x, y_mean, '-',
-                color=color,
-                label=group_name,
+                color=palette[label2color_id[label]],
+                label=label,
                 )
         ax.fill_between(x,
                         y_mean + h,
                         y_mean - h,
                         alpha=0.2,
-                        color=color)
+                        color=palette[label2color_id[label]],
+                        )
 
         if len(x) > max_num_epochs:
             ax.set_xticks(x)
@@ -151,7 +158,13 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
             ax.set_xticklabels(xtick_labels)
             max_num_epochs = len(x)
 
-    plt.legend(frameon=False, fontsize=6)
+    plt.legend(bbox_to_anchor=(0.5, 1.0),
+               borderaxespad=1.0,
+               fontsize=6,
+               frameon=False,
+               loc='lower center',
+               ncol=2,
+               )
 
     plt.tight_layout()
     return fig

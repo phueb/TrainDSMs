@@ -244,10 +244,16 @@ for exp in experiments:
         raise KeyError(f'Did not find accuracies for experiment {exp}')
 
     # sort
-    label2accuracy_mat = {k: v for k, v in sorted(label2accuracy_mat.items(), key=lambda i: np.mean(i[1][:, -1]))}
+    label2accuracy_mat = {k: v for k, v in sorted(label2accuracy_mat.items(),
+                                                  key=lambda i: np.mean(i[1][:, -1]),
+                                                  reverse=True)}
+
+    # make colors consistent
+    label2color_id = {k: n for n, k in enumerate(sorted(label2accuracy_mat))}
 
     fig = make_line_plot(label2accuracy_mat,
                          ylabel=f'Experiment {exp} Accuracy',
                          h_line=exp2chance_accuracy[exp],
+                         label2color_id=label2color_id
                          )
     fig.show()

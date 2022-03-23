@@ -79,7 +79,6 @@ class RNN:
                               self.params.dropout_prob,
                               self.vocab_size)
 
-
         self.t2e = None
         self.performance = defaultdict(list)
 

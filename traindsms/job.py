@@ -54,8 +54,11 @@ def main(param2val):
     seq_parsed: List[Tuple] = []  # sequences that are constituent-parsed
     for s in corpus.get_sentences():  # a sentence is a string
         tokens = s.split()
-        seq_num.append([corpus.token2id[token] for token in tokens])
-        seq_tok.append([token for token in tokens])
+        seq_num.append([corpus.token2id[token] for token in tokens])  # numeric (token IDs)
+        seq_tok.append(tokens)  # raw tokens
+        if params.corpus_params.add_reversed_seq:
+            seq_num.append([corpus.token2id[token] for token in tokens][::-1])
+            seq_tok.append(tokens[::-1])
     for tree in corpus.get_trees():
         seq_parsed.append(tree)
 

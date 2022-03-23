@@ -21,11 +21,12 @@ param2requests = {
     'include_location': [True, False],
     'add_with': [True],
     'add_in': [True],
+    'add_reversed_seq': [True, False],
 
     # 'composition_fn': ['multiplication'],
 
 
-    # todo normalization doesn't work properly. it results in 1d array rather than 2d
+    # todo test normalization
 
     # 'norm_type': [
     #     'row_sum',
@@ -137,6 +138,7 @@ param2default_corpus = {
     'include_location_specific_agents': False,
     'add_with': True,
     'add_in': True,
+    'add_reversed_seq': False,
 }
 
 # avoid keys with the same name
@@ -203,6 +205,7 @@ class CorpusParams:
     complete_block: bool
     add_with: bool
     add_in: bool
+    add_reversed_seq: bool
 
     @classmethod
     def from_param2val(cls, param2val):
@@ -327,6 +330,7 @@ class Params:
     corpus_params: CorpusParams
     dsm: str
     dsm_params: CountParams
+    composition_fn: str
     composition_fn: str
 
     @classmethod
