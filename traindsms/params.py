@@ -18,10 +18,16 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
 
-    'include_location': [True, False],
+    'include_location': [False, True],
     'add_with': [True],
     'add_in': [True],
-    'add_reversed_seq': [True, False],
+    'add_reversed_seq': [True],
+
+    'rnn_type': ['lstm'],
+    'embed_size': [8, 16, 32, 64],
+    'learning_rate': [0.001, 0.005, 0.01, 0.05, 0.1],
+
+
 
     # 'composition_fn': ['multiplication'],
 

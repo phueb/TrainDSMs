@@ -14,9 +14,11 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   ylabel: str = 'Accuracy',
                   width: float = 0.2,
                   confidence: float = 0.95,
-                  y_grid: bool = False,
+                  y_grid: bool = True,
                   ylims: Optional[List[float]] = None,
-                  h_line: Optional[float] = None,
+                  h_line_1: Optional[float] = None,
+                  h_line_2: Optional[float] = None,
+                  h_line_3: Optional[float] = None,
                   x_label_threshold: int = 10,
                   label2color_id: Dict[str, int] = None,
                   ):
@@ -59,8 +61,12 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     # colors
     palette = np.asarray(sns.color_palette('hls', num_groups))
 
-    if h_line is not None:
-        ax.axhline(y=h_line, color='grey', linestyle=':', zorder=3)
+    if h_line_1 is not None:
+        ax.axhline(y=h_line_1, color='grey', linestyle=':', zorder=3)
+    if h_line_2 is not None:
+        ax.axhline(y=h_line_2, color='grey', linestyle=':', zorder=3)  # guessing within superordinate category (exp b1)
+    if h_line_3 is not None:
+        ax.axhline(y=h_line_3, color='grey', linestyle=':', zorder=3)  # guessing within target category (exp b1)
 
     # plot
     for edge, label in zip(edges, label2accuracies):

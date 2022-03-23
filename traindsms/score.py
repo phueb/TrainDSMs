@@ -7,13 +7,13 @@ exp2chance_accuracy = {
     '1b':  0.0238,
     '1c':  0.0200,
     '2a':  0.0312,
-    '2b1': 0.0000,
-    '2b2': 0.0000,
+    '2b1': 0.0010,  # formally computed
+    '2b2': 0.0010,
     '2c1': 0.0036,
     '2c2': 0.0027,
     '3a1': 0.0362,
     '3a2': 0.0250,
-    '3b1': 0.0025,
+    '3b1': 0.0010,  # formally computed
     '3b2': 0.0000,
     '3c1': 0.0011,
     '3c2': 0.0023,
@@ -509,6 +509,8 @@ def score_vp_exp3c1(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
+
+    # TODO the correct ranking depends on the location here.
 
     return score_vp_exp_c_base_(predictions, verb, theme)
 

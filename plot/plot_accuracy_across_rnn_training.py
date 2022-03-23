@@ -27,13 +27,6 @@ LUDWIG_DATA_PATH: Optional[Path] = None
 RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 LABEL_N: bool = True  # add information about number of replications to legend
-PLOT_MAX_LINE: bool = False  # plot horizontal line at best performance for each param
-PLOT_MAX_LINES: bool = False  # plot horizontal line at best overall performance
-PALETTE_IDS: Optional[List[int]] = None  # re-assign colors to each line
-V_LINES: Optional[List[int]] = []  # add vertical lines to highlight time slices
-FIG_SIZE: Tuple[int, int] = (6, 4)  # in inches
-CONFIDENCE: float = 0.95
-TITLE = ''
 
 experiments = [
     '1a',
@@ -238,10 +231,11 @@ for param_path, label in gen_param_paths(project_name,
 
 for exp in experiments:
 
-    try:
-        label2accuracy_mat = exp2label2accuracy_mat[exp]
-    except KeyError:
-        raise KeyError(f'Did not find accuracies for experiment {exp}')
+    label2accuracy_mat = exp2label2accuracy_mat[exp]
+
+    if not label2accuracy_mat:
+        print(f'WARNING: Did not find accuracies for experiment {exp}')  # perhaps not all conditions were run?
+        continue
 
     # sort
     label2accuracy_mat = {k: v for k, v in sorted(label2accuracy_mat.items(),
