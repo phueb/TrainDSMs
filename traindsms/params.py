@@ -23,7 +23,7 @@ param2requests = {
     'add_in': [True],
     'add_reversed_seq': [False],
 
-    'rnn_type': ['srn'],
+    'rnn_type': ['lstm'],
 
 
 

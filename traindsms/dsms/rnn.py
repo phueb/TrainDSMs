@@ -160,7 +160,7 @@ class RNN:
         for seq_b in self.gen_batches(seq_num):  # generates batches of complete sequences
 
             # forward step
-            input_ids = torch.LongTensor(seq_b).cuda()[:, :-1]  # batch_first=True
+            input_ids = torch.LongTensor(seq_b).cuda()[:, :-1]
             logits = self.model(input_ids)  # logits at all time steps [batch_size * seq_len, vocab_size]
 
             # backward step
@@ -442,9 +442,7 @@ class TorchRNN(torch.nn.Module):
         outputs, hidden = self.rnn(embeds)  # this returns all time steps
         logits = self.wy(outputs.reshape(-1, self.embed_size))
 
-        # keep first dim
-        if len(input_ids) == 1:
-            logits = torch.unsqueeze(logits, 0)
+        assert logits.dim() == 2  # make sure first dimension is not removed when batch size = 1
 
         return logits
 
