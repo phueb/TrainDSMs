@@ -390,7 +390,7 @@ def score_vp_exp_c_base_(predictions: pd.Series,
     elif verb == 'pour':
         row_drop = predictions.drop(['pitcher', 'canister'])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['pitcher'] and other_max < predictions['canister'])
+        return int(other_max < predictions['pitcher'] and other_max < predictions['canister'])  # TODO in 3c2, there should be a clear ranking
 
     elif verb == 'decorate':
         row_drop = predictions.drop(['icing', 'paint'])

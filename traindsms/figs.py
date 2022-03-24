@@ -62,11 +62,11 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     palette = np.asarray(sns.color_palette('hls', num_groups))
 
     if h_line_1 is not None:
-        ax.axhline(y=h_line_1, color='grey', linestyle=':', zorder=3)
+        ax.axhline(y=h_line_1, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_1)} correct')
     if h_line_2 is not None:
-        ax.axhline(y=h_line_2, color='grey', linestyle=':', zorder=3)  # guessing within superordinate category (exp b1)
+        ax.axhline(y=h_line_2, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_2)} correct')
     if h_line_3 is not None:
-        ax.axhline(y=h_line_3, color='grey', linestyle=':', zorder=3)  # guessing within target category (exp b1)
+        ax.axhline(y=h_line_3, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_3)} correct')
 
     # plot
     for edge, label in zip(edges, label2accuracies):
@@ -84,6 +84,14 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                yerr=h,
                color=palette[label2color_id[label]],
                zorder=3,
+               )
+
+    plt.legend(bbox_to_anchor=(0.5, 1.0),
+               borderaxespad=1.0,
+               fontsize=8,
+               frameon=False,
+               loc='lower center',
+               ncol=6,
                )
 
     plt.tight_layout()
@@ -169,7 +177,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
                fontsize=6,
                frameon=False,
                loc='lower center',
-               ncol=2,
+               ncol=6,
                )
 
     plt.tight_layout()

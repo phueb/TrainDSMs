@@ -21,11 +21,9 @@ param2requests = {
     'include_location': [False, True],
     'add_with': [True],
     'add_in': [True],
-    'add_reversed_seq': [True],
+    'add_reversed_seq': [False],
 
-    'rnn_type': ['lstm'],
-    'embed_size': [8, 16, 32, 64],
-    'learning_rate': [0.001, 0.005, 0.01, 0.05, 0.1],
+    'rnn_type': ['srn'],
 
 
 
@@ -81,7 +79,7 @@ elif DSM_NAME == 'rnn':
         'dropout_prob': 0.0,        # must be 0.0 with num_layers=1
         'batch_size': 64,           # 64 is good
         'num_epochs': 10,           # no more than 10 needed with batch_size=64
-        'learning_rate': 0.1,       # 0.1 with batch_size=64
+        'learning_rate': 0.06,      # 0.06 with batch_size=64
         'grad_clip': 1.0,
         'lr_decay': 0.001,          # 0.001 but no larger
         'weight_decay': 0.0,        # keep at 0
