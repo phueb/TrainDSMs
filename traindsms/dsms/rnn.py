@@ -33,7 +33,9 @@ class RNN:
                         include_location_specific_agents=params.corpus_params.include_location_specific_agents,
                         num_epochs=params.corpus_params.num_blocks,
                         complete_epoch=params.corpus_params.complete_block,
-                        seed=params.corpus_params.seed,
+                        seed=random.randint(0, 1000),
+                        add_with=params.corpus_params.add_with,
+                        add_in=params.corpus_params.add_in,
                         )
 
         # get instance
