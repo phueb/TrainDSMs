@@ -108,7 +108,8 @@ class CountDSM:
             count_matrix = self.create_wd_matrix()
         else:
             raise AttributeError('Invalid arg to "count_type".')
-        print('Completed count in {}'.format(time.time() - start))
+
+        print(f'Completed count in {time.time() - start}', flush=True)
 
         # normalize + reduce
         norm_matrix = normalize(count_matrix, self.params.norm_type)
@@ -147,7 +148,7 @@ def normalize(input_matrix: np.array,
 
 def norm_rowsum(input_matrix: np.array,
                 ) -> np.array:
-    print('Normalizing matrix by row sums...')
+    print('Normalizing matrix by row sums')
 
     num_rows = input_matrix.shape[0]
     res = np.zeros_like(input_matrix, float)
@@ -161,7 +162,7 @@ def norm_rowsum(input_matrix: np.array,
 
 def norm_col_sum(input_matrix: np.array,
                  ) -> np.array:
-    print('Normalizing matrix by column sums...')
+    print('Normalizing matrix by column sums')
 
     num_cols = input_matrix.shape[1]
     res = np.zeros_like(input_matrix, float)
@@ -175,7 +176,7 @@ def norm_col_sum(input_matrix: np.array,
 
 def norm_tfidf(input_matrix: np.array,
                ) -> np.array:
-    print('Normalizing matrix by tf-idf...')
+    print('Normalizing matrix by tf-idf')
     
     num_rows = input_matrix.shape[0]
     num_cols = nd = input_matrix.shape[1]
@@ -229,15 +230,18 @@ def row_log_entropy(input_matrix: np.array,
     # row probabilities
     row_prob_matrix = np.zeros_like(input_matrix, float)
     for i in range(num_rows):
-        if input_matrix[i, :].sum() == 0:
-            print('    Warning: Row {} had sum of zero. Setting prob to 0'.format(i))
+        row_sum = input_matrix[i, :].sum()
+        if row_sum == 0:
+            print(f'Warning: Row {i} had sum of zero. Setting prob to 0')
         else:
-            row_prob_matrix[i, :] = input_matrix[i, :] / input_matrix[i, :].sum()
+            row_prob_matrix[i, :] = input_matrix[i, :] / row_sum
 
     log_frequencies = np.log(input_matrix + 1)
     for i in range(num_rows):
         # entropy = sigma[p(x) * log(1/p(x))]
-        row_entropy = np.dot(row_prob_matrix[i, :], np.log(1 / (row_prob_matrix[i, :])))
+        row_entropy = np.dot(row_prob_matrix[i, :],
+                             np.log(1 / (1 + row_prob_matrix[i, :]))
+                             )
         res[i, :] = log_frequencies[i, :] * row_entropy
 
     return res
