@@ -39,6 +39,7 @@ def main(param2val):
                     seed=random.randint(0, 1000),
                     add_with=params.corpus_params.add_with,
                     add_in=params.corpus_params.add_in,
+                    strict_compositional=params.corpus_params.strict_compositional,
                     )
 
     # load blank df for evaluating sr scores

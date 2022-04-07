@@ -18,16 +18,17 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
 
-    'include_location': [False, True],
+    'include_location': [False],
     'add_with': [True],
     'add_in': [True],
-    'add_reversed_seq': [False],
+    'add_reversed_seq': [True],
+
+    'strict_compositional': [True],
 
     'rnn_type': ['lstm'],
+    # 'num_epochs': [4, 5, 6, 10],
 
-
-
-    # 'composition_fn': ['multiplication'],
+    # 'composition_fn': ['multiplication', 'addition'],
 
 
     # todo test normalization
@@ -78,7 +79,7 @@ elif DSM_NAME == 'rnn':
         'embed_init_range': 0.1,    # 0.1 is good
         'dropout_prob': 0.0,        # must be 0.0 with num_layers=1
         'batch_size': 64,           # 64 is good
-        'num_epochs': 10,           # no more than 10 needed with batch_size=64
+        'num_epochs': 4,            # more than 4 improves 1a and 2a accuracy, but 4 is best for 2b and 2c accuracy
         'learning_rate': 0.06,      # 0.06 with batch_size=64
         'grad_clip': 1.0,
         'lr_decay': 0.001,          # 0.001 but no larger
@@ -142,6 +143,8 @@ param2default_corpus = {
     'include_location_specific_agents': False,
     'add_with': True,
     'add_in': True,
+    'strict_compositional': False,  # exclude type-2 and type-3 verb + exp theme combinations from training
+
     'add_reversed_seq': False,
 }
 
@@ -209,6 +212,8 @@ class CorpusParams:
     complete_block: bool
     add_with: bool
     add_in: bool
+    strict_compositional: bool
+
     add_reversed_seq: bool
 
     @classmethod
