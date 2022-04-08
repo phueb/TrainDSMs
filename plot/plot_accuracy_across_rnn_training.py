@@ -17,10 +17,10 @@ from traindsms.score import score_vp_exp2b1
 from traindsms.score import score_vp_exp2b2
 from traindsms.score import score_vp_exp2c1
 from traindsms.score import score_vp_exp2c2
-from traindsms.score import score_vp_exp3b1
-from traindsms.score import score_vp_exp3b2
-from traindsms.score import score_vp_exp3c1
-from traindsms.score import score_vp_exp3c2
+from traindsms.score import score_vp_exp5b1
+from traindsms.score import score_vp_exp5b2
+from traindsms.score import score_vp_exp5c1
+from traindsms.score import score_vp_exp5c2
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
@@ -213,13 +213,13 @@ for param_path, label in gen_param_paths(project_name,
                     elif exp == '3a2':
                         hits += score_vp_exp2a(predictions, verb, theme)
                     elif exp == '3b1':
-                        hits += score_vp_exp3b1(predictions, verb, theme)
+                        hits += score_vp_exp5b1(predictions, verb, theme)
                     elif exp == '3b2':
-                        hits += score_vp_exp3b2(predictions, verb, theme)
+                        hits += score_vp_exp5b2(predictions, verb, theme)
                     elif exp == '3c1':
-                        hits += score_vp_exp3c1(predictions, verb, theme)
+                        hits += score_vp_exp5c1(predictions, verb, theme)
                     elif exp == '3c2':
-                        hits += score_vp_exp3c2(predictions, verb, theme)
+                        hits += score_vp_exp5c2(predictions, verb, theme)
                     else:
                         raise AttributeError(exp)
 

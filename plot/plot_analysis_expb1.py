@@ -177,8 +177,8 @@ for param_path, label in gen_param_paths(project_name,
         df = pd.read_csv(p, index_col=0, squeeze=True)
 
         # exp 2b1 requires specific params
-        if params.corpus_params.include_location:
-            continue
+        # if params.corpus_params.include_location:
+        #     continue
 
         # exp 2b1
         df_exp = df[(df['verb-type'] == 3) &

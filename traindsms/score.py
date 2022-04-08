@@ -6,17 +6,18 @@ exp2chance_accuracy = {
     '1a':  0.0294,
     '1b':  0.0238,
     '1c':  0.0200,
+
     '2a':  0.0312,
     '2b1': 0.0010,  # formally computed
     '2b2': 0.0010,
     '2c1': 0.0036,
     '2c2': 0.0027,
-    '3a1': 0.0362,
-    '3a2': 0.0250,
-    '3b1': 0.0010,  # formally computed
-    '3b2': 0.0000,
-    '3c1': 0.0011,
-    '3c2': 0.0023,
+
+    '5a': 0.0250,
+    '5b1': 0.0010,  # formally computed
+    '5b2': 0.0000 + 1e-10,  # prevent division-by-zero error
+    '5c1': 0.0011,
+    '5c2': 0.0023,
 }
 
 
@@ -390,7 +391,7 @@ def score_vp_exp_c_base_(predictions: pd.Series,
     elif verb == 'pour':
         row_drop = predictions.drop(['pitcher', 'canister'])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['pitcher'] and other_max < predictions['canister'])  # TODO in 3c2, there should be a clear ranking
+        return int(other_max < predictions['pitcher'] and other_max < predictions['canister'])  # TODO in 5c2, there should be a clear ranking
 
     elif verb == 'decorate':
         row_drop = predictions.drop(['icing', 'paint'])
@@ -421,18 +422,18 @@ def score_vp_exp_c_base_(predictions: pd.Series,
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 #############################################
-# experiment 3
+# experiment 5
 ############################################
 
 
-def score_vp_exp3b1(predictions: pd.Series,
+def score_vp_exp5b1(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
     return score_vp_exp2b1(predictions, verb, theme)
 
 
-def score_vp_exp3b2(predictions: pd.Series,
+def score_vp_exp5b2(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
@@ -445,7 +446,7 @@ def score_vp_exp3b2(predictions: pd.Series,
     when include_location=True, the ranking is unambiguous (there is a preferred 2nd rank that is location-specific)
 
     WARNING:
-        the accuracies in exp 2b2 and 3b2 are NOT comparable because a different target ranking is used
+        the accuracies in exp 2b2 and 5b2 are NOT comparable because a different target ranking is used
 
     """
 
@@ -505,7 +506,7 @@ def score_vp_exp3b2(predictions: pd.Series,
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
-def score_vp_exp3c1(predictions: pd.Series,
+def score_vp_exp5c1(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
@@ -515,7 +516,7 @@ def score_vp_exp3c1(predictions: pd.Series,
     return score_vp_exp_c_base_(predictions, verb, theme)
 
 
-def score_vp_exp3c2(predictions: pd.Series,
+def score_vp_exp5c2(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
