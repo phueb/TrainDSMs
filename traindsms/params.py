@@ -18,28 +18,18 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
 
-    'include_location': [False],
+    'include_location': [False, True],
     'add_with': [True],
     'add_in': [True],
-    'add_reversed_seq': [True],
+    'add_reversed_seq': [False],
 
-    'strict_compositional': [True],
+    'strict_compositional': [False],
 
-    'rnn_type': ['lstm'],
-    # 'num_epochs': [4, 5, 6, 10],
-
-    # 'composition_fn': ['multiplication', 'addition'],
+    # 'rnn_type': ['lstm'],
 
 
-    # todo test normalization
+    # 'composition_fn': ['multiplication'],
 
-    # 'norm_type': [
-    #     'row_sum',
-    #     'col_sum',
-    #     'tf_idf',
-    #     'row_logentropy',
-    #     'ppmi',
-    # ]
 
 }
 
@@ -49,7 +39,7 @@ if DSM_NAME == 'count':
     param2default_dsm = {
         # window size means how many neighbors are considered in forward direction
         'count_type': ('ww', 'summed', 4, 'linear'),  # currently, sentence-boundary is respected automatically
-        'norm_type': None,
+        'norm_type': None,  # None is slightly better than all others
         'reduce_type': ('svd', 32),
     }
 
@@ -98,7 +88,7 @@ elif DSM_NAME == 'transformer':
         'seq_len': 8,                   # this must be larger than the largest sentence in the corpus
         # optimization
         'batch_size': 128,              # should be smaller than 576 (size of complete block)
-        'num_epochs': 20,               # 20 is best with num_blocks=400, less or more hurts exp2b accuracy
+        'num_epochs': 15,               # 15 is best for exp2b1 accuracy, 10 is best for 2b2 accuracy
         'learning_rate': 0.01,          # is decayed during training with Adam optimizer
         'weight_decay': 0.0,            # 0.0 is best
         'adam_beta2': 0.999,            # default, robust to small changes

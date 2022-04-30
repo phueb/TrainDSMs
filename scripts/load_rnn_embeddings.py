@@ -26,18 +26,29 @@ for param_path, label in gen_param_paths(project_name,
 
     # load models and embeddings
     dsm = RNN.from_pretrained(param_path)
-    embeddings = dsm.model.wx.weight.detach().numpy()
-    assert len(dsm.token2id) == len(embeddings)
+    embeddings_inp = dsm.model.wx.weight.detach().numpy()  # groups by similarity right-contexts
+    embeddings_out = dsm.model.wy.weight.detach().numpy()  # groups by similarity left-contexts
 
-    # get similarities
-    embedding_sims = cosine_similarity(embeddings)
+    for location, embeddings in [('inp', embeddings_inp),
+                                 ('out', embeddings_out)]:
 
-    for token in ['cucumber', 'potato', 'pepper']:
+        assert len(dsm.token2id) == len(embeddings)
 
-        row_sims = embedding_sims[dsm.token2id[token]]
-        for token_id in np.argsort(row_sims)[::-1][:6]:
-            print(f'{token:<12} {dsm.id2token[token_id]:<12} sim={row_sims[token_id]}')
-        print('-' * 30)
+        print('=' * 30)
+        print(f'embeddings at location={location}')
+        print('=' * 30)
+
+        # get similarities
+        embedding_sims = cosine_similarity(embeddings)
+
+        for token in ['cucumber', 'potato', 'pepper']:
+
+            row_sims = embedding_sims[dsm.token2id[token]]
+            for token_id in np.argsort(row_sims)[::-1][:6]:
+                print(f'{token:<12} {dsm.id2token[token_id]:<12} sim={row_sims[token_id]}')
+            print('-' * 30)
+
+
 
 
 
