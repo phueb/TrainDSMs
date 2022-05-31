@@ -309,8 +309,13 @@ class RNN:
             print()
 
         # get token embeddings
-        wx = self.model.wx.weight.detach().cpu().numpy()
-        self.t2e = {t: embedding for t, embedding in zip(self.token2id, wx)}
+        if self.params.embeddings_location == 'wx':  # use input weights
+            embeddings = self.model.wx.weight.detach().cpu().numpy()
+        elif self.params.embeddings_location == 'wy':  # use output weights
+            embeddings = self.model.wy.weight.detach().cpu().numpy()
+        else:
+            raise AttributeError('Invalid arg to embeddings_location')
+        self.t2e = {t: embedding for t, embedding in zip(self.token2id, embeddings)}
 
         # save model to disk
         torch.save(self.model.state_dict(), self.save_path / 'model.pt')

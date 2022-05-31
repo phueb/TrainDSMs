@@ -18,17 +18,21 @@ DSM_NAME = ['count',        # 0
 
 param2requests = {
 
-    'include_location': [False, True],
     'add_with': [True],
     'add_in': [True],
-    'add_reversed_seq': [False],
 
+    # experiment 3
+    'add_reversed_seq': [False, True],
+    # experiment 4
     'strict_compositional': [False],
+    # experiment 5
+    'include_location': [False],
 
-    # 'rnn_type': ['lstm'],
 
+    # 'rnn_type': ['lstm', 'srn'],
+    'embeddings_location': ['wy', 'wx'],
 
-    # 'composition_fn': ['multiplication'],
+    'composition_fn': ['multiplication'],
 
 
 }
@@ -74,6 +78,8 @@ elif DSM_NAME == 'rnn':
         'grad_clip': 1.0,
         'lr_decay': 0.001,          # 0.001 but no larger
         'weight_decay': 0.0,        # keep at 0
+        # evaluation
+        'embeddings_location': 'wx',
     }
 
 elif DSM_NAME == 'transformer':
@@ -101,8 +107,7 @@ elif DSM_NAME == 'transformer':
 elif DSM_NAME == 'lon':
     param2default_dsm = {
 
-        # TODO the LON is currently built from corpus - consecutive words are connected
-
+        # note: the LON is currently built from corpus - consecutive words are connected
         # todo: the co-occurrence matrix will be it's adjacency matrix,
         #  and the spreading activation functions on the adjacency matrix
 
@@ -242,6 +247,8 @@ class RNNParams:
     grad_clip: Optional[float]
     lr_decay: float
     weight_decay: float
+    # evaluation
+    embeddings_location: str
 
     @classmethod
     def from_param2val(cls, param2val):

@@ -40,7 +40,7 @@ experiments = [
     # '2c2',
 
     # '3a',
-    # '3b1',
+    '3b1',
     # '3b2',
     # '3c1',
     # '3c2',
@@ -52,7 +52,7 @@ experiments = [
     # '4c2',
 
     # '5a',
-    '5b1',
+    # '5b1',
     # '5b2',
     # '5c1',
     # '5c2',
@@ -222,7 +222,7 @@ for exp in experiments:
 
     fig = make_bar_plot(label2accuracies,
                         ylabel=f'Experiment {exp} Accuracy',
-                        h_line_1=exp2chance_accuracy[exp],
+                        h_line_1=exp2chance_accuracy[exp.replace('3b', '2b')],
                         h_line_2=1/12,
                         h_line_3=1/6,
                         label2color_id=label2color_id
