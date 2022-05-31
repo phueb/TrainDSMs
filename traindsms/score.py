@@ -202,70 +202,84 @@ def score_vp_exp2b1(predictions: pd.Series,
                     ) -> int:
     """
     example (location-type=1):
-    'preserve pepper' -> 'vinegar' (1) > 'dehydrator' (2) > others
+    'preserve pepper': 'vinegar' (1) > 'dehydrator' (2a) or 'fertilizer' (2b) > others
     (1): 'cucumber'  is the SIBLING of 'pepper', and 'cucumber'  is preserved with 'vinegar'
-    (2): 'raspberry' is the COUSIN  of 'pepper', and 'raspberry' is preserved with 'dehydrator'
+    (2a): 'raspberry' is the COUSIN  of 'pepper', and 'raspberry' is preserved with 'dehydrator'
+    (2b): 'cucumber' is the SIBLING  of 'pepper', and 'cucumber' is grown with 'fertilizer'
     """
 
     if verb == 'preserve':
         # sibling
         if theme == 'pepper':
             top1 = 'vinegar'
-            top2 = 'dehydrator'
+            top2a = 'dehydrator'
+            top2b = 'fertilizer'
         # cousin
         elif theme == 'orange':
             top1 = 'dehydrator'
-            top2 = 'vinegar'
+            top2a = 'vinegar'
+            top2b = 'insecticide'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2] < predictions[top1])
+        return int(other_max < predictions[top2a] < predictions[top1] and
+                   other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'repair':
         # sibling
         if theme == 'blender':
             top1 = 'wrench'
-            top2 = 'glue'
+            top2a = 'glue'
+            top2b = 'food'
         # cousin
         elif theme == 'bowl':
             top1 = 'glue'
-            top2 = 'wrench'
+            top2a = 'wrench'
+            top2b = 'organizer'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2] < predictions[top1])
+        return int(other_max < predictions[top2a] < predictions[top1] and
+                   other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'cut':
         # sibling
         if theme == 'sock':
             top1 = 'scissors'
-            top2 = 'saw'
+            top2a = 'saw'
+            top2b = 'dryer'
         # cousin
         elif theme == 'ash':
             top1 = 'saw'
-            top2 = 'scissors'
+            top2a = 'scissors'
+            top2b = 'lacquer'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2] < predictions[top1])
+        return int(other_max < predictions[top2a] < predictions[top1] and
+                   other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'clean':
         # sibling
         if theme == 'faceshield':
             top1 = 'towel'
-            top2 = 'vacuum'
+            top2a = 'vacuum'
+            top2b = 'duster'
         # cousin
         elif theme == 'workstation':
             top1 = 'vacuum'
-            top2 = 'towel'
+            top2a = 'towel'
+            top2b = 'lubricant'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2] < predictions[top1])
+        return int(other_max < predictions[top2a] < predictions[top1] and
+                   other_max < predictions[top2b] < predictions[top1])
+
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
@@ -277,7 +291,7 @@ def score_vp_exp2b2(predictions: pd.Series,
                     ) -> int:
     """
     example (location-type=2):
-    'pour tomato-juice' -> 'pitcher' (1) > 'canister' (2a) or 'freezer (2b) > others
+    'pour tomato-juice': 'pitcher' (1) > 'canister' (2a) or 'freezer (2b) > others
     (1) : 'apple-juice' is the SIBLING of 'tomato-juice', and 'apple-juice' is poured with 'pitcher'
     (2a): 'coolant'     co-occurs with 'pour'             and 'coolant'     is poured with 'canister'
     (2b): 'freezer'     is the COUSIN  of 'tomato-juice', and 'freezer'     is frozen with 'freezer'
@@ -511,8 +525,6 @@ def score_vp_exp5c1(predictions: pd.Series,
                     theme: str,
                     ) -> int:
 
-    # TODO the correct ranking depends on the location here.
-
     return score_vp_exp_c_base_(predictions, verb, theme)
 
 
@@ -521,4 +533,4 @@ def score_vp_exp5c2(predictions: pd.Series,
                     theme: str,
                     ) -> int:
 
-    return score_vp_exp_c_base_(predictions, verb, theme)
+    raise NotImplementedError  # TODO the correct ranking depends on the location
