@@ -209,12 +209,10 @@ def score_vp_exp2b1(predictions: pd.Series,
     """
 
     if verb == 'preserve':
-        # sibling
         if theme == 'pepper':
             top1 = 'vinegar'
             top2a = 'dehydrator'
             top2b = 'fertilizer'
-        # cousin
         elif theme == 'orange':
             top1 = 'dehydrator'
             top2a = 'vinegar'
@@ -227,12 +225,10 @@ def score_vp_exp2b1(predictions: pd.Series,
                    other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'repair':
-        # sibling
         if theme == 'blender':
             top1 = 'wrench'
             top2a = 'glue'
             top2b = 'food'
-        # cousin
         elif theme == 'bowl':
             top1 = 'glue'
             top2a = 'wrench'
@@ -245,12 +241,10 @@ def score_vp_exp2b1(predictions: pd.Series,
                    other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'cut':
-        # sibling
         if theme == 'sock':
             top1 = 'scissors'
             top2a = 'saw'
             top2b = 'dryer'
-        # cousin
         elif theme == 'ash':
             top1 = 'saw'
             top2a = 'scissors'
@@ -263,12 +257,10 @@ def score_vp_exp2b1(predictions: pd.Series,
                    other_max < predictions[top2b] < predictions[top1])
 
     elif verb == 'clean':
-        # sibling
         if theme == 'faceshield':
             top1 = 'towel'
             top2a = 'vacuum'
             top2b = 'duster'
-        # cousin
         elif theme == 'workstation':
             top1 = 'vacuum'
             top2a = 'towel'
@@ -279,7 +271,6 @@ def score_vp_exp2b1(predictions: pd.Series,
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
         return int(other_max < predictions[top2a] < predictions[top1] and
                    other_max < predictions[top2b] < predictions[top1])
-
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')

@@ -1,7 +1,7 @@
 """
 with what accuracy does a model guess first rank correctly in experiment 2b1?
 """
-from typing import Optional, List, Tuple
+from typing import Optional
 from pathlib import Path
 import pandas as pd
 import yaml
@@ -26,15 +26,12 @@ project_name = __name__
 
 
 def score_rank1(verb, theme):
+
     if verb == 'preserve':
-        # sibling
         if theme == 'pepper':
             top1 = 'vinegar'
-            top2 = 'dehydrator'
-        # cousin
         elif theme == 'orange':
             top1 = 'dehydrator'
-            top2 = 'vinegar'
         else:
             raise RuntimeError
         row_drop = predictions.drop([top1])
@@ -42,14 +39,10 @@ def score_rank1(verb, theme):
         return int(other_max < predictions[top1])
 
     elif verb == 'repair':
-        # sibling
         if theme == 'blender':
             top1 = 'wrench'
-            top2 = 'glue'
-        # cousin
         elif theme == 'bowl':
             top1 = 'glue'
-            top2 = 'wrench'
         else:
             raise RuntimeError
         row_drop = predictions.drop([top1])
@@ -57,14 +50,10 @@ def score_rank1(verb, theme):
         return int(other_max < predictions[top1])
 
     elif verb == 'cut':
-        # sibling
         if theme == 'sock':
             top1 = 'scissors'
-            top2 = 'saw'
-        # cousin
         elif theme == 'ash':
             top1 = 'saw'
-            top2 = 'scissors'
         else:
             raise RuntimeError
         row_drop = predictions.drop([top1])
@@ -72,14 +61,10 @@ def score_rank1(verb, theme):
         return int(other_max < predictions[top1])
 
     elif verb == 'clean':
-        # sibling
         if theme == 'faceshield':
             top1 = 'towel'
-            top2 = 'vacuum'
-        # cousin
         elif theme == 'workstation':
             top1 = 'vacuum'
-            top2 = 'towel'
         else:
             raise RuntimeError
         row_drop = predictions.drop([top1])
@@ -90,67 +75,71 @@ def score_rank1(verb, theme):
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
-
 def score_rank2(verb, theme):
+
     if verb == 'preserve':
-        # sibling
         if theme == 'pepper':
             top1 = 'vinegar'
-            top2 = 'dehydrator'
-        # cousin
+            top2a = 'dehydrator'
+            top2b = 'fertilizer'
         elif theme == 'orange':
             top1 = 'dehydrator'
-            top2 = 'vinegar'
+            top2a = 'vinegar'
+            top2b = 'insecticide'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2])
+        return int(other_max < predictions[top2a] and
+                   other_max < predictions[top2b])
 
     elif verb == 'repair':
-        # sibling
         if theme == 'blender':
             top1 = 'wrench'
-            top2 = 'glue'
-        # cousin
+            top2a = 'glue'
+            top2b = 'food'
         elif theme == 'bowl':
             top1 = 'glue'
-            top2 = 'wrench'
+            top2a = 'wrench'
+            top2b = 'organizer'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2])
+        return int(other_max < predictions[top2a] and
+                   other_max < predictions[top2b])
 
     elif verb == 'cut':
-        # sibling
         if theme == 'sock':
             top1 = 'scissors'
-            top2 = 'saw'
-        # cousin
+            top2a = 'saw'
+            top2b = 'dryer'
         elif theme == 'ash':
             top1 = 'saw'
-            top2 = 'scissors'
+            top2a = 'scissors'
+            top2b = 'lacquer'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2])
+        return int(other_max < predictions[top2a] and
+                   other_max < predictions[top2b])
 
     elif verb == 'clean':
-        # sibling
         if theme == 'faceshield':
             top1 = 'towel'
-            top2 = 'vacuum'
-        # cousin
+            top2a = 'vacuum'
+            top2b = 'duster'
         elif theme == 'workstation':
             top1 = 'vacuum'
-            top2 = 'towel'
+            top2a = 'towel'
+            top2b = 'lubricant'
         else:
-            raise RuntimeError
-        row_drop = predictions.drop([top1, top2])
+            raise SystemExit
+        row_drop = predictions.drop([top1, top2a, top2b])
         other_max = pd.to_numeric(row_drop).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[top2])
+        return int(other_max < predictions[top2a] and
+                   other_max < predictions[top2b])
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')

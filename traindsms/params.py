@@ -19,7 +19,6 @@ DSM_NAME = ['count',        # 0
 param2requests = {
 
     'add_with': [True],
-    'add_in': [True],
 
     # experiment 3
     'add_reversed_seq': [False, True],
@@ -27,12 +26,13 @@ param2requests = {
     'strict_compositional': [False],
     # experiment 5
     'include_location': [False],
+    'add_in': [True],
 
 
-    # 'rnn_type': ['lstm', 'srn'],
-    'embeddings_location': ['wy', 'wx'],
+    'rnn_type': ['lstm'],
+    # 'embeddings_location': ['wy', 'wx'],
 
-    'composition_fn': ['multiplication'],
+    # 'composition_fn': ['multiplication', 'addition'],
 
 
 }
