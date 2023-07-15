@@ -35,12 +35,6 @@ experiments = [
     '2b2',
     '2c1',
     '2c2',
-    '3a1',
-    '3a2',
-    '3b1',
-    '3b2',
-    '3c1',
-    '3c2',
 ]
 
 
@@ -96,14 +90,6 @@ for param_path, label in gen_param_paths(project_name,
 
             # for each experiment
             for exp in experiments:
-
-                # some experiments require specific params
-                if exp.startswith('1') and params.corpus_params.include_location:
-                    continue
-                if exp.startswith('2') and params.corpus_params.include_location:
-                    continue
-                if exp.startswith('3') and not params.corpus_params.include_location:
-                    continue
     
                 if exp == '1a':
                     df_exp = df[(df['verb-type'] == 2) &
@@ -142,37 +128,7 @@ for param_path, label in gen_param_paths(project_name,
                                 (df['theme-type'] == 'experimental') &
                                 (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
                                 (df['location-type'] == 2)]
-    
-                elif exp == '3a1':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'control') &
-                                (df['phrase-type'] == 'observed') &
-                                (df['location-type'] == 1)]
-                elif exp == '3a2':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'control') &
-                                (df['phrase-type'] == 'observed') &
-                                (df['location-type'] == 2)]
-                elif exp == '3b1':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'experimental') &
-                                (df['phrase-type'] == 'observed') &
-                                (df['location-type'] == 1)]
-                elif exp == '3b2':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'experimental') &
-                                (df['phrase-type'] == 'observed') &
-                                (df['location-type'] == 2)]
-                elif exp == '3c1':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'experimental') &
-                                (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
-                                (df['location-type'] == 1)]
-                elif exp == '3c2':
-                    df_exp = df[(df['verb-type'] == 3) &
-                                (df['theme-type'] == 'experimental') &
-                                (df['phrase-type'] == 'unrelated') &  # unrelated as opposed to unobserved
-                                (df['location-type'] == 2)]
+
                 else:
                     raise AttributeError(exp)
 
@@ -205,19 +161,6 @@ for param_path, label in gen_param_paths(project_name,
                     elif exp == '2c2':
                         hits += score_vp_exp2c2(predictions, verb, theme)
 
-                    # exp3 uses different evaluation as exp2b and a different training corpus
-                    elif exp == '3a1':
-                        hits += score_vp_exp2a(predictions, verb, theme)
-                    elif exp == '3a2':
-                        hits += score_vp_exp2a(predictions, verb, theme)
-                    elif exp == '3b1':
-                        hits += score_vp_exp5b1(predictions, verb, theme)
-                    elif exp == '3b2':
-                        hits += score_vp_exp5b2(predictions, verb, theme)
-                    elif exp == '3c1':
-                        hits += score_vp_exp5c1(predictions, verb, theme)
-                    elif exp == '3c2':
-                        hits += score_vp_exp5c2(predictions, verb, theme)
                     else:
                         raise AttributeError(exp)
 
