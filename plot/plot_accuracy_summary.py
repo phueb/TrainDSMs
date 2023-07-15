@@ -17,8 +17,6 @@ from traindsms.score import score_vp_exp2b1
 from traindsms.score import score_vp_exp2b2
 from traindsms.score import score_vp_exp2c1
 from traindsms.score import score_vp_exp2c2
-from traindsms.score import score_vp_exp5b1
-from traindsms.score import score_vp_exp5b2
 from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
@@ -28,8 +26,8 @@ RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None
 LABEL_N: bool = True  # add information about number of replications to legend
 
 experiments = [
-    '1a',
-    '1b',
+    # '1a',
+    # '1b',
     # '1c',
 
     '2a',
@@ -158,8 +156,8 @@ for exp in experiments:
     fig = make_bar_plot(label2accuracies,
                         ylabel=f'Experiment {exp} Accuracy',
                         # h_line_1=exp2chance_accuracy[exp.replace('3b', '2b')],
-                        h_line_2=1/12,
-                        h_line_3=1/6,
+                        # h_line_2=1/12,
+                        # h_line_3=1/6,
                         label2color_id=label2color_id
                         )
     fig.show()

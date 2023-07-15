@@ -6,6 +6,9 @@ from typing import List, Tuple, Dict, Optional
 
 from traindsms import config
 
+plt.rcParams['font.family'] = 'DeJavu Serif'
+plt.rcParams['font.serif'] = ['Times New Roman']
+
 
 def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   figsize: Tuple[int, int] = (8, 6),
@@ -38,8 +41,10 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
         ax.yaxis.grid(True)
     if ylims is not None:
         ax.set_ylim(ylims)
+        plt.yticks(np.arange(ylims[0], ylims[1], 0.1))  # increment y-ticks by 0.1
     else:
         ax.set_ylim([0.0, 1.05])
+        plt.yticks(np.arange(0.0, 1.05, 0.1))  # increment y-ticks by 0.1
 
     num_groups = len(label2accuracies)
     edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
@@ -53,7 +58,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                          for n, gn in enumerate(label2accuracies)]
     else:
         x_tick_labels = label2accuracies
-    ax.set_xticklabels(x_tick_labels, fontsize=6)
+    ax.set_xticklabels(x_tick_labels, fontsize=config.Figs.tick_font_size)
 
     # y axis
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
@@ -99,13 +104,13 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
 
 
 def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num epochs]
-                   figsize: Tuple[int, int] = (8, 4),
+                   fig_size: Tuple[int, int] = (8, 4),
                    title: str = '',
-                   xlabel: str = 'Epoch',
-                   ylabel: str = 'Accuracy',
+                   x_label: str = 'Epoch',
+                   y_label: str = 'Accuracy',
                    confidence: float = 0.95,
                    y_grid: bool = False,
-                   ylims: Optional[List[float]] = None,
+                   y_lims: Optional[List[float]] = None,
                    h_line: Optional[float] = None,
                    shrink_xtick_labels: bool = False,
                    label2color_id: Dict[str, int] = None,
@@ -117,21 +122,21 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
     if label2color_id is None:
         label2color_id = {label: n for n, label in enumerate(label2accuracy_mat)}
 
-    fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
+    fig, ax = plt.subplots(figsize=fig_size, dpi=config.Figs.dpi)
     plt.title(title)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.tick_params(axis='both', which='both', top=False, right=False)
     if y_grid:
         ax.yaxis.grid(True)
-    if ylims is not None:
-        ax.set_ylim(ylims)
+    if y_lims is not None:
+        ax.set_ylim(y_lims)
     else:
         ax.set_ylim([0.0, 1.05])
 
     # axes
-    ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
-    ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
+    ax.set_xlabel(x_label, fontsize=config.Figs.ax_font_size)
+    ax.set_ylabel(y_label, fontsize=config.Figs.ax_font_size)
 
     # colors
     num_groups = len(label2accuracy_mat)
@@ -169,7 +174,7 @@ def make_line_plot(label2accuracy_mat: Dict[str, np.array],  # [num groups, num 
                 xtick_labels = ['' if xi % 10 != 0 else xi for xi in x]
             else:
                 xtick_labels = x
-            ax.set_xticklabels(xtick_labels)
+            ax.set_xticklabels(xtick_labels, fontsize=config.Figs.tick_font_size)
             max_num_epochs = len(x)
 
     plt.legend(bbox_to_anchor=(0.5, 1.0),

@@ -20,174 +20,96 @@ def score_vp_exp1(predictions: pd.Series,
                   verb: str,
                   theme: str,
                   ) -> int:
-    if verb == 'grow':
-        row_no_target = predictions.drop(['fertilizer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['fertilizer'])
+    """
+    a hit is recorded if the correct instrument is scored highest.
+    """
 
-    elif verb == 'spray':
-        row_no_target = predictions.drop(['insecticide'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['insecticide'])
+    verb2instrument = {
+        'grow': 'fertilizer',
+        'spray': 'insecticide',
+        'fill': 'food',
+        'organize': 'organizer',
+        'freeze': 'freezer',
+        'consume': 'utensil',
+        'grill': 'bbq',
+        'catch': 'net',
+        'dry': 'dryer',
+        'dust': 'duster',
+        'lubricate': 'lubricant',
+        'seal': 'lacquer',
+        'transfer': 'pump',
+        'polish': 'polisher',
+        'shoot': 'slingshot',
+        'harden': 'hammer'
+    }
 
-    elif verb == 'fill':
-        row_no_target = predictions.drop(['food'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['food'])
-
-    elif verb == 'organize':
-        row_no_target = predictions.drop(['organizer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['organizer'])
-
-    elif verb == 'freeze':
-        row_no_target = predictions.drop(['freezer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['freezer'])
-
-    elif verb == 'consume':
-        row_no_target = predictions.drop(['utensil'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['utensil'])
-
-    elif verb == 'grill':
-        row_no_target = predictions.drop(['bbq'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['bbq'])
-
-    elif verb == 'catch':
-        row_no_target = predictions.drop(['net'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['net'])
-
-    elif verb == 'dry':
-        row_no_target = predictions.drop(['dryer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['dryer'])
-
-    elif verb == 'dust':
-        row_no_target = predictions.drop(['duster'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['duster'])
-
-    elif verb == 'lubricate':
-        row_no_target = predictions.drop(['lubricant'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['lubricant'])
-
-    elif verb == 'seal':
-        row_no_target = predictions.drop(['lacquer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['lacquer'])
-
-    elif verb == 'transfer':
-        row_no_target = predictions.drop(['pump'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['pump'])
-
-
-    elif verb == 'polish':
-        row_no_target = predictions.drop(['polisher'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['polisher'])
-
-    elif verb == 'shoot':
-        row_no_target = predictions.drop(['slingshot'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['slingshot'])
-
-    elif verb == 'harden':
-        row_no_target = predictions.drop(['hammer'])
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions['hammer'])
-
+    if verb in verb2instrument:
+        instrument = verb2instrument[verb]
+        row_no_target = predictions.drop(instrument)
+        other_max = row_no_target.max()
+        return int(other_max < predictions[instrument])
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
-#############################################
-# experiment 2
-############################################
-
-
-def score_vp_exp2a(predictions: pd.Series,
-                   verb: str,
-                   theme: str,
-                   ) -> int:
-
-    if verb == 'preserve':
-        if theme == 'potato' or theme == 'cucumber':
-            target = 'vinegar'
-        else:
-            target = 'dehydrator'
+def score_vp_exp2a(predictions: pd.Series, verb: str, theme: str) -> int:
+    verb2theme2instrument = {
+        'preserve': {
+            'potato': 'vinegar',
+            'cucumber': 'vinegar',
+            'strawberry': 'dehydrator',
+            'raspberry': 'dehydrator'
+        },
+        'repair': {
+            'fridge': 'wrench',
+            'microwave': 'wrench',
+            'plate': 'glue',
+            'cup': 'glue'
+        },
+        'pour': {
+            'orange-juice': 'pitcher',
+            'apple-juice': 'pitcher',
+            'coolant': 'canister',
+            'anti-freeze': 'canister'
+        },
+        'decorate': {
+            'pudding': 'icing',
+            'pie': 'icing',
+            'car': 'paint',
+            'truck': 'paint'
+        },
+        'carve': {
+            'chicken': 'knife',
+            'duck': 'knife',
+            'granite': 'chisel',
+            'limestone': 'chisel'
+        },
+        'heat': {
+            'salmon': 'oven',
+            'trout': 'oven',
+            'iron': 'furnace',
+            'steel': 'furnace'
+        },
+        'cut': {
+            'shirt': 'scissors',
+            'pants': 'scissors',
+            'pine': 'saw',
+            'mahogany': 'saw'
+        },
+        'clean': {
+            'goggles': 'towel',
+            'glove': 'towel',
+            'tablesaw': 'vacuum',
+            'beltsander': 'vacuum'
+        }
+    }
+    try:
+        theme2instrument = verb2theme2instrument[verb]
+        target = theme2instrument[theme]
         row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
+        other_max = row_no_target.max()
         return int(other_max < predictions[target])
-
-    elif verb == 'repair':
-        if theme == 'fridge' or theme == 'microwave':
-            target = 'wrench'
-        else:
-            target = 'glue'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'pour':
-        if theme == 'orange-juice' or theme == 'apple-juice':
-            target = 'pitcher'
-        else:
-            target = 'canister'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'decorate':
-        if theme == 'pudding' or theme == 'pie':
-            target = 'icing'
-        else:
-            target = 'paint'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'carve':
-        if theme == 'chicken' or theme == 'duck':
-            target = 'knife'
-        else:
-            target = 'chisel'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'heat':
-        if theme == 'salmon' or theme == 'trout':
-            target = 'oven'
-        else:
-            target = 'furnace'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'cut':
-        if theme == 'shirt' or theme == 'pants':
-            target = 'scissors'
-        else:
-            target = 'saw'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    elif verb == 'clean':
-        if theme == 'goggles' or theme == 'glove':
-            target = 'towel'
-        else:
-            target = 'vacuum'
-        row_no_target = predictions.drop(target)
-        other_max = pd.to_numeric(row_no_target).nlargest(n=1).to_list()[0]
-        return int(other_max < predictions[target])
-
-    else:
+    except KeyError:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 

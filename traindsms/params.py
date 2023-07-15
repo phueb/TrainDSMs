@@ -21,7 +21,7 @@ param2requests = {
     'add_with': [True],
     'add_reversed_seq': [True],
     'strict_compositional': [False, True],
-    'composition_fn': ['multiplication', 'addition'],
+    # 'composition_fn': ['multiplication', 'addition'],
     # 'rnn_type': ['lstm'],
 
 

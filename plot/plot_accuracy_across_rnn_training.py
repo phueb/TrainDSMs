@@ -187,7 +187,7 @@ for exp in experiments:
     label2color_id = {k: n for n, k in enumerate(sorted(label2accuracy_mat))}
 
     fig = make_line_plot(label2accuracy_mat,
-                         ylabel=f'Experiment {exp} Accuracy',
+                         y_label=f'Experiment {exp} Accuracy',
                          h_line=exp2chance_accuracy[exp],
                          label2color_id=label2color_id
                          )

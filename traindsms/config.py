@@ -14,7 +14,7 @@ class Eval:
 
 class Figs:
     dpi = 200
-    ax_font_size = 12
+    ax_font_size = 14
     leg_font_size = 12
     title_font_size = 12
-    tick_font_size = 3
+    tick_font_size = 10
