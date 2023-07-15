@@ -54,8 +54,8 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
     if len(label2accuracies) > x_label_threshold:
-        x_tick_labels = [gn if n == 0 or n == len(label2accuracies) -1 else ''
-                         for n, gn in enumerate(label2accuracies)]
+        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+                         for n, label in enumerate(label2accuracies)]
     else:
         x_tick_labels = label2accuracies
     ax.set_xticklabels(x_tick_labels, fontsize=config.Figs.tick_font_size)
@@ -83,17 +83,26 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
         h = sem(accuracies, axis=0) * t.ppf((1 + confidence) / 2, n - 1)  # margin of error
 
         # plot all bars belonging to a single model group (same color)
-        ax.bar(x + edge,
-               y,
-               width,
-               yerr=h,
-               color=palette[label2color_id[label]],
-               zorder=3,
-               )
+        rects =ax.bar(x + edge,
+                      y,
+                      width,
+                      yerr=h,
+                      color=palette[label2color_id[label]],
+                      zorder=3,
+                      )
+
+        # annotate bar with mean accuracy
+        ax.text(rects[0].get_x() + rects[0].get_width() / 2,
+                y + 0.05,  # Add a bit to y so the text appears just above the bar
+                f'{y:.2f}',  # Use Python f-string to format y as a string with 2 decimal places
+                ha='center',  # Horizontal alignment is center, so the text is centered on the x coordinate
+                va='bottom',  # Vertical alignment is bottom, so the text starts from the y coordinate
+                fontsize=12,
+                )
 
     plt.legend(bbox_to_anchor=(0.5, 1.0),
                borderaxespad=1.0,
-               fontsize=8,
+               fontsize=config.Figs.leg_font_size,
                frameon=False,
                loc='lower center',
                ncol=6,
