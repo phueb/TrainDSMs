@@ -19,8 +19,6 @@ from traindsms.score import score_vp_exp2c1
 from traindsms.score import score_vp_exp2c2
 from traindsms.score import score_vp_exp5b1
 from traindsms.score import score_vp_exp5b2
-from traindsms.score import score_vp_exp5c1
-from traindsms.score import score_vp_exp5c2
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
