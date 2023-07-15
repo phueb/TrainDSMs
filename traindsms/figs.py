@@ -92,11 +92,12 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                       )
 
         # annotate bar with mean accuracy
-        ax.text(rects[0].get_x() + rects[0].get_width() / 2,
-                y + 0.05,  # Add a bit to y so the text appears just above the bar
-                f'{y:.2f}',  # Use Python f-string to format y as a string with 2 decimal places
-                ha='center',  # Horizontal alignment is center, so the text is centered on the x coordinate
-                va='bottom',  # Vertical alignment is bottom, so the text starts from the y coordinate
+        horizontal_offset = rects[0].get_width() / 3
+        ax.text(x=(rects[0].get_x() + rects[0].get_width() / 2) - horizontal_offset,
+                y=y - 0.06,
+                s=f'{y:.2f} ({h:.2f})',
+                ha='center',
+                va='bottom',
                 fontsize=12,
                 )
 

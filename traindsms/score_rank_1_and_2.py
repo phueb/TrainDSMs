@@ -1,124 +1,14 @@
 import pandas as pd
 
 
-# chance-level was computed using the random-control dsm (producing random relatedness scores)
-exp2chance_accuracy = {
-    '1a':  0.0294,
-    '1b':  0.0238,
-    '1c':  0.0200,
-
-    '2a':  0.0312,
-    '2b1': 0.0010,  # formally computed
-    '2b2': 0.0010,
-    '2c1': 0.0036,
-    '2c2': 0.0027,
-
-}
-
-
-def score_vp_exp1(predictions: pd.Series,
-                  verb: str,
-                  theme: str,
-                  ) -> int:
-    """
-    a hit is recorded if the correct instrument is scored highest.
-    """
-
-    verb2instrument = {
-        'grow': 'fertilizer',
-        'spray': 'insecticide',
-        'fill': 'food',
-        'organize': 'organizer',
-        'freeze': 'freezer',
-        'consume': 'utensil',
-        'grill': 'bbq',
-        'catch': 'net',
-        'dry': 'dryer',
-        'dust': 'duster',
-        'lubricate': 'lubricant',
-        'seal': 'lacquer',
-        'transfer': 'pump',
-        'polish': 'polisher',
-        'shoot': 'slingshot',
-        'harden': 'hammer'
-    }
-
-    if verb in verb2instrument:
-        instrument = verb2instrument[verb]
-        row_no_target = predictions.drop(instrument)
-        other_max = row_no_target.max()
-        return int(other_max < predictions[instrument])
-    else:
-        raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
-
-
-def score_vp_exp2a(predictions: pd.Series, verb: str, theme: str) -> int:
-    verb2theme2instrument = {
-        'preserve': {
-            'potato': 'vinegar',
-            'cucumber': 'vinegar',
-            'strawberry': 'dehydrator',
-            'raspberry': 'dehydrator'
-        },
-        'repair': {
-            'fridge': 'wrench',
-            'microwave': 'wrench',
-            'plate': 'glue',
-            'cup': 'glue'
-        },
-        'pour': {
-            'orange-juice': 'pitcher',
-            'apple-juice': 'pitcher',
-            'coolant': 'canister',
-            'anti-freeze': 'canister'
-        },
-        'decorate': {
-            'pudding': 'icing',
-            'pie': 'icing',
-            'car': 'paint',
-            'truck': 'paint'
-        },
-        'carve': {
-            'chicken': 'knife',
-            'duck': 'knife',
-            'granite': 'chisel',
-            'limestone': 'chisel'
-        },
-        'heat': {
-            'salmon': 'oven',
-            'trout': 'oven',
-            'iron': 'furnace',
-            'steel': 'furnace'
-        },
-        'cut': {
-            'shirt': 'scissors',
-            'pants': 'scissors',
-            'pine': 'saw',
-            'mahogany': 'saw'
-        },
-        'clean': {
-            'goggles': 'towel',
-            'glove': 'towel',
-            'tablesaw': 'vacuum',
-            'beltsander': 'vacuum'
-        }
-    }
-    try:
-        theme2instrument = verb2theme2instrument[verb]
-        target = theme2instrument[theme]
-        row_no_target = predictions.drop(target)
-        other_max = row_no_target.max()
-        return int(other_max < predictions[target])
-    except KeyError:
-        raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
-
-
 def score_vp_exp2b1(predictions: pd.Series,
                     verb: str,
                     theme: str,
                     ) -> int:
     """
-    example (location-type=1):
+    this scorer is relevant to location type = 1 only.
+
+    example:
     'preserve pepper': 'vinegar' (1) > 'dehydrator' (2a) or 'fertilizer' (2b) > others
     (1): 'cucumber'  is the SIBLING of 'pepper', and 'cucumber'  is preserved with 'vinegar'
     (2a): 'raspberry' is the COUSIN  of 'pepper', and 'raspberry' is preserved with 'dehydrator'
@@ -198,7 +88,9 @@ def score_vp_exp2b2(predictions: pd.Series,
                     theme: str,
                     ) -> int:
     """
-    example (location-type=2):
+    this scorer is relevant to location type = 2 only.
+
+    example:
     'pour tomato-juice': 'pitcher' (1) > 'canister' (2a) or 'freezer (2b) > others
     (1) : 'apple-juice' is the SIBLING of 'tomato-juice', and 'apple-juice' is poured with 'pitcher'
     (2a): 'coolant'     co-occurs with 'pour'             and 'coolant'     is poured with 'canister'
@@ -343,10 +235,6 @@ def score_vp_exp_c_base_(predictions: pd.Series,
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
-#############################################
-# experiment 5
-############################################
-
 
 def score_vp_exp5b1(predictions: pd.Series,
                     verb: str,
@@ -426,4 +314,3 @@ def score_vp_exp5b2(predictions: pd.Series,
 
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
-

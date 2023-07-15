@@ -9,16 +9,11 @@ from ludwig.results import gen_param_paths
 
 from traindsms import __name__
 from traindsms.params import Params
-from traindsms.score import exp2chance_accuracy
 from traindsms.figs import make_line_plot
-from traindsms.score import score_vp_exp1
-from traindsms.score import score_vp_exp2a
-from traindsms.score import score_vp_exp2b1
-from traindsms.score import score_vp_exp2b2
-from traindsms.score import score_vp_exp2c1
-from traindsms.score import score_vp_exp2c2
-from traindsms.score import score_vp_exp5b1
-from traindsms.score import score_vp_exp5b2
+from traindsms.score_rank_1 import exp2chance_accuracy
+from traindsms.score_rank_1 import score_vp_exp1
+from traindsms.score_rank_1 import score_vp_exp2a
+from traindsms.score_rank_1 import score_vp_exp2b1
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None

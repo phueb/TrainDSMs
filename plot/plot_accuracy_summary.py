@@ -10,15 +10,16 @@ from traindsms import __name__
 from traindsms import config
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
-from traindsms.score import exp2chance_accuracy
-from traindsms.score import score_vp_exp1
-from traindsms.score import score_vp_exp2a
-from traindsms.score import score_vp_exp2b1
-from traindsms.score import score_vp_exp2b2
-from traindsms.score import score_vp_exp2c1
-from traindsms.score import score_vp_exp2c2
+from traindsms.score_rank_1 import exp2chance_accuracy
+from traindsms.score_rank_1 import score_vp_exp1
+from traindsms.score_rank_1 import score_vp_exp2a
+from traindsms.score_rank_1_and_2 import score_vp_exp2b1
+from traindsms.score_rank_1_and_2 import score_vp_exp2b2
+from traindsms.score_rank_1_and_2 import score_vp_exp2c1
+from traindsms.score_rank_1_and_2 import score_vp_exp2c2
 from traindsms.summary import print_summaries
-from traindsms.params import param2default, param2requests
+from traindsms.params import param2default
+from traindsms.params import param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
 RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
@@ -30,8 +31,8 @@ experiments = [
     # '1b',
     # '1c',
 
-    '2a',
-    # '2b1',
+    # '2a',
+    '2b1',
     # '2b2',
     # '2c1',
     # '2c2',
