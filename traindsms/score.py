@@ -13,11 +13,6 @@ exp2chance_accuracy = {
     '2c1': 0.0036,
     '2c2': 0.0027,
 
-    '5a': 0.0250,
-    '5b1': 0.0010,  # formally computed
-    '5b2': 0.0000 + 1e-10,  # prevent division-by-zero error
-    '5c1': 0.0011,
-    '5c2': 0.0023,
 }
 
 
