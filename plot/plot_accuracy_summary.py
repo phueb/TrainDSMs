@@ -7,6 +7,7 @@ from collections import defaultdict
 from ludwig.results import gen_param_paths
 
 from traindsms import __name__
+from traindsms import config
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
 from traindsms.score import exp2chance_accuracy
@@ -18,44 +19,24 @@ from traindsms.score import score_vp_exp2c1
 from traindsms.score import score_vp_exp2c2
 from traindsms.score import score_vp_exp5b1
 from traindsms.score import score_vp_exp5b2
-from traindsms.score import score_vp_exp5c1
-from traindsms.score import score_vp_exp5c2
 from traindsms.summary import print_summaries
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
-RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
+RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 LABEL_N: bool = True  # add information about number of replications to legend
 
 experiments = [
-    # '1a',
-    # '1b',
+    '1a',
+    '1b',
     # '1c',
 
-    # '2a',
-    '2b1',
+    '2a',
+    # '2b1',
     # '2b2',
     # '2c1',
     # '2c2',
-
-    # '3a',
-    '3b1',
-    # '3b2',
-    # '3c1',
-    # '3c2',
-
-    # '4a',
-    # '4b1',
-    # '4b2',
-    # '4c1',
-    # '4c2',
-
-    # '5a',
-    # '5b1',
-    # '5b2',
-    # '5c1',
-    # '5c2',
 ]
 
 
@@ -82,38 +63,6 @@ for param_path, label in gen_param_paths(project_name,
         df = pd.read_csv(p, index_col=0, squeeze=True)
 
         for exp in experiments:
-
-            # some experiments require specific params
-            if exp.startswith('1'):
-                if not (not params.corpus_params.include_location and
-                        not params.corpus_params.add_reversed_seq and
-                        not params.corpus_params.strict_compositional
-                        ):
-                    continue
-            if exp.startswith('2'):
-                if not (not params.corpus_params.include_location and
-                        not params.corpus_params.add_reversed_seq and
-                        not params.corpus_params.strict_compositional
-                        ):
-                    continue
-            if exp.startswith('3'):
-                if not (not params.corpus_params.include_location and
-                            params.corpus_params.add_reversed_seq and
-                        not params.corpus_params.strict_compositional
-                        ):
-                    continue
-            if exp.startswith('4'):
-                if not (not params.corpus_params.include_location and
-                            params.corpus_params.add_reversed_seq and
-                            params.corpus_params.strict_compositional
-                        ):
-                    continue
-            if exp.startswith('5'):
-                if not (    params.corpus_params.include_location and
-                        not params.corpus_params.add_reversed_seq and
-                        not params.corpus_params.strict_compositional
-                        ):
-                    continue
 
             if exp == '1a':
                 df_exp = df[(df['verb-type'] == 2) &
@@ -174,30 +123,16 @@ for param_path, label in gen_param_paths(project_name,
                     hits += score_vp_exp1(predictions, verb, theme)
 
                 # exp2
-                elif exp in {'2a', '3a', '4a'}:
+                elif exp in {'2a'}:
                     hits += score_vp_exp2a(predictions, verb, theme)
-                elif exp in {'2b1', '3b1', '4b1'}:
+                elif exp in {'2b1'}:
                     hits += score_vp_exp2b1(predictions, verb, theme)
-                elif exp in {'2b2', '3b2', '4b2'}:
+                elif exp in {'2b2'}:
                     hits += score_vp_exp2b2(predictions, verb, theme)
-                elif exp in {'2c1', '3c1', '4c1'}:
+                elif exp in {'2c1'}:
                     hits += score_vp_exp2c1(predictions, verb, theme)
-                elif exp in {'2c2', '3c3', '4c2'}:
+                elif exp in {'2c2'}:
                     hits += score_vp_exp2c2(predictions, verb, theme)
-
-                # exp5
-                elif exp == '5a':
-                    hits += score_vp_exp2a(predictions, verb, theme)
-                elif exp == '5b1':
-                    hits += score_vp_exp5b1(predictions, verb, theme)
-                elif exp == '5b2':
-                    hits += score_vp_exp5b2(predictions, verb, theme)
-                elif exp == '5c1':
-                    hits += score_vp_exp5c1(predictions, verb, theme)
-                elif exp == '5c2':
-                    hits += score_vp_exp5c2(predictions, verb, theme)
-                else:
-                    raise AttributeError(exp)
 
             # collect accuracy
             accuracy = hits / len(df_exp)
@@ -222,7 +157,7 @@ for exp in experiments:
 
     fig = make_bar_plot(label2accuracies,
                         ylabel=f'Experiment {exp} Accuracy',
-                        h_line_1=exp2chance_accuracy[exp.replace('3b', '2b')],
+                        # h_line_1=exp2chance_accuracy[exp.replace('3b', '2b')],
                         h_line_2=1/12,
                         h_line_3=1/6,
                         label2color_id=label2color_id

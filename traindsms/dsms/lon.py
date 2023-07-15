@@ -34,7 +34,7 @@ class LON(NetworkBaseClass):
         for tokens in self.seq_tok:
             edges = []
             for i in range(len(tokens) - 1):
-                edges.append((tokens[i],tokens[i+1]))
+                edges.append((tokens[i], tokens[i+1]))
             for token in tokens:
                 if token not in self.freq_dict:
                     self.freq_dict[token] = 1

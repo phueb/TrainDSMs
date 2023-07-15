@@ -2,6 +2,7 @@
 with what accuracy does a model guess first rank correctly in experiment 2b1?
 """
 from typing import Optional
+import numpy as np
 from pathlib import Path
 import pandas as pd
 import yaml
@@ -11,15 +12,20 @@ from collections import defaultdict
 from ludwig.results import gen_param_paths
 
 from traindsms import __name__
+from traindsms import config
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
 from traindsms.params import param2default, param2requests
 
 LUDWIG_DATA_PATH: Optional[Path] = None
-RUNS_PATH = None  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
+RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
 
 LABEL_N: bool = True  # add information about number of replications to legend
 
+# exp2
+VERB_TYPE = 3
+THEME_TYPE = 'experimental'
+PHRASE_TYPE = 'observed'
 
 rank2label2accuracies = defaultdict(dict)
 project_name = __name__
@@ -145,6 +151,19 @@ def score_rank2(verb, theme):
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
 
+fertilizer = []
+vinegar = []
+
+wrench = []
+food = []
+
+scissors = []
+dryer = []
+
+towel = []
+duster = []
+
+
 for param_path, label in gen_param_paths(project_name,
                                          param2requests,
                                          param2default,
@@ -169,11 +188,10 @@ for param_path, label in gen_param_paths(project_name,
         # if params.corpus_params.include_location:
         #     continue
 
-        # exp 2b1
-        df_exp = df[(df['verb-type'] == 3) &
-                        (df['theme-type'] == 'experimental') &
-                        (df['phrase-type'] == 'observed') &
-                        (df['location-type'] == 1)]
+        df_exp = df[(df['verb-type'] == VERB_TYPE) &
+                    (df['theme-type'] == THEME_TYPE) &
+                    (df['phrase-type'] == PHRASE_TYPE) &
+                    (df['location-type'] == 1)]
 
         print(f'Extracted {len(df_exp):>3} rows of predictions for experiment 2b1')
 
@@ -189,12 +207,47 @@ for param_path, label in gen_param_paths(project_name,
             hits1 += score_rank1(verb, theme)
             hits2 += score_rank2(verb, theme)
 
+            # collect scores for the two most confusable instruments
+            if verb_phrase == 'preserve pepper':
+                vinegar.append(predictions['vinegar'])
+                fertilizer.append(predictions['fertilizer'])
+            if verb_phrase == 'repair blender':
+                wrench.append(predictions['wrench'])
+                food.append(predictions['food'])
+            if verb_phrase == 'cut sock':
+                scissors.append(predictions['scissors'])
+                dryer.append(predictions['dryer'])
+            if verb_phrase == 'clean faceshield':
+                towel.append(predictions['towel'])
+                duster.append(predictions['duster'])
+
         # collect accuracy
         accuracy1 = hits1 / len(df_exp)
         accuracy2 = hits2 / len(df_exp)
         rank2label2accuracies[1].setdefault(label, []).append(accuracy1)
         rank2label2accuracies[2].setdefault(label, []).append(accuracy2)
 
+
+# save scores for the two most confusable instrument pairs, for analysis
+pd.DataFrame(data={
+    'vinegar': vinegar,
+    'fertilizer': fertilizer,
+}).to_csv('exp2b1_vinegar_fertilizer.csv', index=False)
+
+pd.DataFrame(data={
+    'wrench': wrench,
+    'food': food,
+}).to_csv('exp2b1_wrench_food.csv', index=False)
+
+pd.DataFrame(data={
+    'scissors': scissors,
+    'dryer': dryer,
+}).to_csv('exp2b1_scissors_dryer.csv', index=False)
+
+pd.DataFrame(data={
+    'towel': towel,
+    'duster': duster,
+}).to_csv('exp2b1_towel_duster.csv', index=False)
 
 # plot
 for rank in [1, 2]:
@@ -207,12 +260,21 @@ for rank in [1, 2]:
     # make colors consistent
     label2color_id = {k: n for n, k in enumerate(sorted(label2accuracies))}
 
-
     fig = make_bar_plot(label2accuracies,
                         ylabel=f'Experiment 2b1 Rank {rank} Accuracy',
-                        h_line_1=None,
+                        h_line_1=1/2,
                         h_line_2=1/4,
                         h_line_3=1/3,
                         label2color_id=label2color_id
                         )
     fig.show()
+
+    # printout accuracies
+    for label, accuracies in label2accuracies.items():
+        print('-' * 32)
+        print(f'experiment 2b rank-{rank} accuracy (std)')
+        print('-' * 32)
+        print(label)
+        print(accuracies)
+        print(f'{np.mean(accuracies).round(8)} ({np.std(accuracies).round(8)})')
+

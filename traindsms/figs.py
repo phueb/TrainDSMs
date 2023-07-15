@@ -8,7 +8,7 @@ from traindsms import config
 
 
 def make_bar_plot(label2accuracies: Dict[str, List[float]],
-                  figsize: Tuple[int, int] = (8, 4),
+                  figsize: Tuple[int, int] = (8, 6),
                   title: str = '',
                   xlabel: str = 'Model',
                   ylabel: str = 'Accuracy',

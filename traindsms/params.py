@@ -14,25 +14,28 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'lon',          # 5
             'ctn',          # 6
-            ][1]
+            ][2]
 
 param2requests = {
 
     'add_with': [True],
-
-    # experiment 3
-    'add_reversed_seq': [False, True],
-    # experiment 4
-    'strict_compositional': [False],
-    # experiment 5
-    'include_location': [False],
-    'add_in': [True],
+    'add_reversed_seq': [True],
+    'strict_compositional': [False, True],
+    'composition_fn': ['multiplication', 'addition'],
+    # 'rnn_type': ['lstm'],
 
 
-    'rnn_type': ['lstm'],
-    # 'embeddings_location': ['wy', 'wx'],
 
-    # 'composition_fn': ['multiplication', 'addition'],
+    # In the 'strict_compositional' condition, we removed 'preserve pepper', and kept everything else.
+    # We think that the Transformer confused the novel input 'preserve pepper' with the familiar 'grow pepper'.
+    # What if we keep 'preserve pepper' and remove 'grow pepper' instead?
+    # Due to our hypothesis, the model should still select 'vinegar' for 'preserve pepper'.
+    # But, if the model confuses 'grow pepper' with 'preserve pepper', it should select 'vinegar' for 'grow pepper'.
+    # Also, given what we are speculating now, when deleting 'preserve pepper' and testing on it,
+    # we should test what the Transformer predicts for 'grow pepper'.
+    # Due to our speculation, the model should still be able to get that right.
+    # That is, only the performance of the removed item should be affected.
+
 
 
 }
@@ -137,7 +140,7 @@ param2default_corpus = {
     'include_location': False,
     'include_location_specific_agents': False,
     'add_with': True,
-    'add_in': True,
+    'add_in': False,
     'strict_compositional': False,  # exclude type-2 and type-3 verb + exp theme combinations from training
 
     'add_reversed_seq': False,

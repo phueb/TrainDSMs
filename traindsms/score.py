@@ -510,18 +510,3 @@ def score_vp_exp5b2(predictions: pd.Series,
     else:
         raise RuntimeError(f'Did not recognize verb-phrase "{verb} {theme}".')
 
-
-def score_vp_exp5c1(predictions: pd.Series,
-                    verb: str,
-                    theme: str,
-                    ) -> int:
-
-    return score_vp_exp_c_base_(predictions, verb, theme)
-
-
-def score_vp_exp5c2(predictions: pd.Series,
-                    verb: str,
-                    theme: str,
-                    ) -> int:
-
-    raise NotImplementedError  # TODO the correct ranking depends on the location
