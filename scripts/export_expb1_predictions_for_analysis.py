@@ -5,6 +5,7 @@ from typing import Optional
 from pathlib import Path
 import pandas as pd
 import yaml
+import datetime
 from collections import defaultdict
 
 from ludwig.results import gen_param_paths
@@ -89,24 +90,30 @@ for param_path, label in gen_param_paths(project_name=__name__,
                 towel.append(predictions['towel'])
                 duster.append(predictions['duster'])
 
+
+today = datetime.date.today().strftime('%Y-%m-%d')
+
+if not (config.Dirs.data_for_analysis / today).exists():
+    (config.Dirs.data_for_analysis / today).mkdir()
+
 # save scores for the two most confusable instrument pairs, for analysis
 pd.DataFrame(data={
     'vinegar': vinegar,
     'fertilizer': fertilizer,
-}).to_csv('exp2b1_vinegar_fertilizer.csv', index=False)
+}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_vinegar_fertilizer.csv', index=False)
 
 pd.DataFrame(data={
     'wrench': wrench,
     'food': food,
-}).to_csv('exp2b1_wrench_food.csv', index=False)
+}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_wrench_food.csv', index=False)
 
 pd.DataFrame(data={
     'scissors': scissors,
     'dryer': dryer,
-}).to_csv('exp2b1_scissors_dryer.csv', index=False)
+}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_scissors_dryer.csv', index=False)
 
 pd.DataFrame(data={
     'towel': towel,
     'duster': duster,
-}).to_csv('exp2b1_towel_duster.csv', index=False)
+}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_towel_duster.csv', index=False)
 

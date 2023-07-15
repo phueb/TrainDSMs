@@ -6,10 +6,7 @@ class Dirs:
     root = src.parent
     summaries = root / 'summaries'
     runs = root / 'runs'
-
-
-class Eval:
-    pass
+    data_for_analysis = root / 'data_for_analysis'
 
 
 class Figs:

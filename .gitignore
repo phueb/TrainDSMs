@@ -5,3 +5,6 @@
 .idea
 /runs/
 /summaries/
+
+
+/data_for_analysis/*/*.csv
