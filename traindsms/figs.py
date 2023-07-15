@@ -101,14 +101,6 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                 fontsize=12,
                 )
 
-    plt.legend(bbox_to_anchor=(0.5, 1.0),
-               borderaxespad=1.0,
-               fontsize=config.Figs.leg_font_size,
-               frameon=False,
-               loc='lower center',
-               ncol=6,
-               )
-
     plt.tight_layout()
     return fig
 
