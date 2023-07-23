@@ -31,7 +31,6 @@ class CTN(NetworkBaseClass):
         self.num_vocab = len(token2id)
         self.seq_parsed = seq_parsed
 
-        self.freq_dict = defaultdict(int)
         self.diamond_list = []
         self.lexical_network = None
 
@@ -85,11 +84,6 @@ class CTN(NetworkBaseClass):
             edges, nodes = self.complete_tree(seq_parsed_i)
 
             self.diamond_list.append((edges, nodes))
-            for node in nodes:
-                if node not in self.freq_dict:
-                    self.freq_dict[node] = 1
-                else:
-                    self.freq_dict[node] = self.freq_dict[node] + 1
             network_edges.extend(edges)
             network_nodes.extend(nodes)
 

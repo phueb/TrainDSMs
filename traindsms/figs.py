@@ -6,12 +6,15 @@ from typing import List, Tuple, Dict, Optional
 
 from traindsms import config
 
-plt.rcParams['font.family'] = 'DeJavu Serif'
-plt.rcParams['font.serif'] = ['Times New Roman']
+# plt.rcParams['font.family'] = 'DeJavu Serif'
+# plt.rcParams['font.serif'] = ['Times New Roman']
+
+# plt.rcParams["font.family"] = "serif"
+# plt.rcParams["font.serif"] = "Computer Modern Roman"
 
 
 def make_bar_plot(label2accuracies: Dict[str, List[float]],
-                  figsize: Tuple[int, int] = (8, 6),
+                  figsize: Tuple[int, int] = (12, 6),
                   title: str = '',
                   xlabel: str = 'Model',
                   ylabel: str = 'Accuracy',
@@ -83,16 +86,18 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
         h = sem(accuracies, axis=0) * t.ppf((1 + confidence) / 2, n - 1)  # margin of error
 
         # plot all bars belonging to a single model group (same color)
-        rects =ax.bar(x + edge,
-                      y,
-                      width,
-                      yerr=h,
-                      color=palette[label2color_id[label]],
-                      zorder=3,
-                      )
+        rects = ax.bar(x + edge,
+                       y,
+                       width,
+                       yerr=h,
+                       color=palette[label2color_id[label]],
+                       zorder=3,
+                       )
 
         # annotate bar with mean accuracy
-        horizontal_offset = rects[0].get_width() / 3
+        if y < 0.1:
+            continue
+        horizontal_offset = rects[0].get_width() / 4
         ax.text(x=(rects[0].get_x() + rects[0].get_width() / 2) - horizontal_offset,
                 y=y - 0.06,
                 s=f'{y:.2f} ({h:.2f})',

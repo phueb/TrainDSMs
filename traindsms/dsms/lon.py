@@ -23,38 +23,47 @@ class LON(NetworkBaseClass):
         self.params = params
         self.seq_tok = seq_tok
 
-        self.freq_dict = defaultdict(int)
-
         self.sr_bank = {}  # for caching sr scores
 
     def train(self):
 
+        # ---------------------------------
+        # collect edges and nodes
+
         network_edges = []
         network_nodes = []
-        for tokens in self.seq_tok:
+        for seq in self.seq_tok:
+
             edges = []
-            for i in range(len(tokens) - 1):
-                edges.append((tokens[i], tokens[i+1]))
-            for token in tokens:
-                if token not in self.freq_dict:
-                    self.freq_dict[token] = 1
-                else:
-                    self.freq_dict[token] = self.freq_dict[token] + 1
+            for n, token in enumerate(seq):
+
+                # get next token
+                try:
+                    token_next = seq[n + 1]
+                except IndexError:
+                    break
+
+                edge = (token, token_next)
+                edges.append(edge)
+
             network_edges.extend(edges)
-            network_nodes.extend(tokens)
+            network_nodes.extend(seq)
 
         self.node_list = list(set(network_nodes))
 
-        network_edge_dict = {}
+        # ---------------------------------
+        # weight edges
+
+        edge2count = {}
         for edge in network_edges:
-            if edge in network_edge_dict:
-                network_edge_dict[edge] = network_edge_dict[edge] + 1
+            if edge in edge2count:
+                edge2count[edge] = edge2count[edge] + 1
             else:
-                network_edge_dict[edge] = 1
+                edge2count[edge] = 1
 
         weighted_network_edge = []
-        for edge in network_edge_dict:
-            weighted_network_edge.append(edge + (math.log10(network_edge_dict[edge] + 1),))
+        for edge in edge2count:
+            weighted_network_edge.append(edge + (math.log10(edge2count[edge] + 1),))
 
         if VERBOSE:
             print()
@@ -63,7 +72,9 @@ class LON(NetworkBaseClass):
                 print(self.node_list.index(edge[0]), self.node_list.index(edge[1]), edge)
             print()
 
+        # ---------------------------------
         # make network
+
         self.network = nx.Graph()
         self.network.add_weighted_edges_from(weighted_network_edge)
 
