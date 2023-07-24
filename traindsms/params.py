@@ -158,7 +158,8 @@ param2default_corpus = {
     'include_location_specific_agents': False,
     'add_with': True,
     'add_in': False,
-    'strict_compositional': False,  # exclude type-2 and type-3 verb + exp theme combinations from training
+    'strict_compositional': False,  # exclude type-3 verb + exp theme combinations from training
+    #'omit_type_2_verb_and_exp_theme': False,  # exclude type-2 verb + exp theme combinations from training
 
     'add_reversed_seq': False,
 }
