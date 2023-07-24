@@ -54,10 +54,10 @@ for param_path, label in gen_param_paths(project_name=__name__,
         param2val = yaml.load(f, Loader=yaml.FullLoader)
     params = Params.from_param2val(param2val)
 
-    for p in param_path.rglob('df_sr.csv'):
+    for path_to_scores in param_path.rglob('df_sr.csv'):
 
         # read data
-        df = pd.read_csv(p, index_col=0, squeeze=True)
+        df = pd.read_csv(path_to_scores, index_col=0, squeeze=True)
 
         # exp 2b1 requires specific params
         # if params.corpus_params.include_location:
@@ -90,30 +90,28 @@ for param_path, label in gen_param_paths(project_name=__name__,
                 towel.append(predictions['towel'])
                 duster.append(predictions['duster'])
 
+    path_out = (config.Dirs.data_for_analysis / param_path.name)
+    if not path_out.exists():
+        path_out.mkdir()
 
-today = datetime.date.today().strftime('%Y-%m-%d')
+    # save scores for the two most confusable instrument pairs, for analysis
+    pd.DataFrame(data={
+        'vinegar': vinegar,
+        'fertilizer': fertilizer,
+    }).to_csv(path_out / 'exp2b1_vinegar_fertilizer.csv', index=False)
 
-if not (config.Dirs.data_for_analysis / today).exists():
-    (config.Dirs.data_for_analysis / today).mkdir()
+    pd.DataFrame(data={
+        'wrench': wrench,
+        'food': food,
+    }).to_csv(path_out / 'exp2b1_wrench_food.csv', index=False)
 
-# save scores for the two most confusable instrument pairs, for analysis
-pd.DataFrame(data={
-    'vinegar': vinegar,
-    'fertilizer': fertilizer,
-}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_vinegar_fertilizer.csv', index=False)
+    pd.DataFrame(data={
+        'scissors': scissors,
+        'dryer': dryer,
+    }).to_csv(path_out / 'exp2b1_scissors_dryer.csv', index=False)
 
-pd.DataFrame(data={
-    'wrench': wrench,
-    'food': food,
-}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_wrench_food.csv', index=False)
-
-pd.DataFrame(data={
-    'scissors': scissors,
-    'dryer': dryer,
-}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_scissors_dryer.csv', index=False)
-
-pd.DataFrame(data={
-    'towel': towel,
-    'duster': duster,
-}).to_csv(config.Dirs.data_for_analysis / today / 'exp2b1_towel_duster.csv', index=False)
+    pd.DataFrame(data={
+        'towel': towel,
+        'duster': duster,
+    }).to_csv(path_out / 'exp2b1_towel_duster.csv', index=False)
 
