@@ -71,8 +71,21 @@ for param_path, label in gen_param_paths(project_name=__name__,
             # map each verb phrase to the top 4 most confusable instruments.
             # verb_phrase -> [correct, type 3 sibling category, type 2 same category, type 2 sibling category]
             vp2instruments = {
+                # vegetable/fruit
                 'preserve pepper': ['vinegar', 'dehydrator', 'fertilizer', 'insecticide'],
                 'preserve orange': ['dehydrator', 'vinegar', 'insecticide', 'fertilizer'],
+
+                # appliance/kitchenware
+                'repair blender': ['wrench', 'glue', 'food', 'organizer'],
+                'repair bowl': ['glue', 'wrench', 'organizer', 'food'],
+
+                # juice/desert
+                'cut sock': ['scissors', 'saw', 'dryer', 'lacquer'],
+                'cut ash': ['saw', 'scissors', 'lacquer', 'dryer'],
+
+                # juice/desert
+                'clean faceshield': ['towel', 'vacuum', 'duster', 'lubricant'],
+                'clean workstation': ['vacuum', 'towel', 'lubricant', 'duster'],
             }
 
             instrument_predicted = predictions.astype(float).idxmax()
@@ -100,10 +113,7 @@ for param_path, label in gen_param_paths(project_name=__name__,
                     raise RuntimeError('Encountered an unexpected index.')
             
             num_total_evaluations += 1
-                
-    path_out = (config.Dirs.data_for_analysis / param_path.name)
-    if not path_out.exists():
-        path_out.mkdir()
+
 
     instrument_correct_prop = instrument_correct_count / num_total_evaluations
     instrument_type_3_sibling_category_prop = instrument_type_3_sibling_category_count / num_total_evaluations
