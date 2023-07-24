@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import List, Tuple
 import pandas as pd
-import random
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
@@ -36,7 +35,7 @@ def main(param2val):
                     include_location_specific_agents=params.corpus_params.include_location_specific_agents,
                     num_epochs=params.corpus_params.num_blocks,
                     complete_epoch=params.corpus_params.complete_block,
-                    seed=random.randint(0, 1000),
+                    seed=param2val['job_name'],
                     add_with=params.corpus_params.add_with,
                     add_in=params.corpus_params.add_in,
                     strict_compositional=params.corpus_params.strict_compositional,
@@ -63,6 +62,12 @@ def main(param2val):
     for tree in corpus.get_trees():
         seq_parsed.append(tree)
 
+    # save corpus text to disk
+    with open(save_path / 'corpus.txt', 'w') as f:
+        for s in corpus.get_sentences():
+            f.write(s + '\n')
+
+    print('Corpus Seed: ', corpus.seed)
     print(f'Number of sequences in corpus={len(seq_tok):,}', flush=True)
 
     if params.dsm == 'count':

@@ -3,7 +3,7 @@ This is where a user specifies which model to train on which data
 """
 
 from dataclasses import dataclass, fields
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 
 
 # submit jobs for one dsm at a time
@@ -14,7 +14,7 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][1]
+            ][3]
 
 param2requests = {
 
@@ -23,22 +23,21 @@ param2requests = {
     # 'composition_fn': ['multiplication', 'addition'],
 
     # lon
-    'add_with': [True, False],
+    # 'add_with': [True, False],
+    # 'context_size': [1, 2],
 
     # rnn
     # 'add_with': [True, False],
     # 'rnn_type': ['lstm', 'srn'],
     # 'composition_fn': ['native'],
+    # 'add_reversed_seq': [False],
 
     # transformer
-    # 'add_with': [True],
-    # 'strict_compositional': [False],
-    # 'composition_fn': ['native'],
-
-
-
-    # neural networks
-    # 'add_reversed_seq': [False],
+    'add_with': [True],
+    'strict_compositional': [True],
+    'omit_type_2_verb_and_exp_theme': [True],
+    'composition_fn': ['native'],
+    'add_reversed_seq': [True],
 
 
     # 'omit_type_2_verb_and_exp_theme': [False, True],
@@ -355,7 +354,7 @@ class Params:
 
     corpus_params: CorpusParams
     dsm: str
-    dsm_params: CountParams
+    dsm_params: Union[CountParams, RandomControlParams, Word2VecParams, RNNParams, TransformerParams]
     composition_fn: str
     composition_fn: str
 
