@@ -133,6 +133,7 @@ elif DSM_NAME == 'lon':
         # 'count_type': ('ww', 'summed', 4, 'flat'),  # currently, sentence-boundary is respected automatically
         # 'norm_type': None,
         'excluded_tokens': None,
+        'context_size': 1,
     }
 
 elif DSM_NAME == 'ctn':
@@ -195,6 +196,13 @@ if DSM_NAME == 'ctn':
             comp_fn: str
             if comp_fn != 'native':
                 raise ValueError('CTN requires composition_fn=native')
+
+if DSM_NAME == 'lon':
+    if 'context_size' in param2requests:
+        for context_size in param2requests['context_size']:
+            context_size: int
+            if context_size not in {1, 2}:
+                raise ValueError('LON requires a context_size of 1 or 2')
 
 if DSM_NAME == 'w2v':
     if 'composition_fn' in param2requests:
@@ -339,6 +347,7 @@ class CTNParams:
 @dataclass
 class LONParams:
     excluded_tokens: Optional[Tuple[str]]
+    context_size: Optional[int]  # only 1 or 2
 
     # count_type: Tuple[str, Optional[str], Optional[int], Optional[str]]
     # norm_type: Optional[str]  # e.g. None, 'row_sum', 'row_logentropy', 'tf_idf', 'ppmi'

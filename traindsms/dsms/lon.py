@@ -37,14 +37,26 @@ class LON(NetworkBaseClass):
             edges = []
             for n, token in enumerate(seq):
 
-                # get next token
+                # get token at n + 1
                 try:
-                    token_next = seq[n + 1]
+                    token_np1 = seq[n + 1]
                 except IndexError:
-                    break
+                    pass
+                else:
+                    edge = (token, token_np1)
+                    edges.append(edge)
 
-                edge = (token, token_next)
-                edges.append(edge)
+                if self.params.context_size != 2:
+                    continue
+
+                # get token at n + 2
+                try:
+                    token_np2 = seq[n + 2]
+                except IndexError:
+                    pass
+                else:
+                    edge = (token, token_np2)
+                    edges.append(edge)
 
             network_edges.extend(edges)
             network_nodes.extend(seq)
