@@ -24,20 +24,6 @@ VERB_TYPE = 3
 THEME_TYPE = 'experimental'
 PHRASE_TYPE = 'observed'
 
-rank2label2accuracies = defaultdict(dict)
-
-fertilizer = []
-vinegar = []
-
-wrench = []
-food = []
-
-scissors = []
-dryer = []
-
-towel = []
-duster = []
-
 
 for param_path, label in gen_param_paths(project_name=__name__,
                                          param2requests=param2requests,
@@ -54,6 +40,18 @@ for param_path, label in gen_param_paths(project_name=__name__,
         param2val = yaml.load(f, Loader=yaml.FullLoader)
     params = Params.from_param2val(param2val)
 
+    fertilizer = []
+    vinegar = []
+
+    wrench = []
+    food = []
+
+    scissors = []
+    dryer = []
+
+    towel = []
+    duster = []
+
     for path_to_scores in param_path.rglob('df_sr.csv'):
 
         # read data
@@ -68,7 +66,10 @@ for param_path, label in gen_param_paths(project_name=__name__,
                     (df['phrase-type'] == PHRASE_TYPE) &
                     (df['location-type'] == 1)]
 
-        print(f'Extracted {len(df_exp):>3} rows of predictions for experiment 2b1')
+        if df_exp.empty:
+            print('Did not find matching verb-phrase combinations.')
+        else:
+            print(f'Extracted {len(df_exp):>3} rows of predictions for experiment 2b1')
 
         for verb_phrase, row in df_exp.iterrows():
 
@@ -89,6 +90,10 @@ for param_path, label in gen_param_paths(project_name=__name__,
             if verb_phrase == 'clean faceshield':
                 towel.append(predictions['towel'])
                 duster.append(predictions['duster'])
+
+            else:
+                # implement evaluation of other verb-phrases here
+                continue
 
     path_out = (config.Dirs.data_for_analysis / param_path.name)
     if not path_out.exists():
