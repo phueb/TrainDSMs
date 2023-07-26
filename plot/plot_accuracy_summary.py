@@ -10,16 +10,18 @@ from traindsms import __name__
 from traindsms import config
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
-from traindsms.score_rank_1 import exp2chance_accuracy
 from traindsms.score_rank_1 import score_vp_exp1
 from traindsms.score_rank_1 import score_vp_exp2a
-from traindsms.score_rank_1_and_2 import score_vp_exp2b1
-from traindsms.score_rank_1_and_2 import score_vp_exp2b2
-from traindsms.score_rank_1_and_2 import score_vp_exp2c1
-from traindsms.score_rank_1_and_2 import score_vp_exp2c2
 from traindsms.summary import print_summaries
 from traindsms.params import param2default
 from traindsms.params import param2requests
+
+RANK_1_AND_2 = False
+
+if RANK_1_AND_2:
+    from traindsms.score_rank_1_and_2 import score_vp_exp2b1  # todo careful, this scores rank 1 and rank 2
+else:
+    from traindsms.score_rank_1 import score_vp_exp2b1
 
 LUDWIG_DATA_PATH: Optional[Path] = None
 RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None if loading data from ludwig
@@ -27,11 +29,11 @@ RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None
 LABEL_N: bool = True  # add information about number of replications to legend
 
 experiments = [
-    '1a',
-    '1b',
+    # '1a',
+    # '1b',
     # '1c',
 
-    '2a',
+    # '2a',
     '2b1',
     # '2b2',
     # '2c1',
@@ -50,6 +52,8 @@ for param_path, label in gen_param_paths(project_name,
                                          label_n=LABEL_N,
                                          require_all_found=False,
                                          ):
+
+    label += f'\n{param_path.name}'
 
     # get params
     with (param_path / 'param2val.yaml').open('r') as f:

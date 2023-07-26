@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 import pandas as pd
+import random
 
 from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
@@ -36,6 +37,7 @@ def main(param2val):
                     num_epochs=params.corpus_params.num_blocks,
                     complete_epoch=params.corpus_params.complete_block,
                     seed=param2val['job_name'],
+                    # seed=random.randint(0, 1000),  # do not do this! this does not change the seed with each run.
                     add_with=params.corpus_params.add_with,
                     add_in=params.corpus_params.add_in,
                     strict_compositional=params.corpus_params.strict_compositional,

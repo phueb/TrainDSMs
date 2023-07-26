@@ -8,4 +8,4 @@
 
 
 /data_for_analysis/*/*.csv
-/data_for_analysis/exp2b1_top_predicted_instruments.csv
+/data_for_analysis/exp2b1_top_predicted_instruments_*.csv

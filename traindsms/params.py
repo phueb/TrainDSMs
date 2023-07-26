@@ -27,17 +27,26 @@ param2requests = {
     # 'context_size': [1, 2],
 
     # rnn
-    # 'add_with': [True, False],
+    # 'add_with': [True],
     # 'rnn_type': ['lstm', 'srn'],
     # 'composition_fn': ['native'],
-    # 'add_reversed_seq': [False],
+    # 'strict_compositional': [False, True],
+    # 'add_reversed_seq': [False, True],
 
     # transformer
     'add_with': [True],
-    'strict_compositional': [True],
-    'omit_type_2_verb_and_exp_theme': [True],
+    # 'strict_compositional': [False],
+    # 'omit_type_2_verb_and_exp_theme': [False],
     'composition_fn': ['native'],
     'add_reversed_seq': [True],
+
+    'num_epochs': [30],  # no lower than 30
+    'learning_rate': [0.003, 0.005],  # no lower than 0.001
+    'inner_size': [8],  # at least 6
+    'num_layers': [2],  # at least 2
+    'embed_size': [16],  # no lower than 16
+
+    'initializer_range': [0.002],
 
 
     # 'omit_type_2_verb_and_exp_theme': [False, True],

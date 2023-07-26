@@ -18,9 +18,6 @@ RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None
 
 LABEL_N: bool = True  # add information about number of replications to legend
 
-VERB_TYPE = 3
-THEME_TYPE = 'experimental'
-PHRASE_TYPE = 'observed'
 
 records = []
 
@@ -52,13 +49,13 @@ for param_path, label in gen_param_paths(project_name=__name__,
         # read data
         df = pd.read_csv(path_to_scores, index_col=0, squeeze=True)
 
-        df_exp = df[(df['verb-type'] == VERB_TYPE) &
-                    (df['theme-type'] == THEME_TYPE) &
-                    (df['phrase-type'] == PHRASE_TYPE) &
+        df_exp = df[(df['verb-type'] == 3) &
+                    (df['theme-type'] == 'experimental') &
+                    (df['phrase-type'] == 'observed') &
                     (df['location-type'] == 1)]
 
         if df_exp.empty:
-            raise RuntimeError('Did not find matching verb-phrase combinations.')
+            raise RuntimeError('Did not find matching verb-theme combinations.')
         else:
             print(f'Extracted {len(df_exp):>3} rows of predictions for experiment 2b1')
 
@@ -124,7 +121,9 @@ for param_path, label in gen_param_paths(project_name=__name__,
     # create the row for this condition
     record = {
         'label': label,
-        'param_name': param_path.name,
+        'dsm': params.dsm,
+        'exp': '2b',
+
         'instrument_correct_prop': instrument_correct_prop,
         'instrument_type_3_sibling_category_prop': instrument_type_3_sibling_category_prop,
         'instrument_type_2_same_category_prop': instrument_type_2_same_category_prop,
@@ -134,9 +133,28 @@ for param_path, label in gen_param_paths(project_name=__name__,
 
     records.append(record)
 
-df_out = pd.DataFrame.from_records(records)
+df_out = pd.DataFrame.from_records(records).round(2)
+
+# split the params into separate columns
+df_params = df_out.copy()
+df_params['label'] = df_params['label'].str.split('\n')
+df_params = df_params.explode('label')
+df_params[['param', 'value']] = df_params['label'].str.split('=', expand=True)
+df_params = df_params.pivot(columns='param', values='value')
+
+# concatenate the params with the results
+df_out = pd.concat([df_params, df_out], axis=1)
+df_out = df_out.drop(columns=['label'])
+
+# sort
+df_out = df_out.sort_values(
+    by=['instrument_correct_prop'],
+    ascending=[False]
+)
+
 
 # save to disk
-path_out = (config.Dirs.data_for_analysis / 'exp2b1_top_predicted_instruments.csv')
+dsm = df_out["dsm"].values[0, 0]
+path_out = (config.Dirs.data_for_analysis / f'exp2b1_top_predicted_instruments_{dsm}.csv')
 df_out.to_csv(path_out, index=False)
 

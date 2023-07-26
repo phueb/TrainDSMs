@@ -14,4 +14,5 @@ class Figs:
     ax_font_size = 14
     leg_font_size = 12
     title_font_size = 12
+    annotation_font_size = 8
     tick_font_size = 8

@@ -14,7 +14,7 @@ from traindsms import config
 
 
 def make_bar_plot(label2accuracies: Dict[str, List[float]],
-                  figsize: Tuple[int, int] = (12, 6),
+                  figsize: Tuple[int, int] = (16, 6),
                   title: str = '',
                   xlabel: str = 'Model',
                   ylabel: str = 'Accuracy',
@@ -25,7 +25,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                   h_line_1: Optional[float] = None,
                   h_line_2: Optional[float] = None,
                   h_line_3: Optional[float] = None,
-                  x_label_threshold: int = 10,
+                  x_label_threshold: int = 30,
                   label2color_id: Dict[str, int] = None,
                   ):
     """
@@ -103,7 +103,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                 s=f'{y:.2f} ({h:.2f})',
                 ha='center',
                 va='bottom',
-                fontsize=12,
+                fontsize=config.Figs.annotation_font_size,
                 )
 
     plt.tight_layout()
