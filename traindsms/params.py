@@ -14,13 +14,13 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][5]
+            ][0]
 
 param2requests = {
 
     # count
-    # 'add_with': [True, False],
-    # 'composition_fn': ['multiplication', 'addition'],
+    'add_with': [True, False],
+    'composition_fn': ['multiplication', 'addition', 'componential'],
 
     # lon
     # 'add_with': [True, False],
@@ -64,9 +64,9 @@ param2requests = {
     # 'initializer_range': [0.002],
 
     # ctn
-    'add_with': [True],
-    'strict_compositional': [False, True],
-    'omit_type_2_verb_and_exp_theme': [False, True],
+    # 'add_with': [True],
+    # 'strict_compositional': [False, True],
+    # 'omit_type_2_verb_and_exp_theme': [False, True],
 
 
     # 'omit_type_2_verb_and_exp_theme': [False, True],

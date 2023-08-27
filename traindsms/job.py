@@ -7,6 +7,7 @@ from missingadjunct.corpus import Corpus
 from missingadjunct.utils import make_blank_sr_df
 
 from traindsms.utils import calc_sr_cores_from_spatial_model
+from traindsms.utils import calc_sr_cores_from_spatial_model_componential
 from traindsms.params import Params
 from traindsms.dsms.count import CountDSM
 from traindsms.dsms.random_control import RandomControlDSM
@@ -103,8 +104,13 @@ def main(param2val):
 
         # score spatial models
         else:
-            if params.composition_fn == 'native':  # use next-word prediction to compute sr scores
+            # use next-word prediction to compute sr scores
+            if params.composition_fn == 'native':
                 scores = dsm.calc_native_sr_scores(verb, theme, instruments)
+            # compute sr score for each constituent separately, then combine
+            elif params.composition_fn == 'componential':
+                scores = calc_sr_cores_from_spatial_model_componential(dsm, verb, theme, instruments)
+            # compose vectors, and then compute sr score
             else:
                 scores = calc_sr_cores_from_spatial_model(dsm, verb, theme, instruments, params.composition_fn)
 
