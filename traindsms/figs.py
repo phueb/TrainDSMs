@@ -32,6 +32,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     plot average accuracy by group (job) at end of training.
     """
 
+    # try to make colors consistent across figures
     if label2color_id is None:
         label2color_id = {label: n for n, label in enumerate(label2accuracies)}
 
@@ -69,6 +70,7 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     # colors
     palette = np.asarray(sns.color_palette('hls', num_groups))
 
+    # draw horizontal lines
     if h_line_1 is not None:
         ax.axhline(y=h_line_1, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_1)} correct')
     if h_line_2 is not None:
@@ -85,7 +87,6 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
         n = len(accuracies)
         h = sem(accuracies, axis=0) * t.ppf((1 + confidence) / 2, n - 1)  # margin of error
 
-        # plot all bars belonging to a single model group (same color)
         rects = ax.bar(x + edge,
                        y,
                        width,
@@ -105,6 +106,187 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
                 va='bottom',
                 fontsize=config.Figs.annotation_font_size,
                 )
+
+    plt.tight_layout()
+    return fig
+
+
+def make_box_plot(label2accuracies: Dict[str, List[float]],
+                  figsize: Tuple[int, int] = (18, 6),
+                  title: str = '',
+                  xlabel: str = 'Model',
+                  ylabel: str = 'Accuracy',
+                  width: float = 0.2,
+                  y_grid: bool = True,
+                  ylims: Optional[List[float]] = None,
+                  h_line_1: Optional[float] = None,
+                  h_line_2: Optional[float] = None,
+                  h_line_3: Optional[float] = None,
+                  x_label_threshold: int = 40,
+                  label2color_id: Dict[str, int] = None,
+                  ):
+    """
+    plot average accuracy by group (job) at end of training using box plots.
+    """
+
+    # try to make colors consistent across figures
+    if label2color_id is None:
+        label2color_id = {label: n for n, label in enumerate(label2accuracies)}
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
+    plt.title(title)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.tick_params(axis='both', which='both', top=False, right=False)
+    if y_grid:
+        ax.yaxis.grid(True)
+    if ylims is not None:
+        ax.set_ylim(ylims)
+        plt.yticks(np.arange(ylims[0], ylims[1], 0.1))  # increment y-ticks by 0.1
+    else:
+        ax.set_ylim([0.0, 1.05])
+        plt.yticks(np.arange(0.0, 1.05, 0.1))  # increment y-ticks by 0.1
+
+    num_groups = len(label2accuracies)
+    edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
+
+    # x-axis
+    ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
+    ax.set_xticks(edges)
+    if len(label2accuracies) > x_label_threshold:
+        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+                         for n, label in enumerate(label2accuracies)]
+    else:
+        x_tick_labels = list(label2accuracies.keys())
+    ax.set_xticklabels(x_tick_labels, fontsize=config.Figs.tick_font_size)
+
+    # y axis
+    ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
+
+    # colors
+    palette = np.asarray(sns.color_palette('hls', len(label2accuracies)))
+
+    # draw horizontal lines
+    if h_line_1 is not None:
+        ax.axhline(y=h_line_1, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_1)} correct')
+    if h_line_2 is not None:
+        ax.axhline(y=h_line_2, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_2)} correct')
+    if h_line_3 is not None:
+        ax.axhline(y=h_line_3, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_3)} correct')
+
+    # medianprops = dict(linewidth=0)
+    medianprops = dict(linestyle='--', linewidth=2, color='black')
+
+    # meanprops = dict(linestyle='--', linewidth=1, color='black')
+    meanprops = dict(linewidth=0)
+
+    bplot = ax.boxplot(x=[np.asarray(label2accuracies[label]) for label in label2accuracies],
+                       positions=edges,
+                       notch=False,
+                       showmeans=False,
+                       meanline=False,  # has effect only if showmeans=True
+                       capwidths=0.01,
+                       medianprops=medianprops,
+                       meanprops=meanprops,
+                       vert=True,
+                       patch_artist=True,  # fill with color
+                       labels=list(label2accuracies.keys()),
+                       widths=width,
+                       manage_ticks=False  # do not squeeze boxes to the center of the figure
+                       )
+
+    for patch, label in zip(bplot['boxes'], label2accuracies.keys()):
+        patch.set_facecolor(color=palette[label2color_id[label]])
+
+    plt.tight_layout()
+    return fig
+
+
+def make_violin_plot(label2accuracies: Dict[str, List[float]],
+                     figsize: Tuple[int, int] = (18, 6),
+                     title: str = '',
+                     xlabel: str = 'Model',
+                     ylabel: str = 'Accuracy',
+                     width: float = 0.2,
+                     confidence: float = 0.95,
+                     y_grid: bool = True,
+                     ylims: Optional[List[float]] = None,
+                     h_line_1: Optional[float] = None,
+                     h_line_2: Optional[float] = None,
+                     h_line_3: Optional[float] = None,
+                     x_label_threshold: int = 40,
+                     label2color_id: Dict[str, int] = None,
+                     ):
+    """
+    plot average accuracy by group (job) at end of training using box plots.
+    """
+
+    # try to make colors consistent across figures
+    if label2color_id is None:
+        label2color_id = {label: n for n, label in enumerate(label2accuracies)}
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=config.Figs.dpi)
+    plt.title(title)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.tick_params(axis='both', which='both', top=False, right=False)
+    if y_grid:
+        ax.yaxis.grid(True, zorder=0)
+    if ylims is not None:
+        ax.set_ylim(ylims)
+        plt.yticks(np.arange(ylims[0], ylims[1], 0.1))  # increment y-ticks by 0.1
+    else:
+        ax.set_ylim([0.0, 1.05])
+        plt.yticks(np.arange(0.0, 1.05, 0.1))  # increment y-ticks by 0.1
+
+    num_groups = len(label2accuracies)
+    edges = [width * i for i in range(num_groups)]  # x coordinate for each bar-center
+
+    # x-axis
+    ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
+    ax.set_xticks(edges)
+    if len(label2accuracies) > x_label_threshold:
+        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+                         for n, label in enumerate(label2accuracies)]
+    else:
+        x_tick_labels = list(label2accuracies.keys())
+    ax.set_xticklabels(x_tick_labels, fontsize=config.Figs.tick_font_size)
+
+    # y axis
+    ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
+
+    # colors
+    palette = np.asarray(sns.color_palette('hls', len(label2accuracies)))
+
+    # draw horizontal lines
+    if h_line_1 is not None:
+        ax.axhline(y=h_line_1, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_1)} correct')
+    if h_line_2 is not None:
+        ax.axhline(y=h_line_2, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_2)} correct')
+    if h_line_3 is not None:
+        ax.axhline(y=h_line_3, color='black', linestyle=':', zorder=3, label=f'guessing 1/{int(1/h_line_3)} correct')
+
+    data = [label2accuracies[label] for label in label2accuracies]
+
+    vplot = ax.violinplot(dataset=data,
+                          positions=edges,
+                          showextrema=False,
+                          showmeans=False,
+                          vert=True,
+                          bw_method=0.75,  # 'scott', 'silverman', scalar
+                          widths=width,
+                          )
+
+    medians = [np.median(values) for values in data]
+    quartile1 = [np.percentile(values, 25) for values in data]
+    quartile3 = [np.percentile(values, 75) for values in data]
+    ax.scatter(edges, medians, marker='o', color='white', s=30, zorder=3)
+    ax.vlines(edges, quartile1, quartile3, color='k', linestyle='-', lw=5)
+
+    for body, label in zip(vplot['bodies'], label2accuracies.keys()):
+        body.set_facecolor(palette[label2color_id[label]])
+        body.set_edgecolor('black')
+        body.set_alpha(1)
 
     plt.tight_layout()
     return fig

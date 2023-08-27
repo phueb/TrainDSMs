@@ -10,6 +10,8 @@ from traindsms import __name__
 from traindsms import config
 from traindsms.params import Params
 from traindsms.figs import make_bar_plot
+from traindsms.figs import make_box_plot
+from traindsms.figs import make_violin_plot
 from traindsms.score_rank_1 import score_vp_exp1
 from traindsms.score_rank_1 import score_vp_exp2a
 from traindsms.summary import print_summaries
@@ -158,11 +160,13 @@ for exp in experiments:
 
     print_summaries(label2accuracies, exp)
 
-    fig = make_bar_plot(label2accuracies,
+    for make_plot in [
+        # make_bar_plot,
+        # make_box_plot,
+        make_violin_plot,
+    ]:
+        fig = make_plot(label2accuracies=label2accuracies,
                         ylabel=f'Experiment {exp} Accuracy',
-                        # h_line_1=exp2chance_accuracy[exp.replace('3b', '2b')],
-                        # h_line_2=1/12,
-                        # h_line_3=1/6,
                         label2color_id=label2color_id
                         )
-    fig.show()
+        fig.show()
