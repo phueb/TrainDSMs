@@ -14,7 +14,7 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][3]
+            ][5]
 
 param2requests = {
 
@@ -26,27 +26,47 @@ param2requests = {
     # 'add_with': [True, False],
     # 'context_size': [1, 2],
 
-    # rnn
+    # srn
     # 'add_with': [True],
-    # 'rnn_type': ['lstm', 'srn'],
+    # 'rnn_type': ['srn'],
     # 'composition_fn': ['native'],
-    # 'strict_compositional': [False, True],
-    # 'add_reversed_seq': [False, True],
-
-    # transformer
-    'add_with': [True],
+    # 'add_reversed_seq': [True, False],
     # 'strict_compositional': [False],
     # 'omit_type_2_verb_and_exp_theme': [False],
-    'composition_fn': ['native'],
-    'add_reversed_seq': [True],
+    # 'num_epochs': [4],  # no lower than 4
+    # 'learning_rate': [0.06],  # no lower than 0.05
+    # 'embed_init_range': [0.1],
+    # 'num_layers': [2],
 
-    'num_epochs': [30],  # no lower than 30
-    'learning_rate': [0.003, 0.005],  # no lower than 0.001
-    'inner_size': [8],  # at least 6
-    'num_layers': [2],  # at least 2
-    'embed_size': [16],  # no lower than 16
+    # lstm
+    # 'add_with': [True],
+    # 'rnn_type': ['lstm'],
+    # 'composition_fn': ['native'],
+    # 'strict_compositional': [False, True],
+    # 'omit_type_2_verb_and_exp_theme': [False, True],
+    # 'add_reversed_seq': [True],
+    # 'num_epochs': [4],  # 4 is best
+    # 'learning_rate': [0.06],  # no lower than 0.05
+    # 'embed_init_range': [0.05],  # 0.05 is best
+    # 'num_layers': [2],
 
-    'initializer_range': [0.002],
+    # transformer
+    # 'add_with': [True],
+    # 'strict_compositional': [False],
+    # 'omit_type_2_verb_and_exp_theme': [False],
+    # 'composition_fn': ['native'],
+    # 'add_reversed_seq': [True, False],
+    # 'num_epochs': [30],  # no lower than 30
+    # 'learning_rate': [0.005],  # no lower than 0.003
+    # 'inner_size': [8],  # at least 6
+    # 'num_layers': [2],  # at least 2
+    # 'embed_size': [16],  # no lower than 16
+    # 'initializer_range': [0.002],
+
+    # ctn
+    'add_with': [True],
+    'strict_compositional': [False, True],
+    'omit_type_2_verb_and_exp_theme': [False, True],
 
 
     # 'omit_type_2_verb_and_exp_theme': [False, True],
@@ -96,9 +116,9 @@ elif DSM_NAME == 'rnn':
         'rnn_type': 'srn',
         'embed_size': 64,            # 64 is better than any lower
         'num_layers': 1,
-        'train_percent': 1.0,
         # optimization
-        'embed_init_range': 0.1,    # 0.1 is good
+        'train_percent': 1.0,
+        'embed_init_range': 0.1,    # 0.1 is good (but extremely robust against large changes)
         'dropout_prob': 0.0,        # must be 0.0 with num_layers=1
         'batch_size': 64,           # 64 is good
         'num_epochs': 4,            # more than 4 improves 1a and 2a accuracy, but 4 is best for 2b and 2c accuracy
@@ -114,21 +134,21 @@ elif DSM_NAME == 'transformer':
     param2default_dsm = {
         # architecture
         'transformer_type': 'gpt2',
-        'embed_size': 32,               # 32 is best (but 8 improves performance only in exp2b)
-        'inner_size': 4,                # must be divisible by embed_size
+        'embed_size': 16,               # no lower than 16
+        'inner_size': 4,                # at least 6
         'resid_pdrop': 0.0,             # 0 is best with lr=0.09
-        'num_layers': 1,                # 1 layer is better than multiple
+        'num_layers': 2,                # use 2 layers to test hypothesis that transformer learns tree structure
         'num_heads': 1,                 # 1 is best
         'seq_len': 8,                   # this must be larger than the largest sentence in the corpus
         # optimization
         'batch_size': 128,              # should be smaller than 576 (size of complete block)
-        'num_epochs': 15,               # 15 is best for exp2b1 accuracy, 10 is best for 2b2 accuracy
-        'learning_rate': 0.01,          # is decayed during training with Adam optimizer
+        'num_epochs': 30,               # lower than 30 works well for num_layers=1, but not for num_layers=2
+        'learning_rate': 0.005,         # is decayed during training with Adam optimizer
         'weight_decay': 0.0,            # 0.0 is best
         'adam_beta2': 0.999,            # default, robust to small changes
         'adam_epsilon': 1e-08,          # default, robust to small changes
         'label_smoothing': 0.0,         # default, robust to small changes
-        'initializer_range': 0.003,     # 0.003 is better than default 0.002
+        'initializer_range': 0.002,     # 0.002 is best and is default
 
     }
 
