@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import re
 import seaborn as sns
 import numpy as np
 from scipy.stats import sem, t
@@ -57,8 +58,8 @@ def make_bar_plot(label2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    if len(label2accuracies) > x_label_threshold:
-        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+    if num_groups > x_label_threshold:
+        x_tick_labels = [label if n == 0 or n == num_groups - 1 else ''
                          for n, label in enumerate(label2accuracies)]
     else:
         x_tick_labels = label2accuracies
@@ -153,8 +154,8 @@ def make_box_plot(label2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    if len(label2accuracies) > x_label_threshold:
-        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+    if num_groups > x_label_threshold:
+        x_tick_labels = [label if n == 0 or n == num_groups - 1 else ''
                          for n, label in enumerate(label2accuracies)]
     else:
         x_tick_labels = list(label2accuracies.keys())
@@ -164,7 +165,7 @@ def make_box_plot(label2accuracies: Dict[str, List[float]],
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
 
     # colors
-    palette = np.asarray(sns.color_palette('hls', len(label2accuracies)))
+    palette = np.asarray(sns.color_palette('hls', num_groups))
 
     # draw horizontal lines
     if h_line_1 is not None:
@@ -208,7 +209,6 @@ def make_violin_plot(label2accuracies: Dict[str, List[float]],
                      xlabel: str = 'Model',
                      ylabel: str = 'Accuracy',
                      width: float = 0.2,
-                     confidence: float = 0.95,
                      y_grid: bool = True,
                      ylims: Optional[List[float]] = None,
                      h_line_1: Optional[float] = None,
@@ -220,6 +220,14 @@ def make_violin_plot(label2accuracies: Dict[str, List[float]],
     """
     plot average accuracy by group (job) at end of training using box plots.
     """
+
+    # sort groups by number of svd components
+    # label2accuracies = {l: a for l, a in sorted(
+    #     label2accuracies.items(),
+    #     key=lambda item: int(
+    #         re.search(string=item[0], pattern=r"(?<='svd',\s)\d+").group()
+    #     )
+    # )}
 
     # try to make colors consistent across figures
     if label2color_id is None:
@@ -245,8 +253,8 @@ def make_violin_plot(label2accuracies: Dict[str, List[float]],
     # x-axis
     ax.set_xlabel(xlabel, fontsize=config.Figs.ax_font_size)
     ax.set_xticks(edges)
-    if len(label2accuracies) > x_label_threshold:
-        x_tick_labels = [label if n == 0 or n == len(label2accuracies) - 1 else ''
+    if num_groups > x_label_threshold:
+        x_tick_labels = [label if n == 0 or n == num_groups - 1 else ''
                          for n, label in enumerate(label2accuracies)]
     else:
         x_tick_labels = list(label2accuracies.keys())
@@ -256,7 +264,7 @@ def make_violin_plot(label2accuracies: Dict[str, List[float]],
     ax.set_ylabel(ylabel, fontsize=config.Figs.ax_font_size)
 
     # colors
-    palette = np.asarray(sns.color_palette('hls', len(label2accuracies)))
+    palette = np.asarray(sns.color_palette('hls', num_groups))
 
     # draw horizontal lines
     if h_line_1 is not None:
@@ -280,13 +288,27 @@ def make_violin_plot(label2accuracies: Dict[str, List[float]],
     medians = [np.median(values) for values in data]
     quartile1 = [np.percentile(values, 25) for values in data]
     quartile3 = [np.percentile(values, 75) for values in data]
-    ax.scatter(edges, medians, marker='o', color='white', s=30, zorder=3)
-    ax.vlines(edges, quartile1, quartile3, color='k', linestyle='-', lw=5)
+    ax.scatter(edges, medians, marker='o', color='black', s=30, zorder=3)
+    ax.vlines(edges, quartile1, quartile3, color='white', linestyle='-', lw=5)
 
+    # color the violin bodies, and make their borders black
     for body, label in zip(vplot['bodies'], label2accuracies.keys()):
         body.set_facecolor(palette[label2color_id[label]])
         body.set_edgecolor('black')
         body.set_alpha(1)
+
+    # Adding mean annotations to each violin
+    means = [np.mean(values) for values in data]
+    stds = [np.std(values) for values in data]
+    for edge, mean, std in zip(edges, means, stds):
+        ax.text(x=edge,
+                y=1.05,
+                s=f"mean={mean:.2f} ({std:.2f})",
+                ha='center',
+                va='bottom',
+                color='black',
+                fontsize=10,
+                )
 
     plt.tight_layout()
     return fig

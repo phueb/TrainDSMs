@@ -19,8 +19,9 @@ DSM_NAME = ['count',        # 0
 param2requests = {
 
     # count
-    'add_with': [True, False],
-    'composition_fn': ['multiplication', 'addition', 'componential'],
+    'add_with': [False],
+    'composition_fn': ['componential'],
+    'reduce_type': [('svd', 20), ('svd', 22), ('svd', 24), ('svd', 26), ('svd', 28), ('svd', 30), ('svd', 32), ('svd', 34), ('svd', 36),],
 
     # lon
     # 'add_with': [True, False],

@@ -31,11 +31,11 @@ RUNS_PATH = config.Dirs.runs  # config.Dirs.runs if loading runs locally or None
 LABEL_N: bool = True  # add information about number of replications to legend
 
 experiments = [
-    # '1a',
-    # '1b',
+    '1a',
+    '1b',
     # '1c',
 
-    # '2a',
+    '2a',
     '2b1',
     # '2b2',
     # '2c1',
