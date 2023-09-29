@@ -1,0 +1,9 @@
+add_with,context_size,dsm,n,omit_type_2_verb_and_exp_theme,strict_compositional,dsm,exp,instrument_correct_prop,instrument_type_3_sibling_category_prop,instrument_type_2_same_category_prop,instrument_type_2_sibling_category_prop,instrument_other_prop
+False,2,lon,30,False,False,lon,2b,1.0,0.0,0.0,0.0,0.0
+False,2,lon,30,False,True,lon,2b,1.0,0.0,0.0,0.0,0.0
+False,2,lon,30,True,False,lon,2b,1.0,0.0,0.0,0.0,0.0
+False,2,lon,30,True,True,lon,2b,1.0,0.0,0.0,0.0,0.0
+False,1,lon,30,False,True,lon,2b,0.52,0.0,0.48,0.0,0.0
+False,1,lon,30,True,False,lon,2b,0.49,0.0,0.51,0.0,0.0
+False,1,lon,30,False,False,lon,2b,0.48,0.0,0.52,0.0,0.0
+False,1,lon,30,True,True,lon,2b,0.48,0.0,0.52,0.0,0.0
