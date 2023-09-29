@@ -93,7 +93,7 @@ if DSM_NAME == 'count':
         # window size means how many neighbors are considered in forward direction
         'count_type': ('ww', 'summed', 4, 'linear'),  # currently, sentence-boundary is respected automatically
         'norm_type': None,  # None is slightly better than all others
-        'reduce_type': ('svd', 32),
+        'reduce_type': ('svd', 30), # 30 performs best on exp 2b, but results in bad performance on other experiments
     }
 
 elif DSM_NAME == 'random':
