@@ -14,49 +14,54 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][0]
+            ][3]
 
 param2requests = {
 
     # count
-    'add_with': [False],
-    'composition_fn': ['componential'],
-    'reduce_type': [('svd', 20), ('svd', 22), ('svd', 24), ('svd', 26), ('svd', 28), ('svd', 30), ('svd', 32), ('svd', 34), ('svd', 36),],
+    # 'add_with': [True],
+    # 'composition_fn': ['multiplication'],
+    # 'reduce_type': [('svd', 30)],
+    # 'strict_compositional': [False, True],
+    # 'omit_type_2_verb_and_exp_theme': [False, True],
 
     # lon
-    # 'add_with': [True, False],
+    # 'add_with': [False],
+    # 'strict_compositional': [False, True],
+    # 'omit_type_2_verb_and_exp_theme': [False, True],
     # 'context_size': [1, 2],
 
     # srn
     # 'add_with': [True],
     # 'rnn_type': ['srn'],
     # 'composition_fn': ['native'],
+    # 'strict_compositional': [False, True],
+    # 'omit_type_2_verb_and_exp_theme': [False, True],
     # 'add_reversed_seq': [True, False],
-    # 'strict_compositional': [False],
-    # 'omit_type_2_verb_and_exp_theme': [False],
     # 'num_epochs': [4],  # no lower than 4
     # 'learning_rate': [0.06],  # no lower than 0.05
     # 'embed_init_range': [0.1],
     # 'num_layers': [2],
 
+    # 'rnn_type': ['lstm', 'srn'],
+
     # lstm
     # 'add_with': [True],
-    # 'rnn_type': ['lstm'],
     # 'composition_fn': ['native'],
     # 'strict_compositional': [False, True],
     # 'omit_type_2_verb_and_exp_theme': [False, True],
-    # 'add_reversed_seq': [True],
+    # 'add_reversed_seq': [False, True],
     # 'num_epochs': [4],  # 4 is best
     # 'learning_rate': [0.06],  # no lower than 0.05
     # 'embed_init_range': [0.05],  # 0.05 is best
     # 'num_layers': [2],
 
     # transformer
-    # 'add_with': [True],
-    # 'strict_compositional': [False],
-    # 'omit_type_2_verb_and_exp_theme': [False],
-    # 'composition_fn': ['native'],
-    # 'add_reversed_seq': [True, False],
+    'add_with': [True],
+    'strict_compositional': [False, True],
+    'omit_type_2_verb_and_exp_theme': [False, True],
+    'composition_fn': ['native'],
+    'add_reversed_seq': [True, False],
     # 'num_epochs': [30],  # no lower than 30
     # 'learning_rate': [0.005],  # no lower than 0.003
     # 'inner_size': [8],  # at least 6
@@ -189,7 +194,7 @@ param2default_corpus = {
     'add_with': True,
     'add_in': False,
     'strict_compositional': False,  # exclude type-3 verb + exp theme combinations from training
-    #'omit_type_2_verb_and_exp_theme': False,  # exclude type-2 verb + exp theme combinations from training
+    'omit_type_2_verb_and_exp_theme': False,  # exclude type-2 verb + exp theme combinations from training
 
     'add_reversed_seq': False,
 }
@@ -266,6 +271,7 @@ class CorpusParams:
     add_with: bool
     add_in: bool
     strict_compositional: bool
+    omit_type_2_verb_and_exp_theme: bool
 
     add_reversed_seq: bool
 

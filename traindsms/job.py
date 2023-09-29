@@ -42,6 +42,7 @@ def main(param2val):
                     add_with=params.corpus_params.add_with,
                     add_in=params.corpus_params.add_in,
                     strict_compositional=params.corpus_params.strict_compositional,
+                    omit_type_2_verb_and_exp_theme=params.corpus_params.omit_type_2_verb_and_exp_theme,
                     )
 
     # load blank df for evaluating sr scores
