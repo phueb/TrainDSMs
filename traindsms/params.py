@@ -114,12 +114,12 @@ elif DSM_NAME == 'w2v':
 elif DSM_NAME == 'rnn':
     param2default_dsm = {
         # architecture
-        'rnn_type': 'srn',
-        'embed_size': 64,            # 64 is better than any lower
-        'num_layers': 1,
+        'rnn_type': 'lstm',
+        'embed_size': 64,           # 64 is better than any lower
+        'num_layers': 2,
         # optimization
         'train_percent': 1.0,
-        'embed_init_range': 0.1,    # 0.1 is good (but extremely robust against large changes)
+        'embed_init_range': 0.05,   # 0.05 is good (but extremely robust against large changes)
         'dropout_prob': 0.0,        # must be 0.0 with num_layers=1
         'batch_size': 64,           # 64 is good
         'num_epochs': 4,            # more than 4 improves 1a and 2a accuracy, but 4 is best for 2b and 2c accuracy

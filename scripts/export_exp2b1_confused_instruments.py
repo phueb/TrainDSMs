@@ -155,6 +155,6 @@ df_out = df_out.sort_values(
 
 # save to disk
 dsm = df_out["dsm"].values[0, 0]
-path_out = (config.Dirs.data_for_analysis / f'exp2b1_top_predicted_instruments_{dsm}.csv')
+path_out = (config.Dirs.data_for_analysis / f'exp2b1_confused_instruments_{dsm}.csv')
 df_out.to_csv(path_out, index=False)
 

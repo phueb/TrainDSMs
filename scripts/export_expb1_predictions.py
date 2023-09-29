@@ -5,8 +5,6 @@ from typing import Optional
 from pathlib import Path
 import pandas as pd
 import yaml
-import datetime
-from collections import defaultdict
 
 from ludwig.results import gen_param_paths
 
