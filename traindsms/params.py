@@ -14,7 +14,7 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][2]
+            ][3]
 
 param2requests = {
 
