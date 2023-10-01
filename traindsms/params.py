@@ -14,13 +14,13 @@ DSM_NAME = ['count',        # 0
             'w2v',          # 4
             'ctn',          # 5
             'random',       # 6
-            ][3]
+            ][2]
 
 param2requests = {
 
     # count
     # 'add_with': [True],
-    # 'composition_fn': ['multiplication'],
+    # 'composition_fn': ['multiplication', 'addition', 'componential'],
     # 'reduce_type': [('svd', 30)],
     # 'strict_compositional': [False, True],
     # 'omit_type_2_verb_and_exp_theme': [False, True],
@@ -31,30 +31,23 @@ param2requests = {
     # 'omit_type_2_verb_and_exp_theme': [False, True],
     # 'context_size': [1, 2],
 
+    # 'rnn_type': ['lstm', 'srn'],
+
     # srn
-    # 'add_with': [True],
     # 'rnn_type': ['srn'],
+    # 'add_with': [True],
     # 'composition_fn': ['native'],
     # 'strict_compositional': [False, True],
     # 'omit_type_2_verb_and_exp_theme': [False, True],
     # 'add_reversed_seq': [True, False],
-    # 'num_epochs': [4],  # no lower than 4
-    # 'learning_rate': [0.06],  # no lower than 0.05
-    # 'embed_init_range': [0.1],
-    # 'num_layers': [2],
-
-    # 'rnn_type': ['lstm', 'srn'],
 
     # lstm
+    # 'rnn_type': ['lstm'],
     # 'add_with': [True],
     # 'composition_fn': ['native'],
     # 'strict_compositional': [False, True],
     # 'omit_type_2_verb_and_exp_theme': [False, True],
     # 'add_reversed_seq': [False, True],
-    # 'num_epochs': [4],  # 4 is best
-    # 'learning_rate': [0.06],  # no lower than 0.05
-    # 'embed_init_range': [0.05],  # 0.05 is best
-    # 'num_layers': [2],
 
     # transformer
     'add_with': [True],
